@@ -29,6 +29,7 @@
 #include "Language.h"
 #include "AccountMgr.h"
 #include "SystemConfig.h"
+#include "revision.h"
 #include "Util.h"
 
 bool ChatHandler::HandleHelpCommand(const char* args)
@@ -92,7 +93,13 @@ bool ChatHandler::HandleInfoCommand(const char* /*args*/)
     uint32 maxQueuedClientsNum = sWorld.GetMaxQueuedSessionCount();
     std::string str = secsToTimeString(sWorld.GetUptime());
 
-    PSendSysMessage(_FULLVERSION);
+    char const* full;
+    if(m_session)
+        full = _FULLVERSION(REVISION_DATE,REVISION_TIME,"|cffffffff|Hurl:" REVISION_ID "|h" REVISION_ID "|h|r");
+    else
+        full = _FULLVERSION(REVISION_DATE,REVISION_TIME,REVISION_ID);
+
+    PSendSysMessage(full);
     PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
     PSendSysMessage(LANG_UPTIME, str.c_str());
 
