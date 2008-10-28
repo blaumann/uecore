@@ -228,6 +228,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "item_loot_template",          SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLootTemplatesItemCommand,       "", NULL },
         { "mangos_string",               SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadMangosStringCommand,            "", NULL },
         { "npc_gossip",                  SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadNpcGossipCommand,               "", NULL },
+        { "npc_option",                  SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadNpcOptionCommand,               "", NULL },
         { "npc_trainer",                 SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadNpcTrainerCommand,              "", NULL },
         { "npc_vendor",                  SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadNpcVendorCommand,               "", NULL },
         { "page_text",                   SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadPageTextsCommand,               "", NULL },
@@ -526,10 +527,10 @@ ChatCommand * ChatHandler::getCommandTable()
         { "combatstop",     SEC_GAMEMASTER,     false, &ChatHandler::HandleCombatStopCommand,          "", NULL },
         { "chardelete",     SEC_CONSOLE,        true,  &ChatHandler::HandleCombatStopCommand,          "", NULL },
         { "sendmessage",    SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleSendMessageCommand,         "", NULL },
+        { "repairitems",    SEC_GAMEMASTER,     false, &ChatHandler::HandleRepairitemsCommand,         "", NULL },
         { "freeze",         SEC_ADMINISTRATOR,  false  &ChatHandler::HandleFreezeCommand,              "", NULL },
         { "unfreeze",       SEC_ADMINISTRATOR,  false  &ChatHandler::HandleUnFreezeCommand,            "", NULL },
         { "listfreeze",     SEC_ADMINISTRATOR,  false  &ChatHandler::HandleListFreezeCommand,          "", NULL },
-
 
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
@@ -790,7 +791,13 @@ bool ChatHandler::ShowHelpForSubCommands(ChatCommand *table, char const* cmd, ch
         if( *subcmd && !hasStringAbbr(table[i].Name, subcmd))
             continue;
 
-        (list += "\n    ") += table[i].Name;
+        if(m_session)
+            list += "\n    ";
+        else
+            list += "\n\r    ";
+
+        list += table[i].Name;
+
         if(table[i].ChildCommands)
             list += " ...";
     }
@@ -1191,6 +1198,17 @@ GameTele const* ChatHandler::extractGameTeleFromLink(char* text)
     return objmgr.GetGameTele(cId);
 }
 
+const char *ChatHandler::GetName() const
+{
+    return m_session->GetPlayer()->GetName();
+}
+
+bool ChatHandler::needReportToTarget(Player* chr) const
+{
+    Player* pl = m_session->GetPlayer();
+    return pl != chr && pl->IsVisibleGloballyFor(chr);
+}
+
 const char *CliHandler::GetMangosString(int32 entry) const
 {
     return objmgr.GetMangosStringForDBCLocale(entry);
@@ -1207,3 +1225,14 @@ void CliHandler::SendSysMessage(const char *str)
     m_print(str);
     m_print("\r\n");
 }
+
+const char *CliHandler::GetName() const
+{
+    return GetMangosString(LANG_CONSOLE_COMMAND);
+}
+
+bool CliHandler::needReportToTarget(Player* /*chr*/) const
+{
+    return true;
+}
+

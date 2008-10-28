@@ -563,6 +563,74 @@ void ObjectMgr::LoadCreatureLocales()
     sLog.outString( ">> Loaded %u creature locale strings", mCreatureLocaleMap.size() );
 }
 
+void ObjectMgr::LoadNpcOptionLocales()
+{
+    mNpcOptionLocaleMap.clear();                              // need for reload case
+
+    QueryResult *result = WorldDatabase.Query("SELECT entry,"
+        "option_text_loc1,box_text_loc1,option_text_loc2,box_text_loc2,"
+        "option_text_loc3,box_text_loc3,option_text_loc4,box_text_loc4,"
+        "option_text_loc5,box_text_loc5,option_text_loc6,box_text_loc6,"
+        "option_text_loc7,box_text_loc7,option_text_loc8,box_text_loc8 "
+        "FROM locales_npc_option");
+
+    if(!result)
+    {
+        barGoLink bar(1);
+
+        bar.step();
+
+        sLog.outString("");
+        sLog.outString(">> Loaded 0 npc_option locale strings. DB table `locales_npc_option` is empty.");
+        return;
+    }
+
+    barGoLink bar(result->GetRowCount());
+
+    do
+    {
+        Field *fields = result->Fetch();
+        bar.step();
+
+        uint32 entry = fields[0].GetUInt32();
+
+        NpcOptionLocale& data = mNpcOptionLocaleMap[entry];
+
+        for(int i = 1; i < MAX_LOCALE; ++i)
+        {
+            std::string str = fields[1+2*(i-1)].GetCppString();
+            if(!str.empty())
+            {
+                int idx = GetOrNewIndexForLocale(LocaleConstant(i));
+                if(idx >= 0)
+                {
+                    if(data.OptionText.size() <= idx)
+                        data.OptionText.resize(idx+1);
+
+                    data.OptionText[idx] = str;
+                }
+            }
+            str = fields[1+2*(i-1)+1].GetCppString();
+            if(!str.empty())
+            {
+                int idx = GetOrNewIndexForLocale(LocaleConstant(i));
+                if(idx >= 0)
+                {
+                    if(data.BoxText.size() <= idx)
+                        data.BoxText.resize(idx+1);
+
+                    data.BoxText[idx] = str;
+                }
+            }
+        }
+    } while (result->NextRow());
+
+    delete result;
+
+    sLog.outString();
+    sLog.outString( ">> Loaded %u npc_option locale strings", mNpcOptionLocaleMap.size() );
+}
+
 void ObjectMgr::LoadCreatureTemplates()
 {
     sCreatureStorage.Load();
@@ -6381,6 +6449,10 @@ bool PlayerCondition::Meets(Player const * player) const
                     return true;
             return false;
         }
+        case CONDITION_NO_AURA:
+            return !player->HasAura(value1, value2);
+        case CONDITION_ACTIVE_EVENT:
+            return gameeventmgr.IsActiveEvent(value1);
         default:
             return false;
     }
@@ -6499,6 +6571,30 @@ bool PlayerCondition::IsValid(ConditionType condition, uint32 value1, uint32 val
                 sLog.outErrorDb("Quest condition has useless data in value1 (%u)!", value1);
             if(value2)
                 sLog.outErrorDb("Quest condition has useless data in value2 (%u)!", value2);
+            break;
+        }
+        case CONDITION_NO_AURA:
+        {
+            if(!sSpellStore.LookupEntry(value1))
+            {
+                sLog.outErrorDb("Aura condition requires to have non existing spell (Id: %d), skipped", value1);
+                return false;
+            }
+            if(value2 > 2)
+            {
+                sLog.outErrorDb("Aura condition requires to have non existing effect index (%u) (must be 0..2), skipped", value2);
+                return false;
+            }
+            break;
+        }
+        case CONDITION_ACTIVE_EVENT:
+        {
+            GameEvent::GameEventDataMap const& events = gameeventmgr.GetEventMap();
+            if(value1 >=events.size() || !events[value1].isValid())
+            {
+                sLog.outErrorDb("Active event condition requires existed event id (%u), skipped", value1);
+                return false;
+            }
             break;
         }
     }
@@ -6852,6 +6948,58 @@ void ObjectMgr::LoadNpcTextId()
 
     sLog.outString();
     sLog.outString( ">> Loaded %d NpcTextId ", count );
+}
+
+void ObjectMgr::LoadNpcOptions()
+{
+    m_mCacheNpcOptionList.clear();                          // For reload case
+
+    QueryResult *result = WorldDatabase.Query(
+        //      0  1         2       3    4      5         6     7           8
+        "SELECT id,gossip_id,npcflag,icon,action,box_money,coded,option_text,box_text "
+        "FROM npc_option");
+
+    if( !result )
+    {
+        barGoLink bar( 1 );
+
+        bar.step();
+
+        sLog.outString();
+        sLog.outErrorDb(">> Loaded `npc_option`, table is empty!");
+        return;
+    }
+
+    barGoLink bar( result->GetRowCount() );
+
+    uint32 count = 0;
+
+    do
+    {
+        bar.step();
+
+        Field* fields = result->Fetch();
+
+        GossipOption go;
+        go.Id               = fields[0].GetUInt32();
+        go.GossipId         = fields[1].GetUInt32();
+        go.NpcFlag          = fields[2].GetUInt32();
+        go.Icon             = fields[3].GetUInt32();
+        go.Action           = fields[4].GetUInt32();
+        go.BoxMoney         = fields[5].GetUInt32();
+        go.Coded            = fields[6].GetUInt8()!=0;
+        go.OptionText       = fields[7].GetCppString();
+        go.BoxText          = fields[8].GetCppString();
+
+        m_mCacheNpcOptionList.push_back(go);
+
+        ++count;
+
+    } while (result->NextRow());
+    delete result;
+
+    sLog.outString();
+    sLog.outString( ">> Loaded %d npc_option entries", count );
 }
 
 void ObjectMgr::AddVendorItem( uint32 entry,uint32 item, uint32 maxcount, uint32 incrtime, uint32 extendedcost )
