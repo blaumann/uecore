@@ -42,6 +42,8 @@
 #include <map>
 #include "GlobalEvents.h"
 
+#include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
+
 static uint32 ReputationRankStrIndex[MAX_REPUTATION_RANK] =
 {
     LANG_REP_HATED,    LANG_REP_HOSTILE, LANG_REP_UNFRIENDLY, LANG_REP_NEUTRAL,
@@ -857,11 +859,17 @@ bool ChatHandler::HandleItemMoveCommand(const char* args)
     srcslot = (uint8)atoi(pParam1);
     dstslot = (uint8)atoi(pParam2);
 
-    uint16 src = ((INVENTORY_SLOT_BAG_0 << 8) | srcslot);
-    uint16 dst = ((INVENTORY_SLOT_BAG_0 << 8) | dstslot);
-
     if(srcslot==dstslot)
         return true;
+
+    if(!m_session->GetPlayer()->IsValidPos(INVENTORY_SLOT_BAG_0,srcslot))
+        return false;
+
+    if(!m_session->GetPlayer()->IsValidPos(INVENTORY_SLOT_BAG_0,dstslot))
+        return false;
+
+    uint16 src = ((INVENTORY_SLOT_BAG_0 << 8) | srcslot);
+    uint16 dst = ((INVENTORY_SLOT_BAG_0 << 8) | dstslot);
 
     m_session->GetPlayer()->SwapItem( src, dst );
 
@@ -869,7 +877,7 @@ bool ChatHandler::HandleItemMoveCommand(const char* args)
 }
 
 //add spawn of creature
-bool ChatHandler::HandleAddSpwCommand(const char* args)
+bool ChatHandler::HandleNpcAddCommand(const char* args)
 {
     if(!*args)
         return false;
@@ -919,7 +927,7 @@ bool ChatHandler::HandleAddSpwCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleDelCreatureCommand(const char* args)
+bool ChatHandler::HandleNpcDeleteCommand(const char* args)
 {
     Creature* unit = NULL;
 
@@ -1067,7 +1075,7 @@ bool ChatHandler::HandleTurnObjectCommand(const char* args)
 }
 
 //move selected creature
-bool ChatHandler::HandleMoveCreatureCommand(const char* args)
+bool ChatHandler::HandleNpcMoveCommand(const char* args)
 {
     uint32 lowguid = 0;
 
@@ -1319,7 +1327,7 @@ bool ChatHandler::HandleDelVendorItemCommand(const char* args)
 }
 
 //add move for creature
-bool ChatHandler::HandleAddMoveCommand(const char* args)
+bool ChatHandler::HandleNpcAddMoveCommand(const char* args)
 {
     if(!*args)
         return false;
@@ -1393,7 +1401,7 @@ bool ChatHandler::HandleAddMoveCommand(const char* args)
  * additional parameter: NODEL - so no waypoints are deleted, if you
  *                       change the movement type
  */
-bool ChatHandler::HandleSetMoveTypeCommand(const char* args)
+bool ChatHandler::HandleNpcSetMoveTypeCommand(const char* args)
 {
     if(!*args)
         return false;
@@ -1521,7 +1529,7 @@ bool ChatHandler::HandleSetMoveTypeCommand(const char* args)
     }
 
     return true;
-}                                                           // HandleSetMoveTypeCommand
+}                                                           // HandleNpcSetMoveTypeCommand
 
 //change level of creature or pet
 bool ChatHandler::HandleChangeLevelCommand(const char* args)
@@ -1561,7 +1569,7 @@ bool ChatHandler::HandleChangeLevelCommand(const char* args)
 }
 
 //set npcflag of creature
-bool ChatHandler::HandleNPCFlagCommand(const char* args)
+bool ChatHandler::HandleNpcFlagCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -1587,7 +1595,7 @@ bool ChatHandler::HandleNPCFlagCommand(const char* args)
 }
 
 //set model of creature
-bool ChatHandler::HandleSetModelCommand(const char* args)
+bool ChatHandler::HandleNpcSetModelCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -1628,8 +1636,8 @@ bool ChatHandler::HandleMorphCommand(const char* args)
     return true;
 }
 
-//set faction of creature  or go
-bool ChatHandler::HandleFactionIdCommand(const char* args)
+//set faction of creature
+bool ChatHandler::HandleNpcFactionIdCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -1791,12 +1799,30 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     // get additional information from DB
     else
     {
+        //                                                     0
+        QueryResult *result = CharacterDatabase.PQuery("SELECT totaltime FROM characters WHERE guid = '%u'", targetGUID);
+        if (!result)
+        {
+            SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            SetSentErrorMessage(true);
+            return false;
+        }
+        Field *fields = result->Fetch();
+        total_player_time = fields[0].GetUInt32();
+        delete result;
+
+        Tokens data;
+        if (!Player::LoadValuesArrayFromDB(data,targetGUID))
+        {
+            SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            SetSentErrorMessage(true);
+            return false;
+        }
+
+        money = Player::GetUInt32ValueFromArray(data, PLAYER_FIELD_COINAGE);
+        level = Player::GetUInt32ValueFromArray(data, UNIT_FIELD_LEVEL);
+
         accId = objmgr.GetPlayerAccountIdByGUID(targetGUID);
-        Player plr(m_session);                              // use current session for temporary load
-        plr.MinimalLoadFromDB(NULL, targetGUID);
-        money = plr.GetMoney();
-        total_player_time = plr.GetTotalPlayedTime();
-        level = plr.getLevel();
     }
 
     std::string username = GetMangosString(LANG_ERROR);
@@ -2118,7 +2144,7 @@ bool ChatHandler::HandleDelTicketCommand(const char *args)
 }
 
 //set spawn dist of creature
-bool ChatHandler::HandleSpawnDistCommand(const char* args)
+bool ChatHandler::HandleNpcSpawnDistCommand(const char* args)
 {
     if(!*args)
         return false;
@@ -2156,7 +2182,7 @@ bool ChatHandler::HandleSpawnDistCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleSpawnTimeCommand(const char* args)
+bool ChatHandler::HandleNpcSpawnTimeCommand(const char* args)
 {
     if(!*args)
         return false;
@@ -2852,12 +2878,7 @@ bool ChatHandler::HandleWpShowCommand(const char* args)
     std::string show = show_str;
     uint32 Maxpoint;
 
-    sLog.outDebug("DEBUG: HandleWpShowCommand: lowguid: %u", lowguid);
-
-    sLog.outDebug("DEBUG: HandleWpShowCommand: Habe creature: %ld", target );
-
-    sLog.outDebug("DEBUG: HandleWpShowCommand: wpshow - show: %s", show_str);
-    //PSendSysMessage("wpshow - show: %s", show);
+    sLog.outDebug("DEBUG: HandleWpShowCommand: lowguid: %u show: %s", lowguid, show_str);
 
     // Show info for the selected waypoint
     if(show == "info")
@@ -2878,7 +2899,7 @@ bool ChatHandler::HandleWpShowCommand(const char* args)
 
         QueryResult *result =
             WorldDatabase.PQuery( "SELECT id, point, waittime, emote, spell, text1, text2, text3, text4, text5, model1, model2 FROM creature_movement WHERE wpguid = %u",
-            target->GetGUID() );
+            target->GetGUIDLow() );
         if(!result)
         {
             // Since we compare float values, we have to deal with
@@ -3378,7 +3399,7 @@ bool ChatHandler::HandleWpImportCommand(const char *args)
         {
             getline (infile,line);
             //cout << line << endl;
-            QueryResult *result = WorldDatabase.PQuery(line.c_str());
+            QueryResult *result = WorldDatabase.Query(line.c_str());
             delete result;
         }
         infile.close();
@@ -4048,7 +4069,7 @@ bool ChatHandler::HandleServerCorpsesCommand(const char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleRepairitemsCommand(const char* args)
+bool ChatHandler::HandleRepairitemsCommand(const char* /*args*/)
 {
     Player *target = getSelectedPlayer();
 
@@ -4057,7 +4078,7 @@ bool ChatHandler::HandleRepairitemsCommand(const char* args)
         PSendSysMessage(LANG_NO_CHAR_SELECTED);
         SetSentErrorMessage(true);
         return false;
-	}
+    }
 
     // Repair items
     target->DurabilityRepairAll(false, 0, false);
@@ -4065,5 +4086,154 @@ bool ChatHandler::HandleRepairitemsCommand(const char* args)
     PSendSysMessage(LANG_YOU_REPAIR_ITEMS, target->GetName());
     if(needReportToTarget(target))
         ChatHandler(target).PSendSysMessage(LANG_YOUR_ITEMS_REPAIRED, GetName());
+    return true;
+}
+
+bool ChatHandler::HandleWaterwalkCommand(const char* args)
+{
+    if(!*args)
+        return false;
+
+    Player *player = getSelectedPlayer();
+
+    if(!player)
+    {
+        PSendSysMessage(LANG_NO_CHAR_SELECTED);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    if (strncmp(args, "on", 3) == 0)
+        player->SetMovement(MOVE_WATER_WALK);               // ON
+    else if (strncmp(args, "off", 4) == 0)
+        player->SetMovement(MOVE_LAND_WALK);                // OFF
+    else
+    {
+        SendSysMessage(LANG_USE_BOL);
+        return false;
+    }
+
+    PSendSysMessage(LANG_YOU_SET_WATERWALK, args, player->GetName());
+    if(needReportToTarget(player))
+        ChatHandler(player).PSendSysMessage(LANG_YOUR_WATERWALK_SET, args, GetName());
+    return true;
+}
+
+bool ChatHandler::HandleNpcFollowCommand(const char* /*args*/)
+{
+    Player *player = m_session->GetPlayer();
+    Creature *creature = getSelectedCreature();
+
+    if(!creature)
+    {
+        PSendSysMessage(LANG_SELECT_CREATURE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    // Follow player - Using pet's default dist and angle
+    creature->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+
+    PSendSysMessage(LANG_CREATURE_FOLLOW_YOU_NOW, creature->GetName());
+    return true;
+}
+
+bool ChatHandler::HandleNpcUnFollowCommand(const char* /*args*/)
+{
+    Player *player = m_session->GetPlayer();
+    Creature *creature = getSelectedCreature();
+
+    if(!creature)
+    {
+        PSendSysMessage(LANG_SELECT_CREATURE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    if (creature->GetMotionMaster()->empty() ||
+        creature->GetMotionMaster()->GetCurrentMovementGeneratorType ()!=TARGETED_MOTION_TYPE)
+    {
+        PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    TargetedMovementGenerator<Creature> const* mgen
+        = static_cast<TargetedMovementGenerator<Creature> const*>((creature->GetMotionMaster()->top()));
+
+    if(mgen->GetTarget()!=player)
+    {
+        PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    // reset movement
+    creature->GetMotionMaster()->MovementExpired(true);
+
+    PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU_NOW, creature->GetName());
+    return true;
+}
+
+bool ChatHandler::HandleNpcTameCommand(const char* args)
+{
+    Creature *creatureTarget = getSelectedCreature ();
+    if (!creatureTarget || creatureTarget->isPet ())
+    {
+        PSendSysMessage (LANG_SELECT_CREATURE);
+        SetSentErrorMessage (true);
+        return false;
+    }
+
+    Player *player = m_session->GetPlayer ();
+
+    if(player->GetPetGUID ())
+    {
+        SendSysMessage (LANG_YOU_ALREADY_HAVE_PET);
+        SetSentErrorMessage (true);
+        return false;
+    }
+
+    CreatureInfo const* cInfo = creatureTarget->GetCreatureInfo();
+
+    if (!cInfo->isTameable ())
+    {
+        PSendSysMessage (LANG_CREATURE_NON_TAMEABLE,cInfo->Entry);
+        SetSentErrorMessage (true);
+        return false;
+    }
+
+    // Everything looks OK, create new pet
+    Pet* pet = player->CreateTamedPetFrom (creatureTarget);
+    if (!pet)
+    {
+        PSendSysMessage (LANG_CREATURE_NON_TAMEABLE,cInfo->Entry);
+        SetSentErrorMessage (true);
+        return false;
+    }
+
+    // place pet before player
+    float x,y,z;
+    player->GetClosePoint (x,y,z,creatureTarget->GetObjectSize (),CONTACT_DISTANCE);
+    pet->Relocate (x,y,z,M_PI-player->GetOrientation ());
+
+    // set pet to defensive mode by default (some classes can't control contolled pets in fact).
+    pet->GetCharmInfo()->SetReactState(REACT_DEFENSIVE);
+
+    // prepare visual effect for levelup
+    pet->SetUInt32Value(UNIT_FIELD_LEVEL,creatureTarget->getLevel()-1);
+
+    // add to world
+    MapManager::Instance().GetMap(pet->GetMapId(), pet)->Add((Creature*)pet);
+
+    // visual effect for levelup
+    pet->SetUInt32Value(UNIT_FIELD_LEVEL,creatureTarget->getLevel());
+
+    // caster have pet now
+    player->SetPet(pet);
+
+    pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+    player->PetSpellInitialize();
+
     return true;
 }

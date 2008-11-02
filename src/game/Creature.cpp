@@ -258,7 +258,7 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data )
     SetAttackTime(OFF_ATTACK,   GetCreatureInfo()->baseattacktime);
     SetAttackTime(RANGED_ATTACK,GetCreatureInfo()->rangeattacktime);
 
-    SetUInt32Value(UNIT_FIELD_FLAGS,GetCreatureInfo()->Flags);
+    SetUInt32Value(UNIT_FIELD_FLAGS,GetCreatureInfo()->unit_flags);
     SetUInt32Value(UNIT_DYNAMIC_FLAGS,GetCreatureInfo()->dynamicflags);
 
     SetModifierValue(UNIT_MOD_ARMOR,             BASE_VALUE, float(GetCreatureInfo()->armor));
@@ -818,18 +818,20 @@ void Creature::OnGossipSelect(Player* player, uint32 option)
             return;
     }
 
-    uint32 textid=GetGossipTextId( action, zoneid);
-    if(textid==0)
-        textid=GetNpcTextId();
-
     switch (gossip->Action)
     {
         case GOSSIP_OPTION_GOSSIP:
+        {
+            uint32 textid = GetGossipTextId(action, zoneid);
+            if (textid == 0)
+                textid=GetNpcTextId();
+
             player->PlayerTalkClass->CloseGossip();
-            player->PlayerTalkClass->SendTalking( textid );
+            player->PlayerTalkClass->SendTalking(textid);
             break;
+        }
         case GOSSIP_OPTION_SPIRITHEALER:
-            if( player->isDead() )
+            if (player->isDead())
                 CastSpell(this,17251,true,NULL,NULL,player->GetGUID());
             break;
         case GOSSIP_OPTION_QUESTGIVER:
