@@ -355,7 +355,7 @@ void ObjectMgr::SendAuctionWonMail( AuctionEntry *auction )
         sLog.outDebug( "AuctionWon body string : %s", msgAuctionWonBody.str().c_str() );
 
         //prepare mail data... :
-        uint32 itemTextId = this->CreateItemText( msgAuctionWonBody.str() );
+        uint32 itemTextId = CreateItemText( msgAuctionWonBody.str() );
 
         // set owner to bidder (to prevent delete item with sender char deleting)
         // owner in `data` will set at mail receive and item extracting
@@ -406,7 +406,7 @@ void ObjectMgr::SendAuctionSalePendingMail( AuctionEntry * auction )
 
         sLog.outDebug("AuctionSalePending body string : %s", msgAuctionSalePendingBody.str().c_str());
 
-        uint32 itemTextId = this->CreateItemText( msgAuctionSalePendingBody.str() );
+        uint32 itemTextId = CreateItemText( msgAuctionSalePendingBody.str() );
 
         WorldSession::SendMailTo(owner, MAIL_AUCTION, MAIL_STATIONERY_AUCTION, auction->location, auction->owner, msgAuctionSalePendingSubject.str(), itemTextId, NULL, 0, 0, MAIL_CHECK_MASK_AUCTION);
     }
@@ -438,7 +438,7 @@ void ObjectMgr::SendAuctionSuccessfulMail( AuctionEntry * auction )
 
         sLog.outDebug("AuctionSuccessful body string : %s", auctionSuccessfulBody.str().c_str());
 
-        uint32 itemTextId = this->CreateItemText( auctionSuccessfulBody.str() );
+        uint32 itemTextId = CreateItemText( auctionSuccessfulBody.str() );
 
         uint32 profit = auction->bid + auction->deposit - auctionCut;
 
@@ -815,7 +815,7 @@ void ObjectMgr::ConvertCreatureAddonAuras(CreatureDataAddon* addon, char const* 
         return;
     }
 
-    // replace by new strucutres array
+    // replace by new structures array
     const_cast<CreatureDataAddonAura*&>(addon->auras) = new CreatureDataAddonAura[val.size()/2+1];
 
     int i=0;
@@ -920,7 +920,7 @@ uint32 ObjectMgr::ChooseDisplayId(uint32 team, const CreatureInfo *cinfo, const 
         else
             display_id = (cinfo->DisplayID_A2 != 0 && urand(0,1) == 0) ? cinfo->DisplayID_A2 : cinfo->DisplayID_A;
     }
-    else                                                    // overriden in creature data
+    else                                                    // overridden in creature data
         display_id = data->displayid;
 
     return display_id;
@@ -1418,7 +1418,7 @@ void ObjectMgr::LoadAuctions()
         aItem->deposit = fields[10].GetUInt32();
         aItem->location = fields[11].GetUInt8();
         //check if sold item exists
-        if ( this->GetAItem( aItem->item_guidlow ) )
+        if ( GetAItem( aItem->item_guidlow ) )
         {
             GetAuctionsMap( aItem->location )->AddAuction(aItem);
         }
@@ -3034,7 +3034,7 @@ void ObjectMgr::LoadQuests()
             {
                 sLog.outErrorDb("Quest %u has `SrcItemId` = %u but `SrcItemCount` = 0, set to 1 but need fix in DB.",
                     qinfo->GetQuestId(),qinfo->SrcItemId);
-                qinfo->SrcItemCount = 1;                    // update to 1 for allow quest work for backward comptibility with DB
+                qinfo->SrcItemCount = 1;                    // update to 1 for allow quest work for backward compatibility with DB
             }
         }
         else if(qinfo->SrcItemCount>0)
@@ -3437,7 +3437,7 @@ void ObjectMgr::LoadQuests()
 
             Quest const* quest = GetQuestTemplate(quest_id);
 
-            // some quest referenced in spells not exist (outdataed spells)
+            // some quest referenced in spells not exist (outdated spells)
             if(!quest)
                 continue;
 
@@ -3797,24 +3797,27 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
                     // this will prevent quest completing without objective
                     const_cast<Quest*>(quest)->SetFlag(QUEST_MANGOS_FLAGS_EXPLORATION_OR_EVENT);
 
-                    // continue; - quest objective requiremet set and command can be allowed
+                    // continue; - quest objective requirement set and command can be allowed
                 }
 
                 if(float(tmp.datalong2) > DEFAULT_VISIBILITY_DISTANCE)
                 {
-                    sLog.outErrorDb("Table `%s` has too large distance (%u) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id %u",tablename,tmp.datalong2,tmp.id);
+                    sLog.outErrorDb("Table `%s` has too large distance (%u) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id %u",
+                        tablename,tmp.datalong2,tmp.id);
                     continue;
                 }
 
                 if(tmp.datalong2 && float(tmp.datalong2) > DEFAULT_VISIBILITY_DISTANCE)
                 {
-                    sLog.outErrorDb("Table `%s` has too large distance (%u) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id %u, max distance is %u or 0 for disable distance check",tablename,tmp.datalong2,tmp.id,uint32(DEFAULT_VISIBILITY_DISTANCE));
+                    sLog.outErrorDb("Table `%s` has too large distance (%u) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id %u, max distance is %f or 0 for disable distance check",
+                        tablename,tmp.datalong2,tmp.id,DEFAULT_VISIBILITY_DISTANCE);
                     continue;
                 }
 
                 if(tmp.datalong2 && float(tmp.datalong2) < INTERACTION_DISTANCE)
                 {
-                    sLog.outErrorDb("Table `%s` has too small distance (%u) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id %u, min distance is %u or 0 for disable distance check",tablename,tmp.datalong2,tmp.id,uint32(INTERACTION_DISTANCE));
+                    sLog.outErrorDb("Table `%s` has too small distance (%u) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id %u, min distance is %f or 0 for disable distance check",
+                        tablename,tmp.datalong2,tmp.id,INTERACTION_DISTANCE);
                     continue;
                 }
 
@@ -3826,7 +3829,8 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
             {
                 if(!sSpellStore.LookupEntry(tmp.datalong))
                 {
-                    sLog.outErrorDb("Table `%s` using non-existent spell (id: %u) in SCRIPT_COMMAND_REMOVE_AURA or SCRIPT_COMMAND_CAST_SPELL for script id %u",tablename,tmp.datalong,tmp.id);
+                    sLog.outErrorDb("Table `%s` using non-existent spell (id: %u) in SCRIPT_COMMAND_REMOVE_AURA or SCRIPT_COMMAND_CAST_SPELL for script id %u",
+                        tablename,tmp.datalong,tmp.id);
                     continue;
                 }
                 break;
@@ -3967,7 +3971,7 @@ void ObjectMgr::LoadEventScripts()
     {
         std::set<uint32>::const_iterator itr2 = evt_scripts.find(itr->first);
         if (itr2 == evt_scripts.end())
-            sLog.outErrorDb("Table `event_scripts` has script (Id: %u) not refering to any gameobject_template type 10 data2 field or type 3 data6 field or any spell effect %u", itr->first, SPELL_EFFECT_SEND_EVENT);
+            sLog.outErrorDb("Table `event_scripts` has script (Id: %u) not referring to any gameobject_template type 10 data2 field or type 3 data6 field or any spell effect %u", itr->first, SPELL_EFFECT_SEND_EVENT);
     }
 }
 
@@ -4134,7 +4138,7 @@ void ObjectMgr::LoadInstanceTemplate()
             }
         }
 
-        // the reset_delay must be atleast one day
+        // the reset_delay must be at least one day
         temp->reset_delay = std::max((uint32)1, (uint32)(temp->reset_delay * sWorld.getRate(RATE_INSTANCE_RESET_TIME)));
     }
 
@@ -4435,7 +4439,7 @@ void ObjectMgr::LoadQuestAreaTriggers()
             // this will prevent quest completing without objective
             const_cast<Quest*>(quest)->SetFlag(QUEST_MANGOS_FLAGS_EXPLORATION_OR_EVENT);
 
-            // continue; - quest modified to required obkective and trigger can be allowed.
+            // continue; - quest modified to required objective and trigger can be allowed.
         }
 
         mQuestAreaTriggerMap[trigger_ID] = quest_ID;
@@ -4735,7 +4739,7 @@ void ObjectMgr::LoadGraveyardZones()
         }
 
         if(!AddGraveYardLink(safeLocId,zoneId,team,false))
-            sLog.outErrorDb("Table `game_graveyard_zone` has a duplicate record for Garveyard (ID: %u) and Zone (ID: %u), skipped.",safeLocId,zoneId);
+            sLog.outErrorDb("Table `game_graveyard_zone` has a duplicate record for Graveyard (ID: %u) and Zone (ID: %u), skipped.",safeLocId,zoneId);
     } while( result->NextRow() );
 
     delete result;
@@ -5012,13 +5016,8 @@ void ObjectMgr::SetHighestGuids()
         delete result;
     }
 
-    result = CharacterDatabase.Query( "SELECT MAX(id) FROM character_pet" );
-    if( result )
-    {
-        m_hiPetGuid = (*result)[0].GetUInt32()+1;
-
-        delete result;
-    }
+    // pet guids are not saved to DB, set to 0 (pet guid != pet id)
+    m_hiPetGuid = 0;
 
     result = CharacterDatabase.Query( "SELECT MAX(guid) FROM item_instance" );
     if( result )
@@ -5081,6 +5080,44 @@ void ObjectMgr::SetHighestGuids()
 
         delete result;
     }
+
+    result = CharacterDatabase.Query("SELECT MAX(arenateamid) FROM arena_team");
+    if (result)
+    {
+        m_arenaTeamId = (*result)[0].GetUInt32()+1;
+
+        delete result;
+    }
+
+    result = CharacterDatabase.Query( "SELECT MAX(guildid) FROM guild" );
+    if (result)
+    {
+        m_guildId = (*result)[0].GetUInt32()+1;
+
+        delete result;
+    }
+}
+
+uint32 ObjectMgr::GenerateArenaTeamId()
+{
+   ++m_arenaTeamId;
+    if(m_arenaTeamId>=0xFFFFFFFF)
+    {
+        sLog.outError("Arena team ids overflow!! Can't continue, shutting down server. ");
+        sWorld.m_stopEvent = true;
+    }
+    return m_arenaTeamId;
+}
+
+uint32 ObjectMgr::GenerateGuildId()
+{
+   ++m_guildId;
+    if(m_guildId>=0xFFFFFFFF)
+    {
+        sLog.outError("Guild ids overflow!! Can't continue, shutting down server. ");
+        sWorld.m_stopEvent = true;
+    }
+    return m_guildId;
 }
 
 uint32 ObjectMgr::GenerateAuctionID()
@@ -5088,7 +5125,7 @@ uint32 ObjectMgr::GenerateAuctionID()
     ++m_auctionid;
     if(m_auctionid>=0xFFFFFFFF)
     {
-        sLog.outError("Auctions ids overflow!! Can't continue, shuting down server. ");
+        sLog.outError("Auctions ids overflow!! Can't continue, shutting down server. ");
         sWorld.m_stopEvent = true;
     }
     return m_auctionid;
@@ -5099,7 +5136,7 @@ uint32 ObjectMgr::GenerateMailID()
     ++m_mailid;
     if(m_mailid>=0xFFFFFFFF)
     {
-        sLog.outError("Mail ids overflow!! Can't continue, shuting down server. ");
+        sLog.outError("Mail ids overflow!! Can't continue, shutting down server. ");
         sWorld.m_stopEvent = true;
     }
     return m_mailid;
@@ -5110,7 +5147,7 @@ uint32 ObjectMgr::GenerateItemTextID()
     ++m_ItemTextId;
     if(m_ItemTextId>=0xFFFFFFFF)
     {
-        sLog.outError("Item text ids overflow!! Can't continue, shuting down server. ");
+        sLog.outError("Item text ids overflow!! Can't continue, shutting down server. ");
         sWorld.m_stopEvent = true;
     }
     return m_ItemTextId;
@@ -5138,7 +5175,7 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
             ++m_hiItemGuid;
             if(m_hiItemGuid>=0xFFFFFFFF)
             {
-                sLog.outError("Item guid overflow!! Can't continue, shuting down server. ");
+                sLog.outError("Item guid overflow!! Can't continue, shutting down server. ");
                 sWorld.m_stopEvent = true;
             }
             return m_hiItemGuid;
@@ -5146,7 +5183,7 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
             ++m_hiCreatureGuid;
             if(m_hiCreatureGuid>=0x00FFFFFF)
             {
-                sLog.outError("Creature guid overflow!! Can't continue, shuting down server. ");
+                sLog.outError("Creature guid overflow!! Can't continue, shutting down server. ");
                 sWorld.m_stopEvent = true;
             }
             return m_hiCreatureGuid;
@@ -5154,7 +5191,7 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
             ++m_hiPetGuid;
             if(m_hiPetGuid>=0x00FFFFFF)
             {
-                sLog.outError("Pet guid overflow!! Can't continue, shuting down server. ");
+                sLog.outError("Pet guid overflow!! Can't continue, shutting down server. ");
                 sWorld.m_stopEvent = true;
             }
             return m_hiPetGuid;
@@ -5162,7 +5199,7 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
             ++m_hiCharGuid;
             if(m_hiCharGuid>=0xFFFFFFFF)
             {
-                sLog.outError("Players guid overflow!! Can't continue, shuting down server. ");
+                sLog.outError("Players guid overflow!! Can't continue, shutting down server. ");
                 sWorld.m_stopEvent = true;
             }
             return m_hiCharGuid;
@@ -5170,7 +5207,7 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
             ++m_hiGoGuid;
             if(m_hiGoGuid>=0x00FFFFFF)
             {
-                sLog.outError("Gameobject guid overflow!! Can't continue, shuting down server. ");
+                sLog.outError("Gameobject guid overflow!! Can't continue, shutting down server. ");
                 sWorld.m_stopEvent = true;
             }
             return m_hiGoGuid;
@@ -5178,7 +5215,7 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
             ++m_hiCorpseGuid;
             if(m_hiCorpseGuid>=0xFFFFFFFF)
             {
-                sLog.outError("Corpse guid overflow!! Can't continue, shuting down server. ");
+                sLog.outError("Corpse guid overflow!! Can't continue, shutting down server. ");
                 sWorld.m_stopEvent = true;
             }
             return m_hiCorpseGuid;
@@ -5186,7 +5223,7 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
             ++m_hiDoGuid;
             if(m_hiDoGuid>=0xFFFFFFFF)
             {
-                sLog.outError("DynamicObject guid overflow!! Can't continue, shuting down server. ");
+                sLog.outError("DynamicObject guid overflow!! Can't continue, shutting down server. ");
                 sWorld.m_stopEvent = true;
             }
             return m_hiDoGuid;
@@ -6030,7 +6067,7 @@ bool isValidString(std::wstring wstr, uint32 strictMask, bool numericOrSpace, bo
                 return true;
     }
 
-    if(strictMask & 0x1)                                    // basic latin
+    if(strictMask & 0x1)                                    // basic Latin
     {
         if(isBasicLatinString(wstr,numericOrSpace))
             return true;
@@ -6319,7 +6356,7 @@ const char *ObjectMgr::GetMangosString(int32 entry, int locale_idx) const
 
 void ObjectMgr::LoadFishingBaseSkillLevel()
 {
-    mFishingBaseForArea.clear();                            // for relaod case
+    mFishingBaseForArea.clear();                            // for reload case
 
     uint32 count = 0;
     QueryResult *result = WorldDatabase.Query("SELECT entry,skill FROM skill_fishing_base_level");
@@ -6635,7 +6672,7 @@ SkillRangeType GetSkillRangeType(SkillLineEntry const *pSkill, bool racial)
 
 void ObjectMgr::LoadGameTele()
 {
-    m_GameTeleMap.clear();                                  // for relaod case
+    m_GameTeleMap.clear();                                  // for reload case
 
     uint32 count = 0;
     QueryResult *result = WorldDatabase.Query("SELECT id, position_x, position_y, position_z, orientation, map, name FROM game_tele");
