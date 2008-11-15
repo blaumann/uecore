@@ -132,6 +132,7 @@ bool ChatHandler::HandleReloadAllScriptsCommand(const char*)
     HandleReloadQuestStartScriptsCommand("a");
     HandleReloadSpellScriptsCommand("a");
     SendGlobalSysMessage("DB tables `*_scripts` reloaded.");
+    HandleReloadDbScriptStringCommand("a");
     return true;
 }
 
@@ -594,6 +595,14 @@ bool ChatHandler::HandleReloadSpellScriptsCommand(const char* arg)
     if(*arg!='a')
         SendGlobalSysMessage("DB table `spell_scripts` reloaded.");
 
+    return true;
+}
+
+bool ChatHandler::HandleReloadDbScriptStringCommand(const char* arg)
+{
+    sLog.outString( "Re-Loading Script strings from `db_script_string`...");
+    objmgr.LoadDbScriptStrings();
+    SendGlobalSysMessage("DB table `db_script_string` reloaded.");
     return true;
 }
 
@@ -3527,13 +3536,6 @@ bool ChatHandler::HandleLinkGraveCommand(const char* args)
         return false;
     }
 
-    if(graveyard->map_id != areaEntry->mapid && g_team != 0)
-    {
-        SendSysMessage(LANG_COMMAND_GRAVEYARDWRONGTEAM);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
     if(objmgr.AddGraveYardLink(g_id,player->GetZoneId(),g_team))
         PSendSysMessage(LANG_COMMAND_GRAVEYARDLINKED, g_id,zoneId);
     else
@@ -6322,7 +6324,8 @@ bool ChatHandler::HandleSendMoneyCommand(const char* args)
     if (!msgText)
         return false;
 
-    int32 money = atoi(strtok(NULL, ""));
+    char* money_str = strtok(NULL, "");
+    int32 money = money_str ? atoi(money_str) : 0;
     if (money <= 0)
         return false;
 
