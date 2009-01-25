@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,10 +77,12 @@ class ChatHandler
 
         virtual bool isAvailable(ChatCommand const& cmd) const;
         virtual bool needReportToTarget(Player* chr) const;
+        bool HasLowerSecurity(Player* target, uint64 guid, bool strong = false);
+        bool HasLowerSecurityAccount(WorldSession* target, uint32 account, bool strong = false);
 
         void SendGlobalSysMessage(const char *str);
 
-        bool ExecuteCommandInTable(ChatCommand *table, const char* text, std::string fullcommand);
+        bool ExecuteCommandInTable(ChatCommand *table, const char* text, const std::string& fullcommand);
         bool ShowHelpForCommand(ChatCommand *table, const char* cmd);
         bool ShowHelpForSubCommands(ChatCommand *table, char const* cmd, char const* subcmd);
 
@@ -156,6 +158,7 @@ class ChatHandler
         bool HandleModifyHPCommand(const char* args);
         bool HandleModifyManaCommand(const char* args);
         bool HandleModifyRageCommand(const char* args);
+        bool HandleModifyRunicPowerCommand(const char* args);
         bool HandleModifyEnergyCommand(const char* args);
         bool HandleModifyMoneyCommand(const char* args);
         bool HandleModifyASpeedCommand(const char* args);
@@ -195,7 +198,6 @@ class ChatHandler
         bool HandleNpcWhisperCommand(const char* args);
         bool HandleNpcYellCommand(const char* args);
 
-        bool HandleReloadCommand(const char* args);
         bool HandleReloadAllCommand(const char* args);
         bool HandleReloadAllAreaCommand(const char* args);
         bool HandleReloadAllItemCommand(const char* args);
@@ -225,11 +227,13 @@ class ChatHandler
         bool HandleReloadLootTemplatesFishingCommand(const char* args);
         bool HandleReloadLootTemplatesGameobjectCommand(const char* args);
         bool HandleReloadLootTemplatesItemCommand(const char* args);
+        bool HandleReloadLootTemplatesMillingCommand(const char* args);
         bool HandleReloadLootTemplatesPickpocketingCommand(const char* args);
         bool HandleReloadLootTemplatesProspectingCommand(const char* args);
         bool HandleReloadLootTemplatesReferenceCommand(const char* args);
         bool HandleReloadLootTemplatesQuestMailCommand(const char* args);
         bool HandleReloadLootTemplatesSkinningCommand(const char* args);
+        bool HandleReloadLootTemplatesSpellCommand(const char* args);
         bool HandleReloadMangosStringCommand(const char* args);
         bool HandleReloadNpcGossipCommand(const char* args);
         bool HandleReloadNpcOptionCommand(const char* args);
@@ -408,6 +412,7 @@ class ChatHandler
         bool HandleSendChannelNotifyCommand(const char* args);
         bool HandleSendChatMsgCommand(const char* args);
         bool HandleRenameCommand(const char * args);
+        bool HandleCustomizeCommand(const char * args);
         bool HandleLoadPDumpCommand(const char *args);
         bool HandleWritePDumpCommand(const char *args);
         bool HandleCastCommand(const char *args);
@@ -418,6 +423,7 @@ class ChatHandler
         bool HandleComeToMeCommand(const char *args);
         bool HandleCombatStopCommand(const char *args);
         bool HandleSendMessageCommand(const char * args);
+        bool HandleFlushArenaPointsCommand(const char *args);
         bool HandleRepairitemsCommand(const char* args);
         bool HandleWaterwalkCommand(const char* args);
 
@@ -432,12 +438,17 @@ class ChatHandler
         bool HandleSaveAllCommand(const char* args);
         bool HandleGetItemState(const char * args);
         bool HandleGetLootRecipient(const char * args);
+        bool HandleDebugArenaCommand(const char * args);
+        bool HandleSpawnVehicle(const char * args);
+        bool HandleSendLargePacketCommand(const char * args);
 
         Player*   getSelectedPlayer();
         Creature* getSelectedCreature();
         Unit*     getSelectedUnit();
+
         char*     extractKeyFromLink(char* text, char const* linkType, char** something1 = NULL);
         char*     extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = NULL);
+
         uint32    extractSpellIdFromLink(char* text);
         GameTele const* extractGameTeleFromLink(char* text);
 

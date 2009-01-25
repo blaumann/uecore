@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ inline void PlayerCreatureRelocationWorker(Player* pl, Creature* c)
     pl->UpdateVisibilityOf(c);
 
     // Creature AI reaction
-    if(!c->hasUnitState(UNIT_STAT_CHASE | UNIT_STAT_SEARCHING | UNIT_STAT_FLEEING))
+    if(!c->hasUnitState(UNIT_STAT_SEARCHING | UNIT_STAT_FLEEING))
     {
         if( c->AI() && c->AI()->IsVisible(pl) && !c->IsInEvadeMode() )
             c->AI()->MoveInLineOfSight(pl);
@@ -79,13 +79,13 @@ inline void PlayerCreatureRelocationWorker(Player* pl, Creature* c)
 
 inline void CreatureCreatureRelocationWorker(Creature* c1, Creature* c2)
 {
-    if(!c1->hasUnitState(UNIT_STAT_CHASE | UNIT_STAT_SEARCHING | UNIT_STAT_FLEEING))
+    if(!c1->hasUnitState(UNIT_STAT_SEARCHING | UNIT_STAT_FLEEING))
     {
         if( c1->AI() && c1->AI()->IsVisible(c2) && !c1->IsInEvadeMode() )
             c1->AI()->MoveInLineOfSight(c2);
     }
 
-    if(!c2->hasUnitState(UNIT_STAT_CHASE | UNIT_STAT_SEARCHING | UNIT_STAT_FLEEING))
+    if(!c2->hasUnitState(UNIT_STAT_SEARCHING | UNIT_STAT_FLEEING))
     {
         if( c2->AI() && c2->AI()->IsVisible(c1) && !c2->IsInEvadeMode() )
             c2->AI()->MoveInLineOfSight(c1);
@@ -170,7 +170,7 @@ inline void MaNGOS::DynamicObjectUpdater::VisitHelper(Unit* target)
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(i_dynobject.GetSpellId());
     uint32 eff_index  = i_dynobject.GetEffIndex();
     // Check target immune to spell or aura
-    if (target->IsImmunedToSpell(spellInfo) || target->IsImmunedToSpellEffect(spellInfo->Effect[eff_index], spellInfo->EffectMechanic[eff_index]))
+    if (target->IsImmunedToSpell(spellInfo) || target->IsImmunedToSpellEffect(spellInfo, eff_index))
         return;
     // Apply PersistentAreaAura on target
     PersistentAreaAura* Aur = new PersistentAreaAura(spellInfo, eff_index, NULL, target, i_dynobject.GetCaster());

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,6 +64,7 @@ enum TypeID
     TYPEID_AIGROUP       = 8,
     TYPEID_AREATRIGGER   = 9
 };
+#define MAX_TYPEID         10
 
 uint32 GuidHigh2TypeId(uint32 guid_hi);
 
@@ -226,6 +227,24 @@ class MANGOS_DLL_SPEC Object
             return (m_uint32Values[ index ] & flag) != 0;
         }
 
+        void SetByteFlag( uint16 index, uint8 offset, uint8 newFlag );
+        void RemoveByteFlag( uint16 index, uint8 offset, uint8 newFlag );
+
+        void ToggleFlag( uint16 index, uint8 offset, uint8 flag )
+        {
+            if(HasByteFlag(index, offset, flag))
+                RemoveByteFlag(index, offset, flag);
+            else
+                SetByteFlag(index, offset, flag);
+        }
+
+        bool HasByteFlag( uint16 index, uint8 offset, uint8 flag ) const
+        {
+            ASSERT( index < m_valuesCount || PrintIndexError( index , false ) );
+            ASSERT( offset < 4 );
+            return (((uint8*)&m_uint32Values[index])[offset] & flag) != 0;
+        }
+
         void ApplyModFlag( uint16 index, uint32 flag, bool apply)
         {
             if(apply) SetFlag(index,flag); else RemoveFlag(index,flag);
@@ -297,7 +316,7 @@ class MANGOS_DLL_SPEC Object
         {
             int32  *m_int32Values;
             uint32 *m_uint32Values;
-            float *m_floatValues;
+            float  *m_floatValues;
         };
 
         uint32 *m_uint32Values_mirror;
@@ -389,7 +408,7 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         InstanceData* GetInstanceData();
 
         const char* GetName() const { return m_name.c_str(); }
-        void SetName(std::string newname) { m_name=newname; }
+        void SetName(const std::string& newname) { m_name=newname; }
 
         virtual const char* GetNameForLocaleIdx(int32 /*locale_idx*/) const { return GetName(); }
 
@@ -398,8 +417,8 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         float GetDistance2d(const WorldObject* obj) const;
         float GetDistance2d(const float x, const float y) const;
         float GetDistanceZ(const WorldObject* obj) const;
-        bool IsInMap(const WorldObject* obj) const { return GetMapId()==obj->GetMapId() && GetInstanceId()==obj->GetInstanceId(); }
-        bool IsWithinDistInMap(const WorldObject* obj, const float dist2compare) const;
+        bool IsInMap(const WorldObject* obj) const { return IsInWorld() && obj->IsInWorld() && GetMapId()==obj->GetMapId() && GetInstanceId()==obj->GetInstanceId(); }
+        bool IsWithinDistInMap(const WorldObject* obj, const float dist2compare, const bool is3D = true) const;
         bool IsWithinLOS(const float x, const float y, const float z ) const;
         bool IsWithinLOSInMap(const WorldObject* obj) const;
 
