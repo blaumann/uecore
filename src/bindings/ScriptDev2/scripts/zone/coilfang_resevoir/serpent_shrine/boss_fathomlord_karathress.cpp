@@ -47,8 +47,6 @@ EndScriptData */
 #define SPELL_THE_BEAST_WITHIN      38373
 #define SPELL_SUMMON_FATHOM_LURKER  38433
 #define SPELL_SUMMON_FATHOM_SPOREBAT 38431
-#define NPC_FATHOM_LURKER           22119
-#define NPC_FATHOM_SPOREBAT         22120
 //Tidalvess spells
 #define SPELL_FROST_SHOCK           38234
 //Caribdis Spells
@@ -307,14 +305,17 @@ struct MANGOS_DLL_DECL boss_fathomguard_sharkkisAI : public ScriptedAI
         }
 
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
         //someone evaded!
         if (pInstance && !pInstance->GetData(DATA_KARATHRESSEVENT))
+        {
             EnterEvadeMode();
+            return;
+        }
 
-        // respawn the pet if it is death
+        //spawn pet if not exist or if not alive
         if (!m_creature->GetPet() || !m_creature->GetPet()->isAlive())
             DoCast(m_creature, urand(0,1) ? SPELL_SUMMON_FATHOM_LURKER : SPELL_SUMMON_FATHOM_SPOREBAT);
 

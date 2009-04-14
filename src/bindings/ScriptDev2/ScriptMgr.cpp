@@ -16,6 +16,8 @@ Script *m_scripts[MAX_SCRIPTS];
 DatabaseType SD2Database;
 Config SD2Config;
 
+std::string strVersion;
+
 // String text additional data, used in TextMap
 struct StringTextData
 {
@@ -727,11 +729,16 @@ void LoadDatabase()
     if (result)
     {
         Field *fields = result->Fetch();
-        outstring_log("SD2: Database version is: %s", fields[0].GetString());
+
+        strVersion = fields[0].GetCppString();
+        strVersion.append(_FULLVERSION);
+
+        outstring_log("Loading %s", strVersion.c_str());
         outstring_log("");
         delete result;
 
-    }else
+    }
+	else
     {
         error_log("SD2: Missing `sd2_db_version` information.");
         outstring_log("");
@@ -794,7 +801,8 @@ void LoadDatabase()
 
         outstring_log("");
         outstring_log(">> Loaded %u additional Script Texts data.", count);
-    }else
+    }
+	else
     {
         barGoLink bar(1);
         bar.step();
@@ -859,7 +867,8 @@ void LoadDatabase()
 
         outstring_log("");
         outstring_log(">> Loaded %u additional Custom Texts data.", count);
-    }else
+    }
+	else
     {
         barGoLink bar(1);
         bar.step();
@@ -972,16 +981,14 @@ void ScriptsInit()
 	outstring_log("#  Compiled from Fanatix Team   #");
 	outstring_log("#################################");
 
-    outstring_log("ScriptDev2 initializing: %s", _FULLVERSION);
-    outstring_log("");
-
     //Get configuration file
     if (!SD2Config.SetSource(_SCRIPTDEV2_CONFIG))
     {
         CanLoadDB = false;
         error_log("SD2: Unable to open configuration file. Database will be unaccessible. Configuration values will use default.");
     }
-    else outstring_log("SD2: Using configuration file %s",_SCRIPTDEV2_CONFIG);
+    else
+		outstring_log("SD2: Using configuration file %s",_SCRIPTDEV2_CONFIG);
 
     //Check config file version
     if (SD2Config.GetIntDefault("ConfVersion", 0) != SD2_CONF_VERSION)
@@ -1797,7 +1804,9 @@ void Script::RegisterSelf()
 MANGOS_DLL_EXPORT
 char const* ScriptsVersion()
 {
-    //TODO: add version text from sd2_db_version
+    if (!strVersion.empty())
+        return strVersion.c_str();
+
     return _FULLVERSION;
 }
 

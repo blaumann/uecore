@@ -382,6 +382,7 @@ UPDATE creature_template SET ScriptName='mob_shield_generator_channel' WHERE ent
 
 
 /* DARKSHORE */
+UPDATE creature_template SET ScriptName='npc_prospector_remtravel' WHERE entry=2917;
 UPDATE creature_template SET ScriptName='npc_threshwackonator' WHERE entry=6669;
 
 /* DARNASSUS */
@@ -628,6 +629,7 @@ UPDATE creature_template SET ScriptName='npc_great_bear_spirit' WHERE entry=1195
 UPDATE creature_template SET ScriptName='npc_silva_filnaveth' WHERE entry=11800;
 
 /* MULGORE */
+UPDATE creature_template SET ScriptName='npc_kyle_the_frenzied' WHERE entry=23616;
 UPDATE creature_template SET ScriptName='npc_skorn_whitecloud' WHERE entry=3052;
 
 /* NAGRAND */
@@ -965,6 +967,7 @@ UPDATE creature_template SET ScriptName='npc_parqual_fintallas' WHERE entry=4488
 
 /* WESTERN PLAGUELANDS */
 UPDATE creature_template SET ScriptName='npcs_dithers_and_arbington' WHERE entry IN (11056,11057);
+UPDATE creature_template SET ScriptName='npc_myranda_the_hag' WHERE entry=11872;
 UPDATE creature_template SET ScriptName='npc_the_scourge_cauldron' WHERE entry=11152;
 
 /* WESTFALL */
