@@ -30,7 +30,7 @@
 #include "AuthCodes.h"
 #include <openssl/md5.h>
 #include "Auth/Sha1.h"
-//#include "Util.h" -- for commented utf8ToUpperOnlyLatin
+#include "AccountHandler.h"
 
 extern RealmList m_realmList;
 
@@ -334,6 +334,8 @@ bool AuthSocket::_HandleLogonChallenge()
     if (ibuf.GetLength() < sizeof(sAuthLogonChallenge_C))
         return false;
 
+    AcctMgr.ReloadEverythingIfNeed();
+
     ///- Read the first 4 bytes (header) to get the length of the remaining of the packet
     std::vector<uint8> buf;
     buf.resize(4);
@@ -383,13 +385,15 @@ bool AuthSocket::_HandleLogonChallenge()
     pkt << (uint8) AUTH_LOGON_CHALLENGE;
     pkt << (uint8) 0x00;
 
+    if(sConfig.GetIntDefault("AccountCaching", 0) != 1)
+    {
     ///- Verify that this IP is not in the ip_banned table
     // No SQL injection possible (paste the IP address as passed by the socket)
     dbRealmServer.Execute("DELETE FROM ip_banned WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
 
     std::string address = GetRemoteAddress();
     dbRealmServer.escape_string(address);
-    QueryResult *result = dbRealmServer.PQuery(  "SELECT * FROM ip_banned WHERE ip = '%s'",address.c_str());
+    QueryResult *result = dbRealmServer.PQuery("SELECT ip FROM ip_banned WHERE ip = '%s'",address.c_str());
     if(result)
     {
         pkt << (uint8)REALM_AUTH_ACCOUNT_BANNED;
@@ -489,9 +493,89 @@ bool AuthSocket::_HandleLogonChallenge()
         }
         else                                            //no account
         {
-            pkt<< (uint8) REALM_AUTH_NO_MATCH;
+                pkt << (uint8) REALM_AUTH_NO_MATCH;
+            }
         }
     }
+    else
+    {
+        if(AcctMgr.IpBan(GetRemoteAddress()))
+        {
+            pkt << (uint8)REALM_AUTH_ACCOUNT_BANNED;
+        }
+        else
+        {
+            Account* acct = AcctMgr.FindAccountByName(_safelogin);
+
+            if(acct)
+            {
+                bool locked = false;
+
+                if(acct->locked == 1)                   // if ip is locked
+                {
+                    if(strcmp(acct->lastip.c_str(),GetRemoteAddress().c_str()))
+                    {
+                        pkt << (uint8) REALM_AUTH_ACCOUNT_FREEZED;
+                        locked = true;
+                    }
+                }
+
+                if (!locked)
+                {
+                    if(acct->banned)
+                    {
+                        pkt << (uint8) REALM_AUTH_ACCOUNT_BANNED;
+                    }
+                    else
+                    {
+                        ///- Get the password from the account table, upper it, and make the SRP6 calculation
+                        std::string rI = acct->I;
+                        _SetVSFields(rI);
+                        b.SetRand(19 * 8);
+                        BigNumber gmod=g.ModExp(b, N);
+                        B = ((v * 3) + gmod) % N;
+
+                        if (B.GetNumBytes() < 32)
+                            sLog.outDetail("Interesting, calculation of B in realmd is < 32.");
+
+                        ASSERT(gmod.GetNumBytes() <= 32);
+
+                        BigNumber unk3;
+                        unk3.SetRand(16*8);
+
+                        ///- Fill the response packet with the result
+                        pkt << (uint8)REALM_AUTH_SUCCESS;
+                        pkt.append(B.AsByteArray(), B.GetNumBytes());
+                        pkt << (uint8)1;
+                        pkt.append(g.AsByteArray(), 1);
+                        pkt << (uint8)32;
+                        pkt.append(N.AsByteArray(), 32);
+                        pkt.append(s.AsByteArray(), s.GetNumBytes());
+                        pkt.append(unk3.AsByteArray(), 16);
+                        pkt << (uint8)0;                // Added in 1.12.x client branch
+
+                        uint8 secLevel = acct->security;
+                        _accountSecurityLevel = secLevel <= SEC_ADMINISTRATOR ? AccountTypes(secLevel) : SEC_ADMINISTRATOR;
+
+                        _localizationName.resize(4);
+                        for(int i = 0; i <4; ++i)
+                            _localizationName[i] = ch->country[4-i-1];
+                        sLog.outBasic("[AuthChallenge] account %s is using '%c%c%c%c' locale (%u)", _login.c_str (), ch->country[3],ch->country[2],ch->country[1],ch->country[0], GetLocaleByName(_localizationName));
+
+                    }
+                }
+                else
+                {
+                    pkt << (uint8) REALM_AUTH_ACCOUNT_FREEZED;
+                }
+            }
+            else                                        //no account
+            {
+                pkt << (uint8) REALM_AUTH_NO_MATCH;
+            }
+        }
+    }
+
     SendBuf((char const*)pkt.contents(), pkt.size());
     return true;
 }
@@ -751,7 +835,7 @@ bool AuthSocket::_HandleReconnectChallenge()
     _login = (const char*)ch->I;
     _safelogin = _login;
 
-    QueryResult *result = dbRealmServer.PQuery ("SELECT sessionkey FROM account WHERE username = '%s'", _safelogin.c_str ());
+    QueryResult *result = dbRealmServer.PQuery("SELECT sessionkey FROM account WHERE username = '%s'", _safelogin.c_str ());
 
     // Stop if the account is not found
     if (!result)
@@ -831,6 +915,14 @@ bool AuthSocket::_HandleRealmList()
     ///- Get the user id (else close the connection)
     // No SQL injection (escaped user name)
 
+    std::string rI;
+    uint32 id;
+
+    if(sConfig.GetIntDefault("AccountCaching", 0) != 1)
+    {
+        ///- Get the user id (else close the connection)
+        // No SQL injection (escaped user name)
+
     QueryResult *result = dbRealmServer.PQuery("SELECT id,sha_pass_hash FROM account WHERE username = '%s'",_safelogin.c_str());
     if(!result)
     {
@@ -839,9 +931,16 @@ bool AuthSocket::_HandleRealmList()
         return false;
     }
 
-    uint32 id = (*result)[0].GetUInt32();
-    std::string rI = (*result)[1].GetCppString();
+    id = (*result)[0].GetUInt32();
+    rI = (*result)[1].GetCppString();
     delete result;
+    }
+    else
+    {
+        Account* acct = AcctMgr.FindAccountByName(_safelogin);
+        id = acct->id;
+        rI = acct->I;
+    }
 
     ///- Update realm list if need
     m_realmList.UpdateIfNeed();
@@ -855,8 +954,10 @@ bool AuthSocket::_HandleRealmList()
     {
         uint8 AmountOfCharacters;
 
+        if(sConfig.GetIntDefault("AccountCaching", 0) != 1)
+        {
         // No SQL injection. id of realm is controlled by the database.
-        result = dbRealmServer.PQuery( "SELECT numchars FROM realmcharacters WHERE realmid = '%d' AND acctid='%u'",i->second.m_ID,id);
+        QueryResult* result = dbRealmServer.PQuery( "SELECT numchars FROM realmcharacters WHERE realmid = '%d' AND acctid='%u'",i->second.m_ID,id);
         if( result )
         {
             Field *fields = result->Fetch();
@@ -865,6 +966,10 @@ bool AuthSocket::_HandleRealmList()
         }
         else
             AmountOfCharacters = 0;
+
+        }
+        else
+            AmountOfCharacters = AcctMgr.GetNumChar(i->second.m_ID, id);
 
         uint8 lock = (i->second.allowedSecurityLevel > _accountSecurityLevel) ? 1 : 0;
 

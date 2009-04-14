@@ -24,6 +24,9 @@ bin_PROGRAMS = mangos-realmd
 mangos_realmd_SOURCES = \
 	AuthCodes.h \
 	AuthSocket.cpp \
+	AccountHandler.cpp \
+
+	AccountHandler.h \
 	AuthSocket.h \
 	Main.cpp \
 	RealmList.cpp \

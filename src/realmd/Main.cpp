@@ -32,6 +32,7 @@
 #include "revision.h"
 #include "revision_nr.h"
 #include "Util.h"
+#include "AccountHandler.h"
 
 #ifdef WIN32
 #include "ServiceWin32.h"
@@ -186,6 +187,15 @@ extern int main(int argc, char **argv)
     {
         sLog.outError("No valid realms specified.");
         return 1;
+    }
+
+    // Activate or not account caching system, precache them before launching connection port
+    if(sConfig.GetIntDefault("AccountCaching", 0) == 1)
+    {
+        AcctMgr.Initialize(sConfig.GetIntDefault("AccountReloadingDelay", 300));
+        AcctMgr.ReloadEverythingIfNeed();
+        sLog.outString();
+        sLog.outString("Accounts will be reloaded in %u seconds", sConfig.GetIntDefault("AccountReloadingDelay", 300));
     }
 
     ///- Launch the listening network socket
