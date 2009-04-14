@@ -1470,7 +1470,7 @@ void Pet::learnLevelupSpellsWarlock()
             return;
     }
 
-    PetLevelupSpellSet const *levelupSpells = spellmgr.GetPetLevelupSpellList(GetCreatureInfo()->family);
+    PetLevelupSpellSet const *levelupSpells = spellmgr.GetPetLevelupSpellListWarlock(GetCreatureInfo()->family);
     if(!levelupSpells)
         return;
 
@@ -1494,6 +1494,7 @@ void Pet::learnLevelupSpellsWarlock()
             }
         }
     }
+
 }
 
 bool Pet::existLowRankOfSpell(uint32 spell_id)

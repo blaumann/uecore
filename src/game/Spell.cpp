@@ -1140,7 +1140,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
                     unit->SetStandState(UNIT_STAND_STATE_STAND);
 
                 if(!unit->isInCombat() && unit->GetTypeId() != TYPEID_PLAYER && ((Creature*)unit)->AI())
-                    ((Creature*)unit)->AI()->AttackStart(m_caster);
+                    ((Creature*)unit)->AI()->AttackedBy(m_caster);
 
                 unit->SetInCombatWith(m_caster);
                 m_caster->SetInCombatWith(unit);
@@ -4618,8 +4618,29 @@ SpellCastResult Spell::CheckCast(bool strict)
                 // not allow cast fly spells at old maps by players (all spells is self target)
                 if(m_caster->GetTypeId()==TYPEID_PLAYER)
                 {
-                    if( !((Player*)m_caster)->IsAllowUseFlyMountsHere() )
-                        return SPELL_FAILED_NOT_HERE;
+                    if(!((Player*)m_caster)->isGameMaster())
+                    {
+                        uint32 v_map = GetVirtualMapForMapAndZone(m_caster->GetMapId(),m_caster->GetZoneId());
+                        switch(v_map)
+                        {
+                        case 0:
+                        case 1:
+                            {
+                                if (!sWorld.getConfig(CONFIG_FLYING_MOUNTS_AZEROTH))
+                                    return SPELL_FAILED_NOT_HERE;
+                            } break;
+                        case 530:
+                            {
+                                if (!sWorld.getConfig(CONFIG_FLYING_MOUNTS_OUTLAND))
+                                    return SPELL_FAILED_NOT_HERE;
+                            } break;
+                        default:
+                            {
+                                if (!sWorld.getConfig(CONFIG_FLYING_MOUNTS_OTHERS))
+                                    return SPELL_FAILED_NOT_HERE;
+                            } break;
+                        }
+                    }
                 }
 
                 break;

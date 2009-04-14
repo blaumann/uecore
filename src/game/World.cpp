@@ -540,6 +540,11 @@ void World::LoadConfigSettings(bool reload)
     }
     ///- Read other configuration items from the config file
 
+    ///- Do we allow flying mounts in Azeroth/Outland and others (others being instances, BGs, arenas)?
+    m_configs[CONFIG_FLYING_MOUNTS_AZEROTH] = sConfig.GetBoolDefault("FlyingMounts.Azeroth", false);
+    m_configs[CONFIG_FLYING_MOUNTS_OUTLAND] = sConfig.GetBoolDefault("FlyingMounts.Outland", true);
+    m_configs[CONFIG_FLYING_MOUNTS_OTHERS] = sConfig.GetBoolDefault("FlyingMounts.Others", false);
+
     // movement anticheat
     m_MvAnticheatEnable                     = sConfig.GetBoolDefault("Anticheat.Movement.Enable",false);
     m_MvAnticheatKick                       = sConfig.GetBoolDefault("Anticheat.Movement.Kick",false);
@@ -2816,15 +2821,15 @@ void World::SendBroadcast()
     msg = fields[0].GetString();
     delete result;
 
-    static uint32 abcenter = 0;
-    abcenter = sConfig.GetIntDefault("AutoBroadcast.Center", 0);
-    if(abcenter == 0)
+    static uint32 abtimer = 0;
+    abtimer = sConfig.GetIntDefault("AutoBroadcast.Timer", 60000);
+    if(abtimer == 0)
     {
         sWorld.SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
 
         sLog.outString("AutoBroadcast: '%s'",msg.c_str());
     }
-    if(abcenter == 1)
+    if(abtimer == 1)
     {
         WorldPacket data(SMSG_NOTIFICATION, (msg.size()+1));
         data << msg;
@@ -2832,7 +2837,7 @@ void World::SendBroadcast()
 
         sLog.outString("AutoBroadcast: '%s'",msg.c_str());
     }
-    if(abcenter == 2)
+    if(abtimer == 2)
     {
         sWorld.SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
 

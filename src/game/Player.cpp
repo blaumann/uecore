@@ -412,7 +412,6 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
 
     //movement anticheat
     m_anti_lastmovetime = 0;   //last movement time
-    m_anti_transportGUID = 0;  //current transport GUID
     m_anti_NextLenCheck = 0;
     m_anti_MovedLen = 0.0f;
     m_anti_BeginFallZ = INVALID_HEIGHT;
@@ -9505,7 +9504,6 @@ uint8 Player::CanStoreItems( Item **pItems,int count) const
 
             if (b_found) continue;
 
-            /* until proper implementation
             if(pProto->BagFamily & BAG_FAMILY_MASK_CURRENCY_TOKENS)
             {
                 for(uint32 t = CURRENCYTOKEN_SLOT_START; t < CURRENCYTOKEN_SLOT_END; ++t)
@@ -9520,7 +9518,6 @@ uint8 Player::CanStoreItems( Item **pItems,int count) const
             }
 
             if (b_found) continue;
-            */
 
             for(int t = INVENTORY_SLOT_BAG_START; !b_found && t < INVENTORY_SLOT_BAG_END; t++)
             {

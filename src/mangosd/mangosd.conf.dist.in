@@ -1,4 +1,4 @@
-﻿#####################################
+#####################################
 # MaNGOS Configuration file         #
 #####################################
 ConfVersion=2008080101
@@ -489,6 +489,21 @@ LogColors = "13 7 11 9"
 #        Default: 1 (true)
 #                 0 (false)
 #
+#    FlyingMounts.Azeroth
+#        Enable/disable flying mounts in Azeroth (map 0 and ).
+#        Default: 0 - off
+#                 1 - on (may be crashy)
+#
+#    FlyingMounts.Outland
+#        Enable/disable flying mounts in Outland (map 530).
+#        Default: 1 - on
+#                 0 - off
+#
+#    FlyingMounts.Others
+#        Enable/disable flying mounts in other maps (instances, arenas, BGs, etc).
+#        Default: 0 - off
+#                 1 - on (may be crashy)
+#
 #    CastUnstuck
 #        Allow cast or not Unstuck spell at .start or client Help option use
 #        Default: 1 (true)
@@ -599,6 +614,9 @@ AllFlightPaths = 0
 AlwaysMaxSkillForLevel = 0
 ActivateWeather = 1
 CastUnstuck = 1
+FlyingMounts.Azeroth = 1
+FlyingMounts.Outland = 1
+FlyingMounts.Others = 1
 Instance.IgnoreLevel = 0
 Instance.IgnoreRaid = 0
 Instance.ResetTimeHour = 4
@@ -920,7 +938,7 @@ GM.AllowAchievementGain  = 1
 #    Visibility.Distance.Grey.Unit
 #        Visibility grey distance for creatures/players (fast changing objects)
 #        addition to appropriate object type Visibility.Distance.* use in case visibility removing to
-#        object (except corpse around distences) If � is distance and G is grey distance then object
+#        object (except corpse around distences) If   is distance and G is grey distance then object
 #        make visible if distance to it <= D but make non visible if distance > D+G
 #        Default: 1 (yard)
 #
@@ -1456,4 +1474,3 @@ Anticheat.Movement.BanTime = "1m"
 Anticheat.Movement.MaxXYT = 0.04
 Anticheat.Movement.IgnoreSecAfterTeleport = 10
 Anticheat.Movement.GmLevel = 0
-

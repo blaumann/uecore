@@ -820,7 +820,15 @@ class SpellMgr
             else
                 return NULL;
         }
-        // Modifiers
+
+        PetLevelupSpellSet const* GetPetLevelupSpellListWarlock(uint32 petFamily) const
+        {
+            PetLevelupSpellMap::const_iterator itr = mPetLevelupSpellMapWarlock.find(petFamily);
+            if(itr != mPetLevelupSpellMapWarlock.end())
+                return &itr->second;
+            else
+                return NULL;
+        }
 
         SpellCastResult GetSpellAllowedInLocationError(SpellEntry const *spellInfo, uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player = NULL);
 
@@ -889,6 +897,7 @@ class SpellMgr
         SpellPetAuraMap     mSpellPetAuraMap;
 		WarlockPetLevelupSpellMap mWarlockPetLevelupSpellMap;
         PetLevelupSpellMap  mPetLevelupSpellMap;
+        PetLevelupSpellMap  mPetLevelupSpellMapWarlock;
         SpellAreaMap         mSpellAreaMap;
         SpellAreaForQuestMap mSpellAreaForQuestMap;
         SpellAreaForQuestMap mSpellAreaForActiveQuestMap;

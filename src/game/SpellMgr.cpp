@@ -1240,6 +1240,9 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     break;
                 }
             }
+            // Dragonmaw Illusion, Blood Elf Illusion, Human Illusion, Illidari Agent Illusion, Scarlet Crusade Disguise
+            if(spellInfo_1->SpellIconID == 1691 && spellInfo_2->SpellIconID == 1691)
+                return false;
             break;
         case SPELLFAMILY_MAGE:
             if( spellInfo_2->SpellFamilyName == SPELLFAMILY_MAGE )
@@ -2236,11 +2239,12 @@ void SpellMgr::LoadPetLevelupSpellMapWarlock()
             {
                 if(creatureFamily->ID == warlock_pet_spell_data[(k*2)+0] && spell->Id == warlock_pet_spell_data[(k*2)+1])
                 {
-                    mPetLevelupSpellMap[creatureFamily->ID][spell->spellLevel + (k*0x10000)] = spell->Id;
+                    mPetLevelupSpellMapWarlock[creatureFamily->ID][spell->spellLevel + (k*0x10000)] = spell->Id;
                     count++;
                     break;
                 }
             }
+
         }
     }
 
