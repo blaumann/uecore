@@ -1,6 +1,7 @@
 // Delete Copse Scarabs
-DELETE from `creature` where `id`= 16698;
-UPDATE `creature_template` SET `mindmg` = 400, `maxdmg` = 600, `attackpower` = ROUND((`mindmg` + `maxdmg`) / 4 * 7), `mindmg` = ROUND(`mindmg` - `attackpower` / 7), `maxdmg` = ROUND(`maxdmg` - `attackpower` / 7) WHERE `entry` = 16698;
+DELETE FROM `creature` where `id`= 16698;
+UPDATE `creature_template` SET `mindmg` = 400, `maxdmg` = 600, `attackpower` = ROUND((`mindmg` 
+`maxdmg`) / 4 * 7), `mindmg` = ROUND(`mindmg` - `attackpower` / 7), `maxdmg` = ROUND(`maxdmg` - `attackpower` / 7) WHERE `entry` = 16698;
 // Delete Gothik adds
 delete from `creature` where `id`in (16124,16125,16126,16127,16148,16149,16150);
 // Faction Gothik adds
@@ -75,10 +76,7 @@ insert into `gameobject` (`guid`, `id`, `map`, `position_x`, `position_y`, `posi
 
 // aendere size ... Tuer Passt nicht und man konnte vorher an den Rand vorbei
 update gameobject_template set size = 1.2 where entry = 181201;
-
-
-update gameobject_template set faction = 14 where entry in (181126,181195,181167,181235,181197,181209,181123, 181120,181121,181124,181125,18
-170,181119,181200,181201,181202,181203,181241,1812 25,181228,181496,181366);</div>
+update 'gameobject_template' set faction = 14 where entry in (181126,181195,181167,181235,181197,181209,181123, 181120,181121,181124,181125,18170,181119,181200,181201,181202,181203,181241,1812 25,181228,181496,181366);
 
 // Naxxramas
 update `creature_template` set `scriptname` = 'boss_anubrekhan' where `entry`= 15956;

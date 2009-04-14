@@ -7,7 +7,7 @@ DELETE FROM `gameobject` WHERE `id`=179703;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES (100001, 179703, 409, 1, 750.745178, -1226.584961, -119.617752, 1.791157, 0, 0, 0, 0, -3600, 100, 1);
 
 -- Loot for Cache of the Firelord
-DELETE FROM `gameobject_loot_template` WHERE (`entry`=16719)
+DELETE FROM `gameobject_loot_template` WHERE (`entry`=16719);
 INSERT INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `lootcondition`, `condition_value1`, `condition_value2`) VALUES 
 (16719, 18646, 90, 1, 1, 1, 0, 0, 0),
 (16719, 18703, 86, 1, 1, 1, 0, 0, 0),

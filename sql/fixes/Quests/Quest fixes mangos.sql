@@ -1,6 +1,6 @@
-UPDATE `creature_template` SET `ScriptName`='npc_clintar_dreamwalker' WHERE `entry`='22834';
-UPDATE `creature_template` SET `ScriptName`='npc_clintar_spirit' WHERE `entry`='22916';
-UPDATE `creature_template` SET `ScriptName` = `npc_deathstalker_erland` where `entry`='1978';
+UPDATE `creature_template` SET `ScriptName`= 'npc_clintar_dreamwalker' WHERE `entry`='22834';
+UPDATE `creature_template` SET `ScriptName`= 'npc_clintar_spirit' WHERE `entry`='22916';
+UPDATE `creature_template` SET `ScriptName`= `npc_deathstalker_erland` where `entry`='1978';
 UPDATE `gameobject_template` SET `ScriptName`='go_cat_figurine' WHERE `entry`=13359;
 
 -- Whizzlecrank's Shredder
@@ -22,9 +22,5 @@ UPDATE `quest_template` SET `StartScript`='0' WHERE entry=10211;
 
 -- Khadgar
 UPDATE `creature_template` SET `ScriptName`='npc_khadgar' WHERE `entry` = '18166';
-
-UPDATE 'creature_template' SET 'ScriptName' = 'npc_broodling' WHERE 'entry' = '7047';
-UPDATE 'creature_template' SET 'ScriptName' = 'npc_broodling' WHERE 'entry' = '7048';
-UPDATE 'creature_template' SET 'ScriptName' = 'npc_broodling' WHERE 'entry' = '7049';
 
 
