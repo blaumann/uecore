@@ -55,7 +55,7 @@ class AcctContainer
 		Account* FindAccountById(uint32 accid);
     private:
 		// key acc name
-		typedef UNORDERED_MAP<std::string, Account*> AccountList;
+		typedef std::map<std::string, Account*> AccountList;
 		// key banned ip
 		typedef std::set<std::string> IpBanList;
 		// key accid
