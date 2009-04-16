@@ -241,6 +241,7 @@ bool GossipHello_example_creature(Player *player, Creature *_Creature)
 
     return true;
 }
+
 //This is the actual function called only once durring InitScripts()
 //It must define all handled functions that are to be run in this script
 //For example if you want this Script to handle Emotes you must include

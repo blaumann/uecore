@@ -80,30 +80,32 @@ struct MANGOS_DLL_DECL npc_chicken_cluckAI : public ScriptedAI
             DoMeleeAttackIfReady();
     }
 
-    void ReceiveEmote( Player *player, uint32 emote )
+    void ReceiveEmote (Player *player, uint32 emote)
     {
-        if( emote == TEXTEMOTE_CHICKEN )
+        if (emote == TEXTEMOTE_CHICKEN)
         {
-            if( player->GetTeam() == ALLIANCE )
+            if (player->GetTeam() == ALLIANCE)
             {
-                if( rand()%30 == 1 )
+                if (rand()%30 == 1)
                 {
-                    if( player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_NONE )
+                    if (player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_NONE)
                     {
                         m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                         m_creature->setFaction(FACTION_FRIENDLY);
                         DoScriptText(EMOTE_A_HELLO, m_creature);
                     }
-            } else DoScriptText(EMOTE_H_HELLO,m_creature);
+                }
+            }
+            else
+                DoScriptText(EMOTE_H_HELLO,m_creature);
         }
-        if( emote == TEXTEMOTE_CHEER && player->GetTeam() == ALLIANCE )
+        if (emote == TEXTEMOTE_CHEER && player->GetTeam() == ALLIANCE)
         {
-            if( player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_COMPLETE )
+            if (player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_COMPLETE)
             {
                 m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                 m_creature->setFaction(FACTION_FRIENDLY);
                 DoScriptText(EMOTE_CLUCK_TEXT2, m_creature);
-                }
             }
         }
     }

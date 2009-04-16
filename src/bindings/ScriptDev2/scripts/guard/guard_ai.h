@@ -24,6 +24,7 @@ struct MANGOS_DLL_DECL guardAI : public ScriptedAI
 
     //common used for guards in main cities
     void DoReplyToTextEmote(uint32 em);
+
 };
 
 struct MANGOS_DLL_DECL guardAI_orgrimmar : public guardAI

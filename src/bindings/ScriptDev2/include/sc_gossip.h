@@ -27,7 +27,7 @@
 #define GOSSIP_TEXT_AUCTIONHOUSE        "The auction house"
 #define GOSSIP_TEXT_GUILDMASTER         "The guild master"
 #define GOSSIP_TEXT_INN                 "The inn"
-#define GOSSIP_TEXT_MAILBOX             "The mailbox"
+#define GOSSIP_TEXT_MAILBOX             -1999828
 #define GOSSIP_TEXT_STABLEMASTER        "The stable master"
 #define GOSSIP_TEXT_WEAPONMASTER        "The weapon master"
 #define GOSSIP_TEXT_OFFICERS            "The officers' lounge"

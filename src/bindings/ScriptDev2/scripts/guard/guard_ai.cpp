@@ -170,7 +170,7 @@ void guardAI::UpdateAI(const uint32 diff)
     }
 }
 
-void guardAI::DoReplyToTextEmote( uint32 em )
+void guardAI::DoReplyToTextEmote(uint32 em)
 {
     switch(em)
     {
@@ -183,14 +183,15 @@ void guardAI::DoReplyToTextEmote( uint32 em )
     }
 }
 
-void guardAI_orgrimmar::ReceiveEmote( Player *player, uint32 text_emote )
+void guardAI_orgrimmar::ReceiveEmote(Player *player, uint32 text_emote)
 {
-    if(player->GetTeam()==HORDE)
+    if (player->GetTeam()==HORDE)
         DoReplyToTextEmote(text_emote);
 }
 
-void guardAI_stormwind::ReceiveEmote( Player *player, uint32 text_emote )
+void guardAI_stormwind::ReceiveEmote(Player *player, uint32 text_emote)
 {
-    if( player->GetTeam() == ALLIANCE )
+    if (player->GetTeam() == ALLIANCE)
         DoReplyToTextEmote(text_emote);
 }
+
