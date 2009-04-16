@@ -107,6 +107,9 @@ class MANGOS_DLL_SPEC GossipMenu
         // for using from scripts, don't must be inlined
         void AddMenuItem(uint8 Icon, char const* Message, bool Coded = false);
         void AddMenuItem(uint8 Icon, char const* Message, uint32 dtSender, uint32 dtAction, char const* BoxMessage, uint32 BoxMoney, bool Coded = false);
+        void AddMenuItem(uint8 Icon, int32 MessageID, bool Coded = false);
+        void AddMenuItem(uint8 Icon, int32 MessageID, uint32 dtSender, uint32 dtAction, char const* BoxMessage, uint32 BoxMoney, bool Coded = false);
+        void AddMenuItem(uint8 Icon, int32 MessageID, uint32 dtSender, uint32 dtAction, int32 BoxMessageID, uint32 BoxMoney, bool Coded = false);
 
         unsigned int MenuItemCount() const
         {
@@ -128,9 +131,11 @@ class MANGOS_DLL_SPEC GossipMenu
         bool MenuItemCoded( unsigned int ItemId );
 
         void ClearMenu();
+        void SetWorldSession(WorldSession* session) { m_pSession = session; }
 
     protected:
         GossipMenuItemList m_gItems;
+        WorldSession* m_pSession;
 };
 
 class QuestMenu

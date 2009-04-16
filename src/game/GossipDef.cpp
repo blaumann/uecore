@@ -27,6 +27,7 @@
 GossipMenu::GossipMenu()
 {
     m_gItems.reserve(16);                                   // can be set for max from most often sizes to speedup push_back and less memory use
+    m_pSession = NULL;
 }
 
 GossipMenu::~GossipMenu()
@@ -66,6 +67,25 @@ void GossipMenu::AddMenuItem(uint8 Icon, char const* Message, uint32 dtSender, u
     AddMenuItem(Icon, std::string(Message ? Message : ""), dtSender, dtAction, std::string(BoxMessage ? BoxMessage : ""), BoxMoney, Coded);
 }
 
+void GossipMenu::AddMenuItem(uint8 Icon, int32 MessageID, bool Coded)
+{
+    char const* Message = m_pSession ? m_pSession->GetMangosString(MessageID) : objmgr.GetMangosStringForDBCLocale(MessageID);
+    AddMenuItem(Icon, std::string(Message ? Message : ""),Coded);
+}
+
+void GossipMenu::AddMenuItem(uint8 Icon, int32 MessageID, uint32 dtSender, uint32 dtAction, char const* BoxMessage, uint32 BoxMoney, bool Coded)
+{
+    char const* Message = m_pSession ? m_pSession->GetMangosString(MessageID)  : objmgr.GetMangosStringForDBCLocale(MessageID);
+    AddMenuItem(Icon, std::string(Message ? Message : ""), dtSender, dtAction, std::string(BoxMessage ? BoxMessage : ""), BoxMoney, Coded);
+}
+
+void GossipMenu::AddMenuItem(uint8 Icon, int32 MessageID, uint32 dtSender, uint32 dtAction, int32 BoxMessageID, uint32 BoxMoney, bool Coded)
+{
+    char const* Message = m_pSession ? m_pSession->GetMangosString(MessageID)  : objmgr.GetMangosStringForDBCLocale(MessageID);
+    char const* BoxMessage = m_pSession ? m_pSession->GetMangosString(MessageID) : objmgr.GetMangosStringForDBCLocale(BoxMessageID);
+    AddMenuItem(Icon, std::string(Message ? Message : ""), dtSender, dtAction, std::string(BoxMessage ? BoxMessage : ""), BoxMoney, Coded);
+}
+
 uint32 GossipMenu::MenuItemSender( unsigned int ItemId )
 {
     if ( ItemId >= m_gItems.size() ) return 0;
@@ -94,6 +114,7 @@ void GossipMenu::ClearMenu()
 
 PlayerMenu::PlayerMenu( WorldSession *session ) : pSession(session)
 {
+    mGossipMenu.SetWorldSession(pSession);
 }
 
 PlayerMenu::~PlayerMenu()
