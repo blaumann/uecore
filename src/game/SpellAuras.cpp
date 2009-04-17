@@ -470,12 +470,12 @@ Unit *caster, Item* castItem) : Aura(spellproto, eff, currentBasePoints, target,
     {
         case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
             m_areaAuraType = AREA_AURA_PARTY;
-            if(target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->isTotem())
+            if (target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->isTotem())
                 m_modifier.m_auraname = SPELL_AURA_NONE;
             break;
         case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
             m_areaAuraType = AREA_AURA_RAID;
-            if(target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->isTotem())
+            if (target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->isTotem())
                 m_modifier.m_auraname = SPELL_AURA_NONE;
             break;
         case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
@@ -483,7 +483,7 @@ Unit *caster, Item* castItem) : Aura(spellproto, eff, currentBasePoints, target,
             break;
         case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
             m_areaAuraType = AREA_AURA_ENEMY;
-            if(target == caster_ptr)
+            if (target == caster_ptr)
                 m_modifier.m_auraname = SPELL_AURA_NONE;    // Do not do any effect on self
             break;
         case SPELL_EFFECT_APPLY_AREA_AURA_PET:
@@ -491,7 +491,7 @@ Unit *caster, Item* castItem) : Aura(spellproto, eff, currentBasePoints, target,
             break;
         case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
             m_areaAuraType = AREA_AURA_OWNER;
-            if(target == caster_ptr)
+            if (target == caster_ptr)
                 m_modifier.m_auraname = SPELL_AURA_NONE;
             break;
         default:
@@ -2352,6 +2352,9 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     ((Player*)m_target)->AddSpellMod(m_spellmod, apply);
                     return;
                 }
+                case 48384: if(apply)m_target->CastSpell(m_target,50170,true); return; //Rank 1
+                case 48395: if(apply)m_target->CastSpell(m_target,50171,true); return; //Rank 2
+                case 48396: if(apply)m_target->CastSpell(m_target,50172,true); return; //Rank 3
                 case 61336:                                 // Survival Instincts
                 {
                     if(apply)
