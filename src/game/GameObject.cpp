@@ -42,8 +42,8 @@ GameObject::GameObject() : WorldObject()
 {
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
-                                                            // 2.3.2 - 0x58
-    m_updateFlag = (UPDATEFLAG_LOWGUID | UPDATEFLAG_HIGHGUID | UPDATEFLAG_HAS_POSITION);
+                                                            // 3.1.0 - 0x348
+    m_updateFlag = (UPDATEFLAG_HIGHGUID | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_UNK1 | UPDATEFLAG_UNK2);
 
     m_valuesCount = GAMEOBJECT_END;
     m_respawnTime = 0;
@@ -57,6 +57,7 @@ GameObject::GameObject() : WorldObject()
     m_goInfo = NULL;
 
     m_DBTableGuid = 0;
+    m_rotation = 0;
 }
 
 GameObject::~GameObject()
@@ -119,10 +120,6 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
         sLog.outErrorDb("Gameobject (GUID: %u Entry: %u) not created: it have not exist GO type '%u' in `gameobject_template`. It's will crash client if created.",guidlow,name_id,goinfo->type);
         return false;
     }
-
-    SetFloatValue(GAMEOBJECT_POS_X, x);
-    SetFloatValue(GAMEOBJECT_POS_Y, y);
-    SetFloatValue(GAMEOBJECT_POS_Z, z);
 
     SetFloatValue(GAMEOBJECT_PARENTROTATION+0, rotation0);
     SetFloatValue(GAMEOBJECT_PARENTROTATION+1, rotation1);
@@ -520,10 +517,10 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     data.id = GetEntry();
     data.mapid = mapid;
     data.phaseMask = phaseMask;
-    data.posX = GetFloatValue(GAMEOBJECT_POS_X);
-    data.posY = GetFloatValue(GAMEOBJECT_POS_Y);
-    data.posZ = GetFloatValue(GAMEOBJECT_POS_Z);
-    data.orientation = GetFloatValue(GAMEOBJECT_FACING);
+    data.posX = GetPositionX();
+    data.posY = GetPositionY();
+    data.posZ = GetPositionZ();
+    data.orientation = GetOrientation();
     data.rotation0 = GetFloatValue(GAMEOBJECT_PARENTROTATION+0);
     data.rotation1 = GetFloatValue(GAMEOBJECT_PARENTROTATION+1);
     data.rotation2 = GetFloatValue(GAMEOBJECT_PARENTROTATION+2);
@@ -542,10 +539,10 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
         << mapid << ", "
         << uint32(spawnMask) << ","                         // cast to prevent save as symbol
         << uint16(GetPhaseMask()) << ","                    // prevent out of range error
-        << GetFloatValue(GAMEOBJECT_POS_X) << ", "
-        << GetFloatValue(GAMEOBJECT_POS_Y) << ", "
-        << GetFloatValue(GAMEOBJECT_POS_Z) << ", "
-        << GetFloatValue(GAMEOBJECT_FACING) << ", "
+        << GetPositionX() << ", "
+        << GetPositionY() << ", "
+        << GetPositionZ() << ", "
+        << GetOrientation() << ", "
         << GetFloatValue(GAMEOBJECT_PARENTROTATION) << ", "
         << GetFloatValue(GAMEOBJECT_PARENTROTATION+1) << ", "
         << GetFloatValue(GAMEOBJECT_PARENTROTATION+2) << ", "
@@ -1316,14 +1313,21 @@ void GameObject::UpdateRotationFields(float rotation2 /*=0.0f*/, float rotation3
 {
     static double const atan_pow = atan(pow(2.0f, -20.0f));
 
-    SetFloatValue(GAMEOBJECT_FACING, GetOrientation());
-
     double f_rot1 = sin(GetOrientation() / 2.0f);
     double f_rot2 = cos(GetOrientation() / 2.0f);
 
     int64 i_rot1 = int64(f_rot1 / atan_pow *(f_rot2 >= 0 ? 1.0f : -1.0f));
     int64 rotation = (i_rot1 << 43 >> 43) & 0x00000000001FFFFF;
-    SetUInt64Value(GAMEOBJECT_ROTATION, rotation);
+
+    //float f_rot2 = sin(0.0f / 2.0f);
+    //int64 i_rot2 = f_rot2 / atan(pow(2.0f, -20.0f));
+    //rotation |= (((i_rot2 << 22) >> 32) >> 11) & 0x000003FFFFE00000;
+
+    //float f_rot3 = sin(0.0f / 2.0f);
+    //int64 i_rot3 = f_rot3 / atan(pow(2.0f, -21.0f));
+    //rotation |= (i_rot3 >> 42) & 0x7FFFFC0000000000;
+
+    m_rotation = rotation;
 
     if(rotation2==0.0f && rotation3==0.0f)
     {

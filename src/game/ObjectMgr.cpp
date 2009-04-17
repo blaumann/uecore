@@ -119,6 +119,7 @@ ObjectMgr::ObjectMgr()
     m_hiPetNumber       = 1;
     m_ItemTextId        = 1;
     m_mailid            = 1;
+    m_equipmentSetGuid  = 1;
     m_guildId           = 1;
     m_arenaTeamId       = 1;
     m_auctionid         = 1;
@@ -5299,6 +5300,13 @@ void ObjectMgr::SetHighestGuids()
         delete result;
     }
 
+    result = CharacterDatabase.Query("SELECT MAX(setguid) FROM character_equipmentsets");
+    if (result)
+    {
+        m_equipmentSetGuid = (*result)[0].GetUInt64()+1;
+        delete result;
+    }
+
     result = CharacterDatabase.Query( "SELECT MAX(guildid) FROM guild" );
     if (result)
     {
@@ -5325,6 +5333,16 @@ uint32 ObjectMgr::GenerateAuctionID()
         World::StopNow(ERROR_EXIT_CODE);
     }
     return m_auctionid++;
+}
+
+uint64 ObjectMgr::GenerateEquipmentSetGuid()
+{
+    if(m_equipmentSetGuid>=0xFFFFFFFFFFFFFFFEll)
+    {
+        sLog.outError("EquipmentSet guid overflow!! Can't continue, shutting down server. ");
+        World::StopNow(ERROR_EXIT_CODE);
+    }
+    return m_equipmentSetGuid++;
 }
 
 uint32 ObjectMgr::GenerateGuildId()
@@ -7515,13 +7533,16 @@ void ObjectMgr::CheckScripts(ScriptMapMap const& scripts,std::set<int32>& ids)
     {
         for(ScriptMap::const_iterator itrM = itrMM->second.begin(); itrM != itrMM->second.end(); ++itrM)
         {
-            if(itrM->second.dataint)
+            switch(itrM->second.command)
             {
-                if(!GetMangosStringLocale (itrM->second.dataint))
-                    sLog.outErrorDb( "Table `db_script_string` has not existed string id  %u", itrM->first);
+                case SCRIPT_COMMAND_TALK:
+                {
+                    if(!GetMangosStringLocale (itrM->second.dataint))
+                        sLog.outErrorDb( "Table `db_script_string` not has string id  %u used db script (ID: %s)", itrM->second.dataint, itrMM->first);
 
-                if(ids.count(itrM->second.dataint))
-                    ids.erase(itrM->second.dataint);
+                    if(ids.count(itrM->second.dataint))
+                        ids.erase(itrM->second.dataint);
+                }
             }
         }
     }

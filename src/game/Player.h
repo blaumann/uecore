@@ -147,6 +147,7 @@ struct ActionButton
 enum ActionButtonType
 {
     ACTION_BUTTON_SPELL = 0,
+    ACTION_BUTTON_EQSET = 32,
     ACTION_BUTTON_MACRO = 64,
     ACTION_BUTTON_CMACRO= 65,
     ACTION_BUTTON_ITEM  = 128
@@ -333,6 +334,7 @@ struct LookingForGroup
     LookingForGroupSlot slots[MAX_LOOKING_FOR_GROUP_SLOT];
     LookingForGroupSlot more;
     std::string comment;
+    uint8 roles;
 };
 
 enum PlayerMovementType
@@ -534,7 +536,7 @@ enum PlayerSlots
     // first slot for item stored (in any way in player m_items data)
     PLAYER_SLOT_START           = 0,
     // last+1 slot for item stored (in any way in player m_items data)
-    PLAYER_SLOT_END             = 200,
+    PLAYER_SLOT_END             = 150,
     PLAYER_SLOTS_COUNT          = (PLAYER_SLOT_END - PLAYER_SLOT_START)
 };
 
@@ -602,23 +604,38 @@ enum KeyRingSlots                                           // 32 slots
     KEYRING_SLOT_END            = 118
 };
 
-enum VanityPetSlots                                         // 18 slots
-{
-    VANITYPET_SLOT_START        = 118,                      // not use, vanity pets stored as spells
-    VANITYPET_SLOT_END          = 136                       // not allowed any content in.
-};
-
 enum CurrencyTokenSlots                                     // 32 slots
 {
-    CURRENCYTOKEN_SLOT_START    = 136,
-    CURRENCYTOKEN_SLOT_END      = 168
+    CURRENCYTOKEN_SLOT_START    = 118,
+    CURRENCYTOKEN_SLOT_END      = 150
 };
 
-enum QuestBagSlots                                          // 32 slots
+enum EquipmentSetUpdateState
 {
-    QUESTBAG_SLOT_START         = 168,                      // not use
-    QUESTBAG_SLOT_END           = 200                       // not allowed any content in.
+    EQUIPMENT_SET_UNCHANGED     = 0,
+    EQUIPMENT_SET_CHANGED       = 1,
+    EQUIPMENT_SET_NEW           = 2,
+    EQUIPMENT_SET_DELETED       = 3
 };
+
+struct EquipmentSet
+{
+    EquipmentSet() : Guid(0), state(EQUIPMENT_SET_NEW)
+    {
+        for(int i = 0; i < EQUIPMENT_SLOT_END; ++i)
+            Items[i] = 0;
+    }
+
+    uint64 Guid;
+    std::string Name;
+    std::string IconName;
+    uint32 Items[EQUIPMENT_SLOT_END];
+    EquipmentSetUpdateState state;
+};
+
+#define MAX_EQUIPMENT_SET_INDEX 10                          // client limit
+
+typedef std::map<uint32, EquipmentSet> EquipmentSets;
 
 struct ItemPosCount
 {
@@ -638,15 +655,19 @@ enum TradeSlots
 
 enum TransferAbortReason
 {
-    TRANSFER_ABORT_ERROR                    = 0x00,
-    TRANSFER_ABORT_MAX_PLAYERS              = 0x01,         // Transfer Aborted: instance is full
-    TRANSFER_ABORT_NOT_FOUND                = 0x02,         // Transfer Aborted: instance not found
-    TRANSFER_ABORT_TOO_MANY_INSTANCES       = 0x03,         // You have entered too many instances recently.
-    TRANSFER_ABORT_ZONE_IN_COMBAT           = 0x05,         // Unable to zone in while an encounter is in progress.
-    TRANSFER_ABORT_INSUF_EXPAN_LVL          = 0x06,         // You must have <TBC,WotLK> expansion installed to access this area.
-    TRANSFER_ABORT_DIFFICULTY               = 0x07,         // <Normal,Heroic,Epic> difficulty mode is not available for %s.
-    TRANSFER_ABORT_UNIQUE_MESSAGE           = 0x08,         // Until you've escaped TLK's grasp, you cannot leave this place!
-    TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES = 0x09          // Additional instances cannot be launched, please try again later.
+    TRANSFER_ABORT_NONE                     = 0x00,
+    TRANSFER_ABORT_ERROR                    = 0x01,
+    TRANSFER_ABORT_MAX_PLAYERS              = 0x02,         // Transfer Aborted: instance is full
+    TRANSFER_ABORT_NOT_FOUND                = 0x03,         // Transfer Aborted: instance not found
+    TRANSFER_ABORT_TOO_MANY_INSTANCES       = 0x04,         // You have entered too many instances recently.
+    TRANSFER_ABORT_ZONE_IN_COMBAT           = 0x06,         // Unable to zone in while an encounter is in progress.
+    TRANSFER_ABORT_INSUF_EXPAN_LVL          = 0x07,         // You must have <TBC,WotLK> expansion installed to access this area.
+    TRANSFER_ABORT_DIFFICULTY               = 0x08,         // <Normal,Heroic,Epic> difficulty mode is not available for %s.
+    TRANSFER_ABORT_UNIQUE_MESSAGE           = 0x09,         // Until you've escaped TLK's grasp, you cannot leave this place!
+    TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES = 0x0A,         // Additional instances cannot be launched, please try again later.
+    TRANSFER_ABORT_NEED_GROUP               = 0x0B,         // 3.1
+    TRANSFER_ABORT_NOT_FOUND2               = 0x0C,         // 3.1
+    TRANSFER_ABORT_NOT_FOUND3               = 0x0D,         // 3.1
 };
 
 enum InstanceResetWarningType
@@ -758,20 +779,20 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADSPELLS               = 4,
     PLAYER_LOGIN_QUERY_LOADQUESTSTATUS          = 5,
     PLAYER_LOGIN_QUERY_LOADDAILYQUESTSTATUS     = 6,
-    PLAYER_LOGIN_QUERY_LOADTUTORIALS            = 7,        // common for all characters for some account at specific realm
-    PLAYER_LOGIN_QUERY_LOADREPUTATION           = 8,
-    PLAYER_LOGIN_QUERY_LOADINVENTORY            = 9,
-    PLAYER_LOGIN_QUERY_LOADACTIONS              = 10,
-    PLAYER_LOGIN_QUERY_LOADMAILCOUNT            = 11,
-    PLAYER_LOGIN_QUERY_LOADMAILDATE             = 12,
-    PLAYER_LOGIN_QUERY_LOADSOCIALLIST           = 13,
-    PLAYER_LOGIN_QUERY_LOADHOMEBIND             = 14,
-    PLAYER_LOGIN_QUERY_LOADSPELLCOOLDOWNS       = 15,
-    PLAYER_LOGIN_QUERY_LOADDECLINEDNAMES        = 16,
-    PLAYER_LOGIN_QUERY_LOADGUILD                = 17,
-    PLAYER_LOGIN_QUERY_LOADARENAINFO            = 18,
-    PLAYER_LOGIN_QUERY_LOADACHIEVEMENTS         = 19,
-    PLAYER_LOGIN_QUERY_LOADCRITERIAPROGRESS     = 20,
+    PLAYER_LOGIN_QUERY_LOADREPUTATION           = 7,
+    PLAYER_LOGIN_QUERY_LOADINVENTORY            = 8,
+    PLAYER_LOGIN_QUERY_LOADACTIONS              = 9,
+    PLAYER_LOGIN_QUERY_LOADMAILCOUNT            = 10,
+    PLAYER_LOGIN_QUERY_LOADMAILDATE             = 11,
+    PLAYER_LOGIN_QUERY_LOADSOCIALLIST           = 12,
+    PLAYER_LOGIN_QUERY_LOADHOMEBIND             = 13,
+    PLAYER_LOGIN_QUERY_LOADSPELLCOOLDOWNS       = 14,
+    PLAYER_LOGIN_QUERY_LOADDECLINEDNAMES        = 15,
+    PLAYER_LOGIN_QUERY_LOADGUILD                = 16,
+    PLAYER_LOGIN_QUERY_LOADARENAINFO            = 17,
+    PLAYER_LOGIN_QUERY_LOADACHIEVEMENTS         = 18,
+    PLAYER_LOGIN_QUERY_LOADCRITERIAPROGRESS     = 19,
+    PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS        = 20,
     MAX_PLAYER_LOGIN_QUERY                      = 21
 };
 
@@ -1112,6 +1133,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void ApplyEnchantment(Item *item,EnchantmentSlot slot,bool apply, bool apply_dur = true, bool ignore_condition = false);
         void ApplyEnchantment(Item *item,bool apply);
         void SendEnchantmentDurations();
+        void BuildEnchantmentsInfoData(WorldPacket *data);
         void AddItemDurations(Item *item);
         void RemoveItemDurations(Item *item);
         void SendItemDurations();
@@ -1287,22 +1309,6 @@ class MANGOS_DLL_SPEC Player : public Unit
             MoneyChanged( value );
         }
 
-        uint32 GetTutorialInt(uint32 intId )
-        {
-            ASSERT( (intId < 8) );
-            return m_Tutorials[intId];
-        }
-
-        void SetTutorialInt(uint32 intId, uint32 value)
-        {
-            ASSERT( (intId < 8) );
-            if(m_Tutorials[intId]!=value)
-            {
-                m_Tutorials[intId] = value;
-                m_TutorialsChanged = true;
-            }
-        }
-
         QuestStatusMap& getQuestStatusMap() { return mQuestStatus; };
 
         const uint64& GetSelection( ) const { return m_curSelection; }
@@ -1386,7 +1392,9 @@ class MANGOS_DLL_SPEC Player : public Unit
         bool resetTalents(bool no_cost = false);
         uint32 resetTalentsCost() const;
         void InitTalentForLevel();
-
+        void BuildPlayerTalentsInfoData(WorldPacket *data);
+        void BuildPetTalentsInfoData(WorldPacket *data);
+        void SendTalentsInfoData(bool pet);
         void LearnTalent(uint32 talentId, uint32 talentRank);
         void LearnPetTalent(uint64 petGuid, uint32 talentId, uint32 talentRank);
 
@@ -1758,6 +1766,10 @@ class MANGOS_DLL_SPEC Player : public Unit
         void UpdateEquipSpellsAtFormChange();
         void CastItemCombatSpell(Item *item,Unit* Target, WeaponAttackType attType);
         void CastItemUseSpell(Item *item,SpellCastTargets const& targets,uint8 cast_count, uint32 glyphIndex);
+
+        void SendEquipmentSetList();
+        void SetEquipmentSet(uint32 index, EquipmentSet eqset);
+        void DeleteEquipmentSet(uint64 setGuid);
 
         void SendInitWorldStates(uint32 zone, uint32 area);
         void SendUpdateWorldState(uint32 Field, uint32 Value);
@@ -2138,11 +2150,11 @@ class MANGOS_DLL_SPEC Player : public Unit
         void _LoadGroup(QueryResult *result);
         void _LoadSkills();
         void _LoadSpells(QueryResult *result);
-        void _LoadTutorials(QueryResult *result);
         void _LoadFriendList(QueryResult *result);
         bool _LoadHomeBind(QueryResult *result);
         void _LoadDeclinedNames(QueryResult *result);
         void _LoadArenaTeamInfo(QueryResult *result);
+        void _LoadEquipmentSets(QueryResult *result);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -2155,7 +2167,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void _SaveQuestStatus();
         void _SaveDailyQuestStatus();
         void _SaveSpells();
-        void _SaveTutorials();
+        void _SaveEquipmentSets();
 
         void _SetCreateBits(UpdateMask *updateMask, Player *target) const;
         void _SetUpdateBits(UpdateMask *updateMask, Player *target) const;
@@ -2242,9 +2254,6 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         time_t m_nextThinkTime;
 
-        uint32 m_Tutorials[8];
-        bool   m_TutorialsChanged;
-
         bool   m_DailyQuestChanged;
         time_t m_lastDailyQuestTime;
 
@@ -2322,6 +2331,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         WorldLocation m_teleport_dest;
         DeclinedName *m_declinedname;
         Runes *m_runes;
+        EquipmentSets m_EquipmentSets;
     private:
         // internal common parts for CanStore/StoreItem functions
         uint8 _CanStoreItem_InSpecificSlot( uint8 bag, uint8 slot, ItemPosCountVec& dest, ItemPrototype const *pProto, uint32& count, bool swap, Item *pSrcItem ) const;

@@ -16,29 +16,21 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _AUTHCRYPT_H
-#define _AUTHCRYPT_H
+#ifndef _AUTH_SARC4_H
+#define _AUTH_SARC4_H
 
-#include <Common.h>
-#include "SARC4.h"
+#include "Common.h"
+#include <openssl/evp.h>
 
-class BigNumber;
-
-class AuthCrypt
+class SARC4
 {
     public:
-        AuthCrypt();
-        ~AuthCrypt();
-
-        void Init(BigNumber *K);
-        void DecryptRecv(uint8 *, size_t);
-        void EncryptSend(uint8 *, size_t);
-
-        bool IsInitialized() { return _initialized; }
-
+        SARC4();
+        SARC4(uint8 *seed);
+        ~SARC4();
+        void Init(uint8 *seed);
+        void UpdateData(int len, uint8 *data);
     private:
-        SARC4 _clientDecrypt;
-        SARC4 _serverEncrypt;
-        bool _initialized;
+        EVP_CIPHER_CTX m_ctx;
 };
 #endif

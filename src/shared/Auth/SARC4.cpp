@@ -16,29 +16,37 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _AUTHCRYPT_H
-#define _AUTHCRYPT_H
+#include "Auth/SARC4.h"
+#include <openssl/sha.h>
 
-#include <Common.h>
-#include "SARC4.h"
-
-class BigNumber;
-
-class AuthCrypt
+SARC4::SARC4()
 {
-    public:
-        AuthCrypt();
-        ~AuthCrypt();
+    EVP_CIPHER_CTX_init(&m_ctx);
+    EVP_EncryptInit_ex(&m_ctx, EVP_rc4(), NULL, NULL, NULL);
+    EVP_CIPHER_CTX_set_key_length(&m_ctx, SHA_DIGEST_LENGTH);
+}
 
-        void Init(BigNumber *K);
-        void DecryptRecv(uint8 *, size_t);
-        void EncryptSend(uint8 *, size_t);
+SARC4::SARC4(uint8 *seed)
+{
+    EVP_CIPHER_CTX_init(&m_ctx);
+    EVP_EncryptInit_ex(&m_ctx, EVP_rc4(), NULL, NULL, NULL);
+    EVP_CIPHER_CTX_set_key_length(&m_ctx, SHA_DIGEST_LENGTH);
+    EVP_EncryptInit_ex(&m_ctx, NULL, NULL, seed, NULL);
+}
 
-        bool IsInitialized() { return _initialized; }
+SARC4::~SARC4()
+{
+    EVP_CIPHER_CTX_cleanup(&m_ctx);
+}
 
-    private:
-        SARC4 _clientDecrypt;
-        SARC4 _serverEncrypt;
-        bool _initialized;
-};
-#endif
+void SARC4::Init(uint8 *seed)
+{
+    EVP_EncryptInit_ex(&m_ctx, NULL, NULL, seed, NULL);
+}
+
+void SARC4::UpdateData(int len, uint8 *data)
+{
+    int outlen = 0;
+    EVP_EncryptUpdate(&m_ctx, data, &outlen, data, len);
+    EVP_EncryptFinal_ex(&m_ctx, data, &outlen);
+}

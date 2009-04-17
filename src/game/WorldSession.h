@@ -192,6 +192,22 @@ class MANGOS_DLL_SPEC WorldSession
         AccountData *GetAccountData(uint32 type) { return &m_accountData[type]; }
         void SetAccountData(uint32 type, time_t time_, std::string data);
         void LoadAccountData();
+        void LoadTutorialsData();
+        void SendTutorialsData();
+        void SaveTutorialsData();
+        uint32 GetTutorialInt(uint32 intId )
+        {
+            return m_Tutorials[intId];
+        }
+
+        void SetTutorialInt(uint32 intId, uint32 value)
+        {
+            if(m_Tutorials[intId] != value)
+            {
+                m_Tutorials[intId] = value;
+                m_TutorialsChanged = true;
+            }
+        }
 
         //mail
                                                             //used with item_page table
@@ -515,6 +531,7 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleCancelAutoRepeatSpellOpcode(WorldPacket& recvPacket);
 
         void HandleLearnTalentOpcode(WorldPacket& recvPacket);
+        void HandleLearnPreviewTalents(WorldPacket& recvPacket);
         void HandleTalentWipeOpcode(WorldPacket& recvPacket);
         void HandleUnlearnSkillOpcode(WorldPacket& recvPacket);
 
@@ -585,6 +602,7 @@ class MANGOS_DLL_SPEC WorldSession
         void HandlePetSpellAutocastOpcode( WorldPacket& recvPacket );
         void HandlePetCastSpellOpcode( WorldPacket& recvPacket );
         void HandlePetLearnTalent( WorldPacket& recvPacket );
+        void HandleLearnPreviewTalentsPet( WorldPacket& recvPacket );
 
         void HandleSetActionBar(WorldPacket& recv_data);
 
@@ -621,6 +639,7 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleLfmSetNoneOpcode(WorldPacket& recv_data);
         void HandleLfmSetOpcode(WorldPacket& recv_data);
         void HandleLfgSetCommentOpcode(WorldPacket& recv_data);
+        void HandleLfgSetRoles(WorldPacket& recv_data);
         void HandleChooseTitleOpcode(WorldPacket& recv_data);
         void HandleRealmStateRequestOpcode(WorldPacket& recv_data);
         void HandleTimeSyncResp(WorldPacket& recv_data);
@@ -692,6 +711,8 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleRemoveGlyph(WorldPacket& recv_data);
         void HandleCharCustomize(WorldPacket& recv_data);
         void HandleInspectAchievements(WorldPacket& recv_data);
+        void HandleEquipmentSetSave(WorldPacket& recv_data);
+        void HandleEquipmentSetDelete(WorldPacket& recv_data);
     private:
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);
@@ -716,6 +737,8 @@ class MANGOS_DLL_SPEC WorldSession
         int m_sessionDbLocaleIndex;
         uint32 m_latency;
         AccountData m_accountData[NUM_ACCOUNT_DATA_TYPES];
+        uint32 m_Tutorials[8];
+        bool   m_TutorialsChanged;
         AddonsList m_addonsList;
 
         ZThread::LockedQueue<WorldPacket*,ZThread::FastMutex> _recvQueue;

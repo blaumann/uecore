@@ -247,6 +247,8 @@ World::AddSession_ (WorldSession* s)
     s->SendPacket (&packet);
 
     s->SendAddonsInfo();
+    s->SendTutorialsData();
+
     UpdateMaxSessionCounters ();
 
     // Updates the population
@@ -1318,8 +1320,8 @@ void World::SetInitialWorldSettings()
     sLog.outString( "Loading ArenaTeams..." );
     objmgr.LoadArenaTeams();
 
-    sLog.outString( "Loading Groups..." );
-    objmgr.LoadGroups();
+    //sLog.outString( "Loading Groups..." );
+    //objmgr.LoadGroups();
 
     sLog.outString( "Loading ReservedNames..." );
     objmgr.LoadReservedPlayersNames();

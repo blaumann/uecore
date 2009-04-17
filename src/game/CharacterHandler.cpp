@@ -66,7 +66,6 @@ bool LoginQueryHolder::Initialize()
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADSPELLS,          "SELECT spell,active,disabled FROM character_spell WHERE guid = '%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADQUESTSTATUS,     "SELECT quest,status,rewarded,explored,timer,mobcount1,mobcount2,mobcount3,mobcount4,itemcount1,itemcount2,itemcount3,itemcount4 FROM character_queststatus WHERE guid = '%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADDAILYQUESTSTATUS,"SELECT quest,time FROM character_queststatus_daily WHERE guid = '%u'", GUID_LOPART(m_guid));
-    res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADTUTORIALS,       "SELECT tut0,tut1,tut2,tut3,tut4,tut5,tut6,tut7 FROM character_tutorial WHERE account = '%u' AND realmid = '%u'", GetAccountId(), realmID);
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADREPUTATION,      "SELECT faction,standing,flags FROM character_reputation WHERE guid = '%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADINVENTORY,       "SELECT data,bag,slot,item,item_template FROM character_inventory JOIN item_instance ON character_inventory.item = item_instance.guid WHERE character_inventory.guid = '%u' ORDER BY bag,slot", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADACTIONS,         "SELECT button,action,type,misc FROM character_action WHERE guid = '%u' ORDER BY button", GUID_LOPART(m_guid));
@@ -82,6 +81,7 @@ bool LoginQueryHolder::Initialize()
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADARENAINFO,       "SELECT arenateamid, played_week, played_season, personal_rating FROM arena_team_member WHERE guid='%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADACHIEVEMENTS,    "SELECT achievement, date FROM character_achievement WHERE guid = '%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADCRITERIAPROGRESS,"SELECT criteria, counter, date FROM character_achievement_progress WHERE guid = '%u'", GUID_LOPART(m_guid));
+    res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS,   "SELECT setguid, setindex, name, iconname, item0, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18 FROM character_equipmentsets WHERE guid = '%u' ORDER BY setindex", GUID_LOPART(m_guid));
 
     return res;
 }
@@ -717,7 +717,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 
     ObjectAccessor::Instance().AddObject(pCurrChar);
     //sLog.outDebug("Player %s added to Map.",pCurrChar->GetName());
-    pCurrChar->GetSocial()->SendSocialList();
 
     pCurrChar->SendInitialPacketsAfterAddToMap();
 
@@ -906,9 +905,9 @@ void WorldSession::HandleTutorialFlag( WorldPacket & recv_data )
     }
     uint32 rInt = (iFlag % 32);
 
-    uint32 tutflag = GetPlayer()->GetTutorialInt( wInt );
+    uint32 tutflag = GetTutorialInt( wInt );
     tutflag |= (1 << rInt);
-    GetPlayer()->SetTutorialInt( wInt, tutflag );
+    SetTutorialInt( wInt, tutflag );
 
     //sLog.outDebug("Received Tutorial Flag Set {%u}.", iFlag);
 }
@@ -916,13 +915,13 @@ void WorldSession::HandleTutorialFlag( WorldPacket & recv_data )
 void WorldSession::HandleTutorialClear( WorldPacket & /*recv_data*/ )
 {
     for ( uint32 iI = 0; iI < 8; iI++)
-        GetPlayer()->SetTutorialInt( iI, 0xFFFFFFFF );
+        SetTutorialInt( iI, 0xFFFFFFFF );
 }
 
 void WorldSession::HandleTutorialReset( WorldPacket & /*recv_data*/ )
 {
     for ( uint32 iI = 0; iI < 8; iI++)
-        GetPlayer()->SetTutorialInt( iI, 0x00000000 );
+        SetTutorialInt( iI, 0x00000000 );
 }
 
 void WorldSession::HandleSetWatchedFactionIndexOpcode(WorldPacket & recv_data)
@@ -1201,6 +1200,7 @@ void WorldSession::HandleRemoveGlyph( WorldPacket & recv_data )
         {
             _player->RemoveAurasDueToSpell(gp->SpellId);
             _player->SetGlyph(slot, 0);
+            _player->SendTalentsInfoData(false);
         }
     }
 }
@@ -1298,4 +1298,57 @@ void WorldSession::HandleCharCustomize(WorldPacket& recv_data)
     data << uint8(hairColor);
     data << uint8(facialHair);
     SendPacket(&data);
+}
+
+void WorldSession::HandleEquipmentSetSave(WorldPacket &recv_data)
+{
+    sLog.outDebug("CMSG_EQUIPMENT_SET_SAVE");
+
+    uint64 setGuid;
+    if(!recv_data.readPackGUID(setGuid))
+        return;
+
+    CHECK_PACKET_SIZE(recv_data, recv_data.rpos()+4);
+
+    uint32 index;
+    recv_data >> index;
+    if(index >= MAX_EQUIPMENT_SET_INDEX)                    // client set slots amount
+        return;
+
+    CHECK_PACKET_SIZE(recv_data, recv_data.rpos()+1);
+    std::string name;
+    recv_data >> name;
+
+    CHECK_PACKET_SIZE(recv_data, recv_data.rpos()+1);
+    std::string iconName;
+    recv_data >> iconName;
+
+    EquipmentSet eqSet;
+
+    eqSet.Guid      = setGuid;
+    eqSet.Name      = name;
+    eqSet.IconName  = iconName;
+    eqSet.state     = EQUIPMENT_SET_NEW;
+
+    for(uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    {
+        uint64 itemGuid;
+        if(!recv_data.readPackGUID(itemGuid))
+            return;
+
+        eqSet.Items[i] = GUID_LOPART(itemGuid);
+    }
+
+    _player->SetEquipmentSet(index,eqSet);
+}
+
+void WorldSession::HandleEquipmentSetDelete(WorldPacket &recv_data)
+{
+    sLog.outDebug("CMSG_EQUIPMENT_SET_DELETE");
+
+    uint64 setGuid;
+    if(!recv_data.readPackGUID(setGuid))
+        return;
+
+    _player->DeleteEquipmentSet(setGuid);
 }
