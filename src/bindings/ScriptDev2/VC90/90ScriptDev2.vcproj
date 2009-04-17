@@ -2551,6 +2551,14 @@
 							>
 						</File>
 						<File
+							RelativePath="..\scripts\zone\caverns_of_time\hyjal\hyjal_trash.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\caverns_of_time\hyjal\hyjal_trash.h"
+							>
+						</File>
+						<File
 							RelativePath="..\scripts\zone\caverns_of_time\hyjal\hyjalAI.cpp"
 							>
 						</File>

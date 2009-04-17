@@ -243,7 +243,7 @@ struct MANGOS_DLL_DECL boss_thaddiusAI : public ScriptedAI
                 else start = true;
             }else
             {
-                //DoZoneInCombat();
+                DoZoneInCombat();
                 adds_death = true;
             }
 
@@ -673,17 +673,17 @@ void AddSC_boss_thaddius()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_thaddius";
-    newscript->GetAI = GetAI_boss_thaddius;
+    newscript->Name = "boss_thaddius";
+    newscript->GetAI = &GetAI_boss_thaddius;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_feugen";
-    newscript->GetAI = GetAI_mob_feugen;
+    newscript->Name = "mob_feugen";
+    newscript->GetAI = &GetAI_mob_feugen;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_stalagg";
-    newscript->GetAI = GetAI_mob_stalagg;
+    newscript->Name = "mob_stalagg";
+    newscript->GetAI = &GetAI_mob_stalagg;
     newscript->RegisterSelf();
 }
