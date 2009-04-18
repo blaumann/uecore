@@ -379,7 +379,6 @@ void hyjalAI::Reset()
     Summon = false;
     bRetreat = false;
     Debug = false;
-    
 
     //Flags
     m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -387,15 +386,18 @@ void hyjalAI::Reset()
     //Initialize spells
     memset(Spell, 0, sizeof(Spell));
 
-    //Reset World States
-    UpdateWorldState(WORLD_STATE_WAVES, 0);
-    UpdateWorldState(WORLD_STATE_ENEMY, 0);
-    UpdateWorldState(WORLD_STATE_ENEMYCOUNT, 0);
-
     //Reset Instance Data for trash count
     if(pInstance)
-        pInstance->SetData(DATA_RESET_TRASH_COUNT, 0);
-    else error_log(ERROR_INST_DATA);
+    {
+        if((!pInstance->GetData(DATA_ALLIANCE_RETREAT) && m_creature->GetEntry() == JAINA) || (pInstance->GetData(DATA_ALLIANCE_RETREAT) && m_creature->GetEntry() == THRALL))
+        {
+            //Reset World States
+            UpdateWorldState(WORLD_STATE_WAVES, 0);
+            UpdateWorldState(WORLD_STATE_ENEMY, 0);
+            UpdateWorldState(WORLD_STATE_ENEMYCOUNT, 0);
+            pInstance->SetData(DATA_RESET_TRASH_COUNT, 0);
+        }
+    }else error_log(ERROR_INST_DATA);
 
     //Visibility
     DoHide = true;

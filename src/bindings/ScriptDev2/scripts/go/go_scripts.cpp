@@ -349,7 +349,50 @@ bool GOHello_go_tele_to_violet_stand(Player* pPlayer, GameObject* pGo)
 
     return true;
 }
+/*
+bool GOHello_go_orbre_dk_control(Player *player, GameObject* _GO) 
+{ 
+    Creature* c = _GO->SummonCreature(......); 
 
+        if(!c) 
+            return false; 
+
+    player->SetCharm(c);     
+    player->SetClientControl(c,1);   
+        c->SetCharmerGUID(player->GetGUID()); 
+        c->setFaction(player->getFaction()); 
+    player->SetFarSight(c->GetGUID());  
+
+        WorldPacket data; 
+       data.Initialize(SMSG_PET_SPELLS, 8+4+4+4+4*10+1+1); 
+       data << uint64(c->GetGUID()); 
+       data << uint32(0x00000000); 
+       data << uint32(0x00000000); 
+       data << uint32(0x00000101); 
+
+    // Spell 1 
+    data << uint16(ID_SPELL) << uint8(0) << uint8(1+8); 
+    // Spell 2  
+    data << uint16(ID_SPELL) << uint8(0) << uint8(2+8);  
+    // Spell 3 
+    data << uint16(ID_SPELL) << uint8(0) << uint8(3+8);  
+
+    for(uint32 i = 0; i < 7; ++i) 
+        data << uint16(0) << uint8(0) << uint8(i+8+3); 
+
+    data << uint8(0); 
+    data << uint8(0); 
+    player->GetSession()->SendPacket(&data); 
+
+    WorldPacket data(12); 
+    data.SetOpcode(SMSG_MOVE_SET_CAN_FLY); 
+    data.append(c->GetPackGUID()); 
+    data << uint32(0); 
+    player->GetSession()->SendMessageToSet(&data, true) 
+
+    return true; 
+}
+*/
 void AddSC_go_scripts()
 {
     Script *newscript;
@@ -433,4 +476,9 @@ void AddSC_go_scripts()
     newscript->Name = "go_tele_to_violet_stand";
     newscript->pGOHello =           &GOHello_go_tele_to_violet_stand;
     newscript->RegisterSelf();
+
+    /*newscript = new Script;
+    newscript->Name = "go_orbre_dk_control";
+    newscript->pGOHello =           &GOHello_go_orbre_dk_control;
+    newscript->RegisterSelf();*/
 }

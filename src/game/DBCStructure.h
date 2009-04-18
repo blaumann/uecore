@@ -749,6 +749,17 @@ struct DurabilityQualityEntry
     float     quality_mod;                                  // 1
 };
 
+struct EmotesEntry
+{
+    uint32  Id;                                             // 0
+    //char*   Name;                                         // 1, internal name
+    //uint32  AnimationId;                                  // 2, ref to animationData
+    uint32  Flags;                                          // 3, bitmask, may be unit_flags
+    uint32  EmoteType;                                      // 4, Can be 0, 1 or 2 (determine how emote are shown)
+    uint32  UnitStandState;                                 // 5, uncomfirmed, may be enum UnitStandStateType
+    //uint32  SoundId;                                      // 6, ref to soundEntries
+};
+
 struct EmotesTextEntry
 {
     uint32  Id;
@@ -1446,7 +1457,8 @@ struct StableSlotPricesEntry
     uint32 Price;
 };
 
-/*struct SummonPropertiesEntry
+/* unused currently
+struct SummonPropertiesEntry
 {
     uint32  Id;                                             // 0
     uint32  Group;                                          // 1, 0 - can't be controlled?, 1 - something guardian?, 2 - pet?, 3 - something controllable?, 4 - taxi/mount?

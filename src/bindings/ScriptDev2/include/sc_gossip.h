@@ -10,7 +10,7 @@
 #include "QuestDef.h"
 
 // Gossip Item Text
-#define GOSSIP_TEXT_BROWSE_GOODS        "I'd like to browse your goods."
+#define GOSSIP_TEXT_BROWSE_GOODS        -1999831
 #define GOSSIP_TEXT_TRAIN               "Train me!"
 
 #define GOSSIP_TEXT_BANK                "The bank"
@@ -27,7 +27,7 @@
 #define GOSSIP_TEXT_AUCTIONHOUSE        "The auction house"
 #define GOSSIP_TEXT_GUILDMASTER         "The guild master"
 #define GOSSIP_TEXT_INN                 "The inn"
-#define GOSSIP_TEXT_MAILBOX             -1999828
+#define GOSSIP_TEXT_MAILBOX             -1999830
 #define GOSSIP_TEXT_STABLEMASTER        "The stable master"
 #define GOSSIP_TEXT_WEAPONMASTER        "The weapon master"
 #define GOSSIP_TEXT_OFFICERS            "The officers' lounge"
