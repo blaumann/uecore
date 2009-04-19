@@ -976,10 +976,10 @@ void ScriptsInit()
     outstring_log("MM  M M  M ");
     outstring_log(" MMM  MMM  http://www.scriptdev2.com");
     outstring_log("");
-	outstring_log("::CORE::VISIT::WWW.FANATIX.BIZ:::");
-	outstring_log("#################################");
-	outstring_log("#  Compiled from Fanatix Team   #");
-	outstring_log("#################################");
+	outstring_log(":::CORE::VISIT::WWW.CWDB.TK:::::::");
+	outstring_log("##################################");
+	outstring_log("#    Compiled from CWDB Team     #");
+	outstring_log("##################################");
 
     //Get configuration file
     if (!SD2Config.SetSource(_SCRIPTDEV2_CONFIG))

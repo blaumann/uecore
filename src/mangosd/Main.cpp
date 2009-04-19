@@ -144,14 +144,12 @@ extern int main(int argc, char **argv)
     sLog.outString( "%s [world-daemon]", _FULLVERSION(REVISION_DATE,REVISION_TIME,REVISION_NR,REVISION_ID) );
     sLog.outString( "<Ctrl-C> to stop.\n\n" );
 
-    sLog.outTitle( "oooooooooooo                                    .   o8o              ");
-    sLog.outTitle( "`888'     `8                                  .o8   `*'              ");
-    sLog.outTitle( " 888         .oooo.   ooo. .oo.    .oooo.  .o888oo oooo  oooo    ooo ");
-    sLog.outTitle( " 888oooo8   `P  )88b  `888P*Y88b  `P  )88b   888   `888   `88b..8P'  ");
-    sLog.outTitle( " 888    8    .oP'888   888   888   .oP'888   888    888     Y888'    ");
-    sLog.outTitle( " 888        d8(  888   888   888  d8(  888   888 .  888   .o8''88b   ");
-    sLog.outTitle( "o888o       `Y888''8o o888o o888o `Y888''8o  888   o888o o88'   888o ");
-	sLog.outTitle( ":::::::::::::::CORE::::VISIT::::WWW.FANATIX.BIZ::::::::::::::::::::::");
+    sLog.outTitle( "  oooooooo8 oooo     oooo ooooooooo  oooooooooo ");
+    sLog.outTitle( "o888     88  88   88  88   888    88o 888    888");
+    sLog.outTitle( "888           88 888 88    888    888 888oooo88 ");
+    sLog.outTitle( "888o     oo    888 888     888    888 888    888");
+    sLog.outTitle( " 888oooo88      8   8     o888ooo88  o888ooo888 ");
+	sLog.outTitle( "::::::::CORE:::::::VISIT::::::::WWW.CWDB.TK:::::");
 	sLog.outTitle( "Modify from Thyros\n\n");
 
     sLog.outString("Using configuration file %s.", cfg_file);
