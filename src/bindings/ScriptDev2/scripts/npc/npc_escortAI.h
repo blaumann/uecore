@@ -62,6 +62,8 @@ struct MANGOS_DLL_DECL npc_escortAI : public ScriptedAI
 
         void SetRun(bool bRun = true);
 
+        bool GetAttack() { return Attack; }//used in EnterEvadeMode override
+
     // EscortAI variables
     protected:
         uint64 PlayerGUID;

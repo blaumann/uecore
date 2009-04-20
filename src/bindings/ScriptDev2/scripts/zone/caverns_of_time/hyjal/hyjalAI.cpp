@@ -444,7 +444,7 @@ void hyjalAI::Aggro(Unit *who)
 void hyjalAI::MoveInLineOfSight(Unit *who)
 {
     if(IsDummy)return;
-    if (IsBeingEscorted )
+    if (IsBeingEscorted && !GetAttack())
         return;
 
     if(m_creature->getVictim() || !m_creature->GetAttackDistance(who))
