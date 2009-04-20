@@ -173,7 +173,7 @@ struct MANGOS_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
         if (!player)
             return;
 
-        if (GameObject *Door = GameObject::GetGameObject(*player, DoorGUID))
+        if (GameObject *Door = instance->GetGameObject(DoorGUID))
             Door->SetGoState(open ? 0 : 1);
     }
 

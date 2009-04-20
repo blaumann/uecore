@@ -123,7 +123,7 @@ struct MANGOS_DLL_DECL instance_mount_hyjal : public ScriptedInstance
 
 		Map::PlayerList::const_iterator i = PlayerList.begin();
         if(Player* i_pl = i->getSource())
-            if(GameObject *Door = GameObject::GetGameObject(*i_pl, DoorGUID))
+            if(GameObject *Door = instance->GetGameObject(DoorGUID))
                 Door->SetGoState(open ? 0 : 1); 
     }
 

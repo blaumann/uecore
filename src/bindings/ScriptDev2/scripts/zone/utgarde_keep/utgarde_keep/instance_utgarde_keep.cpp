@@ -92,7 +92,7 @@ struct MANGOS_DLL_DECL  instance_utgarde_keep : public ScriptedInstance
             return;
         }
 
-        if (GameObject *go = GameObject::GetGameObject(*player,guid))
+        if (GameObject *go = instance->GetGameObject(guid))
             go->SetGoState(state);
     }
 

@@ -127,25 +127,17 @@ struct MANGOS_DLL_DECL instance_steam_vault : public ScriptedInstance
 
     void SetData(uint32 type, uint32 data)
     {
-        Player *player = GetPlayerInMap();
-
-        if (!player)
-        {
-            debug_log("SD2: Instance Steamvault: SetData (Type: %u Data %u) cannot find any player.", type, data);
-            return;
-        }
-
         switch(type)
         {
             case TYPE_HYDROMANCER_THESPIA:
                 if (data == SPECIAL)
                 {
-                    if (GameObject *_go = GameObject::GetGameObject(*player,AccessPanelHydro))
+                    if (GameObject *_go = instance->GetGameObject(AccessPanelHydro))
                         _go->SetGoState(0);
 
                     if (GetData(TYPE_MEKGINEER_STEAMRIGGER) == SPECIAL)
                     {
-                        if (GameObject *_go = GameObject::GetGameObject(*player,MainChambersDoor))
+                        if (GameObject *_go = instance->GetGameObject(MainChambersDoor))
                             _go->SetGoState(0);
                     }
 
@@ -156,12 +148,12 @@ struct MANGOS_DLL_DECL instance_steam_vault : public ScriptedInstance
             case TYPE_MEKGINEER_STEAMRIGGER:
                 if (data == SPECIAL)
                 {
-                    if (GameObject *_go = GameObject::GetGameObject(*player,AccessPanelMek))
+                    if (GameObject *_go = instance->GetGameObject(AccessPanelMek))
                         _go->SetGoState(0);
 
                     if (GetData(TYPE_HYDROMANCER_THESPIA) == SPECIAL)
                     {
-                        if (GameObject *_go = GameObject::GetGameObject(*player,MainChambersDoor))
+                        if (GameObject *_go = instance->GetGameObject(MainChambersDoor))
                             _go->SetGoState(0);
                     }
 

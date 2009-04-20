@@ -128,7 +128,7 @@ struct MANGOS_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
         {        
             pInstance->SetData(DATA_MAULGAREVENT, DONE);
             
-            GameObject* ContinueDoor = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_MAULGAR_DOOR));
+            GameObject* ContinueDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_MAULGAR_DOOR));
             if(ContinueDoor)
                 ContinueDoor->SetGoState(0); // Open the door leading further in
         }

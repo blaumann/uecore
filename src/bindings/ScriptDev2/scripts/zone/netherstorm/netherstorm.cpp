@@ -124,7 +124,7 @@ struct MANGOS_DLL_DECL npc_manaforge_control_consoleAI : public ScriptedAI
 
         if( goConsole )
         {
-            if( GameObject* go = GameObject::GetGameObject((*m_creature),goConsole) )
+            if( GameObject* go = m_creature->GetMap()->GetGameObject(goConsole) )
                 go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
         }
     }
@@ -262,7 +262,7 @@ struct MANGOS_DLL_DECL npc_manaforge_control_consoleAI : public ScriptedAI
                     DoCast(m_creature,SPELL_DISABLE_VISUAL);
                     if( goConsole )
                     {
-                        if( GameObject* go = GameObject::GetGameObject((*m_creature),goConsole) )
+                        if( GameObject* go = m_creature->GetMap()->GetGameObject(goConsole) )
                             go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
                     }
                     ++Phase;

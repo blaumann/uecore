@@ -316,7 +316,7 @@ struct MANGOS_DLL_DECL boss_entropiusAI : public ScriptedAI
     void JustDied(Unit* Killer) 
     {
 	 if(MuruDead) {
-		GameObject* Gate = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DATA_GATE_4));
+		GameObject* Gate = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GATE_4));
         	Gate->SetGoState(0);
 	
 	 if(pInstance)

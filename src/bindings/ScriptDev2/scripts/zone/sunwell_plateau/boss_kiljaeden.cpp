@@ -226,9 +226,10 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
             Orb[i] = (*itr)->GetGUID();
     }
 
-    void EmpowerOrb()
+    /*void EmpowerOrb()
     {
-        GameObject* orb = GameObject::GetGameObject(*m_creature, Orb[OrbsEmpowered]);
+        GameObject* orb = pInstance->instance->GetGameObject(pInstance->Orb[OrbsEmpowered]);
+		//GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(i));
         if(!orb)
             return;
 
@@ -236,7 +237,7 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
         orb->Refresh();
 
         ++OrbsEmpowered;
-    }
+    }*/
 
     void UpdateAI(const uint32 diff) { }
 };

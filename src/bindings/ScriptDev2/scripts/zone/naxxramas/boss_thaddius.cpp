@@ -211,7 +211,7 @@ struct MANGOS_DLL_DECL boss_thaddiusAI : public ScriptedAI
         if(pInstance)
         {
             GameObject *door;
-            door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(identifier));
+            door = pInstance->instance->GetGameObject(pInstance->GetData64(identifier));
             if (door)
             {
                 switch (doorstate)
@@ -452,7 +452,7 @@ struct MANGOS_DLL_DECL mob_feugenAI : public ScriptedAI
         if(pInstance)
         {
             GameObject *door;
-            door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(identifier));
+            door = pInstance->instance->GetGameObject(pInstance->GetData64(identifier));
             if (door)
             {
                 switch (doorstate)
@@ -616,7 +616,7 @@ struct MANGOS_DLL_DECL mob_stalaggAI : public ScriptedAI
         if(pInstance)
         {
             GameObject *door;
-            door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(identifier));
+            door = pInstance->instance->GetGameObject(pInstance->GetData64(identifier));
             if (door)
             {
                 switch (doorstate)

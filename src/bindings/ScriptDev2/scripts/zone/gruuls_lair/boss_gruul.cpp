@@ -82,7 +82,7 @@ struct MANGOS_DLL_DECL boss_gruulAI : public ScriptedAI
         if (pInstance)
         {
             pInstance->SetData(DATA_GRUULEVENT, NOT_STARTED);
-            GameObject* EncounterDoor = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GRUUL_ENCOUNTER_DOOR));
+            GameObject* EncounterDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GRUUL_ENCOUNTER_DOOR));
             if (EncounterDoor)
                 EncounterDoor->SetGoState(0);                   // Open the encounter door
         }else error_log(ERROR_INST_DATA);
@@ -98,7 +98,7 @@ struct MANGOS_DLL_DECL boss_gruulAI : public ScriptedAI
         if (pInstance)
         {
             pInstance->SetData(DATA_GRUULEVENT, IN_PROGRESS);
-            GameObject* EncounterDoor = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DATA_GRUUL_ENCOUNTER_DOOR));
+            GameObject* EncounterDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GRUUL_ENCOUNTER_DOOR));
             if (EncounterDoor)
                 EncounterDoor->SetGoState(1);               //Close the encounter door, open it in JustDied/Reset
         }
@@ -122,7 +122,7 @@ struct MANGOS_DLL_DECL boss_gruulAI : public ScriptedAI
         {
             pInstance->SetData(DATA_GRUULEVENT, DONE);
             
-            GameObject* EncounterDoor = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GRUUL_ENCOUNTER_DOOR));
+            GameObject* EncounterDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GRUUL_ENCOUNTER_DOOR));
             if (EncounterDoor)
                 EncounterDoor->SetGoState(0);                   // Open the encounter door
         }

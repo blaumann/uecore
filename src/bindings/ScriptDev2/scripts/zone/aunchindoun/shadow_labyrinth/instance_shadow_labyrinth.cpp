@@ -119,7 +119,7 @@ struct MANGOS_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
             return;
         }
 
-        if (GameObject *go = GameObject::GetGameObject(*player,guid))
+        if (GameObject *go = instance->GetGameObject(guid))
             go->SetGoState(state);
     }
 

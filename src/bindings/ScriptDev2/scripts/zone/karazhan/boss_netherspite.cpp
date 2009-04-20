@@ -175,7 +175,7 @@ struct MANGOS_DLL_DECL boss_netherspiteAI : public ScriptedAI {
         DestroyPortals();
                 DestroyVoidZone();
  
-                GameObject* Door = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DATA_GAMEOBJECT_MASSIVE_DOOR));
+                GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_MASSIVE_DOOR));
                 if(Door)
                         Door->SetGoState(0); // open the door
     }
@@ -870,7 +870,7 @@ struct MANGOS_DLL_DECL boss_netherspiteAI : public ScriptedAI {
                 if(!m_creature->SelectHostilTarget())
             return;
  
-                GameObject* Door = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DATA_GAMEOBJECT_MASSIVE_DOOR));
+                GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_MASSIVE_DOOR));
                 if(Door)
                         Door->SetGoState(1); // open the door
  
@@ -1129,7 +1129,7 @@ struct MANGOS_DLL_DECL boss_netherspiteAI : public ScriptedAI {
                 DestroyVoidZone();
                 bReset = true;
  
-                GameObject* Door = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DATA_GAMEOBJECT_MASSIVE_DOOR));
+                GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_MASSIVE_DOOR));
                 if(Door)
                         Door->SetGoState(0); // open the door
     }

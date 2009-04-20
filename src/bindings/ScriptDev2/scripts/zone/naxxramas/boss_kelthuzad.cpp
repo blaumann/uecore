@@ -386,7 +386,7 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
         if(pInstance)
         {
             GameObject *door;
-            door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(identifier));
+            door = pInstance->instance->GetGameObject(pInstance->GetData64(identifier));
             if (door)
             {
                 switch (doorstate)

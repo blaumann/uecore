@@ -174,7 +174,7 @@ struct MANGOS_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                     RespawnTimer = 10000;
                 if (data != IN_PROGRESS)
                 {
-                     if (GameObject *Door = GameObject::GetGameObject(*player, DoorGUID))
+                     if (GameObject *Door = instance->GetGameObject(DoorGUID))
                         Door->SetGoState(0);
                 }
                 break;
@@ -202,7 +202,7 @@ struct MANGOS_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
 
                             CageTimer = 0;
 
-                            if (GameObject *Door = GameObject::GetGameObject(*player, DoorGUID))
+                            if (GameObject *Door = instance->GetGameObject(DoorGUID))
                                 Door->SetGoState(0);
                         }
                         break;
@@ -226,7 +226,7 @@ struct MANGOS_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                             if (Magtheridon && Magtheridon->isAlive())
                                 CageTimer = 120000;
 
-                            if (GameObject *Door = GameObject::GetGameObject(*player, DoorGUID))
+                            if (GameObject *Door = instance->GetGameObject(DoorGUID))
                                 Door->SetGoState(1);
                         }
                         break;
@@ -250,7 +250,7 @@ struct MANGOS_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                 // IN_PROGRESS - collapse / NOT_STARTED - reset
                 for(std::set<uint64>::iterator i = ColumnGUID.begin(); i != ColumnGUID.end(); ++i)
                 {
-                    if (GameObject *Column = GameObject::GetGameObject(*player, *i))
+                    if (GameObject *Column = instance->GetGameObject(*i))
                         Column->SetGoState(!data);
                 }
                 break;

@@ -165,7 +165,7 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
            		Temp3->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
            	}
 
-            if (GameObject* TwilightPortal = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GO_TWILIGHT_PORTAL)))
+            if (GameObject* TwilightPortal = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GO_TWILIGHT_PORTAL)))
                 if (TwilightPortal->GetPhaseMask())
                     TwilightPortal->SetPhaseMask(0, true);
         }
@@ -828,7 +828,7 @@ struct MANGOS_DLL_DECL mob_acolyte_of_shadronAI : public ScriptedAI
         if (pInstance)
         {
             // makes portal visible
-            if (GameObject* TwilightPortal = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GO_TWILIGHT_PORTAL)))
+            if (GameObject* TwilightPortal = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GO_TWILIGHT_PORTAL)))
                 if (!TwilightPortal->GetPhaseMask())
                     TwilightPortal->SetPhaseMask(1, true);
         }
@@ -912,7 +912,7 @@ struct MANGOS_DLL_DECL mob_acolyte_of_vesperonAI : public ScriptedAI
         if (pInstance)
         {
             // makes portal visible
-            if (GameObject* TwilightPortal = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GO_TWILIGHT_PORTAL)))
+            if (GameObject* TwilightPortal = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GO_TWILIGHT_PORTAL)))
                 if (!TwilightPortal->GetPhaseMask())
                     TwilightPortal->SetPhaseMask(1, true);
         }

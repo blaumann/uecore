@@ -413,13 +413,13 @@ struct MANGOS_DLL_SPEC npc_akama_illidanAI : public ScriptedAI
         if (pInstance)
         {
             pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, NOT_STARTED);
-            GameObject* Gate = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_GATE));
+            GameObject* Gate = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_GATE));
             if (Gate && !Gate->GetGoState())
                 Gate->SetGoState(1);                        // close door if already open (when raid wipes or something)
 
             for(uint8 i = DATA_GAMEOBJECT_ILLIDAN_DOOR_R; i < DATA_GAMEOBJECT_ILLIDAN_DOOR_L + 1; ++i)
             {
-                GameObject* Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(i));
+                GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(i));
                 if (Door)
                     Door->SetGoState(0);
             }
@@ -511,7 +511,7 @@ struct MANGOS_DLL_SPEC npc_akama_illidanAI : public ScriptedAI
         debug_log("SD2: Akama - Door event initiated by player %s", player->GetName());
         PlayerGUID = player->GetGUID();
 
-        GameObject* Gate = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_GATE));
+        GameObject* Gate = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_GATE));
         if (Gate)
         {
             float x,y,z;
@@ -561,7 +561,7 @@ struct MANGOS_DLL_SPEC npc_akama_illidanAI : public ScriptedAI
                     // open the doors that close the summit
                     for(uint32 i = DATA_GAMEOBJECT_ILLIDAN_DOOR_R; i < DATA_GAMEOBJECT_ILLIDAN_DOOR_L+1; ++i)
                     {
-                        GameObject* Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(i));
+                        GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(i));
                         if (Door)
                             Door->SetGoState(0);
                     }
@@ -719,7 +719,7 @@ struct MANGOS_DLL_SPEC npc_akama_illidanAI : public ScriptedAI
                                 }
                             }
 
-                            GameObject* Gate = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_GATE));
+                            GameObject* Gate = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_GATE));
                             if (Gate)
                                 Gate->SetGoState(0);
 
@@ -1076,7 +1076,7 @@ struct MANGOS_DLL_SPEC boss_illidan_stormrageAI : public ScriptedAI
 
         for(uint8 i = DATA_GAMEOBJECT_ILLIDAN_DOOR_R; i < DATA_GAMEOBJECT_ILLIDAN_DOOR_L + 1; ++i)
         {
-            GameObject* Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(i));
+            GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(i));
             if (Door)
                 Door->SetGoState(0);                        // Open Doors
         }
@@ -1958,7 +1958,7 @@ void npc_akama_illidanAI::BeginEvent(uint64 PlayerGUID)
     {
         for(uint8 i = DATA_GAMEOBJECT_ILLIDAN_DOOR_R; i < DATA_GAMEOBJECT_ILLIDAN_DOOR_L+1; ++i)
         {
-            GameObject* Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(i));
+            GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(i));
             if (Door)
                 Door->SetGoState(1);
         }
@@ -2119,7 +2119,7 @@ struct MANGOS_DLL_DECL cage_trap_triggerAI : public ScriptedAI
                     if (who->HasAura(SPELL_ENRAGE, 0))
                         who->RemoveAurasDueToSpell(SPELL_ENRAGE);
 
-                    if (GameObject* CageTrap = GameObject::GetGameObject(*m_creature, CageTrapGUID))
+                    if (GameObject* CageTrap = m_creature->GetMap()->GetGameObject(CageTrapGUID))
                         CageTrap->SetLootState(GO_JUST_DEACTIVATED);
                 }
             }

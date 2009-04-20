@@ -116,15 +116,7 @@ struct MANGOS_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
 
     void HandleGameObject(uint64 guid, uint32 state)
     {
-        Player *player = GetPlayerInMap();
-
-        if (!player || !guid)
-        {
-            debug_log("SD2: Instance Shadowfang Keep: HandleGameObject fail");
-            return;
-        }
-
-        if (GameObject *go = GameObject::GetGameObject(*player,guid))
+        if (GameObject *go = instance->GetGameObject(guid))
             go->SetGoState(state);
     }
 
