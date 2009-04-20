@@ -6,25 +6,23 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /* ScriptData
 SDName: Instance_Serpent_Shrine
-SD%Complete: 100
-SDComment: Instance Data Scripts and functions to acquire mobs and set encounter status for use in various Serpent Shrine Scripts
+SD%Complete: 100%
+SDComment:
 SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
 #include "precompiled.h"
 #include "def_serpent_shrine.h"
-
-#define ENCOUNTERS 6
 
 /* Serpentshrine cavern encounters:
 0 - Hydross The Unstable event
@@ -34,265 +32,186 @@ EndScriptData */
 4 - Morogrim Tidewalker Event
 5 - Lady Vashj Event
 */
-
-bool GOHello_go_bridge_console(Player *player, GameObject* go)
-{
-    ScriptedInstance* pInstance = (ScriptedInstance*)go->GetInstanceData();
-
-    if(!pInstance)
-        return false;
-
-    if (pInstance)
-        pInstance->SetData(DATA_CONTROL_CONSOLE, DONE);
-
-    return true;
-}
+const int ENCOUNTERS = 6;
 
 struct MANGOS_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
 {
-    instance_serpentshrine_cavern(Map *map) : ScriptedInstance(map) {Initialize();};
+    instance_serpentshrine_cavern(Map* pMap) : ScriptedInstance(pMap) { Initialize(); };
 
-    uint64 LurkerBelow;
-    uint64 Sharkkis;
-    uint64 Tidalvess;
-    uint64 Caribdis;
-    uint64 LadyVashj;
-    uint64 Karathress;
-    uint64 KarathressEvent_Starter;
-    uint64 LeotherasTheBlind;
-    uint64 LeotherasEventStarter;
+    uint64 m_uiSharkkis;
+    uint64 m_uiTidalvess;
+    uint64 m_uiCaribdis;
+    uint64 m_uiLadyVashj;
+    uint64 m_uiKarathress;
+    uint64 m_uiKarathressEvent_Starter;
 
-    uint64 ControlConsole;
-    uint64 BridgePart[3];
-    uint64 StrangePool;
+    bool m_bShieldGeneratorDeactivated[4];
 
-    bool ShieldGeneratorDeactivated[4];
-    bool Encounters[ENCOUNTERS];
+    bool m_bEncounters[ENCOUNTERS];
 
     void Initialize()
     {
-        LurkerBelow = 0;
-        Sharkkis = 0;
-        Tidalvess = 0;
-        Caribdis = 0;
-        LadyVashj = 0;
-        Karathress = 0;
-        KarathressEvent_Starter = 0;
-        LeotherasTheBlind = 0;
-        LeotherasEventStarter = 0;
+        m_uiSharkkis = 0;
+        m_uiTidalvess = 0;
+        m_uiCaribdis = 0;
+        m_uiLadyVashj = 0;
+        m_uiKarathress = 0;
+        m_uiKarathressEvent_Starter = 0;
 
-        ControlConsole = 0;
-        BridgePart[0] = 0;
-        BridgePart[1] = 0;
-        BridgePart[2] = 0;
-        StrangePool = 0;
+        memset(&m_bShieldGeneratorDeactivated, 0, sizeof(m_bShieldGeneratorDeactivated));
 
-        ShieldGeneratorDeactivated[0] = false;
-        ShieldGeneratorDeactivated[1] = false;
-        ShieldGeneratorDeactivated[2] = false;
-        ShieldGeneratorDeactivated[3] = false;
-
-        for(uint8 i = 0; i < ENCOUNTERS; i++)
-            Encounters[i] = false;
+        memset(&m_bEncounters, 0, sizeof(m_bEncounters));
     }
 
-    bool IsEncounterInProgress() const
+    bool IsEncounterInProgress()
     {
-        for(uint8 i = 0; i < ENCOUNTERS; i++)
-            if(Encounters[i]) return true;
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
+            if(m_bEncounters[i]) return true;
 
         return false;
     }
 
-    void OnObjectCreate(GameObject *go)
+    void OnCreatureCreate(Creature* pCreature, uint32 uiCreatureEntry)
     {
-        switch(go->GetEntry())
+        switch(pCreature->GetEntry())
         {
-            case 184568:
-                ControlConsole = go->GetGUID();
-                //go->setActiveObject(true); <- not sure, of this right to is
-            break;
-
-            case 184203:
-                BridgePart[0] = go->GetGUID();
-                //go->setActive(true);
-            break;
-
-            case 184204:
-                BridgePart[1] = go->GetGUID();
-                //go->setActive(true);
-            break;
-
-            case 184205:
-                BridgePart[2] = go->GetGUID();
-                //go->setActive(true);
-            break;
-            case 184956:
-                StrangePool = go->GetGUID();
-                if(go->isActiveObject())
-                    SetData(DATA_STRANGE_POOL, DONE);
+            case 21212: m_uiLadyVashj  = pCreature->GetGUID(); break;
+            case 21214: m_uiKarathress = pCreature->GetGUID(); break;
+            case 21966: m_uiSharkkis   = pCreature->GetGUID(); break;
+            case 21965: m_uiTidalvess  = pCreature->GetGUID(); break;
+            case 21964: m_uiCaribdis   = pCreature->GetGUID(); break;
         }
     }
 
-    void OpenDoor(uint64 DoorGUID, bool open)
+    void SetData64(uint32 uiType, uint64 uiData)
     {
-        Map::PlayerList const &PlayerList = instance->GetPlayers();
-        if (PlayerList.isEmpty())
-            return;
-
-		Map::PlayerList::const_iterator i = PlayerList.begin();
-        if(Player* i_pl = i->getSource())
-            if(GameObject *Door = GameObject::GetGameObject(*i_pl, DoorGUID))
-                Door->SetGoState(open ? 0 : 1); 
+        if(uiType == DATA_KARATHRESSEVENT_STARTER)
+            m_uiKarathressEvent_Starter = uiData;
     }
 
-    void OnCreatureCreate(Creature *creature, uint32 creature_entry)
+    uint64 GetData64(uint32 uiIdentifier)
     {
-        switch(creature->GetEntry())
+        switch(uiIdentifier)
         {
-            case 21212: LadyVashj = creature->GetGUID();            break;
-            case 21214: Karathress = creature->GetGUID();           break;
-            case 21966: Sharkkis = creature->GetGUID();             break;
-            case 21217: LurkerBelow = creature->GetGUID();          break;
-            case 21965: Tidalvess = creature->GetGUID();            break;
-            case 21964: Caribdis = creature->GetGUID();             break;
-            case 21215: LeotherasTheBlind = creature->GetGUID();    break;}
-    }
-
-    void SetData64(uint32 type, uint64 data)
-    {
-        if(type == DATA_KARATHRESSEVENT_STARTER)
-            KarathressEvent_Starter = data;
-        if(type == DATA_LEOTHERAS_EVENT_STARTER)
-            LeotherasEventStarter = data;
-    }
-
-    uint64 GetData64(uint32 identifier)
-    {
-        switch(identifier)
-        {
-            case DATA_THELURKERBELOW:           return LurkerBelow;
-            case DATA_SHARKKIS:                 return Sharkkis;
-            case DATA_TIDALVESS:                return Tidalvess;
-            case DATA_CARIBDIS:                 return Caribdis;
-            case DATA_LADYVASHJ:                return LadyVashj;
-            case DATA_KARATHRESS:               return Karathress;
-            case DATA_KARATHRESSEVENT_STARTER:  return KarathressEvent_Starter;
-            case DATA_LEOTHERAS:                return LeotherasTheBlind;
-            case DATA_LEOTHERAS_EVENT_STARTER:  return LeotherasEventStarter;
+            case DATA_SHARKKIS:
+                return m_uiSharkkis;
+            case DATA_TIDALVESS:
+                return m_uiTidalvess;
+            case DATA_CARIBDIS:
+                return m_uiCaribdis;
+            case DATA_LADYVASHJ:
+                return m_uiLadyVashj;
+            case DATA_KARATHRESS:
+                return m_uiKarathress;
+            case DATA_KARATHRESSEVENT_STARTER:
+                return m_uiKarathressEvent_Starter;
         }
         return 0;
     }
 
-    void SetData(uint32 type, uint32 data)
+    void SetData(uint32 uiType, uint32 uiData)
     {
-        switch(type)
+        switch(uiType)
         {
-        case DATA_STRANGE_POOL: StrangePool = data;
-        case DATA_CONTROL_CONSOLE:
-            if(data = DONE)
-            {
-                OpenDoor(BridgePart[0], true);
-                OpenDoor(BridgePart[1], true);
-                OpenDoor(BridgePart[2], true);
-            }
-            ControlConsole = data;
-        case DATA_HYDROSSTHEUNSTABLEEVENT:  Encounters[0] = data;   break;
-        case DATA_LEOTHERASTHEBLINDEVENT:   Encounters[1] = data;   break;
-        case DATA_THELURKERBELOWEVENT:      Encounters[2] = data;   break;
-        case DATA_KARATHRESSEVENT:          Encounters[3] = data;   break;
-        case DATA_MOROGRIMTIDEWALKEREVENT:  Encounters[4] = data;   break;
-            //Lady Vashj
-        case DATA_LADYVASHJEVENT:
-            if(data == NOT_STARTED)
-            {
-                ShieldGeneratorDeactivated[0] = false;
-                ShieldGeneratorDeactivated[1] = false;
-                ShieldGeneratorDeactivated[2] = false;
-                ShieldGeneratorDeactivated[3] = false;
-            }
-            Encounters[5] = data;   break;
-        case DATA_SHIELDGENERATOR1:ShieldGeneratorDeactivated[0] = (data) ? true : false;   break;
-        case DATA_SHIELDGENERATOR2:ShieldGeneratorDeactivated[1] = (data) ? true : false;   break;
-        case DATA_SHIELDGENERATOR3:ShieldGeneratorDeactivated[2] = (data) ? true : false;   break;
-        case DATA_SHIELDGENERATOR4:ShieldGeneratorDeactivated[3] = (data) ? true : false;   break;
-        }
+            case DATA_HYDROSSTHEUNSTABLEEVENT:
+                m_bEncounters[0] = uiData;
+                break;
 
-        if(data = DONE)
-            SaveToDB();
-    }
+            case DATA_LEOTHERASTHEBLINDEVENT:
+                m_bEncounters[1] = uiData;
+                break;
 
-    uint32 GetData(uint32 type)
-    {
-        switch(type)
-        {
-            case DATA_HYDROSSTHEUNSTABLEEVENT:  return Encounters[0];
-            case DATA_LEOTHERASTHEBLINDEVENT:   return Encounters[1];
-            case DATA_THELURKERBELOWEVENT:      return Encounters[2];
-            case DATA_KARATHRESSEVENT:          return Encounters[3];
-            case DATA_MOROGRIMTIDEWALKEREVENT:  return Encounters[4];
+            case DATA_THELURKERBELOWEVENT:
+                m_bEncounters[2] = uiData;
+                break;
+
+            case DATA_KARATHRESSEVENT:
+                m_bEncounters[3] = uiData;
+                break;
+
+            case DATA_MOROGRIMTIDEWALKEREVENT:
+                m_bEncounters[4] = uiData;
+                break;
                 //Lady Vashj
-            case DATA_LADYVASHJEVENT:           return Encounters[5];
-            case DATA_SHIELDGENERATOR1:         return ShieldGeneratorDeactivated[0];
-            case DATA_SHIELDGENERATOR2:         return ShieldGeneratorDeactivated[1];
-            case DATA_SHIELDGENERATOR3:         return ShieldGeneratorDeactivated[2];
-            case DATA_SHIELDGENERATOR4:         return ShieldGeneratorDeactivated[3];
-            case DATA_CANSTARTPHASE3:
-                if(ShieldGeneratorDeactivated[0] && ShieldGeneratorDeactivated[1] && ShieldGeneratorDeactivated[2] && ShieldGeneratorDeactivated[3])return 1;break;
+            case DATA_LADYVASHJEVENT:
+                if(uiData == 0)
+                    memset(&m_bShieldGeneratorDeactivated, 0, sizeof(m_bShieldGeneratorDeactivated));
+                m_bEncounters[5] = uiData;
+                break;
+
+            case DATA_SHIELDGENERATOR1:
+                m_bShieldGeneratorDeactivated[0] = uiData;
+                break;
+
+            case DATA_SHIELDGENERATOR2:
+                m_bShieldGeneratorDeactivated[1] = uiData;
+                break;
+
+            case DATA_SHIELDGENERATOR3:
+                m_bShieldGeneratorDeactivated[2] = uiData;
+                break;
+
+            case DATA_SHIELDGENERATOR4:
+                m_bShieldGeneratorDeactivated[3] = uiData;
+                break;
         }
-        return 0;
-    }
-    const char* Save()
-    {
-        OUT_SAVE_INST_DATA;
-        std::ostringstream stream;
-        stream << Encounters[0] << " " << Encounters[1] << " " << Encounters[2] << " "
-            << Encounters[3] << " " << Encounters[4] << " " << Encounters[5];
-        char* out = new char[stream.str().length() + 1];
-        strcpy(out, stream.str().c_str());
-        if(out)
-        {
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return out;
-        }
-        return NULL;
     }
 
-    void Load(const char* in)
+    uint32 GetData(uint32 uiType)
     {
-        if(!in)
+        switch(uiType)
         {
-            OUT_LOAD_INST_DATA_FAIL;
-            return;
+            case DATA_HYDROSSTHEUNSTABLEEVENT:
+                return m_bEncounters[0];
+
+            case DATA_LEOTHERASTHEBLINDEVENT:
+                return m_bEncounters[1];
+
+            case DATA_THELURKERBELOWEVENT:
+                return m_bEncounters[2];
+
+            case DATA_KARATHRESSEVENT:
+                return m_bEncounters[3];
+
+            case DATA_MOROGRIMTIDEWALKEREVENT:
+                return m_bEncounters[4];
+
+                //Lady Vashj
+            case DATA_LADYVASHJEVENT:
+                return m_bEncounters[5];
+
+            case DATA_SHIELDGENERATOR1:
+                return m_bShieldGeneratorDeactivated[0];
+
+            case DATA_SHIELDGENERATOR2:
+                return m_bShieldGeneratorDeactivated[1];
+
+            case DATA_SHIELDGENERATOR3:
+                return m_bShieldGeneratorDeactivated[2];
+
+            case DATA_SHIELDGENERATOR4:
+                return m_bShieldGeneratorDeactivated[3];
+
+            case DATA_CANSTARTPHASE3:
+                if(m_bShieldGeneratorDeactivated[0] && m_bShieldGeneratorDeactivated[1] && m_bShieldGeneratorDeactivated[2] && m_bShieldGeneratorDeactivated[3])
+                    return 1;
+                break;
         }
-        OUT_LOAD_INST_DATA(in);
-        std::istringstream stream(in);
-        stream >> Encounters[0] >> Encounters[1] >> Encounters[2] >> Encounters[3]
-        >> Encounters[4] >> Encounters[5];
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if(Encounters[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
-                Encounters[i] = NOT_STARTED;
-        OUT_LOAD_INST_DATA_COMPLETE;
+
+        return 0;
     }
 };
 
-InstanceData* GetInstanceData_instance_serpentshrine_cavern(Map* map)
+InstanceData* GetInstanceData_instance_serpentshrine_cavern(Map* pMap)
 {
-    return new instance_serpentshrine_cavern(map);
+    return new instance_serpentshrine_cavern(pMap);
 }
 
 void AddSC_instance_serpentshrine_cavern()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name = "instance_serpent_shrine";
     newscript->GetInstanceData = &GetInstanceData_instance_serpentshrine_cavern;
     newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name="go_bridge_console";
-    newscript->pGOHello = &GOHello_go_bridge_console;
-    newscript->RegisterSelf();
 }
-
