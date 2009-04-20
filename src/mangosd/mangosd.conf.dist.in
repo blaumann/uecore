@@ -306,7 +306,7 @@ GmLogFile = ""
 GmLogTimestamp = 0
 GmLogPerAccount = 0
 RaLogFile = ""
-LogColors = "13 7 11 9"
+LogColors = "10 2 1 9"
 
 ###################################################################################################################
 # SERVER SETTINGS
@@ -632,7 +632,7 @@ SkillChance.Milling = 0
 OffhandCheckAtTalentsReset = 0
 Event.Announce = 0
 BeepAtStart = 1
-Motd = "Willkommen auf Projekt Fanatix Server Test"
+Motd = "Willkommen auf denn CWDB Core Test Server"
 DeathknightCreationCheck = 1
 MaxDeathknights = 1
 AllowDeathknight = 1
@@ -1474,3 +1474,4 @@ Anticheat.Movement.BanTime = "1m"
 Anticheat.Movement.MaxXYT = 0.04
 Anticheat.Movement.IgnoreSecAfterTeleport = 10
 Anticheat.Movement.GmLevel = 0
+
