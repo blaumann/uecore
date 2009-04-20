@@ -111,6 +111,8 @@ scripts/zone/black_temple/boss_warlord_najentus.cpp \
 scripts/zone/black_temple/def_black_temple.h \
 scripts/zone/black_temple/illidari_council.cpp \
 scripts/zone/black_temple/instance_black_temple.cpp \
+scripts/zone/blackfathom_depths/def_blackfathom_depths.h \
+scripts/zone/blackfathom_depths/instance_blackfathom_depths.cpp \
 scripts/zone/blackrock_depths/blackrock_depths.cpp \
 scripts/zone/blackrock_depths/boss_ambassador_flamelash.cpp \
 scripts/zone/blackrock_depths/boss_anubshiah.cpp \
@@ -438,6 +440,7 @@ scripts/zone/temple_of_ahnqiraj/def_temple_of_ahnqiraj.h \
 scripts/zone/temple_of_ahnqiraj/instance_temple_of_ahnqiraj.cpp \
 scripts/zone/temple_of_ahnqiraj/mob_anubisath_sentinel.cpp \
 scripts/zone/terokkar_forest/terokkar_forest.cpp \
+scripts/zone/thousand_needles/thousand_needles.cpp \
 scripts/zone/thunder_bluff/thunder_bluff.cpp \
 scripts/zone/tirisfal_glades/tirisfal_glades.cpp \
 scripts/zone/uldaman/boss_ironaya.cpp \

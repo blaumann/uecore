@@ -3,7 +3,7 @@
  * Please see the included DOCS/LICENSE.TXT for more information */
 
 #include "precompiled.h"
-#include "../../shared/Config/Config.h"
+#include "Config/Config.h"
 #include "config.h"
 #include "Database/DatabaseEnv.h"
 #include "DBCStores.h"
@@ -139,6 +139,8 @@ extern void AddSC_boss_illidari_council();
 extern void AddSC_instance_black_temple();
 
 //Blackfathom Depths
+extern void AddSC_instance_blackfathom_depths();
+
 //Blackrock Depths
 extern void AddSC_blackrock_depths();
 extern void AddSC_boss_ambassador_flamelash();
@@ -202,7 +204,7 @@ extern void AddSC_boss_archimonde();
 extern void AddSC_boss_azgalor();
 extern void AddSC_boss_kazrogal();
 extern void AddSC_boss_rage_winterchill();
-//extern void AddSC_hyjal_trash();
+extern void AddSC_hyjal_trash();
 extern void AddSC_instance_mount_hyjal();
 
 //--Culling of Stratholme
@@ -258,6 +260,8 @@ extern void AddSC_instance_deadmines();
 
 //Deadwind pass
 //Desolace
+extern void AddSC_desolace();
+
 //Dire Maul
 //Dragonblight
 extern void AddSC_dragonblight();
@@ -554,6 +558,8 @@ extern void AddSC_instance_temple_of_ahnqiraj();
 extern void AddSC_terokkar_forest();
 
 //Thousand Needles
+extern void AddSC_thousand_needles();
+
 //Thunder Bluff
 extern void AddSC_thunder_bluff();
 
@@ -976,10 +982,10 @@ void ScriptsInit()
     outstring_log("MM  M M  M ");
     outstring_log(" MMM  MMM  http://www.scriptdev2.com");
     outstring_log("");
-	outstring_log(":::CORE::VISIT::WWW.CWDB.TK:::::::");
-	outstring_log("##################################");
-	outstring_log("#    Compiled from CWDB Team     #");
-	outstring_log("##################################");
+    outstring_log("::::CORE::VISIT::WWW.CWDB.TK::::");
+    outstring_log("################################");
+    outstring_log("#   Compiled from CWDB Team    #");
+    outstring_log("################################");
 
     //Get configuration file
     if (!SD2Config.SetSource(_SCRIPTDEV2_CONFIG))
@@ -1112,6 +1118,8 @@ void ScriptsInit()
     AddSC_instance_black_temple();
 
     //Blackfathom Depths
+    AddSC_instance_blackfathom_depths();
+
     //Blackrock Depths
     AddSC_blackrock_depths();
     AddSC_boss_ambassador_flamelash();
@@ -1175,7 +1183,7 @@ void ScriptsInit()
     AddSC_boss_azgalor();
     AddSC_boss_kazrogal();
     AddSC_boss_rage_winterchill();
-    //AddSC_hyjal_trash();
+    AddSC_hyjal_trash();
     AddSC_instance_mount_hyjal();
 	  
     //--Culling of Stratholme
@@ -1212,6 +1220,7 @@ void ScriptsInit()
 
 
     //--Slave Pens
+	/*Developing coming later*/
 
     //--Steam Vault
     AddSC_mob_underbog_colossus();
@@ -1233,6 +1242,8 @@ void ScriptsInit()
 
     //Deadwind pass
     //Desolace
+    AddSC_desolace();
+
     //Dire Maul
     //Dragonblight
     AddSC_dragonblight();
@@ -1530,6 +1541,8 @@ void ScriptsInit()
     AddSC_terokkar_forest();
 
     //Thousand Needles
+    AddSC_thousand_needles();
+
     //Thunder Bluff
     AddSC_thunder_bluff();
 

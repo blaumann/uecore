@@ -547,6 +547,14 @@
 				<Filter
 					Name="Blackfathom Depths"
 					>
+					<File
+						RelativePath="..\scripts\zone\blackfathom_depths\def_blackfathom_depths.h"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\blackfathom_depths\instance_blackfathom_depths.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Arathi Highlands"
@@ -1715,6 +1723,10 @@
 				<Filter
 					Name="Thousand Needles"
 					>
+					<File
+						RelativePath="..\scripts\zone\thousand_needles\thousand_needles.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Silithus"

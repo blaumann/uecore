@@ -40,7 +40,7 @@ EndContentData */
 #define QUEST_HOMEWARD_BOUND 4770
 #define ENTRY_WYVERN 4107
 
-struct TRINITY_DLL_DECL npc_swiftmountainAI : public npc_escortAI
+struct MANGOS_DLL_DECL npc_swiftmountainAI : public npc_escortAI
 {
 npc_swiftmountainAI(Creature *c) : npc_escortAI(c) {Reset();}
 
@@ -198,7 +198,7 @@ CreatureAI* GetAI_npc_swiftmountain(Creature *_Creature)
 #define SPELL_TRANSFORM_HUMAN 9192
 #define QUEST_GET_THE_SCOOP 1950
 
-struct TRINITY_DLL_DECL npc_pluckyAI : public ScriptedAI
+struct MANGOS_DLL_DECL npc_pluckyAI : public ScriptedAI
 {
     npc_pluckyAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -254,7 +254,7 @@ struct TRINITY_DLL_DECL npc_pluckyAI : public ScriptedAI
            }else ChickenTimer-=diff;
        }
 
-        if(!UpdateVictim())
+        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
         DoMeleeAttackIfReady();
@@ -316,7 +316,6 @@ void AddSC_thousand_needles()
     newscript = new Script;
     newscript->Name = "npc_plucky";
     newscript->GetAI = &GetAI_npc_plucky;
-    newscript->pReceiveEmote =  &ReceiveEmote_npc_plucky;
     newscript->pGossipHello =   &GossipHello_npc_plucky;
     newscript->pGossipSelect = &GossipSelect_npc_plucky;
     newscript->RegisterSelf();
