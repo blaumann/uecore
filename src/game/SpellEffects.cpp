@@ -3085,6 +3085,14 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
                 gameObjTarget->AddUniqueUse(player);
                 gameObjTarget->SetLootState(GO_JUST_DEACTIVATED);
 
+                // show page
+                if (gameObjTarget->GetGOInfo()->goober.pageId)
+                {
+                    WorldPacket data(SMSG_GAMEOBJECT_PAGETEXT, 8);
+                    data << gameObjTarget->GetGUID();
+                    player->GetSession()->SendPacket(&data);
+                }
+
                 //TODO? Objective counting called without spell check but with quest objective check
                 // if send spell id then this line will duplicate to spell casting call (double counting)
                 // So we or have this line and not required in quest_template have reqSpellIdN
