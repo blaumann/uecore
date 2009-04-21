@@ -154,8 +154,8 @@ scripts/zone/blasted_lands/boss_kruul.cpp \
 scripts/zone/bloodmyst_isle/bloodmyst_isle.cpp \
 scripts/zone/borean_tundra/borean_tundra.cpp \
 scripts/zone/burning_steppes/burning_steppes.cpp \
-scripts/zone/caverns_of_time/culling_of_stratholme/boss_epoch.cpp \
-scripts/zone/caverns_of_time/culling_of_stratholme/boss_mal_ganis.cpp \
+scripts/zone/caverns_of_time/culling_of_stratholme/boss_chrono_lord_epoch.cpp \
+scripts/zone/caverns_of_time/culling_of_stratholme/boss_malganis.cpp \
 scripts/zone/caverns_of_time/culling_of_stratholme/boss_meathook.cpp \
 scripts/zone/caverns_of_time/culling_of_stratholme/boss_salramm.cpp \
 scripts/zone/caverns_of_time/culling_of_stratholme/def_culling_of_stratholme.h \

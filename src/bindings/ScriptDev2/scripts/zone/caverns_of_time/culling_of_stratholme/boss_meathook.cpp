@@ -1,106 +1,99 @@
-/* Script Data Start
-SDName: Boss meathook
-SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
-Script Data End */
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
-/*** SQL START *** 
-update creature_template set scriptname = 'boss_meathook' where entry = '';
-*** SQL END ***/
+/* ScriptData
+SDName: Boss_Meathook
+SD%Complete: 100
+SDComment:
+SDCategory: Caverns of Time, Culling of Stratholme
+EndScriptData */
+
 #include "precompiled.h"
 
-//Spell
-#define SPELL_CONSTRICTING_CHAINS_N                  52696 //Encases the targets in chains, dealing 1800 Physical damage every 1 sec. and stunning the target for 5 sec.
-#define SPELL_CONSTRICTING_CHAINS_H                  58823 
-#define SPELL_DISEASE_EXPULSION_N                    52666 //Meathook belches out a cloud of disease, dealing 1710 to 1890 Nature damage and interrupting the spell casting of nearby enemy targets for 4 sec.
-#define SPELL_DISEASE_EXPULSION_H                    58824
-#define SPELL_FRENZY                                 58841 //Increases the caster's Physical damage by 10% for 30 sec.
+#define SAY_SIGHT		-2500018
+#define SAY_AGGRO		-2500019
+#define	SAY_SLAY1		-2500020
+#define SAY_SLAY2		-2500021
+#define SAY_SLAY3		-2500022
+#define SAY_DIED		-2500023
 
-//Yell
-#define SAY_AGGRO                                 -1999910
-#define SAY_SLAY_1                                -1999909
-#define SAY_SLAY_2                                -1999908
-#define SAY_SLAY_3                                -1999907
-#define SAY_SPAWN                                 -1999906
-#define SAY_DEATH                                 -1999905
+#define SPELL_CHAINS	52696 // Umschlingt das Ziel mit Ketten, verursacht alle 1 Sek. 1000 körperlichen Schaden und betäubt das Ziel 5 Sek. lang.
+#define SPELL_EXPLUSION	52666 // Fleischhaken stößt eine Krankheitswolke aus, verursacht 713 bis 787 Naturschaden und unterbricht 4 Sek. lang das Wirken von Zaubern naher Gegner.
 
 struct MANGOS_DLL_DECL boss_meathookAI : public ScriptedAI
 {
-    boss_meathookAI(Creature *c) : ScriptedAI(c) { Reset(); }
+	boss_meathookAI(Creature *c) : ScriptedAI(c) {Reset();}
 
-    uint32 Chain_Timer;
-    uint32 Disease_Timer;
-    uint32 Frenzy_Timer;
+	uint32 Chains_Timer;
+	uint32 Explusion_Timer;
 
-    void Reset() 
-    {
-        Chain_Timer =   12000 + rand()%5000;   //seen on video 13, 17, 15, 12, 16
-        Disease_Timer =  2000 + rand()%1000;  //approx 3s
-        Frenzy_Timer =  20000 + rand()%10000; //made it up
-    }
-    
-    void Aggro(Unit* who) 
-    {
-        DoScriptText(SAY_AGGRO, m_creature);
-    }
-    
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who, const uint32 diff) {}
-    
-    void UpdateAI(const uint32 diff) 
-    {
-        //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
-            return;
-    
-        if(Disease_Timer < diff)
-        {
-            DoCast(m_creature->getVictim(), SPELL_DISEASE_EXPULSION_N);
-            Disease_Timer = 1500 + rand()%2500;
-        }else Disease_Timer -= diff;
-        
-        if(Frenzy_Timer < diff)
-        {
-            DoCast(m_creature->getVictim(), SPELL_FRENZY);
-            Frenzy_Timer = 20000 + rand()%10000;
-        }else Frenzy_Timer -= diff;
-        
-        if(Chain_Timer < diff)
-        {
-            switch(rand()%2) //Idk which one is it.
-            {
-            case 0: 
-                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 1), SPELL_CONSTRICTING_CHAINS_N); //anyone but the tank
-                break;
-            case 1: 
-                DoCast(SelectUnit(SELECT_TARGET_BOTTOMAGGRO, 0), SPELL_CONSTRICTING_CHAINS_N);
-                break;
-                Chain_Timer = 2000 + rand()%1000;
-            }        
-        }else Chain_Timer -= diff;
-        
-        DoMeleeAttackIfReady();
-    }
-    
-    void JustDied(Unit* killer)  
-    {
-        DoScriptText(SAY_DEATH, m_creature);
-    }
-    
-    void KilledUnit(Unit *victim)
-    {
-        if (victim == m_creature)
-            return;
+	void Reset()
+	{
+		Chains_Timer = 11000;
+		Explusion_Timer = 6000;
+	}
 
-        switch(rand()%3)
-        {
-            case 0: DoScriptText(SAY_SLAY_1, m_creature);break;
-            case 1: DoScriptText(SAY_SLAY_2, m_creature);break;
-            case 2: DoScriptText(SAY_SLAY_3, m_creature);break;
-        }
-    }
+	void MoveInLineOfSight(Unit *who)
+	{
+		DoScriptText(SAY_SIGHT, m_creature);
+	}
+
+	void Aggro(Unit *who)
+	{
+		DoScriptText(SAY_AGGRO, m_creature);
+	}
+
+	void KilledUnit()
+	{
+		switch(rand()%3)
+		{
+			case 0:
+				DoScriptText(SAY_SLAY1, m_creature);
+				break;
+			case 1:
+				DoScriptText(SAY_SLAY2, m_creature);
+				break;
+			case 2:
+				DoScriptText(SAY_SLAY3, m_creature);
+				break;
+		}
+	}
+
+	void JustDied(Unit *killer)
+	{
+		DoScriptText(SAY_DIED, m_creature);
+	}
+
+	void UpdateAI(const uint32 diff)
+	{
+		if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+			return;
+
+		if(Chains_Timer < diff)
+		{
+			DoCast(m_creature->getVictim(), SPELL_CHAINS);
+			Chains_Timer = 11000;
+		}
+
+		if(Explusion_Timer < diff)
+		{
+			DoCast(m_creature->getVictim(), SPELL_EXPLUSION);
+			Explusion_Timer = 6000;
+		}
+	}
 };
 
 CreatureAI* GetAI_boss_meathook(Creature *_Creature)
@@ -111,9 +104,8 @@ CreatureAI* GetAI_boss_meathook(Creature *_Creature)
 void AddSC_boss_meathook()
 {
     Script *newscript;
-
     newscript = new Script;
-    newscript->Name="boss_meathook";
-    newscript->GetAI = GetAI_boss_meathook;
+    newscript->Name = "boss_meathook";
+    newscript->GetAI = &GetAI_boss_meathook;
     newscript->RegisterSelf();
 }

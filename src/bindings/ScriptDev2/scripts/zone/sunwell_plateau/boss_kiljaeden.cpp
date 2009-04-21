@@ -1246,7 +1246,7 @@ CreatureAI* GetAI_mob_shield_orb(Creature *_Creature)
     return new mob_shield_orbAI (_Creature);
 }
 
-void AddSC_boss_Kiljaeden()
+void AddSC_boss_kiljaeden()
 {
     Script *newscript;
 

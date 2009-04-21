@@ -2587,11 +2587,11 @@
 						Name="Culling of Stratholme"
 						>
 						<File
-							RelativePath="..\scripts\zone\caverns_of_time\culling_of_stratholme\boss_epoch.cpp"
+							RelativePath="..\scripts\zone\caverns_of_time\culling_of_stratholme\boss_chrono_lord_epoch.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\zone\caverns_of_time\culling_of_stratholme\boss_mal_ganis.cpp"
+							RelativePath="..\scripts\zone\caverns_of_time\culling_of_stratholme\boss_malganis.cpp"
 							>
 						</File>
 						<File
