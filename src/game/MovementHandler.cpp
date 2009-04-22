@@ -339,6 +339,8 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     // resummon pet
     GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
+    GetPlayer()->Anti__SetLastTeleTime(::time(NULL));
+    GetPlayer()->m_anti_BeginFallZ=INVALID_HEIGHT;
 }
 
 void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
@@ -385,7 +387,11 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
 
     // resummon pet
     GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
-    plMover->Anti__SetLastTeleTime(::time(NULL));
+    if(plMover)
+    {
+        plMover->Anti__SetLastTeleTime(::time(NULL));
+        plMover->m_anti_BeginFallZ=INVALID_HEIGHT;
+    }
 }
 
 void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
@@ -467,10 +473,14 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     {
         // now client not include swimming flag in case jumping under water
         plMover->SetInWater( !plMover->IsInWater() || plMover->GetBaseMap()->IsUnderWater(movementInfo.x, movementInfo.y, movementInfo.z) );
+        if(plMover->GetBaseMap()->IsUnderWater(movementInfo.x, movementInfo.y, movementInfo.z-7.0f))
+        {
+            plMover->m_anti_BeginFallZ=INVALID_HEIGHT;
+        }
     }
 
     // ---- anti-cheat features -->>>
-    uint32 Anti_TeleTimeDiff=time(NULL) - GetPlayer()->m_anti_TeleTime;
+    uint32 Anti_TeleTimeDiff=plMover ? time(NULL) - plMover->Anti__GetLastTeleTime() : time(NULL);
     static const uint32 Anti_TeleTimeIgnoreDiff=sWorld.GetMvAnticheatIgnoreAfterTeleport();
     if (plMover && (plMover->m_transport == 0) && sWorld.GetMvAnticheatEnable() &&
         GetPlayer()->GetSession()->GetSecurity() <= sWorld.GetMvAnticheatGmLevel() &&

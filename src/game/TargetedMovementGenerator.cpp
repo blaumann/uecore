@@ -202,7 +202,7 @@ TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
         {
             owner.SetInFront(i_target.getTarget());         // Set new Angle For Map::
             _setTargetLocation(owner);                      //Calculate New Dest and Send data To Player
-			i_recalculateTravel = false;
+            i_recalculateTravel = false;
         }
         // Update the Angle of the target only for Map::, no need to send packet for player
         else if ( !i_angle && !owner.HasInArc( 0.01f, i_target.getTarget() ) )

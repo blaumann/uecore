@@ -79,7 +79,7 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
                     pet->StopMoving();
                     pet->GetMotionMaster()->Clear();
                     pet->GetMotionMaster()->MoveIdle();
-					pet->clearUnitState(UNIT_STAT_FOLLOW);
+                    pet->clearUnitState(UNIT_STAT_FOLLOW);
                     charmInfo->SetCommandState( COMMAND_STAY );
                     break;
                 case COMMAND_FOLLOW:                        //spellid=1792  //FOLLOW
