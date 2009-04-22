@@ -29,7 +29,7 @@
 
 #define ANCIENT_VAULT_DOOR              124369
 
-struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
+struct MANGOS_DLL_DECL instance_uldaman : public ScriptedInstance
 {
     instance_uldaman(Map *map) : ScriptedInstance(map)
     {

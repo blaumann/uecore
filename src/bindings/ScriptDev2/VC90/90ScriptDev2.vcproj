@@ -1127,6 +1127,50 @@
 							>
 						</File>
 					</Filter>
+					<Filter
+						Name="Ulduar"
+						>
+						<File
+							RelativePath="..\scripts\zone\ulduar\ulduar\boss_auriaya.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\ulduar\ulduar\boss_deconstructor.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\ulduar\ulduar\boss_ignis.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\ulduar\ulduar\boss_iron.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\ulduar\ulduar\boss_kologarn.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\ulduar\ulduar\boss_leviathan.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\ulduar\ulduar\boss_mimiron.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\ulduar\ulduar\boss_razorscale.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\ulduar\ulduar\def_ulduar.h"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\ulduar\ulduar\instance_ulduar.cpp"
+							>
+						</File>
+					</Filter>
 				</Filter>
 				<Filter
 					Name="Utgarde Keep"
@@ -1868,7 +1912,15 @@
 					Name="Uldaman"
 					>
 					<File
+						RelativePath="..\scripts\zone\uldaman\boss_archaedas.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\scripts\zone\uldaman\boss_ironaya.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\uldaman\instance_uldaman.cpp"
 						>
 					</File>
 					<File

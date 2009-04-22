@@ -47,7 +47,7 @@ EndScriptData */
 #define SPELL_AWAKEN_VAULT_WALKER     10258
 #define SPELL_AWAKEN_EARTHEN_GUARDIAN 10252
 
-struct TRINITY_DLL_DECL boss_archaedasAI : public ScriptedAI
+struct MANGOS_DLL_DECL boss_archaedasAI : public ScriptedAI
 {
     boss_archaedasAI(Creature *c) : ScriptedAI(c)
     {
@@ -132,7 +132,7 @@ struct TRINITY_DLL_DECL boss_archaedasAI : public ScriptedAI
         }
 
         //Return since we have no target
-        if (!UpdateVictim())
+        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
 
@@ -202,7 +202,7 @@ EndScriptData */
 
 #define SPELL_ARCHAEDAS_AWAKEN        10347
 
-struct TRINITY_DLL_DECL mob_archaedas_minionsAI : public ScriptedAI
+struct MANGOS_DLL_DECL mob_archaedas_minionsAI : public ScriptedAI
 {
     mob_archaedas_minionsAI(Creature *c) : ScriptedAI(c)
     {
@@ -270,7 +270,7 @@ struct TRINITY_DLL_DECL mob_archaedas_minionsAI : public ScriptedAI
         }
 
         //Return since we have no target
-        if (!UpdateVictim())
+        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
 
@@ -352,7 +352,7 @@ EndScriptData */
 
 #define SPELL_SELF_DESTRUCT           9874
 
-struct TRINITY_DLL_DECL mob_stonekeepersAI : public ScriptedAI
+struct MANGOS_DLL_DECL mob_stonekeepersAI : public ScriptedAI
 {
     mob_stonekeepersAI(Creature *c) : ScriptedAI(c)
     {
@@ -383,7 +383,7 @@ struct TRINITY_DLL_DECL mob_stonekeepersAI : public ScriptedAI
     {
 
         //Return since we have no target
-        if (!UpdateVictim())
+        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
         DoMeleeAttackIfReady();
@@ -470,27 +470,27 @@ void AddSC_boss_archaedas()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_archaedas";
+    newscript->Name = "boss_archaedas";
     newscript->GetAI = &GetAI_boss_archaedas;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="go_altar_of_archaedas";
+    newscript->Name = "go_altar_of_archaedas";
     newscript->pGOHello = &GOHello_go_altar_of_archaedas;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_archaedas_minions";
+    newscript->Name = "mob_archaedas_minions";
     newscript->GetAI = &GetAI_mob_archaedas_minions;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="go_altar_of_the_keepers";
+    newscript->Name = "go_altar_of_the_keepers";
     newscript->pGOHello = &GOHello_go_altar_of_the_keepers;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_stonekeepers";
+    newscript->Name = "mob_stonekeepers";
     newscript->GetAI = &GetAI_mob_stonekeepers;
     newscript->RegisterSelf();
 }

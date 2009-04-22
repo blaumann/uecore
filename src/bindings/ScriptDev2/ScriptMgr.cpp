@@ -681,7 +681,9 @@ extern void AddSC_thunder_bluff();
 extern void AddSC_tirisfal_glades();
 
 //Uldaman
+extern void AddSC_boss_archaedas();
 extern void AddSC_boss_ironaya();
+extern void AddSC_instance_uldaman();
 extern void AddSC_uldaman();
 
 //Ulduar
@@ -697,6 +699,17 @@ extern void AddSC_boss_bjarngrim();
 extern void AddSC_boss_ionar();
 extern void AddSC_boss_volkhan();
 extern void AddSC_boss_loken();
+
+//--Ulduar
+extern void AddSC_boss_auriaya();
+extern void AddSC_boss_deconstructor();
+extern void AddSC_boss_ignis();
+extern void AddSC_boss_iron();
+extern void AddSC_boss_kologarn();
+extern void AddSC_boss_leviathan();
+extern void AddSC_boss_mimiron();
+extern void AddSC_boss_razorscale();
+extern void AddSC_instance_ulduar();
 
 //Un'Goro Crater
 /* Not Implement*/
@@ -1719,7 +1732,9 @@ void ScriptsInit()
     AddSC_tirisfal_glades();
 
     //Uldaman
+    AddSC_boss_archaedas();
     AddSC_boss_ironaya();
+    AddSC_instance_uldaman();
     AddSC_uldaman();
 
     //Ulduar
@@ -1735,6 +1750,17 @@ void ScriptsInit()
     AddSC_boss_ionar();
     AddSC_boss_volkhan();
     AddSC_boss_loken();
+
+	//--Ulduar
+    AddSC_boss_auriaya();
+    AddSC_boss_deconstructor();
+    AddSC_boss_ignis();
+    AddSC_boss_iron();
+    AddSC_boss_kologarn();
+    AddSC_boss_leviathan();
+    AddSC_boss_mimiron();
+    AddSC_boss_razorscale();
+    AddSC_instance_ulduar();
 
     //Un'Goro Crater
     /* Not Implemented */
