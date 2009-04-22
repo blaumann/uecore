@@ -3717,6 +3717,28 @@ SpellCastResult Spell::CheckCast(bool strict)
             return SPELL_FAILED_NOT_READY;
     }
 
+    // Aura 262
+    Unit::AuraList const& ignoreReqAuras = m_caster->GetAurasByType(SPELL_AURA_262);
+    for(Unit::AuraList::const_iterator i = ignoreReqAuras.begin(), next; i != ignoreReqAuras.end(); i = next)
+    {
+        next = i; ++next;
+
+        SpellEntry const* i_spellInfo = (*i)->GetSpellProto();
+        if(!i_spellInfo) // No spellInfo (shouldn't happen)
+            continue;
+
+        if(i_spellInfo->SpellFamilyName != m_spellInfo->SpellFamilyName) // Not the same family, just ignore
+            continue;
+
+        for (int i=0; i<3 ; ++i)
+        {
+            if (i_spellInfo->EffectSpellClassMaskA[i] == m_spellInfo->SpellFamilyFlags ||
+                i_spellInfo->EffectSpellClassMaskB[i] == m_spellInfo->SpellFamilyFlags ||
+                i_spellInfo->EffectSpellClassMaskC[i] == m_spellInfo->SpellFamilyFlags)
+                return SPELL_CAST_OK; // Allow cast
+        }
+    }
+
     // only allow triggered spells if at an ended battleground
     if( !m_IsTriggeredSpell && m_caster->GetTypeId() == TYPEID_PLAYER)
         if(BattleGround * bg = ((Player*)m_caster)->GetBattleGround())
@@ -3805,8 +3827,12 @@ SpellCastResult Spell::CheckCast(bool strict)
 
         if(target != m_caster)
         {
+            // Execute: check override of target aura states by caster aura 262 (52437: Sudden Death)
+            uint32 TargetAuraState = m_spellInfo->TargetAuraState;
+            if (m_spellInfo->SpellIconID == 1648 && m_caster->HasAura(52437))
+                TargetAuraState = 0;
             // target state requirements (apply to non-self only), to allow cast affects to self like Dirty Deeds
-            if(m_spellInfo->TargetAuraState && !target->HasAuraState(AuraState(m_spellInfo->TargetAuraState)))
+            if(TargetAuraState && !target->HasAuraState(AuraState(m_spellInfo->TargetAuraState)))
                 return SPELL_FAILED_TARGET_AURASTATE;
 
             // Not allow casting on flying player
