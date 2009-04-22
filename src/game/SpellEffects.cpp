@@ -1299,7 +1299,23 @@ void Spell::EffectDummy(uint32 i)
                      return;
 		int lastrage=0;
 		uint32 rage2 = 30;
-        uint32 rage = m_caster->GetPower(POWER_RAGE);
+                int32 rageLasting = 0;
+                int32 rage = m_caster->GetPower(POWER_RAGE);
+                int32 currentRage = rage;
+                
+                // effect of Sudden Death ranks, independant of proc
+                if (m_caster->HasAura(29723)) rageLasting = 30;
+                else if (m_caster->HasAura(29725)) rageLasting = 70;
+                else if (m_caster->HasAura(29724)) rageLasting = 100;
+                // Sudden Death proc aura
+                bool hasAuraSD = m_caster->HasAura(52437);
+                if (hasAuraSD)
+                {
+                    // max of 30 rage consumed, even if target is below 20% health (to the dismay of PvP players)
+                    // spell rage cost already substracted (?)
+                    rage = std::min(300 - m_powerCost, rage);
+                    rageLasting = std::max(rageLasting, currentRage - rage);
+                }
 
 		if(m_targets.getUnitTarget()->GetHealth() < m_targets.getUnitTarget()->GetMaxHealth()*0.2) rage2=rage; //Clean execute, ignore Sudden death
 		else if(m_caster->HasAura(29723)) lastrage=3;
@@ -1326,7 +1342,8 @@ void Spell::EffectDummy(uint32 i)
 		}
 		else
 		{
-               		m_caster->SetPower(POWER_RAGE,0);
+                m_caster->SetPower(POWER_RAGE,rageLasting);
+                if (hasAuraSD) m_caster->RemoveAurasDueToSpell(52437);
 		}
 		
                  return;
@@ -2092,6 +2109,15 @@ void Spell::EffectTriggerSpell(uint32 i)
         {
             if (Unit *pet = m_caster->GetPet())
                 pet->CastSpell(pet, 28305, true);
+            return;
+        }
+        // Demonic Empowerment (Succubus)
+        case 54437:
+        {
+            m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_ROOT);
+            m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_DECREASE_SPEED);
+            m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_STALKED);
+            m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_STUN);
             return;
         }
     }
@@ -4996,6 +5022,42 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_ROOT);
                     m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_DECREASE_SPEED);
+                    return;
+                }
+                // Demonic Empowerment
+                case 47193:
+                {
+                    if(m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    Pet* pet = m_caster->GetPet();
+                    if(!pet)        // Return if no pet
+                        return;
+
+                    if(pet->getPetType() != SUMMON_PET || m_caster != pet->GetOwner())
+                        return;
+
+                    // Select appropriate spell based on creature family
+                    uint32 pSpellId = 0;
+                    int32 bp0 = 0;
+                    switch(pet->GetCreatureInfo()->family)
+                    {
+                        case CREATURE_FAMILY_FELHUNTER:     pSpellId = 54509; break;
+                        case CREATURE_FAMILY_SUCCUBUS:      pSpellId = 54435; break;
+                        case CREATURE_FAMILY_IMP:           pSpellId = 54444; break;
+                        case CREATURE_FAMILY_FELGUARD:      pSpellId = 54508; break;
+                        case CREATURE_FAMILY_VOIDWALKER:    // Needs BasePoints0 to be corrected
+                        {
+                            pSpellId = 54443; 
+                            if(SpellEntry const* voidSpell = sSpellStore.LookupEntry(pSpellId))
+                                bp0 = int32(pet->GetMaxHealth() * (voidSpell->EffectBasePoints[0]+1) / 100);
+                            break;
+                        }
+                        default: break;
+                    }
+
+                    if(pSpellId)
+                        bp0 ? pet->CastCustomSpell(pet, pSpellId, &bp0, NULL, NULL, true) : pet->CastSpell(pet, pSpellId, true);
                     return;
                 }
                 // Mirren's Drinking Hat
