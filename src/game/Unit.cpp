@@ -147,7 +147,10 @@ Unit::Unit()
         m_threatModifier[i] = 1.0f;
     m_isSorted = true;
     for (int i = 0; i < MAX_MOVE_TYPE; ++i)
+	{
         m_speed_rate[i] = 1.0f;
+		m_max_speed_rate[i] = 1.0f;
+	}
 
     m_removedAuras = 0;
     m_charmInfo = NULL;
@@ -7575,11 +7578,6 @@ float Unit::GetCombatDistance( const Unit* target ) const
 void Unit::SetPet(Pet* pet)
 {
     SetUInt64Value(UNIT_FIELD_SUMMON, pet ? pet->GetGUID() : 0);
-
-    // FIXME: hack, speed must be set only at follow
-    if(pet)
-        for(int i = 0; i < MAX_MOVE_TYPE; ++i)
-            pet->SetSpeed(UnitMoveType(i), m_speed_rate[i], true);
 }
 
 void Unit::SetCharm(Unit* pet)
@@ -9290,6 +9288,11 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
     }
 
     float bonus = non_stack_bonus > stack_bonus ? non_stack_bonus : stack_bonus;
+
+	//apply creature's base speed
+	if ( GetTypeId() == TYPEID_UNIT )
+		bonus *= ((Creature*)this)->GetBaseSpeed();
+
     // now we ready for speed calculation
     float speed  = main_speed_mod ? bonus*(100.0f + main_speed_mod)/100.0f : bonus;
 
@@ -9318,7 +9321,13 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
     int32 slow = GetMaxNegativeAuraModifier(SPELL_AURA_MOD_DECREASE_SPEED);
     if (slow)
         speed *=(100.0f + slow)/100.0f;
-    SetSpeed(mtype, speed, forced);
+
+	//store max possible speed
+	m_max_speed_rate[mtype] = speed;
+
+	// on follow TMG handels speed change
+	if( !hasUnitState(UNIT_STAT_FOLLOW) )
+		SetSpeed(mtype, speed, forced);
 }
 
 float Unit::GetSpeed( UnitMoveType mtype ) const
@@ -9437,8 +9446,6 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
         data << float(GetSpeed(mtype));
         SendMessageToSet( &data, true );
     }
-    if(Pet* pet = GetPet())
-        pet->SetSpeed(MOVE_RUN, m_speed_rate[mtype],forced);
 }
 
 void Unit::SetHover(bool on)

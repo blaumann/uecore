@@ -87,7 +87,33 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
     if (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)&owner)->canFly())
         owner.AddUnitMovementFlag(MOVEMENTFLAG_FLYING2);
 }
+template<class T>
+void
+TargetedMovementGenerator<T>::_adaptSpeedToTarget(T &owner)
+{
+	float lowerCritDist = 3*i_offset;
+	float upperCritDist = 6*i_offset;
 
+	float max_speed		= owner.GetMaxSpeedRate(MOVE_RUN);
+	float curr_speed	= owner.GetSpeedRate(MOVE_RUN);
+	float target_speed	= i_target->GetSpeedRate(MOVE_RUN);
+
+	float dist_to_target = owner.GetDistance2d( i_target.getTarget() );
+
+	bool force_reset = false;
+
+	// no comment
+	if( curr_speed > max_speed )
+		force_reset;
+
+	// owner at maxspeed and under upperCritDist: adapt to owners speed
+	else if( (curr_speed == max_speed && target_speed < max_speed || force_reset)&& dist_to_target < lowerCritDist)
+		owner.SetSpeed(MOVE_RUN, target_speed, true);
+
+	// owner not moving at max speed, but distance is greater than threashold: go to max speed
+	else if ( (curr_speed < max_speed || force_reset) &&	dist_to_target > upperCritDist )
+		owner.SetSpeed(MOVE_RUN, max_speed, true);
+}
 template<class T>
 void
 TargetedMovementGenerator<T>::Initialize(T &owner)
@@ -105,6 +131,10 @@ void
 TargetedMovementGenerator<T>::Finalize(T &owner)
 {
     owner.clearUnitState(UNIT_STAT_CHASE);
+
+	// make sure that owner is at maxspeed
+	if( owner.GetSpeedRate(MOVE_RUN) != owner.GetMaxSpeedRate(MOVE_RUN) )
+		owner.SetSpeed(MOVE_RUN, owner.GetMaxSpeedRate(MOVE_RUN), true);
 }
 
 template<class T>
@@ -159,23 +189,27 @@ TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
         if (owner.GetObjectSize())
             i_destinationHolder.ResetUpdate(50);
 
+		// adapt speed at follow mode
+		if( owner.hasUnitState(UNIT_STAT_FOLLOW) )
+			_adaptSpeedToTarget(owner);
+
         float dist = i_target->GetObjectSize() + owner.GetObjectSize() + sWorld.getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
 
         //More distance let have better performance, less distance let have more sensitive reaction at target move.
 
         // try to counter precision differences
-        if( i_destinationHolder.GetDistance2dFromDestSq(*i_target.getTarget()) >= dist * dist)
+        if( i_destinationHolder.GetDistance2dFromDestSq(*i_target.getTarget()) >= dist * dist || i_recalculateTravel)
         {
             owner.SetInFront(i_target.getTarget());         // Set new Angle For Map::
             _setTargetLocation(owner);                      //Calculate New Dest and Send data To Player
+			i_recalculateTravel = false;
         }
         // Update the Angle of the target only for Map::, no need to send packet for player
         else if ( !i_angle && !owner.HasInArc( 0.01f, i_target.getTarget() ) )
             owner.SetInFront(i_target.getTarget());
 
-        if(( owner.IsStopped() && !i_destinationHolder.HasArrived() ) || i_recalculateTravel )
+        if( owner.IsStopped() && !i_destinationHolder.HasArrived() )
         {
-            i_recalculateTravel = false;
             //Angle update will take place into owner.StopMoving()
             owner.SetInFront(i_target.getTarget());
 
