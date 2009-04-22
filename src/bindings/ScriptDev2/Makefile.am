@@ -460,14 +460,14 @@ scripts/zone/ulduar/halls_of_stone/def_halls_of_stone.h \
 scripts/zone/ulduar/halls_of_stone/instance_halls_of_stone.cpp \
 scripts/zone/ulduar/ulduar/boss_auriaya.cpp \
 scripts/zone/ulduar/ulduar/boss_deconstructor.cpp \
-scripts/zone/ulduar/ulduar/boss_ignis.cpp \
-scripts/zone/ulduar/ulduar/boss_iron.cpp \
-scripts/zone/ulduar/ulduar/boss_kologarn.cpp \
-scripts/zone/ulduar/ulduar/boss_leviathan.cpp \
-scripts/zone/ulduar/ulduar/boss_mimiron.cpp \
-scripts/zone/ulduar/ulduar/boss_razorscale.cpp \
-scripts/zone/ulduar/ulduar/def_ulduar.h \
-scripts/zone/ulduar/ulduar/instance_ulduar.cpp \
+scripts/zone/ulduar/ulduar/boss_ignis.cpp
+scripts/zone/ulduar/ulduar/boss_iron.cpp
+scripts/zone/ulduar/ulduar/boss_kologarn.cpp
+scripts/zone/ulduar/ulduar/boss_leviathan.cpp
+scripts/zone/ulduar/ulduar/boss_mimiron.cpp
+scripts/zone/ulduar/ulduar/boss_razorscale.cpp
+scripts/zone/ulduar/ulduar/def_ulduar.h
+scripts/zone/ulduar/ulduar/instance_ulduar.cpp
 scripts/zone/undercity/undercity.cpp \
 scripts/zone/utgarde_keep/utgarde_keep/boss_ingvar_the_plunderer.cpp \
 scripts/zone/utgarde_keep/utgarde_keep/boss_keleseth.cpp \

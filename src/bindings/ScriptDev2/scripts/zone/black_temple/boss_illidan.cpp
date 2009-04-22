@@ -413,15 +413,16 @@ struct MANGOS_DLL_SPEC npc_akama_illidanAI : public ScriptedAI
         if (pInstance)
         {
             pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, NOT_STARTED);
-            GameObject* Gate = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_GATE));
-            if (Gate && !Gate->GetGoState())
-                Gate->SetGoState(1);                        // close door if already open (when raid wipes or something)
+            GameObject* pGate = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_GATE));
+
+            // close door if already open (when raid wipes or something)
+            if (pGate && !pGate->GetGoState())
+                pGate->SetGoState(1);
 
             for(uint8 i = DATA_GAMEOBJECT_ILLIDAN_DOOR_R; i < DATA_GAMEOBJECT_ILLIDAN_DOOR_L + 1; ++i)
             {
-                GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(i));
-                if (Door)
-                    Door->SetGoState(0);
+                if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(i)))
+                    pDoor->SetGoState(0);
             }
         }
 
@@ -462,7 +463,7 @@ struct MANGOS_DLL_SPEC npc_akama_illidanAI : public ScriptedAI
 
         m_creature->RemoveAllAuras();
         m_creature->DeleteThreatList();
-        m_creature->CombatStop();
+        m_creature->CombatStop(true);
     }
 
     void KillAllElites()
@@ -511,11 +512,10 @@ struct MANGOS_DLL_SPEC npc_akama_illidanAI : public ScriptedAI
         debug_log("SD2: Akama - Door event initiated by player %s", player->GetName());
         PlayerGUID = player->GetGUID();
 
-        GameObject* Gate = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_GATE));
-        if (Gate)
+        if (GameObject* pGate = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_GATE)))
         {
             float x,y,z;
-            Gate->GetPosition(x, y, z);
+            pGate->GetPosition(x, y, z);
             Creature* Channel = m_creature->SummonCreature(ILLIDAN_DOOR_TRIGGER, x, y, z+5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000);
             if (Channel)
             {
@@ -561,9 +561,8 @@ struct MANGOS_DLL_SPEC npc_akama_illidanAI : public ScriptedAI
                     // open the doors that close the summit
                     for(uint32 i = DATA_GAMEOBJECT_ILLIDAN_DOOR_R; i < DATA_GAMEOBJECT_ILLIDAN_DOOR_L+1; ++i)
                     {
-                        GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(i));
-                        if (Door)
-                            Door->SetGoState(0);
+                        if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(i)))
+                            pDoor->SetGoState(0);
                     }
                 }
                 break;
@@ -661,7 +660,7 @@ struct MANGOS_DLL_SPEC npc_akama_illidanAI : public ScriptedAI
                                 IsTalking = true;
                                 TalkTimer = 2000;
                                 m_creature->RemoveAllAuras();
-                                m_creature->CombatStop();
+                                m_creature->CombatStop(true);
                                 m_creature->AttackStop();
                                 m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 TalkCount = 3;
@@ -719,9 +718,8 @@ struct MANGOS_DLL_SPEC npc_akama_illidanAI : public ScriptedAI
                                 }
                             }
 
-                            GameObject* Gate = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_GATE));
-                            if (Gate)
-                                Gate->SetGoState(0);
+                            if (GameObject* pGate = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_GATE)))
+                                pGate->SetGoState(0);
 
                             ChannelCount++;
                             ChannelTimer = 5000;
@@ -1076,9 +1074,9 @@ struct MANGOS_DLL_SPEC boss_illidan_stormrageAI : public ScriptedAI
 
         for(uint8 i = DATA_GAMEOBJECT_ILLIDAN_DOOR_R; i < DATA_GAMEOBJECT_ILLIDAN_DOOR_L + 1; ++i)
         {
-            GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(i));
-            if (Door)
-                Door->SetGoState(0);                        // Open Doors
+            // Open Doors
+            if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(i)))
+                pDoor->SetGoState(0);
         }
 
     }
@@ -1450,7 +1448,7 @@ struct MANGOS_DLL_SPEC boss_illidan_stormrageAI : public ScriptedAI
             Creature* Maiev = ((Creature*)Unit::GetUnit((*m_creature), MaievGUID));
             if (Maiev)
             {
-                Maiev->CombatStop();                        // Maiev shouldn't do anything either. No point in her attacking us =]
+                Maiev->CombatStop(true);                    // Maiev shouldn't do anything either. No point in her attacking us =]
                 Maiev->GetMotionMaster()->Clear(false);     // Stop her from moving as well
                 Maiev->GetMotionMaster()->MoveIdle();
                 float distance = 10.0f;
@@ -1958,9 +1956,8 @@ void npc_akama_illidanAI::BeginEvent(uint64 PlayerGUID)
     {
         for(uint8 i = DATA_GAMEOBJECT_ILLIDAN_DOOR_R; i < DATA_GAMEOBJECT_ILLIDAN_DOOR_L+1; ++i)
         {
-            GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(i));
-            if (Door)
-                Door->SetGoState(1);
+            if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(i)))
+                pDoor->SetGoState(1);
         }
     }
 
@@ -2119,8 +2116,8 @@ struct MANGOS_DLL_DECL cage_trap_triggerAI : public ScriptedAI
                     if (who->HasAura(SPELL_ENRAGE, 0))
                         who->RemoveAurasDueToSpell(SPELL_ENRAGE);
 
-                    if (GameObject* CageTrap = m_creature->GetMap()->GetGameObject(CageTrapGUID))
-                        CageTrap->SetLootState(GO_JUST_DEACTIVATED);
+                    if (GameObject* pCageTrap = m_creature->GetMap()->GetGameObject(CageTrapGUID))
+                        pCageTrap->SetLootState(GO_JUST_DEACTIVATED);
                 }
             }
         }

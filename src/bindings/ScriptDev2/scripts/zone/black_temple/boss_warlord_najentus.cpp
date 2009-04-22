@@ -24,30 +24,30 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_black_temple.h"
 
-#define SAY_AGGRO                       -1564000
-#define SAY_NEEDLE1                     -1564001
-#define SAY_NEEDLE2                     -1564002
-#define SAY_SLAY1                       -1564003
-#define SAY_SLAY2                       -1564004
-#define SAY_SPECIAL1                    -1564005
-#define SAY_SPECIAL2                    -1564006
-#define SAY_ENRAGE1                     -1564007            //is this text actually in use?
-#define SAY_ENRAGE2                     -1564008
-#define SAY_DEATH                       -1564009
+enum
+{
+    SAY_AGGRO                       = -1564000,
+    SAY_NEEDLE1                     = -1564001,
+    SAY_NEEDLE2                     = -1564002,
+    SAY_SLAY1                       = -1564003,
+    SAY_SLAY2                       = -1564004,
+    SAY_SPECIAL1                    = -1564005,
+    SAY_SPECIAL2                    = -1564006,
+    SAY_ENRAGE1                     = -1564007,             //is this text actually in use?
+    SAY_ENRAGE2                     = -1564008,
+    SAY_DEATH                       = -1564009,
 
-//Spells
-#define SPELL_CRASHINGWAVE              40100
-#define SPELL_NEEDLE_SPINE              39835
-#define SPELL_NEEDLE_AOE                39968
-#define SPELL_TIDAL_BURST               39878
-#define SPELL_TIDAL_SHIELD              39872               // Not going to use this since Hurl Spine doesn't dispel it.
-#define SPELL_IMPALING_SPINE            39837
-#define SPELL_CREATE_NAJENTUS_SPINE     39956
-#define SPELL_HURL_SPINE                39948
-#define SPELL_SHIELD_VISUAL             37136
-#define SPELL_BERSERK                   45078
-
-#define DISPLAYID_SPINE                 7362
+    SPELL_CRASHINGWAVE              = 40100,
+    SPELL_NEEDLE_SPINE              = 39835,
+    SPELL_NEEDLE_AOE                = 39968,
+    SPELL_TIDAL_BURST               = 39878,
+    SPELL_TIDAL_SHIELD              = 39872,                // Not going to use this since Hurl Spine doesn't dispel it.
+    SPELL_IMPALING_SPINE            = 39837,
+    SPELL_CREATE_NAJENTUS_SPINE     = 39956,
+    SPELL_HURL_SPINE                = 39948,
+    SPELL_SHIELD_VISUAL             = 37136,
+    SPELL_BERSERK                   = 45078
+};
 
 struct MANGOS_DLL_DECL mob_najentus_spineAI : public ScriptedAI
 {
@@ -159,10 +159,12 @@ struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
 
     void ToggleGate(bool close)
     {
-        if (GameObject* Gate = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_NAJENTUS_GATE)))
+        if (GameObject* pGate = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_NAJENTUS_GATE)))
         {
-            if (close) Gate->SetGoState(1);                 // Closed
-            else       Gate->SetGoState(0);                 // Opened
+            if (close)
+                pGate->SetGoState(1);                       // Closed
+            else
+                pGate->SetGoState(0);                       // Opened
         }
     }
 

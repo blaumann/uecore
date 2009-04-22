@@ -122,7 +122,7 @@ struct MANGOS_DLL_DECL npc_volcanoAI : public ScriptedAI
         CheckTimer = 1000;
         SupremusGUID = 0;
         FireballTimer = 500;
-        GeyserTimer = 2000;
+        GeyserTimer = 0;
     }
 
     void Aggro(Unit *who) {}
@@ -212,19 +212,23 @@ struct MANGOS_DLL_DECL boss_supremusAI : public ScriptedAI
 
     void ToggleMainDoors(bool close)
     {
-        if (GameObject* Doors = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_SUPREMUS_DOORS)))
+        if (GameObject* pDoors = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_SUPREMUS_DOORS)))
         {
-            if (close) Doors->SetGoState(1);                // Closed
-            else       Doors->SetGoState(0);                // Open
+            if (close)
+                pDoors->SetGoState(1);                      // Closed
+            else
+                pDoors->SetGoState(0);                      // Open
         }
     }
 
     void ToggleGate(bool close)
     {
-        if (GameObject* Doors = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_NAJENTUS_GATE)))
+        if (GameObject* pDoors = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_NAJENTUS_GATE)))
         {
-            if (close) Doors->SetGoState(1);                // Closed
-            else       Doors->SetGoState(0);                // Open
+            if (close)
+                pDoors->SetGoState(1);                      // Closed
+            else
+                pDoors->SetGoState(0);                      // Open
         }
     }
 
@@ -357,7 +361,15 @@ struct MANGOS_DLL_DECL boss_supremusAI : public ScriptedAI
 
                 if (target)
                 {
-                    DoCast(target, SPELL_VOLCANIC_ERUPTION);
+                    Creature* Volcano = NULL;
+                    Volcano = SummonCreature(CREATURE_VOLCANO, target);
+
+                    if (Volcano)
+                    {
+                        DoCast(target, SPELL_VOLCANIC_ERUPTION);
+                        ((npc_volcanoAI*)Volcano->AI())->SetSupremusGUID(m_creature->GetGUID());
+                    }
+
                     DoScriptText(EMOTE_GROUND_CRACK, m_creature);
                     SummonVolcanoTimer = 10000;
                 }
