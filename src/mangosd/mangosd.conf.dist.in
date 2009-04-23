@@ -1,7 +1,7 @@
 #####################################
 # MaNGOS Configuration file         #
 #####################################
-ConfVersion=2008080101
+ConfVersion=2009043401
 
 ###################################################################################################################
 # CONNECTIONS AND DIRECTORIES
@@ -55,6 +55,18 @@ CharacterDatabaseInfo = "127.0.0.1;3306;root;mangos;characters"
 MaxPingTime = 30
 WorldServerPort = 8085
 BindIP = "0.0.0.0"
+
+###################################################################################################################
+# SCRIPTS SETTINGS
+# Database connection settings for the world server.
+# Default: hostname;port;username;password;database
+#          .;somenumber;username;password;database - use named pipes at Windows
+#                Named pipes: mySQL required adding "enable-named-pipe" to [mysqld] section my.ini
+#          .;/path/to/unix_socket;username;password;database - use Unix sockets at Unix/Linux
+#                Unix sockets: experimental, not tested
+###################################################################################################################
+
+CWDBDatabaseInfo     = "127.0.0.1;3306;mangos;mangos;cwdb"
 
 ###################################################################################################################
 # PERFORMANCE SETINGS

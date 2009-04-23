@@ -36,23 +36,23 @@ enum
 struct MANGOS_DLL_DECL boss_cyanigosaAI : public ScriptedAI
 {
     boss_cyanigosaAI(Creature *c) : ScriptedAI(c)
-	{
+    {
         //pInstance = ((ScriptedInstance*)c->GetInstanceData());
-		Reset();
-		HeroicMode = m_creature->GetMap()->IsHeroic();
-	}
+        Reset();
+        HeroicMode = m_creature->GetMap()->IsHeroic();
+    }
 
     bool HeroicMode;
 
     //Timer
     uint32 ARCANE_VACUM_Timer;
-	uint32 BLIZZARD_Timer;
+    uint32 BLIZZARD_Timer;
     uint32 MANA_DESTRUCTION_Timer;
     uint32 TAIL_SWEEP_Timer;
     uint32 UNCONTROLLABLE_ENERGY_Timer;
 
-	void Reset()
-	{
+    void Reset()
+    {
        //Timers
        ARCANE_VACUM_Timer = 6000;
        BLIZZARD_Timer = 60000;
@@ -60,9 +60,9 @@ struct MANGOS_DLL_DECL boss_cyanigosaAI : public ScriptedAI
        TAIL_SWEEP_Timer = 1000;
        UNCONTROLLABLE_ENERGY_Timer = 20000;
 
-		//if(pInstance)
-            //pInstance->SetData(DATA_BOSS_CYANIGOSA, NOT_STARTED);
-	}
+       //if(pInstance)
+           //pInstance->SetData(DATA_BOSS_CYANIGOSA, NOT_STARTED);
+    }
 
     void Aggro(Unit* who) 
     {
