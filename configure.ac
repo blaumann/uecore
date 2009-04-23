@@ -334,7 +334,3 @@ AC_CONFIG_COMMANDS([default],[
 
 ## Output files.
 AC_OUTPUT
-  make dist run.
-
-## Output files.
-AC_OUTPUT
