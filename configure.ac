@@ -313,7 +313,6 @@ AC_CONFIG_FILES([
    src/mangosd/mangosd.conf.dist
    src/bindings/Makefile
    src/bindings/ScriptDev2/Makefile
-   src/bindings/ScriptDev2/scriptdev2.conf.dist
    src/bindings/ScriptDev2/config.h
    src/bindings/ScriptDev2/sql/Makefile
    src/bindings/ScriptDev2/sql/Updates/Makefile
@@ -332,6 +331,10 @@ AC_CONFIG_COMMANDS([default],[
 
 ## Disabled Makefiles, until they are ready for a successful make and
 #  make dist run.
+
+## Output files.
+AC_OUTPUT
+  make dist run.
 
 ## Output files.
 AC_OUTPUT
