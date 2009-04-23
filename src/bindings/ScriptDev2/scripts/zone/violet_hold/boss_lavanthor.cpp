@@ -1,9 +1,9 @@
 /* Script Data Start
-SDName: Boss lavanthor
-SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
+SDName: Boss Lavanthor
+SDAuthor: Thyros, Klappstuhl
+SD%Complete: 50
+SDComment: Need's Test
+SDCategory: The Violet Hold
 Script Data End */
 
 /*** SQL START *** 
@@ -11,15 +11,25 @@ update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
 
-//Spells
-#define SPELL_CAUTERIZING_FLAMES                      59466
-#define SPELL_FIREBOLT                                54235
-#define SPELL_FLAME_BREATH                            54282
-#define SPELL_LAVA_BURN                               54249
+enum
+{
+    //Spells 
+    SPELL_CAUTERIZING_FLAMES                   = 59466,
+    SPELL_FIREBOLT                             = 54235,
+    SPELL_FLAME_BREATH                         = 54282,
+    SPELL_LAVA_BURN                            = 54249
+};
 
 struct MANGOS_DLL_DECL boss_lavanthorAI : public ScriptedAI
 {
-    boss_lavanthorAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_lavanthorAI(Creature *c) : ScriptedAI(c)
+	{
+        //pInstance = ((ScriptedInstance*)c->GetInstanceData());
+		Reset();
+		HeroicMode = m_creature->GetMap()->IsHeroic();
+	}
+    
+    bool HeroicMode;
 
     void Reset() {}
     void Aggro(Unit* who) {}

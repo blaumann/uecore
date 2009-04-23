@@ -11,28 +11,37 @@ update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
 
-//Spells
-#define SPELL_ARCANE_BARRAGE_VOLLEY                    54202
-#define SPELL_ARCANE_BUFFET                            54226
-#define SPELL_SUMMON_ETHEREAL_SPHERE_1                 54102
-#define SPELL_SUMMON_ETHEREAL_SPHERE_2                 54137
-#define SPELL_SUMMON_ETHEREAL_SPHERE_3                 54138
+enum
+{
+    //Spells
+    SPELL_ARCANE_BUFFET                        = 54226,
+    SPELL_SUMMON_ETHEREAL_SPHERE_1             = 54102,
+    SPELL_SUMMON_ETHEREAL_SPHERE_2             = 54137,
+    SPELL_SUMMON_ETHEREAL_SPHERE_3             = 54138,
 
-//Yells
-#define SAY_AGGRO                                   -1999595
-#define SAY_SLAY_1                                  -1999594
-#define SAY_SLAY_2                                  -1999593
-#define SAY_SLAY_3                                  -1999592
-#define SAY_DEATH                                   -1999591
-#define SAY_SPAWN                                   -1999590
-#define SAY_CHARGED                                 -1999589
-#define SAY_REPEAT_SUMMON_1                         -1999588
-#define SAY_REPEAT_SUMMON_2                         -1999587
-#define SAY_SUMMON_ENERGY                           -1999586
+    //Yells
+    SAY_AGGRO                                  = -1999595,
+    SAY_SLAY_1                                 = -1999594,
+    SAY_SLAY_2                                 = -1999593,
+    SAY_SLAY_3                                 = -1999592,
+    SAY_DEATH                                  = -1999591,
+    SAY_SPAWN                                  = -1999590,
+    SAY_CHARGED                                = -1999589,
+    SAY_REPEAT_SUMMON_1                        = -1999588,
+    SAY_REPEAT_SUMMON_2                        = -1999587,
+    SAY_SUMMON_ENERGY                          = -1999586
+};
 
 struct MANGOS_DLL_DECL boss_xevozzAI : public ScriptedAI
 {
-    boss_xevozzAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_xevozzAI(Creature *c) : ScriptedAI(c)
+	{
+        //pInstance = ((ScriptedInstance*)c->GetInstanceData());
+		Reset();
+		HeroicMode = m_creature->GetMap()->IsHeroic();
+	}
+    
+    bool HeroicMode;
 
     void Reset() {}
     void Aggro(Unit* who) 

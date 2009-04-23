@@ -1,9 +1,9 @@
 /* Script Data Start
-SDName: Boss zuramat
-SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
+SDName: Boss Zuramat 
+SDAuthor: Thyros, Klappstuhl
+SD%Complete: 50
+SDComment: Need´s Test
+SDCategory: The Violet Hold
 Script Data End */
 
 /*** SQL START *** 
@@ -11,26 +11,36 @@ update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
 
-//Spells
-#define SPELL_SHROUD_OF_DARKNESS                       54524
-#define SPELL_SUMMON_VOID_SENTRY                       54524
-#define SPELL_VOID_SHIFT                               54524
+enum
+{
+    //Spells
+    SPELL_SHROUD_OF_DARKNESS                   = 54524,
+    SPELL_SUMMON_VOID_SENTRY                   = 54524,
+    SPELL_VOID_SHIFT                           = 54524,
 
-#define NPC_VOID_SENTRY                                29364
+    NPC_VOID_SENTRY                            = 29364,
 
-//Yells
-#define SAY_AGGRO                                   -1999585
-#define SAY_SLAY_1                                  -1999584
-#define SAY_SLAY_2                                  -1999583
-#define SAY_SLAY_3                                  -1999582
-#define SAY_DEATH                                   -1999581
-#define SAY_SPAWN                                   -1999580
-#define SAY_SHIELD                                  -1999579
-#define SAY_WHISPER                                 -1999578
+    //Yells
+    SAY_AGGRO                                  = -1999585,
+    SAY_SLAY_1                                 = -1999584,
+    SAY_SLAY_2                                 = -1999583,
+    SAY_SLAY_3                                 = -1999582,
+    SAY_DEATH                                  = -1999581,
+    SAY_SPAWN                                  = -1999580,
+    SAY_SHIELD                                 = -1999579,
+    SAY_WHISPER                                = -1999578
+};
 
 struct MANGOS_DLL_DECL boss_zuramatAI : public ScriptedAI
 {
-    boss_zuramatAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_zuramatAI(Creature *c) : ScriptedAI(c)
+	{
+        //pInstance = ((ScriptedInstance*)c->GetInstanceData());
+		Reset();
+		HeroicMode = m_creature->GetMap()->IsHeroic();
+	}
+    
+    bool HeroicMode;
 
     void Reset() {}
     void Aggro(Unit* who) 

@@ -11,30 +11,59 @@ update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
 
-//Spells
-#define SPELL_ARCANE_VACUM                             58694
-#define SPELL_BLIZZARD                                 58693
-#define SPELL_MANA_DESTRUCTION                         59374
-#define SPELL_TAIL_SWEEP                               58690
-#define SPELL_UNCONTROLLABLE_ENERGY                    58688
+enum
+{
+    //Spells
+    SPELL_ARCANE_VACUM                        = 58694,
+    SPELL_BLIZZARD                            = 58693,
+    SPELL_MANA_DESTRUCTION                    = 59374,
+    SPELL_TAIL_SWEEP                          = 58690,
+    SPELL_UNCONTROLLABLE_ENERGY               = 58688,
 
-//Yells
-#define SAY_AGGRO                                   -1999622
-#define SAY_SLAY_1                                  -1999621
-#define SAY_SLAY_2                                  -1999620
-#define SAY_SLAY_3                                  -1999619
-#define SAY_DEATH                                   -1999618
-#define SAY_SPAWN                                   -1999617
-#define SAY_DISRUPTION                              -1999616
-#define SAY_BREATH_ATTACK                           -1999615
-#define SAY_SPECIAL_ATTACK_1                        -1999614
-#define SAY_SPECIAL_ATTACK_2                        -1999613
+    //Yells
+    SAY_AGGRO                                 = -1999622,
+    SAY_SLAY_1                                = -1999621,
+    SAY_SLAY_2                                = -1999620,
+    SAY_SLAY_3                                = -1999619,
+    SAY_DEATH                                 = -1999618,
+    SAY_SPAWN                                 = -1999617,
+    SAY_DISRUPTION                            = -1999616,
+    SAY_BREATH_ATTACK                         = -1999615,
+    SAY_SPECIAL_ATTACK_1                      = -1999614,
+    SAY_SPECIAL_ATTACK_2                      = -1999613
+};
 
 struct MANGOS_DLL_DECL boss_cyanigosaAI : public ScriptedAI
 {
-    boss_cyanigosaAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_cyanigosaAI(Creature *c) : ScriptedAI(c)
+	{
+        //pInstance = ((ScriptedInstance*)c->GetInstanceData());
+		Reset();
+		HeroicMode = m_creature->GetMap()->IsHeroic();
+	}
 
-    void Reset() {}
+    bool HeroicMode;
+
+    //Timer
+    uint32 ARCANE_VACUM_Timer;
+	uint32 BLIZZARD_Timer;
+    uint32 MANA_DESTRUCTION_Timer;
+    uint32 TAIL_SWEEP_Timer;
+    uint32 UNCONTROLLABLE_ENERGY_Timer;
+
+	void Reset()
+	{
+       //Timers
+       ARCANE_VACUM_Timer = 6000;
+       BLIZZARD_Timer = 60000;
+	   MANA_DESTRUCTION_Timer = 2000;
+       TAIL_SWEEP_Timer = 1000;
+       UNCONTROLLABLE_ENERGY_Timer = 20000;
+
+		//if(pInstance)
+            //pInstance->SetData(DATA_BOSS_CYANIGOSA, NOT_STARTED);
+	}
+
     void Aggro(Unit* who) 
     {
         DoScriptText(SAY_AGGRO, m_creature);
@@ -76,7 +105,7 @@ void AddSC_boss_cyanigosa()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_cyanigosa";
-    newscript->GetAI = GetAI_boss_cyanigosa;
+    newscript->Name = "boss_cyanigosa";
+    newscript->GetAI = &GetAI_boss_cyanigosa;
     newscript->RegisterSelf();
 }

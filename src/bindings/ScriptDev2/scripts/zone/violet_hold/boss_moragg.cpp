@@ -1,9 +1,9 @@
 /* Script Data Start
 SDName: Boss moragg
-SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
+SDAuthor: Thyros, Klappstuhl
+SD%Complete: 50
+SDComment: Need's Test
+SDCategory: The Violet Hold
 Script Data End */
 
 /*** SQL START *** 
@@ -11,13 +11,23 @@ update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
 
-//Spells
-#define SPELL_CORROSICE_SALIVA                     54527
-#define SPELL_OPTIC_LINK                           54396
+enum
+{
+    //Spells
+    SPELL_CORROSICE_SALIVA                   = 54527,
+    SPELL_OPTIC_LINK                         = 54396
+};
 
 struct MANGOS_DLL_DECL boss_moraggAI : public ScriptedAI
 {
-    boss_moraggAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_moraggAI(Creature *c) : ScriptedAI(c)
+	{
+        //pInstance = ((ScriptedInstance*)c->GetInstanceData());
+		Reset();
+		HeroicMode = m_creature->GetMap()->IsHeroic();
+	}
+    
+    bool HeroicMode;
 
     void Reset() {}
     void Aggro(Unit* who) {}

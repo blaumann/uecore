@@ -7497,8 +7497,8 @@ void Unit::ModifyAuraState(AuraState flag, bool apply)
                 if (spellProto->CasterAuraState == flag)
                 {
                     // exceptions (applied at state but not removed at state change)
-                    // Rampage
-                    if(spellProto->SpellIconID==2006 && spellProto->SpellFamilyName==SPELLFAMILY_WARRIOR && spellProto->SpellFamilyFlags==0x100000)
+                    // Rampage && Enraged regeneration
+                    if(spellProto->SpellIconID==2006 && spellProto->SpellFamilyName==SPELLFAMILY_WARRIOR && spellProto->SpellFamilyFlags==0x100000 || spellProto->Id == 55694)
                     {
                         ++itr;
                         continue;
@@ -7599,6 +7599,21 @@ void Unit::UnsummonAllTotems()
         if (OldTotem && OldTotem->isTotem())
             ((Totem*)OldTotem)->UnSummon();
     }
+}
+
+int32 Unit::DealHeal(Unit *pVictim, uint32 addhealth, SpellEntry const *spellProto, bool critical)
+{
+    int32 gain = pVictim->ModifyHealth(int32(addhealth));
+
+    if (GetTypeId()==TYPEID_PLAYER)
+    {
+        SendHealSpellLog(pVictim, spellProto->Id, addhealth, critical);
+
+        if (BattleGround *bg = ((Player*)this)->GetBattleGround())
+            bg->UpdatePlayerScore((Player*)this, SCORE_HEALING_DONE, gain);
+    }
+
+    return gain;
 }
 
 Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
