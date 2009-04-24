@@ -239,7 +239,6 @@ struct MANGOS_DLL_DECL npc_threshwackonatorAI : public ScriptedAI
 
         m_creature->SetLootRecipient(NULL);
 
-        InCombat = false;
         Reset();
     }
 
@@ -279,7 +278,7 @@ struct MANGOS_DLL_DECL npc_threshwackonatorAI : public ScriptedAI
     {
         if (uiPlayerGUID)
         {
-            if (!InCombat)
+            if (!m_creature->isInCombat())
             {
                 if (uiCheckPlayerTimer < diff)
                 {

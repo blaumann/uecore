@@ -283,10 +283,9 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 				{
                     AttackStart(who);
 					who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-					if (!InCombat)
+					if (!m_creature->getVictim())
 					{
 						Aggro(who);
-						InCombat = true;
 					}
 				}
 			}
@@ -784,14 +783,13 @@ struct MANGOS_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
 
 	void JustRespawned()
 	{
-		InCombat = false;
 		AddedBanish = false;
 		Reset();
 	}
 
 	void CastChanneling()
 	{
-		if(!InCombat && !m_creature->m_currentSpells[CURRENT_CHANNELED_SPELL])
+		if(!!m_creature->isInCombat() && !m_creature->m_currentSpells[CURRENT_CHANNELED_SPELL])
 			if(leotherasGUID)
 			{
 				Creature *leotheras = (Creature *)Unit::GetUnit(*m_creature, leotherasGUID);
@@ -815,7 +813,7 @@ struct MANGOS_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
 			if(!leotherasGUID)
 				leotherasGUID = pInstance->GetData64(DATA_LEOTHERAS);
 
-			if(!InCombat && pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
+			if(!m_creature->isInCombat() && pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
 			{
 				Unit *victim = NULL;
 				victim = Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));

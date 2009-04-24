@@ -258,7 +258,7 @@ struct MANGOS_DLL_DECL mob_towering_infernalAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (m_creature->GetDistance(who) <= 50 && !InCombat && m_creature->IsHostileTo(who))
+        if (m_creature->GetDistance(who) <= 50 && !m_creature->isInCombat() && m_creature->IsHostileTo(who))
         {
             m_creature->AddThreat(who,0.0);
             m_creature->Attack(who,false);

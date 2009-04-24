@@ -190,6 +190,8 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
         if (!who)
             return;
 
+        bool bInCombat = m_creature->isInCombat();
+
         if (who == m_creature || who->GetTypeId() != TYPEID_PLAYER)
             return;
 
@@ -199,9 +201,8 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
             m_creature->SetInCombatWith(who);
             who->SetInCombatWith(m_creature);
 
-            if (!InCombat)
+            if (!bInCombat)
             {
-                InCombat = true;
                 Aggro(who);
             }
 

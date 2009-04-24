@@ -465,10 +465,9 @@ struct MANGOS_DLL_DECL mob_soaring_eagleAI : public ScriptedAI
 
     void AttackStart(Unit *who)
     {
-        if (!InCombat)
+        if (!m_creature->getVictim())
         {
             Aggro(who);
-            InCombat = true;
         }
     }
 

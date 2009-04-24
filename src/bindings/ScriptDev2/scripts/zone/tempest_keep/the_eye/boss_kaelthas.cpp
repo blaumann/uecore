@@ -322,7 +322,7 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
         IsCastingFireball = false;
         ChainPyros = false;
 
-        if (InCombat)
+        if (m_creature->isInCombat())
             PrepareAdvisors();
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -864,7 +864,7 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 m_creature->SendMonsterMove(GRAVITY_X, GRAVITY_Y, GRAVITY_Z, 0, 0, 0);
 
                                 // 1) Kael'thas will portal the whole raid right into his body
-                                for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();++i)
+                                for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();)
                                 {
                                     Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
                                     if (pUnit && (pUnit->GetTypeId() == TYPEID_PLAYER))
@@ -889,7 +889,7 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 }
 
                                 // 2) At that point he will put a Gravity Lapse debuff on everyone
-                                for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();i++)
+                                for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();)
                                 {
                                     if (Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid()))
                                     {
@@ -1132,17 +1132,16 @@ struct MANGOS_DLL_DECL boss_grand_astromancer_capernianAI : public advisorbase_a
         if (!who || FakeDeath || m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
+        bool bInCombat = m_creature->isInCombat();
+
         if (m_creature->Attack(who, true))
         {
             m_creature->AddThreat(who, 0.0f);
             m_creature->SetInCombatWith(who);
             who->SetInCombatWith(m_creature);
 
-            if (!InCombat)
-            {
-                InCombat = true;
+            if (!bInCombat)
                 Aggro(who);
-            }
 
             DoStartMovement(who, CAPERNIAN_DISTANCE, M_PI/2);
         }
@@ -1206,10 +1205,10 @@ struct MANGOS_DLL_DECL boss_grand_astromancer_capernianAI : public advisorbase_a
             bool InMeleeRange = false;
             Unit *target = NULL;
             std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
-            for (std::list<HostilReference*>::iterator i = m_threatlist.begin(); i!= m_threatlist.end();++i)
+            for (std::list<HostilReference*>::iterator i = m_threatlist.begin(); i!= m_threatlist.end();)
             {
-                Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
-                                                            //if in melee range
+                Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());                                       //if in melee range
+
                 if (pUnit && pUnit->IsWithinDistInMap(m_creature, 5))
                 {
                     InMeleeRange = true;
@@ -1399,16 +1398,15 @@ struct MANGOS_DLL_DECL mob_phoenix_egg_tkAI : public ScriptedAI
 
     void AttackStart(Unit* who)
     {
+        bool bInCombat = m_creature->isInCombat();
+
         if (m_creature->Attack(who, false))
         {
             m_creature->SetInCombatWith(who);
             who->SetInCombatWith(m_creature);
 
-            if (!InCombat)
-            {
-                InCombat = true;
+            if (!bInCombat)
                 Aggro(who);
-            }
 
             DoStartNoMovement(who);
         }

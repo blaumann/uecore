@@ -144,6 +144,8 @@ struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
             if (m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                 return;
 
+            bool bInCombat = m_creature->isInCombat();
+
             float attackRadius = m_creature->GetAttackDistance(who);
             if( m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who) )
             {
@@ -162,10 +164,9 @@ struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
                 
                 who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
 
-                if (!InCombat)
+                if (!bInCombat)
                 {
                     Aggro(who);
-                    InCombat = true;
                 }
             }
         }
@@ -175,6 +176,8 @@ struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
     {
         if (!who)
             return;
+
+    bool bInCombat = m_creature->isInCombat();
 
         if (who->isTargetableForAttack())
         {
@@ -190,10 +193,9 @@ struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
                 }
             }
 
-            if (!InCombat)
+            if (!bInCombat)
             {
                 Aggro(who);
-                InCombat = true;
             }
         }
     }

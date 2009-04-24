@@ -108,7 +108,7 @@ extern void AddSC_boss_talon_king_ikiss();
 extern void AddSC_instance_sethekk_halls();
 
 //--Shadow Labyrinth
-extern void AddSC_boss_Terrordar_der_Peiniger();
+extern void AddSC_boss_ambassador_hellmaw();
 extern void AddSC_boss_blackheart_the_inciter();
 extern void AddSC_boss_grandmaster_vorpil();
 extern void AddSC_boss_murmur();
@@ -258,6 +258,7 @@ extern void AddSC_mob_underbog_colossus();
 
 //--Slave Pens
 extern void AddSC_boss_rokmar_the_crackler();
+//extern void AddSC_mennu_the_betrayer();
 
 //--Steam Vault
 extern void AddSC_boss_hydromancer_thespia();
@@ -1178,7 +1179,7 @@ void ScriptsInit()
     AddSC_instance_sethekk_halls();
 
     //--Shadow Labyrinth
-    AddSC_boss_Terrordar_der_Peiniger();
+    AddSC_boss_ambassador_hellmaw();
     AddSC_boss_blackheart_the_inciter();
     AddSC_boss_grandmaster_vorpil();
     AddSC_boss_murmur();
@@ -1313,7 +1314,8 @@ void ScriptsInit()
 
 
     //--Slave Pens
-	/*Developing coming later*/
+    AddSC_boss_rokmar_the_crackler();
+    //AddSC_mennu_the_betrayer();
 
     //--Steam Vault
     AddSC_mob_underbog_colossus();

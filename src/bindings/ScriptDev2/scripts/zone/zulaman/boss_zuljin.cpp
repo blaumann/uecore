@@ -245,19 +245,18 @@ struct MANGOS_DLL_DECL boss_zuljinAI : public ScriptedAI
         if (!who)
             return;
 
+        bool bInCombat = m_creature->isInCombat();
+
         if (m_creature->Attack(who, true))
         {
             m_creature->AddThreat(who, 0.0f);
             m_creature->SetInCombatWith(who);
             who->SetInCombatWith(m_creature);
 
-            if (!InCombat)
-            {
-                InCombat = true;
+            if (!bInCombat)
                 Aggro(who);
-            }
 
-            if(Phase == 2)
+            if (Phase)
                 DoStartNoMovement(who);
             else
                 DoStartMovement(who);

@@ -67,7 +67,7 @@ EndContentData */
 
 bool ItemUse_item_arcane_charges(Player *player, Item* _Item, SpellCastTargets const& targets)
 {
-    if (player->IsFlying())
+    if (player->isInFlight())
         return false;
 
     player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,_Item,NULL);

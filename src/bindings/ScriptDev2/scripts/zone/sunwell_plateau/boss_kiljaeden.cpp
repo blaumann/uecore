@@ -1084,6 +1084,8 @@ struct MANGOS_DLL_DECL mob_hand_of_the_deceiverAI : public ScriptedAI
         if (!who)
             return;
 
+        bool bInCombat = m_creature->isInCombat();
+
         if (who == m_creature || who->GetTypeId() != TYPEID_PLAYER)
             return;
 
@@ -1094,9 +1096,8 @@ struct MANGOS_DLL_DECL mob_hand_of_the_deceiverAI : public ScriptedAI
             who->SetInCombatWith(m_creature);
             m_creature->InterruptNonMeleeSpells(true);
 
-            if (!InCombat)
+            if (!bInCombat)
             {
-                InCombat = true;
                 Aggro(who);
             }
 

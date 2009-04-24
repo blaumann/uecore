@@ -558,6 +558,8 @@ struct MANGOS_DLL_DECL boss_alyson_antilleAI : public boss_hexlord_addAI
         if (!who)
             return;
 
+        bool bInCombat = m_creature->isInCombat();
+
         if (who->isTargetableForAttack())
         {
             if(m_creature->Attack(who, false))
@@ -566,10 +568,9 @@ struct MANGOS_DLL_DECL boss_alyson_antilleAI : public boss_hexlord_addAI
                 m_creature->AddThreat(who, 0.0f);
             }
 
-            if (!InCombat)
+            if (!bInCombat)
             {
                 Aggro(who);
-                InCombat = true;
             }
         }
     }
@@ -651,10 +652,9 @@ struct MANGOS_DLL_DECL boss_gazakrothAI : public boss_hexlord_addAI
                 m_creature->AddThreat(who, 0.0f);
             }
 
-            if (!InCombat)
+            if (!m_creature->getVictim())
             {
                 Aggro(who);
-                InCombat = true;
             }
         }
     }
@@ -771,10 +771,9 @@ struct MANGOS_DLL_DECL boss_slitherAI : public boss_hexlord_addAI
                 m_creature->AddThreat(who, 0.0f);
             }
 
-            if (!InCombat)
+            if (!m_creature->getVictim())
             {
                 Aggro(who);
-                InCombat = true;
             }
         }
     }

@@ -188,7 +188,7 @@ struct MANGOS_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
     void UpdateAI(const uint32 uiDiff)
     {
         //Only if not incombat check if the event is started
-        if (!InCombat && m_pInstance && m_pInstance->GetData(DATA_KARATHRESSEVENT))
+        if (!m_creature->isInCombat() && m_pInstance && m_pInstance->GetData(DATA_KARATHRESSEVENT))
         {
             if (Unit* pTarget = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_KARATHRESSEVENT_STARTER)))
             {
@@ -299,7 +299,7 @@ struct MANGOS_DLL_DECL boss_fathomguard_sharkkisAI : public ScriptedAI
     void UpdateAI(const uint32 uiDiff)
     {
         //Only if not incombat check if the event is started
-        if (!InCombat && m_pInstance && m_pInstance->GetData(DATA_KARATHRESSEVENT))
+        if (!m_creature->isInCombat() && m_pInstance && m_pInstance->GetData(DATA_KARATHRESSEVENT))
         {
             if (Unit* pTarget = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_KARATHRESSEVENT_STARTER)))
                 AttackStart(pTarget);
@@ -381,7 +381,7 @@ struct MANGOS_DLL_DECL boss_fathomguard_tidalvessAI : public ScriptedAI
     void UpdateAI(const uint32 uiDiff)
     {
         //Only if not incombat check if the event is started
-        if (!InCombat && m_pInstance && m_pInstance->GetData(DATA_KARATHRESSEVENT))
+        if (!m_creature->isInCombat() && m_pInstance && m_pInstance->GetData(DATA_KARATHRESSEVENT))
         {
             if (Unit* pTarget = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_KARATHRESSEVENT_STARTER)))
                 AttackStart(pTarget);
@@ -453,7 +453,7 @@ struct MANGOS_DLL_DECL boss_fathomguard_caribdisAI : public ScriptedAI
     void UpdateAI(const uint32 uiDiff)
     {
         //Only if not incombat check if the event is started
-        if (!InCombat && m_pInstance && m_pInstance->GetData(DATA_KARATHRESSEVENT))
+        if (!m_creature->isInCombat() && m_pInstance && m_pInstance->GetData(DATA_KARATHRESSEVENT))
         {
             if (Unit* pTarget = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_KARATHRESSEVENT_STARTER)))
                 AttackStart(pTarget);
