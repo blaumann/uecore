@@ -47,7 +47,7 @@
   #define _SCRIPTDEV2_CONFIG  "mangosd.conf"
 #else
   #define _FULLVERSION _VERSION " (Unix)"
-  #define _SCRIPTDEV2_CONFIG  "@sysconfdir@/mangosd.conf"
+  #define _SCRIPTDEV2_CONFIG  "@sysconfdir@/scriptdev2.conf"
 #endif
 
 #endif
