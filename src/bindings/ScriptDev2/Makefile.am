@@ -557,7 +557,7 @@ EXTRA_DIST = \
 
 ## Additional files to install
 sysconf_DATA = \
-	scriptdev2.conf.dist
+	mangosd.conf.dist
 
 install-data-hook:
 	@list='$(sysconf_DATA)'; for p in $$list; do \

@@ -3653,7 +3653,7 @@ bool ChatHandler::HandleWpImportCommand(const char *args)
 }
 
 //rename characters
-bool ChatHandler::HandleRenameCommand(const char* args)
+bool ChatHandler::HandleCharacterRenameCommand(const char* args)
 {
     Player* target = NULL;
     uint64 targetGUID = 0;
@@ -3715,7 +3715,7 @@ bool ChatHandler::HandleRenameCommand(const char* args)
 }
 
 // customize characters
-bool ChatHandler::HandleCustomizeCommand(const char* args)
+bool ChatHandler::HandleCharacterCustomizeCommand(const char* args)
 {
     Player* target = NULL;
     uint64 targetGUID = 0;

@@ -26,6 +26,7 @@ npc_bunthen_plainswind
 npc_clintar_dw_spirit
 npc_great_bear_spirit
 npc_silva_filnaveth
+npc_clintar_dreamwalker
 EndContentData */
 
 #include "precompiled.h"
