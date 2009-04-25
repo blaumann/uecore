@@ -37,6 +37,7 @@ include/sc_creature.cpp \
 include/sc_creature.h \
 include/sc_gossip.h \
 include/sc_grid_searchers.h \
+include/sc_instance.cpp \
 include/sc_instance.h \
 scripts/areatrigger/areatrigger_scripts.cpp \
 scripts/boss/boss_emeriss.cpp \
@@ -553,6 +554,7 @@ libmangosscript_la_LIBFLAGS = -version-info $(LTMANGOS_CURRENT):$(LTMANGOS_REVIS
 EXTRA_DIST = \
 	Scripts/sc_default.cpp \
 	Scripts/sc_defines.cpp \
+	scriptdev2.conf.dist \
 	Scripts/sc_defines.h
 
 ## Additional files to install
