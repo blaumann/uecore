@@ -1,4 +1,4 @@
-# Copyright  2005,2006,2007,2008,2009 MaNGOS <http://www.mangosproject.org/>
+# Copyright © 2005,2006,2007 MaNGOS <http://www.mangosproject.org/>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -527,7 +527,6 @@ scripts/zone/zulgurub/instance_zulgurub.cpp \
 revision.h \
 system.cpp
 
-
 ## magic to include revision data in SD2 version string
 revision.h: FORCE
 	$(top_builddir)/src/tools/genrevision/genrevision $(srcdir)
@@ -554,8 +553,8 @@ libmangosscript_la_LIBFLAGS = -version-info $(LTMANGOS_CURRENT):$(LTMANGOS_REVIS
 EXTRA_DIST = \
 	Scripts/sc_default.cpp \
 	Scripts/sc_defines.cpp \
-	scriptdev2.conf.dist \
-	Scripts/sc_defines.h
+	Scripts/sc_defines.h \
+	scriptdev2.conf.dist
 
 ## Additional files to install
 sysconf_DATA = \
@@ -573,5 +572,4 @@ install-data-hook:
 	done
 
 clean-local:
-	rm -f $(sysconf_DATA):
 	rm -f $(sysconf_DATA)

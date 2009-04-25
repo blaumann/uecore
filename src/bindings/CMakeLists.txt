@@ -1,5 +1,0 @@
-if(DO_SCRIPTS)
-add_subdirectory(ScriptDev2)
-else (DO_SCRIPTS)
-add_subdirectory(universal)
-endif(DO_SCRIPTS)
