@@ -4,7 +4,7 @@
 
 /* ScriptData
 SDName: Instance_Sunwell_Plateau
-SD%Complete: 70%
+SD%Complete: 90%
 SDComment: Apply SQL below
 SDCategory: Sunwell_Plateau
 EndScriptData */

@@ -2822,15 +2822,15 @@ void World::SendBroadcast()
     msg = fields[0].GetString();
     delete result;
 
-    static uint32 abtimer = 0;
-    abtimer = sConfig.GetIntDefault("AutoBroadcast.Timer", 60000);
-    if(abtimer == 0)
+    static uint32 abcenter = 0;
+    abcenter = sConfig.GetIntDefault("AutoBroadcast.Center", 0);
+    if(abcenter == 0)
     {
         sWorld.SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
 
         sLog.outString("AutoBroadcast: '%s'",msg.c_str());
     }
-    if(abtimer == 1)
+    if(abcenter == 1)
     {
         WorldPacket data(SMSG_NOTIFICATION, (msg.size()+1));
         data << msg;
@@ -2838,7 +2838,7 @@ void World::SendBroadcast()
 
         sLog.outString("AutoBroadcast: '%s'",msg.c_str());
     }
-    if(abtimer == 2)
+    if(abcenter == 2)
     {
         sWorld.SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
 
