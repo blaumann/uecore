@@ -127,7 +127,7 @@ struct MANGOS_DLL_DECL npc_grimstoneAI : public npc_escortAI
     void DoGate(uint32 id, uint32 state)
     {
         if (GameObject *go = pInstance->instance->GetGameObject(pInstance->GetData64(id)))
-            go->SetGoState(state);
+            go->SetGoState(GO_STATE_ACTIVE);
 
         debug_log("SD2: npc_grimstone, arena gate update state.");
     }
@@ -548,7 +548,7 @@ struct MANGOS_DLL_DECL npc_rocknotAI : public npc_escortAI
     void DoGo(uint32 id, uint32 state)
     {
         if (GameObject *go = pInstance->instance->GetGameObject(pInstance->GetData64(id)))
-            go->SetGoState(state);
+            go->SetGoState(GO_STATE_ACTIVE);
     }
 
     void WaypointReached(uint32 i)

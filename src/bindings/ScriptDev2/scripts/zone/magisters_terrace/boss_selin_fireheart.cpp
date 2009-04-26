@@ -108,7 +108,7 @@ struct MANGOS_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
 
             GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_SELIN_ENCOUNTER_DOOR));
             if (Door)
-                Door->SetGoState(0);                        // Open the big encounter door. Close it in Aggro and open it only in JustDied(and here)
+                Door->SetGoState(GO_STATE_ACTIVE);          // Open the big encounter door. Close it in Aggro and open it only in JustDied(and here)
                                                             // Small door opened after event are expected to be closed by default
             // Set Inst data for encounter
             pInstance->SetData(DATA_SELIN_EVENT, NOT_STARTED);
@@ -190,7 +190,7 @@ struct MANGOS_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
         {
             GameObject* EncounterDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_SELIN_ENCOUNTER_DOOR));
             if (EncounterDoor)
-                EncounterDoor->SetGoState(1);               //Close the encounter door, open it in JustDied/Reset
+                EncounterDoor->SetGoState(GO_STATE_ACTIVE);               //Close the encounter door, open it in JustDied/Reset
         }
     }
 
@@ -239,11 +239,11 @@ struct MANGOS_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
 
         GameObject* EncounterDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_SELIN_ENCOUNTER_DOOR));
         if (EncounterDoor)
-            EncounterDoor->SetGoState(0);                   // Open the encounter door
+            EncounterDoor->SetGoState(GO_STATE_ACTIVE);                   // Open the encounter door
 
         GameObject* ContinueDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_SELIN_DOOR));
         if (ContinueDoor)
-            ContinueDoor->SetGoState(0);                    // Open the door leading further in
+            ContinueDoor->SetGoState(GO_STATE_ACTIVE);                    // Open the door leading further in
 
         ShatterRemainingCrystals();
     }

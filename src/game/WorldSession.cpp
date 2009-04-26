@@ -35,6 +35,8 @@
 #include "ObjectAccessor.h"
 #include "BattleGroundMgr.h"
 #include "OutdoorPvPMgr.h"
+#include "Language.h"                                       // for CMSG_DISMOUNT handler
+#include "Chat.h"
 #include "SocialMgr.h"
 #include "zlib/zlib.h"
 

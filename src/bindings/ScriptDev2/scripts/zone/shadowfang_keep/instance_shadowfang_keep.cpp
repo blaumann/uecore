@@ -99,17 +99,17 @@ struct MANGOS_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
             case GO_COURTYARD_DOOR:
                 DoorCourtyardGUID = go->GetGUID();
                 if (Encounter[0] == DONE)
-                    go->SetGoState(0);
+                    go->SetGoState(GO_STATE_ACTIVE);
                 break;
             case GO_SORCERER_DOOR:
                 DoorSorcererGUID = go->GetGUID();
                 if (Encounter[2] == DONE)
-                    go->SetGoState(0);
+                    go->SetGoState(GO_STATE_ACTIVE);
                 break;
             case GO_ARUGAL_DOOR:
                 DoorArugalGUID = go->GetGUID();
                 if (Encounter[3] == DONE)
-                    go->SetGoState(0);
+                    go->SetGoState(GO_STATE_ACTIVE);
                 break;
         }
     }
@@ -117,7 +117,7 @@ struct MANGOS_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
     void HandleGameObject(uint64 guid, uint32 state)
     {
         if (GameObject *go = instance->GetGameObject(guid))
-            go->SetGoState(state);
+            go->SetGoState(GO_STATE_ACTIVE);
     }
 
     void DoSpeech()

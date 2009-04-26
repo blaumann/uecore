@@ -177,7 +177,7 @@ struct MANGOS_DLL_DECL boss_netherspiteAI : public ScriptedAI {
  
                 GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_MASSIVE_DOOR));
                 if(Door)
-                        Door->SetGoState(0); // open the door
+                        Door->SetGoState(GO_STATE_ACTIVE); // open the door
     }
  
     void RandomizeCoords() {
@@ -872,7 +872,7 @@ struct MANGOS_DLL_DECL boss_netherspiteAI : public ScriptedAI {
  
                 GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_MASSIVE_DOOR));
                 if(Door)
-                        Door->SetGoState(1); // open the door
+                        Door->SetGoState(GO_STATE_ACTIVE); // open the door
  
         if(!m_creature->getVictim() || !m_creature->isAlive())
                         return;
@@ -1131,7 +1131,7 @@ struct MANGOS_DLL_DECL boss_netherspiteAI : public ScriptedAI {
  
                 GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_MASSIVE_DOOR));
                 if(Door)
-                        Door->SetGoState(0); // open the door
+                        Door->SetGoState(GO_STATE_ACTIVE); // open the door
     }
 };
  

@@ -7431,7 +7431,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
     uint16 NumberOfFields = 0;
     uint32 mapid = GetMapId();
 
-    sLog.outDebug("Sending SMSG_INIT_WORLD_STATES to Map:%u, Zone: %u", mapid, zoneid);
+	sLog.outDebug("Sending SMSG_INIT_WORLD_STATES to Map:%u, Zone: %u", mapid, zoneid);
 
     // may be exist better way to do this...
     switch(zoneid)
@@ -7911,6 +7911,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                     data << uint32(0xa5f) << uint32(0x0);           // 35
                 }
             }
+            break;
         case 3698:                                          // Nagrand Arena
             if (bg && bg->GetTypeID() == BATTLEGROUND_NA)
                 bg->FillInitialWorldStates(data);

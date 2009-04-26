@@ -120,7 +120,7 @@ struct MANGOS_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
         }
 
         if (GameObject *go = instance->GetGameObject(guid))
-            go->SetGoState(state);
+            go->SetGoState(GO_STATE_ACTIVE);
     }
 
     void SetData(uint32 type, uint32 data)

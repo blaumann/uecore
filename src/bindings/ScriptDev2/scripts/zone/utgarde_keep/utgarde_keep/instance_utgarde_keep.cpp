@@ -93,7 +93,7 @@ struct MANGOS_DLL_DECL  instance_utgarde_keep : public ScriptedInstance
         }
 
         if (GameObject *go = instance->GetGameObject(guid))
-            go->SetGoState(state);
+            go->SetGoState(GO_STATE_ACTIVE);
     }
 
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)

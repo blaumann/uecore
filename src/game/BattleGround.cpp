@@ -1399,7 +1399,7 @@ bool BattleGround::AddObject(uint32 type, uint32 entry, float x, float y, float 
     // so we must create it specific for this instance
     GameObject * go = new GameObject;
     if(!go->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT),entry, map,
-        PHASEMASK_NORMAL, x,y,z,o,rotation0,rotation1,rotation2,rotation3,100,1))
+        PHASEMASK_NORMAL, x,y,z,o,rotation0,rotation1,rotation2,rotation3,100,GO_STATE_READY))
     {
         sLog.outErrorDb("Gameobject template %u not found in database! BattleGround not created!", entry);
         sLog.outError("Cannot create gameobject template %u! BattleGround not created!", entry);
@@ -1442,7 +1442,7 @@ void BattleGround::DoorClose(uint64 const& guid)
     if (obj)
     {
         //if doors are open, close it
-        if (obj->getLootState() == GO_ACTIVATED && !obj->GetGoState())
+        if (obj->getLootState() == GO_ACTIVATED && obj->GetGoState() != GO_STATE_READY)
         {
             //change state to allow door to be closed
             obj->SetLootState(GO_READY);
@@ -1573,7 +1573,7 @@ bool BattleGround::DelCreature(uint32 type)
     Creature *cr = HashMapHolder<Creature>::Find(m_BgCreatures[type]);
     if (!cr)
     {
-        sLog.outError("Can't find Battleground creature type:%u guid:%u",type, GUID_LOPART(m_BgCreatures[type]));
+		sLog.outError("BattleGround: Can't find creature guid: %u",GUID_LOPART(m_BgCreatures[type]));
         return false;
     }
     cr->CleanupsBeforeDelete();
@@ -1590,7 +1590,7 @@ bool BattleGround::DelObject(uint32 type)
     GameObject *obj = HashMapHolder<GameObject>::Find(m_BgObjects[type]);
     if (!obj)
     {
-        sLog.outError("Can't find Battleground gobject type:%u guid:%u",type, GUID_LOPART(m_BgObjects[type]));
+        sLog.outError("BattleGround: Can't find gobject guid: %u",GUID_LOPART(m_BgObjects[type]));
         return false;
     }
     obj->SetRespawnTime(0);                                 // not save respawn time

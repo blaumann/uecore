@@ -137,7 +137,7 @@ struct MANGOS_DLL_DECL instance_zulaman : public ScriptedInstance
 		Map::PlayerList::const_iterator i = PlayerList.begin();
         if(Player* i_pl = i->getSource())
             if(GameObject *Door = instance->GetGameObject(DoorGUID))
-                Door->SetGoState(open ? 0 : 1); 
+                Door->SetGoState(GO_STATE_ACTIVE); 
     }
 
     void SummonHostage(uint8 num)

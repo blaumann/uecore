@@ -825,6 +825,7 @@ enum MangosStrings
     LANG_OPVP_HP_LOOSE_STADIUM_A        = 9010,
     LANG_OPVP_HP_LOOSE_BROKENHILL_H     = 9011,
     LANG_OPVP_HP_LOOSE_BROKENHILL_A     = 9012,
+
     // opvp zm
     LANG_OPVP_ZM_CAPTURE_WEST_H         = 9013,
     LANG_OPVP_ZM_CAPTURE_WEST_A         = 9014,
@@ -838,16 +839,19 @@ enum MangosStrings
     LANG_OPVP_ZM_LOOSE_EAST_A           = 9022,
     LANG_OPVP_ZM_LOOSE_GY_H             = 9023,
     LANG_OPVP_ZM_LOOSE_GY_A             = 9024,
+
     // opvp na
     LANG_OPVP_NA_CAPTURE_H              = 9025,
     LANG_OPVP_NA_CAPTURE_A              = 9026,
     LANG_OPVP_NA_LOOSE_H                = 9027,
     LANG_OPVP_NA_LOOSE_A                = 9028,
+
     // opvp tf
     LANG_OPVP_TF_CAPTURE_H              = 9029,
     LANG_OPVP_TF_CAPTURE_A              = 9030,
     LANG_OPVP_TF_LOOSE_H                = 9031,
     LANG_OPVP_TF_LOOSE_A                = 9032,
+
     // opvp ep
     LANG_OPVP_EP_CAPTURE_NPT_H          = 9033,
     LANG_OPVP_EP_CAPTURE_NPT_A          = 9034,
@@ -865,9 +869,11 @@ enum MangosStrings
     LANG_OPVP_EP_LOOSE_CGT_A            = 9046,
     LANG_OPVP_EP_LOOSE_PWT_H            = 9047,
     LANG_OPVP_EP_LOOSE_PWT_A            = 9048,
+
     // opvp si
     LANG_OPVP_SI_CAPTURE_H              = 9049,
     LANG_OPVP_SI_CAPTURE_A              = 9050,
+
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,
     LANG_MOVIE_NOT_EXIST                = 1201,

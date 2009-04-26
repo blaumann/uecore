@@ -166,7 +166,7 @@ struct MANGOS_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
                     case 1:
                         DoScriptText(SAY_INTRO, m_creature);
                         if (GameObject* Sphere = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_SPHERE_SHIELD)))
-                            Sphere->SetGoState(0);
+                            Sphere->SetGoState(GO_STATE_ACTIVE);
                         ++Intro_Phase;
                         Intro_Timer = 25000;
                         break;

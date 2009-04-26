@@ -441,6 +441,92 @@ bool ItemUse_item_zezzak_shard(Player *player, Item* _Item, SpellCastTargets con
     return true;
 }
 
+/*#####
+# item_42624 (Battered Storm Hammer)
+#####*/
+
+bool ItemUse_item_battered_storm_hammer(Player *player, Item* _Item, SpellCastTargets const& targets)
+{
+    if( targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId()==TYPEID_UNIT &&
+        targets.getUnitTarget()->GetEntry() == 30142 ) //Iron Watcher
+        return false;
+                        
+      player->SendEquipError(EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM,_Item,NULL);
+        return true;
+}
+
+/*#####
+# item_36827 (Blood Gem)
+#####*/
+
+bool ItemUse_item_blood_gem(Player *player, Item* _Item, SpellCastTargets const& targets)
+{
+    if( targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId()==TYPEID_UNIT &&
+        targets.getUnitTarget()->GetEntry() == 26411 ) //Deranged Indu'le Villager
+        return false;
+                        
+      player->SendEquipError(EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM,_Item,NULL);
+        return true;
+}
+
+/*#####
+# item_36835 (Unholy Gem)
+#####*/
+
+bool ItemUse_item_unholy_gem(Player *player, Item* _Item, SpellCastTargets const& targets)
+{
+    if( targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId()==TYPEID_UNIT &&
+        targets.getUnitTarget()->GetEntry() == 26926 ) //Duke Vallenhal
+        return false;
+                        
+      player->SendEquipError(EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM,_Item,NULL);
+        return true;
+}
+
+/*#####
+# item_36847 (Frost Gem)
+#####*/
+
+bool ItemUse_item_frost_gem(Player *player, Item* _Item, SpellCastTargets const& targets)
+{
+    if( targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId()==TYPEID_UNIT &&
+        targets.getUnitTarget()->GetEntry() == 26283 ) //Ice Revenant
+        return false;
+                        
+      player->SendEquipError(EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM,_Item,NULL);
+        return true;
+}
+
+/*#####
+# item_44222 (Dart Gun)
+#####*/
+
+bool ItemUse_item_dart_gun(Player *player, Item* _Item, SpellCastTargets const& targets)
+{
+    if( targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId()==TYPEID_UNIT &&
+        targets.getUnitTarget()->GetEntry() == 32201 ) //Orgrim's Hammer Scout
+        return false;
+                        
+      player->SendEquipError(EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM,_Item,NULL);
+        return true;
+}
+
+/*#####
+# item_34979 (Pouch of Crushed Bloodspore)
+#####*/
+
+bool ItemUse_item_pouch_crushed_bloodspore(Player *player, Item* _Item, SpellCastTargets const& targets)
+{
+    if( targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId()==TYPEID_UNIT &&
+        ( (targets.getUnitTarget()->GetEntry() == 25789 ) || //Gammothra the Tormentor
+          (targets.getUnitTarget()->GetEntry() == 24469 ) //Magnataur Huntress <Mate of Gammothra>
+        ) ) 
+        return false;
+                        
+      player->SendEquipError(EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM,_Item,NULL);
+        return true;
+}
+
 void AddSC_item_scripts()
 {
     Script *newscript;
@@ -538,5 +624,35 @@ void AddSC_item_scripts()
     newscript = new Script;
     newscript->Name = "item_zezzaks_shard";
     newscript->pItemUse = &ItemUse_item_zezzak_shard;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name = "item_battered_storm_hammer";
+    newscript->pItemUse = &ItemUse_item_battered_storm_hammer;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name = "item_blood_gem";
+    newscript->pItemUse = &ItemUse_item_blood_gem;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name = "item_unholy_gem";
+    newscript->pItemUse = &ItemUse_item_unholy_gem;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name = "item_frost_gem";
+    newscript->pItemUse = &ItemUse_item_frost_gem;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name = "item_dart_gun";
+    newscript->pItemUse = &ItemUse_item_dart_gun;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "item_pouch_crushed_bloodspore";
+    newscript->pItemUse = &ItemUse_item_pouch_crushed_bloodspore;
     newscript->RegisterSelf();
 }

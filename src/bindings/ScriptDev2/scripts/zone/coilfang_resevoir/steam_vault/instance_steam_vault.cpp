@@ -133,12 +133,12 @@ struct MANGOS_DLL_DECL instance_steam_vault : public ScriptedInstance
                 if (data == SPECIAL)
                 {
                     if (GameObject *_go = instance->GetGameObject(AccessPanelHydro))
-                        _go->SetGoState(0);
+                        _go->SetGoState(GO_STATE_ACTIVE);
 
                     if (GetData(TYPE_MEKGINEER_STEAMRIGGER) == SPECIAL)
                     {
                         if (GameObject *_go = instance->GetGameObject(MainChambersDoor))
-                            _go->SetGoState(0);
+                            _go->SetGoState(GO_STATE_ACTIVE);
                     }
 
                     debug_log("SD2: Instance Steamvault: Access panel used.");
@@ -149,12 +149,12 @@ struct MANGOS_DLL_DECL instance_steam_vault : public ScriptedInstance
                 if (data == SPECIAL)
                 {
                     if (GameObject *_go = instance->GetGameObject(AccessPanelMek))
-                        _go->SetGoState(0);
+                        _go->SetGoState(GO_STATE_ACTIVE);
 
                     if (GetData(TYPE_HYDROMANCER_THESPIA) == SPECIAL)
                     {
                         if (GameObject *_go = instance->GetGameObject(MainChambersDoor))
-                            _go->SetGoState(0);
+                            _go->SetGoState(GO_STATE_ACTIVE);
                     }
 
                     debug_log("SD2: Instance Steamvault: Access panel used.");

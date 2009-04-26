@@ -317,7 +317,7 @@ struct MANGOS_DLL_DECL boss_entropiusAI : public ScriptedAI
     {
 	 if(MuruDead) {
 		GameObject* Gate = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GATE_4));
-        	Gate->SetGoState(0);
+        	Gate->SetGoState(GO_STATE_ACTIVE);
 	
 	 if(pInstance)
         	pInstance->SetData(DATA_MURU_EVENT, DONE);

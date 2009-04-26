@@ -143,7 +143,7 @@ struct MANGOS_DLL_DECL instance_stratholme : public ScriptedInstance
             if (withRestoreTime)
                 go->UseDoorOrButton(10);
             else
-                go->SetGoState(newState);
+                go->SetGoState(GO_STATE_ACTIVE);
         }
     }
 

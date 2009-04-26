@@ -84,7 +84,7 @@ struct MANGOS_DLL_DECL boss_gruulAI : public ScriptedAI
             pInstance->SetData(DATA_GRUULEVENT, NOT_STARTED);
             GameObject* EncounterDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GRUUL_ENCOUNTER_DOOR));
             if (EncounterDoor)
-                EncounterDoor->SetGoState(0);                   // Open the encounter door
+                EncounterDoor->SetGoState(GO_STATE_ACTIVE);                   // Open the encounter door
         }else error_log(ERROR_INST_DATA);
 
         m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
@@ -100,7 +100,7 @@ struct MANGOS_DLL_DECL boss_gruulAI : public ScriptedAI
             pInstance->SetData(DATA_GRUULEVENT, IN_PROGRESS);
             GameObject* EncounterDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GRUUL_ENCOUNTER_DOOR));
             if (EncounterDoor)
-                EncounterDoor->SetGoState(1);               //Close the encounter door, open it in JustDied/Reset
+                EncounterDoor->SetGoState(GO_STATE_ACTIVE);               //Close the encounter door, open it in JustDied/Reset
         }
     }
 
@@ -124,7 +124,7 @@ struct MANGOS_DLL_DECL boss_gruulAI : public ScriptedAI
             
             GameObject* EncounterDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GRUUL_ENCOUNTER_DOOR));
             if (EncounterDoor)
-                EncounterDoor->SetGoState(0);                   // Open the encounter door
+                EncounterDoor->SetGoState(GO_STATE_ACTIVE);                   // Open the encounter door
         }
     }
 

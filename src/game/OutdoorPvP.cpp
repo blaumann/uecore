@@ -94,7 +94,8 @@ bool OutdoorPvPObjective::AddObject(uint32 type, uint32 entry, uint32 map, float
     data.spawntimesecs  = 0;
     data.animprogress   = 100;
     data.spawnMask      = 1;
-    data.go_state       = 1;
+    data.go_state       = GO_STATE_READY;
+    data.phaseMask      = PHASEMASK_NORMAL;
 
     objmgr.AddGameobjectToGrid(guid, &data);
 
@@ -106,7 +107,7 @@ bool OutdoorPvPObjective::AddObject(uint32 type, uint32 entry, uint32 map, float
     if(!pMap)
         return true;
     GameObject * go = new GameObject;
-    if(!go->Create(guid,entry, pMap, PHASEMASK_NORMAL ,x,y,z,o,rotation0,rotation1,rotation2,rotation3,100,1))
+    if(!go->Create(guid,entry, pMap, PHASEMASK_NORMAL ,x,y,z,o,rotation0,rotation1,rotation2,rotation3,100, GO_STATE_READY))
     {
         sLog.outError("Gameobject template %u not found in database.", entry);
         delete go;
@@ -141,22 +142,23 @@ bool OutdoorPvPObjective::AddCreature(uint32 type, uint32 entry, uint32 teamval,
 
     CreatureData& data = objmgr.NewOrExistCreatureData(guid);
 
-    data.id = entry;
-    data.mapid = map;
-    data.displayid = displayId;
-    data.equipmentId = cinfo->equipmentId;
-    data.posX = x;
-    data.posY = y;
-    data.posZ = z;
-    data.orientation = o;
-    data.spawntimesecs = spawntimedelay;
-    data.spawndist = 0;
+    data.id             = entry;
+    data.mapid          = map;
+    data.displayid      = displayId;
+    data.equipmentId    = cinfo->equipmentId;
+    data.posX           = x;
+    data.posY           = y;
+    data.posZ           = z;
+    data.orientation    = o;
+    data.spawntimesecs  = spawntimedelay;
+    data.spawndist      = 0;
     data.currentwaypoint = 0;
-    data.curhealth = cinfo->maxhealth;
-    data.curmana = cinfo->maxmana;
-    data.is_dead = false;
-    data.movementType = cinfo->MovementType;
-    data.spawnMask = 1;
+    data.curhealth      = cinfo->maxhealth;
+    data.curmana        = cinfo->maxmana;
+    data.is_dead        = false;
+    data.movementType   = cinfo->MovementType;
+    data.spawnMask      = 1;
+    data.phaseMask      = PHASEMASK_NORMAL;
 
     objmgr.AddCreatureToGrid(guid, &data);
 
@@ -166,6 +168,7 @@ bool OutdoorPvPObjective::AddCreature(uint32 type, uint32 entry, uint32 teamval,
     Map * pMap = MapManager::Instance().FindMap(map);
     if(!pMap)
         return true;
+
     Creature* pCreature = new Creature;
     if (!pCreature->Create(guid, pMap, PHASEMASK_NORMAL, entry, teamval))
     {
@@ -213,21 +216,22 @@ bool OutdoorPvPObjective::AddCapturePoint(uint32 entry, uint32 map, float x, flo
     CreatureData& cdata = objmgr.NewOrExistCreatureData(creature_guid);
 
     cdata.id = OPVP_TRIGGER_CREATURE_ENTRY;
-    cdata.mapid = map;
-    cdata.displayid = displayId;
-    cdata.equipmentId = cinfo->equipmentId;
-    cdata.posX = x;
-    cdata.posY = y;
-    cdata.posZ = z;
-    cdata.orientation = o;
+    cdata.mapid         = map;
+    cdata.displayid     = displayId;
+    cdata.equipmentId   = cinfo->equipmentId;
+    cdata.posX          = x;
+    cdata.posY          = y;
+    cdata.posZ          = z;
+    cdata.orientation   = o;
     cdata.spawntimesecs = 1;
-    cdata.spawndist = 0;
+    cdata.spawndist     = 0;
     cdata.currentwaypoint = 0;
-    cdata.curhealth = cinfo->maxhealth;
-    cdata.curmana = cinfo->maxmana;
-    cdata.is_dead = false;
-    cdata.movementType = cinfo->MovementType;
-    cdata.spawnMask = 1;
+    cdata.curhealth     = cinfo->maxhealth;
+    cdata.curmana       = cinfo->maxmana;
+    cdata.is_dead       = false;
+    cdata.movementType  = cinfo->MovementType;
+    cdata.spawnMask     = 1;
+    cdata.phaseMask     = PHASEMASK_NORMAL;
 
     objmgr.AddCreatureToGrid(creature_guid, &cdata);
     m_CapturePointCreature = MAKE_NEW_GUID(creature_guid, OPVP_TRIGGER_CREATURE_ENTRY, HIGHGUID_UNIT);
@@ -250,7 +254,8 @@ bool OutdoorPvPObjective::AddCapturePoint(uint32 entry, uint32 map, float x, flo
     data.spawntimesecs  = 1;
     data.animprogress   = 100;
     data.spawnMask      = 1;
-    data.go_state       = 1;
+    data.go_state       = GO_STATE_READY;
+    data.phaseMask      = PHASEMASK_NORMAL;
 
     objmgr.AddGameobjectToGrid(guid, &data);
 
@@ -267,7 +272,7 @@ bool OutdoorPvPObjective::AddCapturePoint(uint32 entry, uint32 map, float x, flo
         return true;
     // add GO...
     GameObject * go = new GameObject;
-    if(!go->Create(guid,entry, pMap, PHASEMASK_NORMAL, x,y,z,o,rotation0,rotation1,rotation2,rotation3,100,1))
+    if(!go->Create(guid,entry, pMap, PHASEMASK_NORMAL, x,y,z,o,rotation0,rotation1,rotation2,rotation3,100, GO_STATE_READY))
     {
         sLog.outError("Gameobject template %u not found in database.", entry);
         delete go;
@@ -275,7 +280,7 @@ bool OutdoorPvPObjective::AddCapturePoint(uint32 entry, uint32 map, float x, flo
     else
     {
         go->SetRespawnTime(0);
-        objmgr.SaveGORespawnTime(go->GetDBTableGUIDLow(), 0, 0);
+        objmgr.SaveGORespawnTime(go->GetDBTableGUIDLow(), 0, 0); //this is useless this isn't spawned through db so it doesn't has dbtableguid (it's just 0)
         pMap->Add(go);
     }
     // add creature...
@@ -344,7 +349,7 @@ bool OutdoorPvPObjective::DelObject(uint32 type)
     GameObject *obj = HashMapHolder<GameObject>::Find(m_Objects[type]);
     if(!obj)
     {
-		//sLog.outError("OutdoorPvPObjective: Can't find gobject guid: %u",m_Objects[type]);
+		sLog.outError("OutdoorPvPObjective: Can't find gobject guid: %u",m_Objects[type]);
         return false;
     }
     uint32 guid = obj->GetDBTableGUIDLow();

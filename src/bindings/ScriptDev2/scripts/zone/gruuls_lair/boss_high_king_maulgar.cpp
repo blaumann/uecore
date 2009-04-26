@@ -130,7 +130,7 @@ struct MANGOS_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
             
             GameObject* ContinueDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_MAULGAR_DOOR));
             if(ContinueDoor)
-                ContinueDoor->SetGoState(0); // Open the door leading further in
+                ContinueDoor->SetGoState(GO_STATE_ACTIVE); // Open the door leading further in
         }
     }
 

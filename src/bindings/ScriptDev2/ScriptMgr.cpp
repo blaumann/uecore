@@ -97,6 +97,7 @@ extern void AddSC_ashenvale();
 //--Auchenai Crypts
 extern void AddSC_boss_exarch_maladaar();
 extern void AddSC_boss_shirrak_the_dead_watcher();
+extern void AddSC_mob_focusfire();
 
 //--Mana Tombs
 extern void AddSC_boss_nexusprince_shaffar();
@@ -803,15 +804,15 @@ void LoadDatabase()
     //Get db string from file
     char const* sd2dbstring = NULL;
 
-    if (!SD2Config.GetString("CWDBDatabaseInfo", &sd2dbstring))
+    if (!SD2Config.GetString("ScriptDev2DatabaseInfo", &sd2dbstring))
     {
-        error_log("SD2: Missing CWDBScript database info from configuration file. Load database aborted.");
+        error_log("SD2: Missing Scriptdev2 database info from configuration file. Load database aborted.");
         return;
     }
 
     //Initialize connection to DB
     if (sd2dbstring && SD2Database.Initialize(sd2dbstring))
-        outstring_log("SD2: CWDBScript database: %s",sd2dbstring);
+        outstring_log("SD2: ScriptDev2 database: %s",sd2dbstring);
     else
     {
         error_log("SD2: Unable to connect to Database. Load database aborted.");
@@ -836,7 +837,7 @@ void LoadDatabase()
         delete result;
 
     }
-	else
+    else
     {
         error_log("SD2: Missing `sd2_db_version` information.");
         outstring_log("");
@@ -900,7 +901,7 @@ void LoadDatabase()
         outstring_log("");
         outstring_log(">> Loaded %u additional Script Texts data.", count);
     }
-	else
+    else
     {
         barGoLink bar(1);
         bar.step();
@@ -966,7 +967,7 @@ void LoadDatabase()
         outstring_log("");
         outstring_log(">> Loaded %u additional Custom Texts data.", count);
     }
-	else
+    else
     {
         barGoLink bar(1);
         bar.step();
@@ -1086,7 +1087,7 @@ void ScriptsInit()
         error_log("SD2: Unable to open configuration file. Database will be unaccessible. Configuration values will use default.");
     }
     else
-		outstring_log("SD2: Using configuration file %s",_SCRIPTDEV2_CONFIG);
+        outstring_log("SD2: Using configuration file %s",_SCRIPTDEV2_CONFIG);
 
     //Check config file version
     if (SD2Config.GetIntDefault("ConfVersion", 0) != SD2_CONF_VERSION)
@@ -1168,6 +1169,7 @@ void ScriptsInit()
     //--Auchenai Crypts
     AddSC_boss_exarch_maladaar();
     AddSC_boss_shirrak_the_dead_watcher();
+    AddSC_mob_focusfire();
 
     //--Mana Tombs
     AddSC_boss_nexusprince_shaffar();
