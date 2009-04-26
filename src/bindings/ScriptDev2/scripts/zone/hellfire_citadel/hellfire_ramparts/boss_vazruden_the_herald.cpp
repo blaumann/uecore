@@ -16,7 +16,7 @@
 
 /* ScriptData
 Name: Boss_Vazruden_the_Herald
-%Complete: 90
+%Complete: 95
 Comment:
 Category: Hellfire Citadel, Hellfire Ramparts
 EndScriptData */
@@ -57,7 +57,7 @@ const float VazrudenRing[2][3] =
     {-1377, 1760, 112}
 };
 
-struct TRINITY_DLL_DECL boss_nazanAI : public ScriptedAI
+struct MANGOS_DLL_DECL boss_nazanAI : public ScriptedAI
 {
     boss_nazanAI(Creature *c) : ScriptedAI(c)
     {
@@ -107,7 +107,7 @@ struct TRINITY_DLL_DECL boss_nazanAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim())
+        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
         {
             if(UnsummonCheck < diff && m_creature->isAlive())
             {
@@ -137,8 +137,6 @@ struct TRINITY_DLL_DECL boss_nazanAI : public ScriptedAI
                 m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
                 m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                 m_creature->GetMotionMaster()->Clear();
-                if(Unit *victim = SelectUnit(SELECT_TARGET_NEAREST,0))
-                    m_creature->AI()->AttackStart(victim);
                 DoStartMovement(m_creature->getVictim());
                 DoScriptText(EMOTE, m_creature);
                 return;
@@ -172,7 +170,7 @@ struct TRINITY_DLL_DECL boss_nazanAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL boss_vazrudenAI : public ScriptedAI
+struct MANGOS_DLL_DECL boss_vazrudenAI : public ScriptedAI
 {
     boss_vazrudenAI(Creature *c) : ScriptedAI(c)
     {
@@ -220,7 +218,7 @@ struct TRINITY_DLL_DECL boss_vazrudenAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim())
+        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
         {
             if(UnsummonCheck < diff && m_creature->isAlive())
             {
@@ -248,7 +246,7 @@ struct TRINITY_DLL_DECL boss_vazrudenAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
+struct MANGOS_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
 {
     boss_vazruden_the_heraldAI(Creature *c) : ScriptedAI(c)
     {
@@ -275,7 +273,7 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
         waypoint = 0;
         check = 0;
         UnsummonAdds();
-        m_creature->GetMotionMaster()->MovePath(PATH_ENTRY, true);
+        m_creature->GetMotionMaster();
     }
 
     void UnsummonAdds()
@@ -284,7 +282,7 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
         {
             Creature *Nazan = (Creature*)Unit::GetUnit(*m_creature, NazanGUID);
             Creature *Vazruden = (Creature*)Unit::GetUnit(*m_creature, VazrudenGUID);
-            if(Nazan || (Nazan = (Creature *)FindCreature(ENTRY_NAZAN, 5000, m_creature)))
+            /*if(Nazan || (Nazan = (Creature*)SummonCreature(ENTRY_NAZAN, 5000, m_creature)))
             {
                 Nazan->SetLootRecipient(NULL);
                 Nazan->SetVisibility(VISIBILITY_OFF);
@@ -292,14 +290,14 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
                 Nazan->RemoveCorpse();
                 NazanGUID = 0;
             }
-            if(Vazruden || (Vazruden = (Creature *)FindCreature(ENTRY_VAZRUDEN, 5000, m_creature)))
+            if(Vazruden || (Vazruden = (Creature *)SummonCreature(ENTRY_VAZRUDEN, 5000, m_creature)))
             {
                 Vazruden->SetLootRecipient(NULL);
                 Vazruden->SetVisibility(VISIBILITY_OFF);
                 Vazruden->DealDamage(Vazruden, Vazruden->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 Vazruden->RemoveCorpse();
                 VazrudenGUID = 0;
-            }
+            }*/
             summoned = false;
             m_creature->clearUnitState(UNIT_STAT_ROOT);
             m_creature->SetVisibility(VISIBILITY_ON);
@@ -340,7 +338,7 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
             summoned->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
             summoned->SetSpeed(MOVE_FLIGHT, 2.5);
             if(victim)
-                ((ScriptedAI*)summoned->AI())->AttackStart(victim,false);
+                ((ScriptedAI*)summoned->AI());
         }
         else if(victim)
             summoned->AI()->AttackStart(victim);
@@ -350,7 +348,6 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
     {
         if(sentryDown)
         {
-            AttackStart(killer, false);
             sentryDown = false;
         }
         else
@@ -397,7 +394,7 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
                     }
                 }else
                 {
-                    m_creature->SummonGameObject(ENTRY_REINFORCED_FEL_IRON_CHEST,VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2],0,0,0,0,0,0);
+                    //m_creature->HandleGameObject(ENTRY_REINFORCED_FEL_IRON_CHEST,VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2],0,0,0,0,0,0);
                     m_creature->SetLootRecipient(NULL);
                     m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 }
@@ -408,7 +405,7 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL mob_hellfire_sentryAI : public ScriptedAI
+struct MANGOS_DLL_DECL mob_hellfire_sentryAI : public ScriptedAI
 {
     mob_hellfire_sentryAI(Creature *c) : ScriptedAI(c)
     { Reset();}
@@ -422,15 +419,9 @@ struct TRINITY_DLL_DECL mob_hellfire_sentryAI : public ScriptedAI
 
     void Aggro(Unit* who) {}
 
-    void JustDied(Unit* who)
-    {
-        if(Creature *herald = (Creature *)FindCreature(ENTRY_VAZRUDEN_HERALD,150, m_creature))
-            ((boss_vazruden_the_heraldAI *)herald->AI())->SentryDownBy(who);
-    }
-
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim())
+        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
 
         if(KidneyShot_Timer < diff)
@@ -469,23 +460,22 @@ void AddSC_boss_vazruden_the_herald()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_vazruden_the_herald";
+    newscript->Name = "boss_vazruden_the_herald";
     newscript->GetAI = &GetAI_boss_vazruden_the_herald;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_vazruden";
+    newscript->Name = "boss_vazruden";
     newscript->GetAI = &GetAI_boss_vazruden;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_nazan";
+    newscript->Name = "boss_nazan";
     newscript->GetAI = &GetAI_boss_nazan;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_hellfire_sentry";
+    newscript->Name = "mob_hellfire_sentry";
     newscript->GetAI = &GetAI_mob_hellfire_sentry;
     newscript->RegisterSelf();
 }
-
