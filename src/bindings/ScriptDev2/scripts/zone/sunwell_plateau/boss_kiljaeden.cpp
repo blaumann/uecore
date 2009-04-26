@@ -226,9 +226,9 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
             Orb[i] = (*itr)->GetGUID();
     }
 
-    /*void EmpowerOrb() i have not idea where the right value is :/
+    /*void EmpowerOrb() //i have not idea where the right value is :/
     {
-        GameObject* orb = GetGameObject(Orb[OrbsEmpowered]);
+        GameObject* orb = instance->instance->GetGameObject(Orb[OrbsEmpowered]);
         if(!orb)
             return;
 
