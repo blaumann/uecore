@@ -114,10 +114,10 @@ struct MANGOS_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
         }
     }
 
-    void HandleGameObject(uint64 guid, uint32 state)
+    void HandleGameObject(uint64 guid, GOState state)
     {
         if (GameObject *go = instance->GetGameObject(guid))
-            go->SetGoState(GO_STATE_ACTIVE);
+            go->SetGoState(state);
     }
 
     void DoSpeech()
@@ -143,7 +143,7 @@ struct MANGOS_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
         {
             case TYPE_FREE_NPC:
                 if (data == DONE)
-                    HandleGameObject(DoorCourtyardGUID,0);
+                    HandleGameObject(DoorCourtyardGUID, GO_STATE_ACTIVE);
                 Encounter[0] = data;
                 break;
             case TYPE_RETHILGORE:
@@ -153,12 +153,12 @@ struct MANGOS_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
                 break;
             case TYPE_FENRUS:
                 if (data == DONE)
-                    HandleGameObject(DoorSorcererGUID,0);
+                    HandleGameObject(DoorSorcererGUID, GO_STATE_ACTIVE);
                 Encounter[2] = data;
                 break;
             case TYPE_NANDOS:
                 if (data == DONE)
-                    HandleGameObject(DoorArugalGUID,0);
+                    HandleGameObject(DoorArugalGUID, GO_STATE_ACTIVE);
                 Encounter[3] = data;
                 break;
         }

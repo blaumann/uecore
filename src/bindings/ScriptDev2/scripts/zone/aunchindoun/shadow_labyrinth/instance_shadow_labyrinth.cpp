@@ -109,7 +109,7 @@ struct MANGOS_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
         return NULL;
     }
 
-    void HandleGameObject(uint64 guid, uint32 state)
+    void HandleGameObject(uint64 guid, GOState state)
     {
         Player *player = GetPlayerInMap();
 
@@ -120,7 +120,7 @@ struct MANGOS_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
         }
 
         if (GameObject *go = instance->GetGameObject(guid))
-            go->SetGoState(GO_STATE_ACTIVE);
+            go->SetGoState(state);
     }
 
     void SetData(uint32 type, uint32 data)
@@ -149,7 +149,7 @@ struct MANGOS_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
             case DATA_BLACKHEARTTHEINCITEREVENT:
                 if (data == DONE)
                 {
-                    HandleGameObject(RefectoryDoorGUID,0);
+                    HandleGameObject(RefectoryDoorGUID, GO_STATE_ACTIVE);
                 }
                 Encounter[2] = data;
                 break;
@@ -157,7 +157,7 @@ struct MANGOS_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
             case DATA_GRANDMASTERVORPILEVENT:
                 if (data == DONE)
                 {
-                    HandleGameObject(ScreamingHallDoorGUID,0);
+                    HandleGameObject(ScreamingHallDoorGUID, GO_STATE_ACTIVE);
                 }
                 Encounter[3] = data;
                 break;

@@ -139,7 +139,7 @@ struct MANGOS_DLL_DECL boss_scarlet_commander_mograineAI : public ScriptedAI
 	{
 		if (GameObject* Doors = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_DOOR_WHITEMANE)))
 		{
-			if (close) Doors->SetGoState(GO_STATE_ACTIVE);                // Closed
+			if (close) Doors->SetGoState(GO_STATE_READY);                 // Closed
             else       Doors->SetGoState(GO_STATE_ACTIVE);                // Open
 		}
 	}

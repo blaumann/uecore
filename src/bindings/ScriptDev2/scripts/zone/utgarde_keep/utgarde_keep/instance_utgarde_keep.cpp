@@ -82,7 +82,7 @@ struct MANGOS_DLL_DECL  instance_utgarde_keep : public ScriptedInstance
         return NULL;
     }
 
-    void HandleGameObject(uint64 guid, uint32 state)
+    void HandleGameObject(uint64 guid, GOState state)
     {
         Player *player = GetPlayerInMap();
 
@@ -93,7 +93,7 @@ struct MANGOS_DLL_DECL  instance_utgarde_keep : public ScriptedInstance
         }
 
         if (GameObject *go = instance->GetGameObject(guid))
-            go->SetGoState(GO_STATE_ACTIVE);
+            go->SetGoState(state);
     }
 
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)

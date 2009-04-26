@@ -143,7 +143,7 @@ struct MANGOS_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
         GameObject* EncounterDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KAEL_DOOR));
         if (EncounterDoor)
-            EncounterDoor->SetGoState(GO_STATE_ACTIVE);                   // Open the encounter door
+            EncounterDoor->SetGoState(GO_STATE_READY);                   // Open the encounter door
     }
 
     void DamageTaken(Unit* done_by, uint32 &damage)

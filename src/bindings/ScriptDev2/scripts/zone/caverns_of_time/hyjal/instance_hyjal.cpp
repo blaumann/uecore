@@ -103,14 +103,14 @@ struct MANGOS_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                 if(allianceRetreat)
                     go->SetGoState(GO_STATE_ACTIVE);
                 else
-                    go->SetGoState(GO_STATE_ACTIVE);
+                    go->SetGoState(GO_STATE_READY);
                 break;
             case 182061: 
                 ElfGate = go->GetGUID(); 
                 if(hordeRetreat)
                     go->SetGoState(GO_STATE_ACTIVE);
                 else
-                    go->SetGoState(GO_STATE_ACTIVE);
+                    go->SetGoState(GO_STATE_READY);
                 break;
         }
     }
@@ -124,7 +124,7 @@ struct MANGOS_DLL_DECL instance_mount_hyjal : public ScriptedInstance
 		Map::PlayerList::const_iterator i = PlayerList.begin();
         if(Player* i_pl = i->getSource())
             if(GameObject *Door = instance->GetGameObject(DoorGUID))
-                Door->SetGoState(GO_STATE_ACTIVE); 
+                Door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY); 
     }
 
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)

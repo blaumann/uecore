@@ -123,8 +123,8 @@ struct MANGOS_DLL_DECL instance_stratholme : public ScriptedInstance
         //change to DONE when crystals implemented
         if (Encounter[1] == IN_PROGRESS && Encounter[2] == IN_PROGRESS && Encounter[3] == IN_PROGRESS)
         {
-            UpdateGoState(portGauntletGUID,0,false);
-            UpdateGoState(portSlaugtherGUID,0,false);
+            UpdateGoState(portGauntletGUID, GO_STATE_ACTIVE, false);
+            UpdateGoState(portSlaugtherGUID, GO_STATE_ACTIVE, false);
             return true;
         }
 
@@ -133,7 +133,7 @@ struct MANGOS_DLL_DECL instance_stratholme : public ScriptedInstance
     }
 
     //if withRestoreTime true, then newState will be ignored and GO should be restored to original state after 10 seconds
-    void UpdateGoState(uint64 goGuid, uint32 newState, bool withRestoreTime)
+    void UpdateGoState(uint64 goGuid, GOState newState, bool withRestoreTime)
     {
         if (!goGuid)
             return;
@@ -143,7 +143,7 @@ struct MANGOS_DLL_DECL instance_stratholme : public ScriptedInstance
             if (withRestoreTime)
                 go->UseDoorOrButton(10);
             else
-                go->SetGoState(GO_STATE_ACTIVE);
+                go->SetGoState(newState);
         }
     }
 
@@ -216,21 +216,21 @@ struct MANGOS_DLL_DECL instance_stratholme : public ScriptedInstance
             case TYPE_BARONESS:
                 Encounter[1] = data;
                 if (data == IN_PROGRESS)
-                    UpdateGoState(ziggurat1GUID,0,false);
+                    UpdateGoState(ziggurat1GUID, GO_STATE_ACTIVE, false);
                 if (data == IN_PROGRESS)                    //change to DONE when crystals implemented
                     StartSlaugtherSquare();
                 break;
             case TYPE_NERUB:
                 Encounter[2] = data;
                 if (data == IN_PROGRESS)
-                    UpdateGoState(ziggurat2GUID,0,false);
+                    UpdateGoState(ziggurat2GUID, GO_STATE_ACTIVE, false);
                 if (data == IN_PROGRESS)                    //change to DONE when crystals implemented
                     StartSlaugtherSquare();
                 break;
             case TYPE_PALLID:
                 Encounter[3] = data;
                 if (data == IN_PROGRESS)
-                    UpdateGoState(ziggurat3GUID,0,false);
+                    UpdateGoState(ziggurat3GUID, GO_STATE_ACTIVE, false);
                 if (data == IN_PROGRESS)                    //change to DONE when crystals implemented
                     StartSlaugtherSquare();
                 break;
@@ -238,7 +238,7 @@ struct MANGOS_DLL_DECL instance_stratholme : public ScriptedInstance
                 if (data == IN_PROGRESS)
                 {
                     if (Encounter[4] != IN_PROGRESS)
-                        UpdateGoState(portGauntletGUID,1,false);
+                        UpdateGoState(portGauntletGUID, GO_STATE_READY, false);
 
                     uint32 count = abomnationGUID.size();
                     for(std::set<uint64>::iterator i = abomnationGUID.begin(); i != abomnationGUID.end(); ++i)
@@ -370,8 +370,8 @@ struct MANGOS_DLL_DECL instance_stratholme : public ScriptedInstance
                     for(uint8 i = 0; i < 4; i++)
                         p->SummonCreature(C_BLACK_GUARD,4032.84,-3390.24,119.73,4.71,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1800000);
 
-                    UpdateGoState(ziggurat4GUID,0,false);
-                    UpdateGoState(ziggurat5GUID,0,false);
+                    UpdateGoState(ziggurat4GUID, GO_STATE_ACTIVE, false);
+                    UpdateGoState(ziggurat5GUID, GO_STATE_ACTIVE, false);
                     debug_log("SD2: Instance Stratholme: Black guard sentries spawned. Opening gates to baron.");
                 }
                 SlaugtherSquare_Timer = 0;

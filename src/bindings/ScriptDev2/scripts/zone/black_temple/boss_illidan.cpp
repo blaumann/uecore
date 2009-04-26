@@ -417,12 +417,12 @@ struct MANGOS_DLL_SPEC npc_akama_illidanAI : public ScriptedAI
 
             // close door if already open (when raid wipes or something)
             if (pGate && !pGate->GetGoState())
-                pGate->SetGoState(GO_STATE_ACTIVE);
+                pGate->SetGoState(GO_STATE_READY);
 
             for(uint8 i = DATA_GAMEOBJECT_ILLIDAN_DOOR_R; i < DATA_GAMEOBJECT_ILLIDAN_DOOR_L + 1; ++i)
             {
                 if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(i)))
-                    pDoor->SetGoState(GO_STATE_ACTIVE);
+                    pDoor->SetGoState(GO_STATE_READY);
             }
         }
 

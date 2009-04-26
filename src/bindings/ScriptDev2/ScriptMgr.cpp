@@ -368,7 +368,9 @@ extern void AddSC_instance_gundrak();
 //Hellfire Citadel
 //--Blood Furnace
 extern void AddSC_boss_broggok();
+extern void AddSC_boss_kelidan_the_breaker();
 extern void AddSC_boss_the_maker();
+extern void AddSC_instance_blood_furnace();
 
 //--Ramparts
 extern void AddSC_boss_watchkeeper_gargolmar();
@@ -1422,7 +1424,9 @@ void ScriptsInit()
     //Hellfire Citadel
     //--Blood Furnace
     AddSC_boss_broggok();
+    AddSC_boss_kelidan_the_breaker();
     AddSC_boss_the_maker();
+    AddSC_instance_blood_furnace();
 
     //--Ramparts
     AddSC_boss_watchkeeper_gargolmar();

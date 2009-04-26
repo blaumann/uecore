@@ -174,7 +174,7 @@ struct MANGOS_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
             return;
 
         if (GameObject *Door = instance->GetGameObject(DoorGUID))
-            Door->SetGoState(GO_STATE_ACTIVE);
+            Door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
     }
 
     uint32 GetData(uint32 id)

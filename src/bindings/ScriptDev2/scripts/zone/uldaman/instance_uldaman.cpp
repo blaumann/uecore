@@ -70,7 +70,7 @@ struct MANGOS_DLL_DECL instance_uldaman : public ScriptedInstance
             break;
 
             case ANCIENT_VAULT_DOOR:
-                go->SetGoState(GO_STATE_ACTIVE);
+                go->SetGoState(GO_STATE_READY);
                 go->SetUInt32Value(GAMEOBJECT_FLAGS, 33);
                 ancientVaultDoor = go->GetGUID();
             break;

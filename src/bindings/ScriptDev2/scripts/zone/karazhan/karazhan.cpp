@@ -149,10 +149,10 @@ struct MANGOS_DLL_DECL npc_barnesAI : public npc_escortAI
             Event = pInstance->GetData(DATA_OPERA_PERFORMANCE);
 
             if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT)))
-                pDoor->SetGoState(GO_STATE_ACTIVE);
+                pDoor->SetGoState(GO_STATE_READY);
 
             if (GameObject* pCurtain = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_CURTAINS)))
-                pCurtain->SetGoState(GO_STATE_ACTIVE);
+                pCurtain->SetGoState(GO_STATE_READY);
         }
     }
 
@@ -182,7 +182,7 @@ struct MANGOS_DLL_DECL npc_barnesAI : public npc_escortAI
                 if (pInstance)
                 {
                     if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT)))
-                        pDoor->SetGoState(GO_STATE_ACTIVE);
+                        pDoor->SetGoState(GO_STATE_READY);
                 }
                 IsBeingEscorted = false;
                 PerformanceReady = true;

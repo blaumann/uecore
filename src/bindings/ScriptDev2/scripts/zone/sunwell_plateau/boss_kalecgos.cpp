@@ -246,7 +246,7 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
             {
                 GameObject* ForceField = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GO_FORCEFIELD));
                 if (ForceField)
-                    ForceField->SetGoState(GO_STATE_ACTIVE);
+                    ForceField->SetGoState(GO_STATE_READY);
 
                 pInstance->SetData(DATA_KALECGOS_EVENT, DONE);
             }

@@ -175,7 +175,7 @@ struct MANGOS_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                 if (data != IN_PROGRESS)
                 {
                      if (GameObject *Door = instance->GetGameObject(DoorGUID))
-                        Door->SetGoState(GO_STATE_ACTIVE);
+                        Door->SetGoState(GO_STATE_READY);
                 }
                 break;
             case TYPE_CHANNELER_EVENT:
@@ -227,7 +227,7 @@ struct MANGOS_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                                 CageTimer = 120000;
 
                             if (GameObject *Door = instance->GetGameObject(DoorGUID))
-                                Door->SetGoState(GO_STATE_ACTIVE);
+                                Door->SetGoState(GO_STATE_READY);
                         }
                         break;
                     case DONE:                              // Add buff and check if all channelers are dead.
@@ -251,7 +251,7 @@ struct MANGOS_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                 for(std::set<uint64>::iterator i = ColumnGUID.begin(); i != ColumnGUID.end(); ++i)
                 {
                     if (GameObject *Column = instance->GetGameObject(*i))
-                        Column->SetGoState(GO_STATE_ACTIVE);
+                        Column->SetGoState(data ? GO_STATE_ACTIVE : GO_STATE_READY);
                 }
                 break;
         }
