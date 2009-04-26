@@ -2151,23 +2151,23 @@
 						Name="Hellfire Ramparts"
 						>
 						<File
-							RelativePath="..\..\..\..\..\ScriptDev2\scripts\zone\hellfire_citadel\hellfire_ramparts\boss_omor_the_unscarred.cpp"
+							RelativePath="..\scripts\zone\hellfire_citadel\hellfire_ramparts\boss_omor_the_unscarred.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\..\..\..\ScriptDev2\scripts\zone\hellfire_citadel\hellfire_ramparts\boss_vazruden_the_herald.cpp"
+							RelativePath="..\scripts\zone\hellfire_citadel\hellfire_ramparts\boss_vazruden_the_herald.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\..\..\..\ScriptDev2\scripts\zone\hellfire_citadel\hellfire_ramparts\boss_watchkeeper_gargolmar.cpp"
+							RelativePath="..\scripts\zone\hellfire_citadel\hellfire_ramparts\boss_watchkeeper_gargolmar.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\..\..\..\ScriptDev2\scripts\zone\hellfire_citadel\hellfire_ramparts\def_hellfire_ramparts.h"
+							RelativePath="..\scripts\zone\hellfire_citadel\hellfire_ramparts\def_hellfire_ramparts.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\..\..\..\ScriptDev2\scripts\zone\hellfire_citadel\hellfire_ramparts\instance_hellfire_ramparts.cpp"
+							RelativePath="..\scripts\zone\hellfire_citadel\hellfire_ramparts\instance_hellfire_ramparts.cpp"
 							>
 						</File>
 					</Filter>
