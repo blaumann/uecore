@@ -227,11 +227,11 @@ void AddSC_boss_grobbulus()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_grobbulus";
-    newscript->GetAI = GetAI_boss_grobbulus;
+    newscript->GetAI = &GetAI_boss_grobbulus;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_grobbulus_poisoncloud";
-    newscript->GetAI = GetAI_mob_grobbulus_poisoncloud;
+    newscript->GetAI = &GetAI_mob_grobbulus_poisoncloud;
     newscript->RegisterSelf();
 }

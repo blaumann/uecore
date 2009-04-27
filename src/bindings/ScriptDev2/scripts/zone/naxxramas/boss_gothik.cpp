@@ -566,21 +566,21 @@ void AddSC_boss_gothik()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_gothik"; // update creature_template set ScriptName = 'boss_gothik' where entry = 16060;
-    newscript->GetAI = GetAI_boss_gothik;
+    newscript->GetAI = &GetAI_boss_gothik;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_u_trainee";
-    newscript->GetAI = GetAI_mob_u_trainee;
+    newscript->GetAI = &GetAI_mob_u_trainee;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_u_deathknight";
-    newscript->GetAI = GetAI_mob_u_deathknight;
+    newscript->GetAI = &GetAI_mob_u_deathknight;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_u_rider";
-    newscript->GetAI = GetAI_mob_u_rider;
+    newscript->GetAI = &GetAI_mob_u_rider;
     newscript->RegisterSelf();
 }

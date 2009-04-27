@@ -670,32 +670,32 @@ void AddSC_boss_kelthuzad()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_kelthuzad";
-    newscript->GetAI = GetAI_boss_kelthuzadAI;
+    newscript->GetAI = &GetAI_boss_kelthuzadAI;
     newscript->RegisterSelf();
     
     newscript = new Script;
     newscript->Name="mob_guardian";
-    newscript->GetAI = GetAI_mob_guardianAI;
+    newscript->GetAI = &GetAI_mob_guardianAI;
     newscript->RegisterSelf();
     
     newscript = new Script;
     newscript->Name="mob_soldier_frozen_wastes";
-    newscript->GetAI = GetAI_mob_soldier_frozen_wastesAI;
+    newscript->GetAI = &GetAI_mob_soldier_frozen_wastesAI;
     newscript->RegisterSelf();
     
     newscript = new Script;
     newscript->Name="mob_unstoppable_abomination";
-    newscript->GetAI = GetAI_mob_unstoppable_abominationAI;
+    newscript->GetAI = &GetAI_mob_unstoppable_abominationAI;
     newscript->RegisterSelf();
     
     newscript = new Script;
     newscript->Name="mob_soul_weaver";
-    newscript->GetAI = GetAI_mob_soul_weaverAI;
+    newscript->GetAI = &GetAI_mob_soul_weaverAI;
     newscript->RegisterSelf();
     
     newscript = new Script;
     newscript->Name="mob_lich_king";
-    newscript->GetAI = GetAI_mob_lich_kingAI;
+    newscript->GetAI = &GetAI_mob_lich_kingAI;
     newscript->RegisterSelf();
     
    

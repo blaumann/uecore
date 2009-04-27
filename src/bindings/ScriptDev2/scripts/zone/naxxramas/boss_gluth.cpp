@@ -328,6 +328,6 @@ void AddSC_boss_gluth()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_gluth";
-    newscript->GetAI = GetAI_boss_gluth;
+    newscript->GetAI = &GetAI_boss_gluth;
     newscript->RegisterSelf();
 }
