@@ -84,6 +84,9 @@ struct MANGOS_DLL_DECL ScriptedAI : public CreatureAI
     //Called at each attack of m_creature by any victim
     void AttackStart(Unit *);
 
+    // Called for reaction at enter to combat if not in combat yet (enemy can be NULL)
+    void EnterCombat(Unit *);
+
     //Called at stoping attack by any attacker
     void EnterEvadeMode();
 
@@ -134,8 +137,8 @@ struct MANGOS_DLL_DECL ScriptedAI : public CreatureAI
     //Called at creature reset either by death or evade
     virtual void Reset() = 0;
 
-    //Called at creature aggro either by MoveInLOS or Attack Start
-    virtual void Aggro(Unit*) = 0;
+    //Called at creature EnterCombat
+    virtual void Aggro(Unit*);
 
     //*************
     //AI Helper Functions

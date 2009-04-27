@@ -803,34 +803,6 @@
 						RelativePath="..\scripts\zone\dragonblight\dragonblight.cpp"
 						>
 					</File>
-					<Filter
-						Name="Drak&apos;Tharon Keep"
-						>
-						<File
-							RelativePath="..\scripts\zone\draktharon_keep\boss_dred.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\draktharon_keep\boss_novos.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\draktharon_keep\boss_tharon_ja.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\draktharon_keep\boss_trollgore.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\draktharon_keep\def_drak_tharon_keep.h"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\draktharon_keep\instance_drak_tharon_keep.cpp"
-							>
-						</File>
-					</Filter>
 				</Filter>
 				<Filter
 					Name="Ebon Hold"
@@ -2957,6 +2929,34 @@
 					>
 					<File
 						RelativePath="..\scripts\zone\deads_breach\deadsbreach.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Drak&apos;Tharon Keep"
+					>
+					<File
+						RelativePath="..\scripts\zone\draktharon_keep\boss_dred.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\draktharon_keep\boss_novos.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\draktharon_keep\boss_tharon_ja.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\draktharon_keep\boss_trollgore.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\draktharon_keep\def_drak_tharon_keep.h"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\draktharon_keep\instance_drak_tharon_keep.cpp"
 						>
 					</File>
 				</Filter>

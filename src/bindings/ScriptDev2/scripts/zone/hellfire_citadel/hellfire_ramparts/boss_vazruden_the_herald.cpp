@@ -394,7 +394,6 @@ struct MANGOS_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
                     }
                 }else
                 {
-                    //m_creature->HandleGameObject(ENTRY_REINFORCED_FEL_IRON_CHEST,VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2],0,0,0,0,0,0);
                     m_creature->SetLootRecipient(NULL);
                     m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 }

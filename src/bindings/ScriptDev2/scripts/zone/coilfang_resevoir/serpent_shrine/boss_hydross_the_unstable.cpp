@@ -24,7 +24,8 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_serpent_shrine.h"
 
-enum {
+enum
+{
     SAY_AGGRO                   = -1548000,
     SAY_SWITCH_TO_CLEAN         = -1548001,
     SAY_CLEAN_SLAY1             = -1548002,
@@ -54,32 +55,32 @@ enum {
     SPELL_MARK_OF_CORRUPTION5   = 38230,
     SPELL_MARK_OF_CORRUPTION6   = 40583,
     SPELL_VILE_SLUDGE           = 38246,
-    SPELL_ENRAGE                = 27680,                  //this spell need verification
-    SPELL_SUMMON_WATER_ELEMENT  = 36459,                  //not in use yet(in use ever?)
+    SPELL_ENRAGE                = 27680,                    //this spell need verification
+    SPELL_SUMMON_WATER_ELEMENT  = 36459,                    //not in use yet(in use ever?)
     SPELL_ELEMENTAL_SPAWNIN     = 25035,
-    SPELL_BLUE_BEAM             = 38015,                  //channeled Hydross Beam Helper (not in use yet)
+    SPELL_BLUE_BEAM             = 38015,                    //channeled Hydross Beam Helper (not in use yet)
 
-    ENTRY_PURE_SPAWN            = 22035,
-    ENTRY_TAINTED_SPAWN         = 22036
+    NPC_PURE_SPAWN              = 22035,
+    NPC_TAINTED_SPAWN           = 22036
 };
 
-const float afHydrossPos[2]   = {-239.439f, -363.481f};
-const float afSpawnDiffs[4][2] = {
-    {6.934003f  , -11.255012f}, // diff 1
-    {-6.934003f , 11.255012f }, // diff 2
-    {-12.577011f, -4.72702f  }, // diff 3
-    {12.577011f , 4.72702f   }  // diff 4
+const float afSpawnDiffs[4][2] =
+{
+    {6.934003f  , -11.255012f},                             // diff 1
+    {-6.934003f , 11.255012f },                             // diff 2
+    {-12.577011f, -4.72702f  },                             // diff 3
+    {12.577011f , 4.72702f   }                              // diff 4
 };
 
 struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
 {
-    boss_hydross_the_unstableAI(Creature *c) : ScriptedAI(c)
+    boss_hydross_the_unstableAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
-    ScriptedInstance* m_pInstance; // the instance
+    ScriptedInstance* m_pInstance;                          // the instance
 
     uint32 m_uiPosCheck_Timer;
     uint32 m_uiMarkOfHydross_Timer;
@@ -108,7 +109,7 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
         m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
         m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
 
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_CLEAN);
+        m_creature->SetDisplayId(MODEL_CLEAN);
 
         if (m_pInstance)
             m_pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, NOT_STARTED);
@@ -132,9 +133,9 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
 
     void JustSummoned(Creature* pSummoned)
     {
-        if (pSummoned->GetEntry() == ENTRY_PURE_SPAWN)
+        if (pSummoned->GetEntry() == NPC_PURE_SPAWN)
             pSummoned->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
-        else if (pSummoned->GetEntry() == ENTRY_TAINTED_SPAWN)
+        else if (pSummoned->GetEntry() == NPC_TAINTED_SPAWN)
             pSummoned->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
 
         pSummoned->CastSpell(pSummoned, SPELL_ELEMENTAL_SPAWNIN, true);
@@ -148,10 +149,23 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
             m_pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, NOT_STARTED);
     }
 
+    void SpawnAdds()
+    {
+        uint32 uiAdd = 0;
+
+        if (m_bCorruptedForm)
+            uiAdd = NPC_TAINTED_SPAWN;
+        else
+            uiAdd = NPC_PURE_SPAWN;
+
+        for(uint8 i = 0; i < 4; i++)
+            DoSpawnCreature(uiAdd, afSpawnDiffs[i][0], afSpawnDiffs[i][1], 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
         // corrupted form
@@ -195,14 +209,16 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
             //PosCheck_Timer
             if (m_uiPosCheck_Timer < uiDiff)
             {
-                if (m_creature->GetDistance2d(afHydrossPos[0], afHydrossPos[1]) < SWITCH_RADIUS)
-                {
-                    // switch to clean form
-                    m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_CLEAN);
-                    m_bCorruptedForm = false;
-                    m_uiMarkOfHydross_Count = 0;
+                float fPosX, fPosY, fPosZ;
+                m_creature->GetCombatStartPosition(fPosX, fPosY, fPosZ);
 
+                if (m_creature->GetDistance2d(fPosX, fPosY) < SWITCH_RADIUS)
+                {
                     DoScriptText(SAY_SWITCH_TO_CLEAN, m_creature);
+
+                    // switch to clean form
+                    m_creature->SetDisplayId(MODEL_CLEAN);
+                    m_uiMarkOfHydross_Count = 0;
                     DoResetThreat();
 
                     // spawn 4 adds
@@ -211,6 +227,8 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
                     m_creature->SetMeleeDamageSchool(SPELL_SCHOOL_FROST);
                     m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
                     m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
+
+                    m_bCorruptedForm = false;
                 }
 
                 m_uiPosCheck_Timer = 2500;
@@ -228,12 +246,12 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
 
                     switch(m_uiMarkOfHydross_Count)
                     {
-                        case 0:  uiMarkSpell = SPELL_MARK_OF_HYDROSS1; break;
-                        case 1:  uiMarkSpell = SPELL_MARK_OF_HYDROSS2; break;
-                        case 2:  uiMarkSpell = SPELL_MARK_OF_HYDROSS3; break;
-                        case 3:  uiMarkSpell = SPELL_MARK_OF_HYDROSS4; break;
-                        case 4:  uiMarkSpell = SPELL_MARK_OF_HYDROSS5; break;
-                        case 5:  uiMarkSpell = SPELL_MARK_OF_HYDROSS6; break;
+                        case 0: uiMarkSpell = SPELL_MARK_OF_HYDROSS1; break;
+                        case 1: uiMarkSpell = SPELL_MARK_OF_HYDROSS2; break;
+                        case 2: uiMarkSpell = SPELL_MARK_OF_HYDROSS3; break;
+                        case 3: uiMarkSpell = SPELL_MARK_OF_HYDROSS4; break;
+                        case 4: uiMarkSpell = SPELL_MARK_OF_HYDROSS5; break;
+                        case 5: uiMarkSpell = SPELL_MARK_OF_HYDROSS6; break;
                     }
 
                     DoCast(m_creature->getVictim(), uiMarkSpell);
@@ -257,14 +275,16 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
             //PosCheck_Timer
             if (m_uiPosCheck_Timer < uiDiff)
             {
-                if (m_creature->GetDistance2d(afHydrossPos[0], afHydrossPos[1]) >= SWITCH_RADIUS)
-                {
-                    // switch to corrupted form
-                    m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_CORRUPT);
-                    m_uiMarkOfCorruption_Count = 0;
-                    m_bCorruptedForm = true;
+                float fPosX, fPosY, fPosZ;
+                m_creature->GetCombatStartPosition(fPosX, fPosY, fPosZ);
 
+                if (m_creature->GetDistance2d(fPosX, fPosY) >= SWITCH_RADIUS)
+                {
                     DoScriptText(SAY_SWITCH_TO_CORRUPT, m_creature);
+
+                    // switch to corrupted form
+                    m_creature->SetDisplayId(MODEL_CORRUPT);
+                    m_uiMarkOfCorruption_Count = 0;
                     DoResetThreat();
 
                     // spawn 4 adds
@@ -273,6 +293,8 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
                     m_creature->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
                     m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
                     m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, false);
+
+                    m_bCorruptedForm = true;
                 }
 
                 m_uiPosCheck_Timer = 2500;
@@ -288,18 +310,11 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-
-    void SpawnAdds()
-    {
-        DoSpawnCreature(ENTRY_PURE_SPAWN, afSpawnDiffs[0][0], afSpawnDiffs[0][1], 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-        DoSpawnCreature(ENTRY_PURE_SPAWN, afSpawnDiffs[1][0], afSpawnDiffs[1][1], 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-        DoSpawnCreature(ENTRY_PURE_SPAWN, afSpawnDiffs[2][0], afSpawnDiffs[2][1], 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-        DoSpawnCreature(ENTRY_PURE_SPAWN, afSpawnDiffs[3][0], afSpawnDiffs[3][1], 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-    }
 };
+
 CreatureAI* GetAI_boss_hydross_the_unstable(Creature* pCreature)
 {
-    return new boss_hydross_the_unstableAI (pCreature);
+    return new boss_hydross_the_unstableAI(pCreature);
 }
 
 void AddSC_boss_hydross_the_unstable()

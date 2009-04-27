@@ -289,7 +289,7 @@ extern void AddSC_deadmines();
 extern void AddSC_instance_deadmines();
 
 //Deads Breach
-/*Not implement*/
+extern void AddSC_deadsbreach();
 
 //Deadwind pass
 /*Not implement*/
@@ -1347,6 +1347,9 @@ void ScriptsInit()
     //Deadmines
     AddSC_deadmines();
     AddSC_instance_deadmines();
+
+    //Dead Breach
+    AddSC_deadsbreach();
 
     //Deadwind Pass
     /* Not Implemented */

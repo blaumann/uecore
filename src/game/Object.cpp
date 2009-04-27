@@ -25,6 +25,7 @@
 #include "Object.h"
 #include "Creature.h"
 #include "Player.h"
+#include "GameObject.h"
 #include "Vehicle.h"
 #include "ObjectMgr.h"
 #include "UpdateData.h"
@@ -1316,6 +1317,22 @@ void Object::ForceValuesUpdateAtIndex(uint32 i)
 			m_objectUpdated = true;
 		}
 	}
+}
+
+GameObject* WorldObject::SummonGameObject(uint32 id, float x, float y, float z, float ang, uint32 despwtime)
+{
+  GameObject* pGameObj = new GameObject;
+
+  if(!pGameObj->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), id, GetMap(), GetPhaseMask(), x, y, z, ang, 0, 0, 0, 0, 100, GO_STATE_READY))
+  {
+    delete pGameObj;
+    return NULL;
+  }
+  pGameObj->SetRespawnTime(despwtime > 0 ? despwtime/1000 : 0);
+
+  GetMap()->Add(pGameObj);
+
+  return pGameObj;
 }
 
 namespace MaNGOS
