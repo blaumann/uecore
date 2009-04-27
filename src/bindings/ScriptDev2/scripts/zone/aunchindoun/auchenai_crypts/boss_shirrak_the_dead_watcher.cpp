@@ -54,8 +54,6 @@ Intern_Focus_Fire_Counter = 0;
 target = NULL;
 }
 
-void Aggro(Unit*){}
-
 void UpdateAI(const uint32 diff)
 {
 // Cast Inhibit Magic even if out of combat

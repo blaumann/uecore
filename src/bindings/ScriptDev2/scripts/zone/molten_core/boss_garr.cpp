@@ -58,10 +58,6 @@ struct MANGOS_DLL_DECL boss_garrAI : public ScriptedAI
 		}
     }
 
-    void Aggro(Unit *who)
-    {
-    }
-
 	void JustDied(Unit* Killer)
     {
 		if(pInstance)
@@ -135,10 +131,6 @@ struct MANGOS_DLL_DECL mob_fireswornAI : public ScriptedAI
         //m_creature->DeleteThreatList();
         //m_creature->CombatStop();
         //DoGoHome();
-    }
-
-    void Aggro(Unit *who)
-    {
     }
 
     void MoveInLineOfSight(Unit *who)

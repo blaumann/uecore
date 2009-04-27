@@ -2491,6 +2491,10 @@
 						Name="Slave Pens"
 						>
 						<File
+							RelativePath="..\scripts\zone\coilfang_resevoir\slave_pens\boss_mennu_the_betrayer.cpp"
+							>
+						</File>
+						<File
 							RelativePath="..\scripts\zone\coilfang_resevoir\slave_pens\boss_rokmar.cpp"
 							>
 						</File>

@@ -1148,8 +1148,8 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
     switch(faction)
     {
         case 0://alliance
-            for(uint8 i = 0; i < 92; i++)//summon fires
-                //m_creature->SummonGameObject(FLAMEOBJECT,AllianceFirePos[i][0],AllianceFirePos[i][1],AllianceFirePos[i][2],AllianceFirePos[i][3],AllianceFirePos[i][4],AllianceFirePos[i][5],AllianceFirePos[i][6],AllianceFirePos[i][7]);
+            //for(uint8 i = 0; i < 92; i++)//summon fires
+                //m_creature->GetGameObject(FLAMEOBJECT,AllianceFirePos[i][0],AllianceFirePos[i][1],AllianceFirePos[i][2],AllianceFirePos[i][3],AllianceFirePos[i][4],AllianceFirePos[i][5],AllianceFirePos[i][6],AllianceFirePos[i][7]);
             
             for(uint8 i = 0; i < 25; i++)//summon 25 ghouls
             {
@@ -1185,9 +1185,9 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                 }
             }
             break;
-        case 1://horde    
-            for(uint8 i = 0; i < 65; i++)//summon fires
-                //m_creature->SummonGameObject(FLAMEOBJECT,HordeFirePos[i][0],HordeFirePos[i][1],HordeFirePos[i][2],HordeFirePos[i][3],HordeFirePos[i][4],HordeFirePos[i][5]);
+        //case 1://horde    
+            //for(uint8 i = 0; i < 65; i++)//summon fires
+                //m_creature->GetGameObject(FLAMEOBJECT,HordeFirePos[i][0],HordeFirePos[i][1],HordeFirePos[i][2],HordeFirePos[i][3],HordeFirePos[i][4],HordeFirePos[i][5]);
             
             for(uint8 i = 0; i < 26; i++)//summon infernals
             {

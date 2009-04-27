@@ -80,8 +80,6 @@ struct MANGOS_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
         m_creature->SetStandState(UNIT_STAND_STATE_SLEEP);
     }
 
-    void Aggro(Unit *who) {}
-
     void MoveInLineOfSight(Unit *who)
     {
         if (CanSayHelp && who->GetTypeId() == TYPEID_PLAYER && m_creature->IsFriendlyTo(who) && m_creature->IsWithinDistInMap(who, 25.0f))
@@ -310,8 +308,6 @@ struct MANGOS_DLL_DECL npc_injured_draeneiAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit *who) {}
-
     void MoveInLineOfSight(Unit *who)
     {
         return;                                             //ignore everyone around them (won't aggro anything)
@@ -440,8 +436,6 @@ struct MANGOS_DLL_DECL npc_nestlewood_owlkinAI : public ScriptedAI
         DespawnTimer = 0;
         m_creature->SetVisibility(VISIBILITY_ON);
     }
-
-    void Aggro(Unit *who) {}
 
     void UpdateAI(const uint32 diff)
     {

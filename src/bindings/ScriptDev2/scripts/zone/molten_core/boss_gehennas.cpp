@@ -48,8 +48,6 @@ struct MANGOS_DLL_DECL boss_gehennasAI : public ScriptedAI
         GehennasCurse_Timer = 12000;
     }
 
-    void Aggro(Unit *who) { }
-
 	void JustDied(Unit* Killer)
     {
 		if(pInstance)

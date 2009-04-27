@@ -320,6 +320,8 @@ struct MANGOS_DLL_DECL boss_majordomoAI : public ScriptedAI
 				CheckFlamewaker_Timer=600000;
 				Teleport=true;
 
+				//m_creature->AddGameObject(GameObject::GetGameObject(*m_creature,pInstance->GetData64(DATA_CACHEOFTHEFIRELORD_GUID)));
+
 				DoScriptText(SAY_DEFEAT, m_creature);
 				DoPlaySoundToSet(m_creature,SOUND_DEFEAT);
 			}

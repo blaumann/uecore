@@ -18,5 +18,6 @@
 #define TYPE_EVENT_RUN      12
 #define DATA_HARRISON       13
 #define TYPE_MALACRASS      14
-
+#define DATA_GO_GONG        15
+#define DATA_GO_ENTRANCE    16
 #endif

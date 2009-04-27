@@ -331,7 +331,6 @@ struct MANGOS_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
 
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void Aggro(Unit *who) {}
     void UpdateAI(const uint32 diff)
     {
         if(Resurect_Timer)

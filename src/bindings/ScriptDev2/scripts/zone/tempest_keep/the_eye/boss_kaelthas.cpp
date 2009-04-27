@@ -1305,13 +1305,7 @@ struct MANGOS_DLL_DECL mob_kael_flamestrikeAI : public ScriptedAI
         m_creature->setFaction(14);
     }
 
-    void Aggro(Unit *who)
-    {
-    }
-
-    void MoveInLineOfSight(Unit *who)
-    {
-    }
+    void MoveInLineOfSight(Unit *who) { }
 
     void UpdateAI(const uint32 diff)
     {
@@ -1348,8 +1342,6 @@ struct MANGOS_DLL_DECL mob_phoenix_tkAI : public ScriptedAI
         Cycle_Timer = 2000;
         m_creature->CastSpell(m_creature,SPELL_BURN,true);
     }
-
-    void Aggro(Unit *who) { }
 
     void JustDied(Unit* killer)
     {
@@ -1401,8 +1393,6 @@ struct MANGOS_DLL_DECL mob_phoenix_egg_tkAI : public ScriptedAI
             DoStartNoMovement(who);
         }
     }
-
-    void Aggro(Unit *who) { }
 
     void JustSummoned(Creature* summoned)
     {

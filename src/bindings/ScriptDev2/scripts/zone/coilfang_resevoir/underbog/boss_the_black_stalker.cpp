@@ -64,8 +64,6 @@ struct MANGOS_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
         Striders.clear();
     }
 
-    void Aggro(Unit *who) {}
-
     void JustSummoned(Creature *summon)
     {
         if(summon && summon->GetEntry() == ENTRY_SPORE_STRIDER)

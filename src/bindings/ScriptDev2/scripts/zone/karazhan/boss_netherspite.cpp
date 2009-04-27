@@ -1145,7 +1145,6 @@ struct MANGOS_DLL_DECL mob_void_zoneAI : public ScriptedAI
         VoidEffect_timer = 3000;
     }
  
-    void Aggro(Unit *who) {}
     void MoveInLineOfSight(Unit *who) {}
  
     void UpdateAI(const uint32 diff) {
