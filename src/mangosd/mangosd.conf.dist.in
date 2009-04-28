@@ -1475,9 +1475,9 @@ Anticheat.Movement.MaxXYT = 0.04
 Anticheat.Movement.IgnoreSecAfterTeleport = 10
 Anticheat.Movement.GmLevel = 0
 
-
 ###################################################################################################################
-# Chat log parameters / This must set to correct value or the server chrashes when you will the chat use
+# This must have set to correct value, or the server chrashes when you us the chat
+# Chat log parameters
 ChatLogEnable = 0
 
 # If this is enabled, all $d in file names are replaced with current date
@@ -1547,32 +1547,3 @@ LexicsCutterActionDuration = 60000
 
 # Do not perform action on GM if this is enabled
 LexicsCutterNoActionOnGM = 1
-1
-LexicsCutInParty = 1
-LexicsCutInGuild = 1
-LexicsCutInWhisper = 1
-LexicsCutInChannel = 1
-LexicsCutInRaid = 1
-LexicsCutInBattleGround = 1
-
-# Ignore word spaces like: W O R D
-LexicsCutterIgnoreSpaces = 1
-
-# Ignore repeats like: WWOOOORRRRRD
-LexicsCutterIgnoreRepeats = 1
-
-# --- Action:
-# ---   0: log only
-# ---   1: sheep
-# ---   2: stun
-# ---   3: kill
-# ---   4: leave 5 health
-# ---   5: disable chat
-# ---   6: stuck (works as stun + 50% health) [by KAPATEJIb]
-# ---   7: resurrection sickness [by Koshei]
-LexicsCutterAction = 0
-LexicsCutterActionDuration = 60000
-
-# Do not perform action on GM if this is enabled
-LexicsCutterNoActionOnGM = 1
-mangosd.conf.dist.in
