@@ -17,14 +17,12 @@
 /* ScriptData
 SDName: Boss_Leotheras_The_Blind
 SD%Complete: 90
-SDComment: DoYell Disable, i need help why the delete doplaysound
+SDComment: DoYell Disable, i need help why the delete doplaysound, need more cleanup
 SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
 #include "precompiled.h"
 #include "def_serpent_shrine.h"
-#include "sc_creature.h"
-#include "sc_instance.h"
 #include "Player.h"
 
 enum
@@ -188,17 +186,16 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 		m_creature->setAttackTimer(OFF_ATTACK, 0);
 
         Reset();
-
     }
 
     ScriptedInstance *m_pInstance;
 
-    uint32 Whirlwind_Timer;
-    uint32 ChaosBlast_Timer;
-    uint32 SwitchToDemon_Timer;
-    uint32 SwitchToHuman_Timer;
-	uint32 Berserk_Timer;
-	uint32 InnerDemons_Timer;
+    uint32 m_uiWhirlwind_Timer;
+    uint32 m_uiChaosBlast_Timer;
+    uint32 m_uiSwitchToDemon_Timer;
+    uint32 m_uiSwitchToHuman_Timer;
+	uint32 m_uiBerserk_Timer;
+	uint32 m_uiInnerDemons_Timer;
 	
 	bool DealDamage;
 	bool NeedThreatReset;
@@ -214,12 +211,12 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 
     void Reset()
     {
-        Whirlwind_Timer = 15000;
-        ChaosBlast_Timer = 1000;
-        SwitchToDemon_Timer = 45000;
-        SwitchToHuman_Timer = 60000;
-		Berserk_Timer = 600000;
-		InnerDemons_Timer = 30000;
+        m_uiWhirlwind_Timer = 15000;
+        m_uiChaosBlast_Timer = 1000;
+        m_uiSwitchToDemon_Timer = 45000;
+        m_uiSwitchToHuman_Timer = 60000;
+		m_uiBerserk_Timer = 600000;
+		m_uiInnerDemons_Timer = 30000;
 		DealDamage = true;
 
         DemonForm = false;
@@ -487,7 +484,7 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 		}
 
 		if (m_creature->HasAura(SPELL_WHIRLWIND, 0))
-			if (Whirlwind_Timer < diff)
+			if (m_uiWhirlwind_Timer < diff)
 			{
 				Unit *newTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
 				if (newTarget)
@@ -496,8 +493,8 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 					m_creature->GetMotionMaster()->Clear();
 					m_creature->GetMotionMaster()->MovePoint(0,newTarget->GetPositionX(),newTarget->GetPositionY(),newTarget->GetPositionZ());
 				}
-				Whirlwind_Timer = 2000;
-			}else Whirlwind_Timer -= diff;
+				m_uiWhirlwind_Timer = 2000;
+			}else m_uiWhirlwind_Timer -= diff;
 
 		// reseting after changing forms and after ending whirlwind
 		if (NeedThreatReset && !m_creature->HasAura(SPELL_WHIRLWIND, 0))
@@ -508,9 +505,9 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 
 			// when changing forms seting timers (or when ending whirlwind - to avoid adding new variable i use Whirlwind_Timer to countdown 2s while whirlwinding)
 			if (DemonForm)
-				InnerDemons_Timer = 30000;
+				m_uiInnerDemons_Timer = 30000;
 			else
-				Whirlwind_Timer =  15000;
+				m_uiWhirlwind_Timer =  15000;
 			
 			NeedThreatReset = false;
 			DoResetThreat();
@@ -519,29 +516,29 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 		}
 
         //Enrage_Timer ( 10 min )
-        if (Berserk_Timer < diff && !EnrageUsed)
+        if (m_uiBerserk_Timer < diff && !EnrageUsed)
         {
             DoCast(m_creature, SPELL_BERSERK);
 			EnrageUsed = true;
-        }else Berserk_Timer -= diff;
+        }else m_uiBerserk_Timer -= diff;
 
         if (!DemonForm)
         {
             //Whirlwind_Timer
 			if (!m_creature->HasAura(SPELL_WHIRLWIND, 0))
 			{
-				if (Whirlwind_Timer < diff)
+				if (m_uiWhirlwind_Timer < diff)
 				{
 					DoCast(m_creature, SPELL_WHIRLWIND);
 					// while whirlwinding this variable is used to countdown target's change
-					Whirlwind_Timer = 2000;
+					m_uiWhirlwind_Timer = 2000;
 					NeedThreatReset = true;
-				}else Whirlwind_Timer -= diff;
+				}else m_uiWhirlwind_Timer -= diff;
 			}
 
             //Switch_Timer
             if (!IsFinalForm)
-                if (SwitchToDemon_Timer < diff)
+                if (m_uiSwitchToDemon_Timer < diff)
                 {
                     //switch to demon form
 					m_creature->RemoveAurasDueToSpell(SPELL_WHIRLWIND,0);
@@ -555,8 +552,8 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 					DemonForm = true;
 					NeedThreatReset = true;
 
-                    SwitchToDemon_Timer = 45000;
-                }else SwitchToDemon_Timer -= diff;
+                    m_uiSwitchToDemon_Timer = 45000;
+                }else m_uiSwitchToDemon_Timer -= diff;
             DoMeleeAttackIfReady();
         }
         else
@@ -567,7 +564,7 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 			if (m_creature->GetDistance(m_creature->getVictim()) < 30)
 				m_creature->StopMoving();
 
-            if (ChaosBlast_Timer < diff)
+            if (m_uiChaosBlast_Timer < diff)
             {
 				// will cast only when in range of spell 
 				if (m_creature->GetDistance(m_creature->getVictim()) < 30)
@@ -576,12 +573,12 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 					int damage = 100;
 					m_creature->CastCustomSpell(m_creature->getVictim(), SPELL_CHAOS_BLAST, &damage, NULL, NULL, false, NULL, NULL, m_creature->GetGUID());  
 
-					ChaosBlast_Timer = 3000;
+					m_uiChaosBlast_Timer = 3000;
 				}
-            }else ChaosBlast_Timer -= diff;
+            }else m_uiChaosBlast_Timer -= diff;
 
 			//summon Inner Demon
-			if (InnerDemons_Timer < diff)
+			if (m_uiInnerDemons_Timer < diff)
 			{
 				std::list<HostilReference *>& ThreatList = m_creature->getThreatManager().getThreatList();
 				std::vector<Unit *> TargetList; 
@@ -621,11 +618,11 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 				}
 				DoPlaySoundToSet(m_creature, SOUND_INNER_DEMONS);
 				//DoYell(SAY_INNER_DEMONS, LANG_UNIVERSAL, NULL);
-				InnerDemons_Timer = 999999;
-			}else InnerDemons_Timer -= diff;
+				m_uiInnerDemons_Timer = 999999;
+			}else m_uiInnerDemons_Timer -= diff;
 
             //Switch_Timer
-            if (SwitchToHuman_Timer < diff)
+            if (m_uiSwitchToHuman_Timer < diff)
             {
                 //switch to nightelf form
                 m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_NIGHTELF);
@@ -637,8 +634,8 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
                 DemonForm = false;
 				NeedThreatReset = true;
 
-                SwitchToHuman_Timer = 60000;
-            }else SwitchToHuman_Timer -= diff;
+                m_uiSwitchToHuman_Timer = 60000;
+            }else m_uiSwitchToHuman_Timer -= diff;
         }
 
         if (!IsFinalForm && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 15)

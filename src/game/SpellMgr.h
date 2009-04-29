@@ -905,7 +905,7 @@ class SpellMgr
         SpellBonusMap      mSpellBonusMap;
         SkillLineAbilityMap mSkillLineAbilityMap;
         SpellPetAuraMap     mSpellPetAuraMap;
-		PetLevelupSpellMapWarlock  mPetLevelupSpellMapWarlock;
+        PetLevelupSpellMapWarlock  mPetLevelupSpellMapWarlock;
         PetLevelupSpellMap  mPetLevelupSpellMap;
         SpellAreaMap         mSpellAreaMap;
         SpellAreaForQuestMap mSpellAreaForQuestMap;
@@ -917,3 +917,4 @@ class SpellMgr
 
 #define spellmgr SpellMgr::Instance()
 #endif
+
