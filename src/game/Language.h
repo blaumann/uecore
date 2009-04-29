@@ -27,7 +27,6 @@ enum MangosStrings
 
     // level 0 chat
     LANG_SYSTEMMESSAGE                  = 3,
-    LANG_ANNOUNCE_COLOR                 = 2000,
     LANG_EVENTMESSAGE                   = 4,
     LANG_NO_HELP_CMD                    = 5,
     LANG_NO_CMD                         = 6,
@@ -84,7 +83,11 @@ enum MangosStrings
     LANG_USING_WORLD_DB                 = 57,
     LANG_USING_SCRIPT_LIB               = 58,
     LANG_USING_EVENT_AI                 = 59,
-    // Room for more level 0              60-99 not used
+    LANG_SYSTEMMESSAGE_MODERATOR        = 60,
+    LANG_SYSTEMMESSAGE_GAMEMASTER       = 61,
+    LANG_SYSTEMMESSAGE_ADMINISTRATOR    = 62,
+    LANG_SYSANNOUNCE_COLOR              = 63,
+    // Room for more level 0              64-99 not used
 
     // level 1 chat
     LANG_GLOBAL_NOTIFY                  = 100,

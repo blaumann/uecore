@@ -1413,7 +1413,7 @@ AuctionHouseBot.UseBuyPriceForBuyer = 0
 
 AutoBroadcast.On = 1
 AutoBroadcast.Center = 2
-AutoBroadcast.Timer = 30000
+AutoBroadcast.Timer = 900000
 
 ###################################################################################################################
 # MOVEMENT ANTICHEAT
