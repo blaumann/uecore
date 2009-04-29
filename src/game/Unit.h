@@ -832,7 +832,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         void _addAttacker(Unit *pAttacker)                  // must be called only from Unit::Attack(Unit*)
         {
-            AttackerSet::iterator itr = m_attackers.find(pAttacker);
+            AttackerSet::const_iterator itr = m_attackers.find(pAttacker);
             if(itr == m_attackers.end())
                 m_attackers.insert(pAttacker);
         }
@@ -1277,7 +1277,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         uint32 GetVisibleAura(uint8 slot)
         {
-            VisibleAuraMap::iterator itr = m_visibleAuras.find(slot);
+            VisibleAuraMap::const_iterator itr = m_visibleAuras.find(slot);
             if(itr != m_visibleAuras.end())
                 return itr->second;
             return 0;
@@ -1354,7 +1354,14 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         uint32 SpellCriticalDamageBonus(SpellEntry const *spellProto, uint32 damage, Unit *pVictim);
         uint32 SpellCriticalHealingBonus(SpellEntry const *spellProto, uint32 damage, Unit *pVictim);
 
-        void SetLastManaUse(uint32 spellCastTime) { m_lastManaUse = spellCastTime; }
+        void SetLastManaUse(uint32 spellCastTime) 
+        { 
+            if (GetTypeId() == TYPEID_PLAYER && !IsUnderLastManaUseEffect())
+            {
+                RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
+            }
+            m_lastManaUse = spellCastTime; 
+        }
         bool IsUnderLastManaUseEffect() const;
 
         void SetContestedPvP(Player *attackedPlayer = NULL);
@@ -1490,6 +1497,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         uint32 m_reactiveTimer[MAX_REACTIVE];
         uint32 m_regenTimer;
+        uint32 m_lastRegenerate;                            // msecs
 
     private:
         void SendAttackStop(Unit* victim);                  // only from AttackStop(Unit*)

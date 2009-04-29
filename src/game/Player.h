@@ -241,7 +241,7 @@ struct Areas
 };
 
 #define MAX_RUNES       6
-#define RUNE_COOLDOWN   5                                   // 5*2=10 sec
+#define RUNE_COOLDOWN   10000                               // msec
 
 enum RuneType
 {
@@ -256,7 +256,7 @@ struct RuneInfo
 {
     uint8 BaseRune;
     uint8 CurrentRune;
-    uint8 Cooldown;
+    uint16 Cooldown;                                        // msec
 };
 
 struct Runes
@@ -463,14 +463,16 @@ enum ActivateTaxiReplies
 enum LootType
 {
     LOOT_CORPSE                 = 1,
-    LOOT_SKINNING               = 2,
+    LOOT_PICKPOCKETING          = 2,
     LOOT_FISHING                = 3,
-    LOOT_PICKPOCKETING          = 4,                        // unsupported by client, sending LOOT_SKINNING instead
-    LOOT_DISENCHANTING          = 5,                        // unsupported by client, sending LOOT_SKINNING instead
-    LOOT_PROSPECTING            = 6,                        // unsupported by client, sending LOOT_SKINNING instead
-    LOOT_INSIGNIA               = 7,                        // unsupported by client, sending LOOT_SKINNING instead
-    LOOT_FISHINGHOLE            = 8,                        // unsupported by client, sending LOOT_FISHING instead
-    LOOT_MILLING                = 9                         // unsupported by client, sending LOOT_SKINNING instead
+    LOOT_DISENCHANTING          = 4,
+                                                            // ignored always by client
+    LOOT_SKINNING               = 6,
+    LOOT_PROSPECTING            = 7,
+    LOOT_MILLING                = 8,
+
+    LOOT_FISHINGHOLE            = 20,                       // unsupported by client, sending LOOT_FISHING instead
+    LOOT_INSIGNIA               = 21                        // unsupported by client, sending LOOT_CORPSE instead
 };
 
 enum MirrorTimerType
@@ -1288,8 +1290,8 @@ class MANGOS_DLL_SPEC Player : public Unit
         void SendPetSkillWipeConfirm();
         void CalcRage( uint32 damage,bool attacker );
         void RegenerateAll();
-        void Regenerate(Powers power);
-        void RegenerateHealth();
+        void Regenerate(Powers power, uint32 diff);
+        void RegenerateHealth(uint32 diff);
         void setRegenTimer(uint32 time) {m_regenTimer = time;}
         void setWeaponChangeTimer(uint32 time) {m_weaponChangeTimer = time;}
 
@@ -1802,7 +1804,7 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         bool InBattleGroundQueue() const
         {
-            for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
+            for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
                 if (m_bgBattleGroundQueueID[i].bgQueueTypeId != BATTLEGROUND_QUEUE_NONE)
                     return true;
             return false;
@@ -1811,14 +1813,14 @@ class MANGOS_DLL_SPEC Player : public Unit
         BattleGroundQueueTypeId GetBattleGroundQueueTypeId(uint32 index) const { return m_bgBattleGroundQueueID[index].bgQueueTypeId; }
         uint32 GetBattleGroundQueueIndex(BattleGroundQueueTypeId bgQueueTypeId) const
         {
-            for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
+            for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
                 if (m_bgBattleGroundQueueID[i].bgQueueTypeId == bgQueueTypeId)
                     return i;
             return PLAYER_MAX_BATTLEGROUND_QUEUES;
         }
         bool IsInvitedForBattleGroundQueueType(BattleGroundQueueTypeId bgQueueTypeId) const
         {
-            for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
+            for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
                 if (m_bgBattleGroundQueueID[i].bgQueueTypeId == bgQueueTypeId)
                     return m_bgBattleGroundQueueID[i].invitedToInstance != 0;
             return false;
@@ -1835,7 +1837,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         }
         uint32 AddBattleGroundQueueId(BattleGroundQueueTypeId val)
         {
-            for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
+            for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
             {
                 if (m_bgBattleGroundQueueID[i].bgQueueTypeId == BATTLEGROUND_QUEUE_NONE || m_bgBattleGroundQueueID[i].bgQueueTypeId == val)
                 {
@@ -1848,14 +1850,14 @@ class MANGOS_DLL_SPEC Player : public Unit
         }
         bool HasFreeBattleGroundQueueId()
         {
-            for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
+            for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
                 if (m_bgBattleGroundQueueID[i].bgQueueTypeId == BATTLEGROUND_QUEUE_NONE)
                     return true;
             return false;
         }
         void RemoveBattleGroundQueueId(BattleGroundQueueTypeId val)
         {
-            for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
+            for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
             {
                 if (m_bgBattleGroundQueueID[i].bgQueueTypeId == val)
                 {
@@ -1867,13 +1869,13 @@ class MANGOS_DLL_SPEC Player : public Unit
         }
         void SetInviteForBattleGroundQueueType(BattleGroundQueueTypeId bgQueueTypeId, uint32 instanceId)
         {
-            for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
+            for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
                 if (m_bgBattleGroundQueueID[i].bgQueueTypeId == bgQueueTypeId)
                     m_bgBattleGroundQueueID[i].invitedToInstance = instanceId;
         }
         bool IsInvitedForBattleGroundInstance(uint32 instanceId) const
         {
-            for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
+            for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
                 if (m_bgBattleGroundQueueID[i].invitedToInstance == instanceId)
                     return true;
             return false;
@@ -2084,10 +2086,10 @@ class MANGOS_DLL_SPEC Player : public Unit
         uint8 GetRunesState() const { return m_runes->runeState; }
         uint8 GetBaseRune(uint8 index) const { return m_runes->runes[index].BaseRune; }
         uint8 GetCurrentRune(uint8 index) const { return m_runes->runes[index].CurrentRune; }
-        uint8 GetRuneCooldown(uint8 index) const { return m_runes->runes[index].Cooldown; }
+        uint16 GetRuneCooldown(uint8 index) const { return m_runes->runes[index].Cooldown; }
         void SetBaseRune(uint8 index, uint8 baseRune) { m_runes->runes[index].BaseRune = baseRune; }
         void SetCurrentRune(uint8 index, uint8 currentRune) { m_runes->runes[index].CurrentRune = currentRune; }
-        void SetRuneCooldown(uint8 index, uint8 cooldown) { m_runes->runes[index].Cooldown = cooldown; m_runes->SetRuneState(index, (cooldown == 0) ? true : false); }
+        void SetRuneCooldown(uint8 index, uint16 cooldown) { m_runes->runes[index].Cooldown = cooldown; m_runes->SetRuneState(index, (cooldown == 0) ? true : false); }
         void ConvertRune(uint8 index, uint8 newType);
         void ResyncRunes(uint8 count);
         void AddRunePower(uint8 index);
