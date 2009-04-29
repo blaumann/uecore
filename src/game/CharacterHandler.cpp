@@ -594,7 +594,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
     data.Initialize( SMSG_ACCOUNT_DATA_TIMES, 4+1+8*4 );    // changed in WotLK
     data << uint32(time(NULL));                             // unix time of something
     data << uint8(1);
-    for(int i = 0; i < NUM_ACCOUNT_DATA_TYPES; i++)
+    for(int i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
         data << uint32(GetAccountData(i)->Time);            // also unix time
     SendPacket(&data);
 
