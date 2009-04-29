@@ -16,8 +16,9 @@
 
 /* ScriptData
 SDName: boss_kiljaeden
-SD%Complete: 95
-SDComment: Development, needs test
+SDAuthor: ckegg
+SD%Complete: 95%
+SDComment: Missing ending animation, and Sinister Reflection need to be implemented.
 SDCategory: Sunwell_Plateau
 EndScriptData */
 #include "precompiled.h"
@@ -66,13 +67,21 @@ EndScriptData */
 //#define SPELL_SHADOW_BOLT                      45680 // constantly shooting Shadow Bolts at the raid (up to 3 bolts within 1 second)
 #define SPELL_SHADOW_BOLT                      30505 // 45680 doesn't work, use 36714(1275~1725) for worksaround, or 30505 (1063~1437)
 
+/* Orb of the Blue Dragonflight */
+#define SPELL_BLINK                            45862
+#define SPELL_BREATH_REVITALIZE                45860
+#define SPELL_BREATH_HASTE                     45856
+#define SPELL_SHIELD_OF_THE_BLUE               45848
+
 /*** Other Spells (used by players, etc) ***/
 #define SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT     45839 // Possess the blue dragon from the orb to help the raid.
+#define SPELL_POWER_OF_THE_BLUE_FLIGHT         45833 // Empowers a humanoid with the essence of the Blue Flight.
+#define SPELL_SUMMON_BLUE_DRAKE                45836 // Summon (25653)
 #define SPELL_ENTROPIUS_BODY                   46819 // Visual for Entropius at the Epilogue
+#define SPELL_RING_OF_BLUE_FLAME               45825 // Blue Flame Ring on actived orb
 
 /*** Creatures used in the encounter ***/
 #define CREATURE_ANVEENA                        26046 // Embodiment of the Sunwell
-#define CREATURE_KALECGOS                       25319 // Helps the raid throughout the fight
 #define CREATURE_KILJAEDEN                      25315 // Give it to 'em KJ!
 #define CREATURE_HAND_OF_THE_DECEIVER           25588 // Adds found before KJ emerges
 #define CREATURE_FELFIRE_PORTAL                 25603 // Portal spawned be Hand of the Deceivers
@@ -84,6 +93,12 @@ EndScriptData */
 
 /*** GameObjects ***/
 #define GAMEOBJECT_ORB_OF_THE_BLUE_DRAGONFLIGHT 188415
+/* there are several more, probably changes its looking with ring of flame
+#define GAMEOBJECT_ORB_OF_THE_BLUE_DRAGONFLIGHT 188114
+#define GAMEOBJECT_ORB_OF_THE_BLUE_DRAGONFLIGHT 188115
+#define GAMEOBJECT_ORB_OF_THE_BLUE_DRAGONFLIGHT 188116
+#define GAMEOBJECT_ORB_OF_THE_BLUE_DRAGONFLIGHT 187869
+*/
 
 /*** Speech and sounds***/
 // These are used throughout Sunwell and Magisters(?). Players can hear this while running through the instances.
@@ -118,6 +133,10 @@ EndScriptData */
 #define SAY_ANVEENA_GOODBYE                     -1580080
 #define SAY_KALECGOS_GOODBYE                    -1580081
 #define SAY_KALECGOS_ENCOURAGE                  -1580082
+#define SAY_KALECGOS_ORB1                       -1580083
+#define SAY_KALECGOS_ORB2                       -1580084
+#define SAY_KALECGOS_ORB3                       -1580085
+#define SAY_KALECGOS_ORB4                       -1580086
 // Charming
 
 /*** Error messages ***/
@@ -137,71 +156,58 @@ enum Phase
     PHASE_SACRIFICE  = 5, // At 25%, Anveena sacrifices herself into the Sunwell; at this point he becomes enraged and has *significally* shorter cooldowns.
 };
 
-/*
-struct Speech
-{
-    char* text;
-    uint32 creature, timer;
-};
-
-// TODO: Timers
-static Speech Sacrifice[]=
-{
-    {"Anveena, you must awaken, this world needs you!", CREATURE_KALECGOS, 5000},
-    {"I serve only the Master now.", CREATURE_ANVEENA, 5000},
-    {"You must let go! You must become what you were always meant to be! The time is now, Anveena!", CREATURE_KALECGOS, 8000},
-    {"But I'm... lost... I cannot find my way back!", CREATURE_ANVEENA, 5000},
-    {"Anveena, I love you! Focus on my voice, come back for me now! Only you can cleanse the Sunwell!", CREATURE_KALECGOS, 7000},
-    {"Kalec... Kalec?", CREATURE_ANVEENA, 2000},
-    {"Yes, Anveena! Let fate embrace you now!", CREATURE_KALECGOS, 3000},
-    {"The nightmare is over, the spell is broken! Goodbye, Kalec, my love!", CREATURE_ANVEENA, 6000},
-    {"Goodbye, Anveena, my love. Few will remember your name, yet this day you change the course of destiny. What was once corrupt is now pure. Heroes, do not let her sacrifice be in vain.", CREATURE_KALECGOS, 12000},
-    {"Aggghh! The powers of the Sunwell... turned... against me! What have you done? WHAT HAVE YOU DONE?", CREATURE_KILJAEDEN, 8000},
-    {"Strike now, heroes, while he is weakened! Vanquish the Deceiver!", CREATURE_KALECGOS, 5000},
-};
-*/
-/*
-class AllOrbsInGrid
-{
-    public:
-        AllOrbsInGrid() {}
-        bool operator() (GameObject* go)
-        {
-            if(go->GetEntry() == GAMEOBJECT_ORB_OF_THE_BLUE_DRAGONFLIGHT)
-                return true;
-
-            return false;
-        }
-};
-*/
-
 /*######
 ## Boss Kalecgos
 ######*/
-struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
+struct MANGOS_DLL_DECL mob_kalecgosAI : public ScriptedAI
 {
-    boss_kalecgosAI(Creature* c) : ScriptedAI(c)
+    mob_kalecgosAI(Creature* c) : ScriptedAI(c)
     {
-        for(uint8 i = 0; i < 4; ++i)
-            Orb[i] = 0;
-
-        FindOrbs();
-
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();
     }
+    ScriptedInstance* pInstance;
 
     uint64 Orb[4];
-
     uint8 OrbsEmpowered;
-
     uint32 EmpowerTimer;
 
     void Reset()
     {
         EmpowerTimer = 0;
+        OrbsEmpowered = 0;
+
+        for(uint8 i = 0; i < 4; ++i)
+            Orb[i] = 0;
+
+        FindOrbs();
+
+        m_creature->SetVisibility(VISIBILITY_OFF);
     }
 
-    void Aggro(Unit* who) {}
+    void UpdateAI(const uint32 diff) {
+        // Empower a orb
+        if (EmpowerTimer)
+            if(EmpowerTimer < diff)
+            {
+                switch(OrbsEmpowered)
+                {
+                    case 0: DoScriptText(SAY_KALECGOS_ORB1, m_creature);break;
+                    case 1: DoScriptText(SAY_KALECGOS_ORB2, m_creature);break;
+                    case 2: DoScriptText(SAY_KALECGOS_ORB3, m_creature);break;
+                    case 3: DoScriptText(SAY_KALECGOS_ORB4, m_creature);break;
+                }
+
+                EmpowerOrb();
+
+                // In last phase active another orb in short time
+                if (EmpowerTimer == 2)
+                    EmpowerTimer = 20000;
+                else
+                    EmpowerTimer = 0;
+
+            }else EmpowerTimer -= diff;
+    }
 
     void FindOrbs()
     {
@@ -223,22 +229,30 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
 
         uint8 i = 0;
         for(std::list<GameObject*>::iterator itr = orbList.begin(); itr != orbList.end(); ++itr, ++i)
+        {
             Orb[i] = (*itr)->GetGUID();
+            (*itr)->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+            (*itr)->Refresh();
+        }
     }
 
-    /*void EmpowerOrb() //i have not idea where the right value is :/
+    void EmpowerOrb()
     {
-        GameObject* orb = instance->instance->GetGameObject(Orb[OrbsEmpowered]);
-        if(!orb)
-            return;
+        if (OrbsEmpowered < 3)
+    	{
+            GameObject* orb = pInstance->instance->GetGameObject(Orb[OrbsEmpowered]);
+            if(!orb)
+                return;
 
-        orb->SetUInt32Value(GAMEOBJECT_FACTION, 35);
-        orb->Refresh();
+ //<Ntsc> usually if a spell targets a go
+ //<Ntsc> it targets it directly using spell targets 
 
-        ++OrbsEmpowered;
-    }*/
-
-    void UpdateAI(const uint32 diff) { }
+            //m_creature->CastSpell(orb, SPELL_RING_OF_BLUE_FLAME, true);
+            orb->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+            orb->Refresh();
+            ++OrbsEmpowered;
+        }
+    }
 };
 
 
@@ -280,10 +294,6 @@ struct MANGOS_DLL_DECL mob_shield_orbAI : public ScriptedAI
             }
         }
     }
-
-    void Aggro(Unit* who) { }
-    //void AttackStart(Unit* who) { }
-    void MoveInLineOfSight(Unit* who) { }
 
     void UpdateAI(const uint32 diff) {
 
@@ -387,34 +397,12 @@ struct MANGOS_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
 
     void MoveInLineOfSight(Unit* who) {
         if (!m_creature->getVictim() && who->GetTypeId() == TYPEID_PLAYER)
-            AttackStart(who);
-    }
-
-    void Aggro(Unit *who) 
-    { }
-/*
-    void AttackStart(Unit* who)
-    {
-        if (!who)
-            return;
-
-        if (who == m_creature || who->GetTypeId() != TYPEID_PLAYER)
-            return;
-
-        if (m_creature->Attack(who, true))
         {
-            m_creature->AddThreat(who, 0.0f);
-            m_creature->SetInCombatWith(who);
-            who->SetInCombatWith(m_creature);
-
-            if (!InCombat)
-            {
-                InCombat = true;
-                Aggro(who);
-            }
+            AttackStart(who);
+            DoZoneInCombat();
         }
     }
-*/
+
     void CastSinisterReflection()
     {
         Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
@@ -498,6 +486,13 @@ struct MANGOS_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
             SoulFlayTimer         = 30000;
             ShadowSpikeCount      = 30000; // shadow spike visual timer
 
+            // Active orb after 35 seconds
+            if (Creature* pKalecgos = ((Creature*)Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_KALECGOS))))
+            {
+                ((mob_kalecgosAI*)pKalecgos->AI())->EmpowerTimer = 35000;
+                //((mob_kalecgosAI*)pKalecgos->AI())->FindOrbs();
+            }
+
             Phase = PHASE_DARKNESS;
         }
         else if(Phase <= PHASE_NORMAL) return;
@@ -525,7 +520,7 @@ struct MANGOS_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
             DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_FLAME_DART);
             FlameDartTimer = 3000;
         }else FlameDartTimer -= diff;
-/* not working right
+
         // Darkness of a Thousand Souls : Begins to channel for 8 seconds, then deals 50'000 damage to all raid members.
         if(DarknessTimer < diff)
         {
@@ -559,7 +554,7 @@ struct MANGOS_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
                 DoCast(m_creature, SPELL_DARKNESS_OF_A_THOUSAND_SOULS_EFFECT);
                 DarknessBombTimer = 0;
             }else DarknessBombTimer -= diff;
-*/
+
         // *****************************************
         // *********** Phase 4 spells **************
         // *****************************************
@@ -581,6 +576,10 @@ struct MANGOS_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
             ArmageddonTimer      += 30000;
             SoulFlayTimer         = 30000;
             ShadowSpikeCount      = 30000; // shadow spike visual timer
+
+            // Active orb after 35 seconds
+            if (Creature* pKalecgos = ((Creature*)Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_KALECGOS))))
+                ((mob_kalecgosAI*)pKalecgos->AI())->EmpowerTimer = 35000;
 
             Phase = PHASE_ARMAGEDDON;
         }
@@ -623,6 +622,10 @@ struct MANGOS_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
             FlameDartTimer       += 30000;
             ArmageddonTimer      += 30000;
             SoulFlayTimer         = 30000;
+
+            // Active orb after 35 seconds
+            if (Creature* pKalecgos = ((Creature*)Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_KALECGOS))))
+                ((mob_kalecgosAI*)pKalecgos->AI())->EmpowerTimer = 35000;
 
             Phase = PHASE_SACRIFICE;
         }
@@ -668,8 +671,7 @@ struct MANGOS_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
     uint32 AnveenaSpeechCounter;
     bool DevicerChanneling;
     bool AnveenaSpellCheck;
-
-    Creature* KalecgosAnveena;
+    bool KalecgosResetCheck;
 
     void Reset()
     {
@@ -677,18 +679,24 @@ struct MANGOS_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
         event_timer = 1000;
         DevicerChanneling = false;
         AnveenaSpellCheck = false;
+        KalecgosResetCheck = false;
         AnveenaSpeech_timer = 0;
         AnveenaSpeechCounter = 0;
-        KalecgosAnveena = NULL;
 
     	m_creature->SetVisibility(VISIBILITY_ON);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
         if (pInstance)
+        {
             pInstance->SetData(DATA_KILJAEDEN_EVENT, NOT_STARTED);
-    }
 
-    void Aggro(Unit* who) {}
+            if (Creature* pKalecgosAnveena = ((Creature*)Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_KALECGOS))))
+                pKalecgosAnveena->SetVisibility(VISIBILITY_OFF);
+
+            if (Creature* pKalecgos = ((Creature*)Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_KALECGOS))))
+                ((mob_kalecgosAI*)pKalecgos->AI())->Reset();
+        }
+    }
 
     void UpdateAI(const uint32 diff)
     {
@@ -744,6 +752,7 @@ struct MANGOS_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
                             pAnveena->Relocate(1698.45, 628.03, 88.1989);
                             //pAnveena->GetMotionMaster()->MovePoint(0, 1698.45, 628.03, 88.1989);
 
+                    DoZoneInCombat();
                     Phase = PHASE_DECEIVERS;
                 }
                 // no aggro, do channeling
@@ -758,9 +767,10 @@ struct MANGOS_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
 
             if (Phase == PHASE_DECEIVERS)
             {
-            	bool DeciverDead;
-            	bool DecivernoVictim;
-            	FindHandDeceivers();
+                bool DeciverDead;
+                bool DecivernoVictim;
+                FindHandDeceivers();
+                DeciverDead = false;
                 for(std::list<uint64>::iterator itr = HandDeceivers.begin(); itr != HandDeceivers.end(); ++itr)
                 {
                     if (Creature* pCreature = ((Creature*)Unit::GetUnit(*m_creature, *itr)))
@@ -820,12 +830,14 @@ struct MANGOS_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
             {
                 Creature* pKiljaeden = ((Creature*)Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_KILJAEDEN)));
                 Creature* pAnveena = ((Creature*)Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_ANVEENA)));
+                Creature* KalecgosAnveena = ((Creature*)Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_KALECGOS)));
 
                 if (pKiljaeden && pKiljaeden->isAlive()
                     	&& pInstance && pInstance->GetData(DATA_KILJAEDEN_EVENT) == NOT_STARTED)
                 {
                     pKiljaeden->setDeathState(JUST_DIED);
                     pKiljaeden->RemoveCorpse();
+                    KalecgosAnveena->SetVisibility(VISIBILITY_OFF);
                 }
                 if (pKiljaeden && pKiljaeden->isAlive()
                     	&& pInstance && pInstance->GetData(DATA_KILJAEDEN_EVENT) == IN_PROGRESS)
@@ -849,34 +861,20 @@ struct MANGOS_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
                         AnveenaSpeech_timer = 1000;
                     }
                 }
-/*
-                if (Phase == PHASE_NOTSTART)
-                {
-                    Creature* pKiljaeden = ((Creature*)Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_KILJAEDEN)));
-                    if (pKiljaeden && pKiljaeden->isAlive()
-                    	&& pInstance && pInstance->GetData(DATA_KILJAEDEN_EVENT) == NOT_STARTED)
-                    {
-                        pKiljaeden->setDeathState(JUST_DIED);
-                        pKiljaeden->RemoveCorpse();
-                    }
-                }
-*/
 
                 // Phase 2 speech
                 if (Phase == PHASE_NORMAL && AnveenaSpeech_timer)
                 {
                     if(AnveenaSpeech_timer < diff)
                     {
-                        if (!KalecgosAnveena)
+                        if (KalecgosAnveena && KalecgosAnveena->isAlive())
                         {
-                            KalecgosAnveena = m_creature->SummonCreature(CREATURE_KALECGOS, 1685.79, 594.08, 120.20, 0.87, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
+                            KalecgosAnveena->SetVisibility(VISIBILITY_ON);
+                            KalecgosAnveena->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             KalecgosAnveena->GetMotionMaster()->MovePoint(0, 1705.87, 653.42, 120.20);
+                            DoScriptText(SAY_KALECGOS_INTRO, KalecgosAnveena);
                         }
 
-                        if (KalecgosAnveena)
-                            DoScriptText(SAY_KALECGOS_INTRO, KalecgosAnveena);
-
-                        KalecgosAnveena = NULL;
                         AnveenaSpeech_timer = 0;
                     }else AnveenaSpeech_timer -= diff;
                 }
@@ -885,12 +883,6 @@ struct MANGOS_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
                 {
                     if(AnveenaSpeech_timer < diff)
                     {
-                        if (!KalecgosAnveena)
-                        {
-                            KalecgosAnveena = m_creature->SummonCreature(CREATURE_KALECGOS, 1685.79, 594.08, 120.20, 0.87, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
-                            KalecgosAnveena->GetMotionMaster()->MovePoint(0, 1705.87, 653.42, 120.20);
-                        }
-
                         switch(AnveenaSpeechCounter)
                         {
                             case 0:
@@ -907,7 +899,6 @@ struct MANGOS_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
                                     if (pKiljaeden)
                                         DoScriptText(SAY_KJ_DENINE, pKiljaeden);
                                         AnveenaSpeech_timer = 0;
-                                        KalecgosAnveena = NULL;
                                     break;
                         }
                         AnveenaSpeechCounter++;
@@ -918,12 +909,6 @@ struct MANGOS_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
                 {
                     if(AnveenaSpeech_timer < diff)
                     {
-                        if (!KalecgosAnveena)
-                        {
-                            KalecgosAnveena = m_creature->SummonCreature(CREATURE_KALECGOS, 1685.79, 594.08, 120.20, 0.87, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
-                            KalecgosAnveena->GetMotionMaster()->MovePoint(0, 1705.87, 653.42, 120.20);
-                        }
-
                         switch(AnveenaSpeechCounter)
                         {
                             case 0:
@@ -940,7 +925,6 @@ struct MANGOS_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
                                     if (pKiljaeden)
                                         DoScriptText(SAY_KJ_CANNOT_WIN, pKiljaeden);
                                         AnveenaSpeech_timer = 0;
-                                        KalecgosAnveena = NULL;
                                     break;
                         }
                         AnveenaSpeechCounter++;
@@ -951,12 +935,6 @@ struct MANGOS_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
                 {
                     if(AnveenaSpeech_timer < diff)
                     {
-                        if (!KalecgosAnveena)
-                        {
-                            KalecgosAnveena = m_creature->SummonCreature(CREATURE_KALECGOS, 1685.79, 594.08, 120.20, 0.87, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
-                            KalecgosAnveena->GetMotionMaster()->MovePoint(0, 1705.87, 653.42, 120.20);
-                        }
-
                         switch(AnveenaSpeechCounter)
                         {
                             case 0:
@@ -998,7 +976,6 @@ struct MANGOS_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
                                 if (KalecgosAnveena)
                                     DoScriptText(SAY_KALECGOS_ENCOURAGE, KalecgosAnveena);
                                 AnveenaSpeech_timer = 0;
-                                KalecgosAnveena = NULL;
                                 break;
                         }
                         AnveenaSpeechCounter++;
@@ -1020,6 +997,15 @@ struct MANGOS_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
                         //pAnveena->GetMotionMaster()->MovePoint(0, 1698.45, 628.03, 88.1989);
                         pAnveena->Relocate(1698.45, 628.03, 88.1989);
                         AnveenaSpellCheck = true;
+                    }
+                }
+                // reset Kalecgo
+                if (Phase == PHASE_NOTSTART)
+                {
+                	if (KalecgosAnveena && KalecgosAnveena->isAlive() && !KalecgosResetCheck)
+                    {
+                	    ((mob_kalecgosAI*)KalecgosAnveena->AI())->Reset();
+                        KalecgosResetCheck = true;
                     }
                 }
             }
@@ -1076,15 +1062,10 @@ struct MANGOS_DLL_DECL mob_hand_of_the_deceiverAI : public ScriptedAI
         m_creature->CastSpell(m_creature, SPELL_SHADOW_CHANNELING, false);
     }
 
-    void Aggro(Unit *who) 
-    { }
-
     void AttackStart(Unit* who)
     {
         if (!who)
             return;
-
-        bool bInCombat = m_creature->isInCombat();
 
         if (who == m_creature || who->GetTypeId() != TYPEID_PLAYER)
             return;
@@ -1095,12 +1076,6 @@ struct MANGOS_DLL_DECL mob_hand_of_the_deceiverAI : public ScriptedAI
             m_creature->SetInCombatWith(who);
             who->SetInCombatWith(m_creature);
             m_creature->InterruptNonMeleeSpells(true);
-
-            if (!bInCombat)
-            {
-                Aggro(who);
-            }
-
             DoStartMovement(who);
         }
     }
@@ -1157,8 +1132,6 @@ struct MANGOS_DLL_DECL mob_felfire_portalAI : public Scripted_NoMovementAI
     uint32 SpawnFiendTimer;
 
     void Reset() { SpawnFiendTimer = 5000; }
-
-    void Aggro(Unit* who) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -1246,7 +1219,25 @@ CreatureAI* GetAI_mob_shield_orb(Creature *_Creature)
     return new mob_shield_orbAI (_Creature);
 }
 
-void AddSC_boss_kiljaeden()
+CreatureAI* GetAI_mob_kalecgos(Creature *_Creature)
+{
+    return new mob_kalecgosAI (_Creature);
+}
+
+bool GOHello_orb_of_the_blue_flight(Player* player, GameObject* go)
+{
+    ScriptedInstance *pInstance = (player->GetInstanceData()) ? ((ScriptedInstance*)player->GetInstanceData()) : NULL;
+
+    if (pInstance && pInstance->GetData(DATA_KILJAEDEN_EVENT) == IN_PROGRESS && !go->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
+    {
+        player->CastSpell(player, SPELL_SUMMON_BLUE_DRAKE, true);
+        player->CastSpell(player, SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, true);
+    }
+
+    return false;
+}
+
+void AddSC_boss_Kiljaeden()
 {
     Script *newscript;
 
@@ -1258,6 +1249,11 @@ void AddSC_boss_kiljaeden()
     newscript = new Script;
     newscript->Name = "mob_kiljaeden_controller";
     newscript->GetAI = &GetAI_mob_kiljaeden_controller;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_kalecgos";
+    newscript->GetAI = &GetAI_mob_kalecgos;
     newscript->RegisterSelf();
 
     newscript = new Script;
@@ -1278,5 +1274,10 @@ void AddSC_boss_kiljaeden()
     newscript = new Script;
     newscript->Name = "mob_shield_orb";
     newscript->GetAI = &GetAI_mob_shield_orb;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_orb_of_the_blue_flight";
+    newscript->pGOHello = &GOHello_orb_of_the_blue_flight;
     newscript->RegisterSelf();
 };

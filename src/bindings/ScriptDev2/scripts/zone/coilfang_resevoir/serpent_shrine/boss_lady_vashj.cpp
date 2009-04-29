@@ -27,7 +27,8 @@ EndScriptData */
 #include "Item.h"
 #include "Spell.h"
 
-enum {
+enum
+{
     SAY_INTRO                   = -1548042,
     SAY_AGGRO1                  = -1548043,
     SAY_AGGRO2                  = -1548044,
@@ -214,8 +215,8 @@ struct MANGOS_DLL_DECL boss_lady_vashjAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        //to prevent abuses during m_uiPhase 2
-        if (m_uiPhase == 2 && !m_creature->getVictim() && !m_creature->isInCombat())
+        //to prevent abuses during phase 2
+        if (m_uiPhase == 2 && !m_creature->getVictim() && m_creature->isInCombat())
             EnterEvadeMode();
 
         //Return since we have no target
@@ -473,7 +474,7 @@ struct MANGOS_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
                 {
                     if (pVashj->IsWithinDistInMap(m_creature, 5.0f))
                         DoCast(pVashj, SPELL_SURGE); //increase lady vashj damage
-                    else if (!((boss_lady_vashjAI*)((Creature*)pVashj)->AI())->m_creature->isInCombat())
+                    else if (!pVashj->isInCombat())
                         m_creature->setDeathState(JUST_DIED); //call Unsummon()
                 }
             }

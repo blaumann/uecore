@@ -17,53 +17,67 @@
 /* ScriptData
 SDName: Boss_Morogrim_Tidewalker
 SD%Complete: 90
-SDComment: Water globules don't explode properly, code cleanup needed
+SDComment:
 SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
 #include "precompiled.h"
 #include "def_serpent_shrine.h"
 
-enum {
-    SAY_AGGRO                    = -1548030,
-    SAY_SUMMON1                  = -1548031,
-    SAY_SUMMON2                  = -1548032,
-    SAY_SUMMON_BUBL1             = -1548033,
-    SAY_SUMMON_BUBL2             = -1548034,
-    SAY_SLAY1                    = -1548035,
-    SAY_SLAY2                    = -1548036,
-    SAY_SLAY3                    = -1548037,
-    SAY_DEATH                    = -1548038,
-    EMOTE_WATERY_GRAVE           = -1548039,
-    EMOTE_EARTHQUAKE             = -1548040,
-    EMOTE_WATERY_GLOBULES        = -1548041,
+enum
+{
+    SAY_AGGRO                       = -1548030,
+    SAY_SUMMON1                     = -1548031,
+    SAY_SUMMON2                     = -1548032,
+    SAY_SUMMON_BUBL1                = -1548033,
+    SAY_SUMMON_BUBL2                = -1548034,
+    SAY_SLAY1                       = -1548035,
+    SAY_SLAY2                       = -1548036,
+    SAY_SLAY3                       = -1548037,
+    SAY_DEATH                       = -1548038,
+    EMOTE_WATERY_GRAVE              = -1548039,
+    EMOTE_EARTHQUAKE                = -1548040,
+    EMOTE_WATERY_GLOBULES           = -1548041,
 
-    SPELL_TIDAL_WAVE             = 37730,
-    SPELL_WATERY_GRAVE           = 38049,
-    SPELL_EARTHQUAKE             = 37764,
-    SPELL_WATERY_GRAVE_EXPLOSION = 37852,
+    SPELL_TIDAL_WAVE                = 37730,
+    SPELL_EARTHQUAKE                = 37764,
 
-    WATER_GLOBULE                = 21913,
-    TIDEWALKER_LURKER            = 21920
-};
+    SPELL_WATERY_GRAVE_1            = 37850,
+    SPELL_WATERY_GRAVE_2            = 38023,
+    SPELL_WATERY_GRAVE_3            = 38024,
+    SPELL_WATERY_GRAVE_4            = 38025,
 
-const float afWateryGrave[4][3] = {
-    {334.64f, -728.89f, -14.42f},
-    {365.51f, -737.14f, -14.44f},
-    {366.19f, -709.59f, -14.36f},
-    {372.93f, -690.96f, -14.44f}
+    SPELL_SUMMON_MURLOC_A6          = 39813,
+    SPELL_SUMMON_MURLOC_A7          = 39814,
+    SPELL_SUMMON_MURLOC_A8          = 39815,
+    SPELL_SUMMON_MURLOC_A9          = 39816,
+    SPELL_SUMMON_MURLOC_A10         = 39817,
+
+    SPELL_SUMMON_MURLOC_B6          = 39818,
+    SPELL_SUMMON_MURLOC_B7          = 39819,
+    SPELL_SUMMON_MURLOC_B8          = 39820,
+    SPELL_SUMMON_MURLOC_B9          = 39821,
+    SPELL_SUMMON_MURLOC_B10         = 39822,
+
+    SPELL_SUMMON_GLOBULE_1          = 37854,
+    SPELL_SUMMON_GLOBULE_2          = 37858,
+    SPELL_SUMMON_GLOBULE_3          = 37860,
+    SPELL_SUMMON_GLOBULE_4          = 37861,
+
+    NPC_WATER_GLOBULE               = 21913,
+    NPC_TIDEWALKER_LURKER           = 21920
 };
 
 //Morogrim Tidewalker AI
 struct MANGOS_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
 {
-    boss_morogrim_tidewalkerAI(Creature* c) : ScriptedAI(c)
+    boss_morogrim_tidewalkerAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
-    ScriptedInstance* m_pInstance; // the instance
+    ScriptedInstance* m_pInstance;                          // the instance
 
     // timers
     uint32 m_uiTidalWave_Timer;
@@ -88,14 +102,6 @@ struct MANGOS_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
             m_pInstance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, NOT_STARTED);
     }
 
-    void StartEvent()
-    {
-        DoScriptText(SAY_AGGRO, m_creature);
-
-        if (m_pInstance)
-            m_pInstance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, IN_PROGRESS);
-    }
-
     void KilledUnit(Unit* pVictim)
     {
         switch(rand()%3)
@@ -116,42 +122,31 @@ struct MANGOS_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
 
     void Aggro(Unit* pWho)
     {
-        StartEvent();
+        DoScriptText(SAY_AGGRO, m_creature);
+
+        if (m_pInstance)
+            m_pInstance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, IN_PROGRESS);
     }
 
-    void ApplyWateryGrave(Unit* pPlayer, uint8 uiPos)
+    void JustSummoned(Creature* pSummoned)
     {
-        float afPos[3];
-
-        memcpy(&afPos, &afWateryGrave[uiPos], sizeof(afWateryGrave[uiPos]));
-
-        DoTeleportPlayer(pPlayer, afPos[0], afPos[1], afPos[2]+1, pPlayer->GetOrientation());
-        DoCast(pPlayer, SPELL_WATERY_GRAVE);
-    }
-
-    void SummonMurloc(float fX, float fY, float fZ)
-    {
-        
-        if (Creature *pSummoned = m_creature->SummonCreature(TIDEWALKER_LURKER, fX, fY, fZ, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+        if (pSummoned->GetEntry() == NPC_TIDEWALKER_LURKER)
         {
-            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 pSummoned->AI()->AttackStart(pTarget);
         }
-    }
 
-    void SummonWaterGlobule(float fX, float fY, float fZ)
-    {
-        if (Creature *pGlobule = m_creature->SummonCreature(WATER_GLOBULE, fX, fY, fZ, 0, TEMPSUMMON_TIMED_DESPAWN, 30000))
+        if (pSummoned->GetEntry() == NPC_WATER_GLOBULE)
         {
-            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                pGlobule->AI()->AttackStart(pTarget);
+            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                pSummoned->GetMotionMaster()->MoveFollow(pTarget, 0.0f, 0.0f);
         }
     }
 
     void UpdateAI(const uint32 uiDiff)
     {
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
         //m_uiEarthquake_Timer
@@ -161,27 +156,25 @@ struct MANGOS_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
             {
                 DoCast(m_creature->getVictim(), SPELL_EARTHQUAKE);
                 m_bEarthquake = true;
-                m_uiEarthquake_Timer = 10000;
+                m_uiEarthquake_Timer = 5000;
             }
             else
             {
                 DoScriptText(urand(0,1) ? SAY_SUMMON1 : SAY_SUMMON2, m_creature);
 
                 //north
-                SummonMurloc(486.10f, -723.64f, -7.14f);
-                SummonMurloc(482.58f, -723.78f, -7.14f);
-                SummonMurloc(479.38f, -723.91f, -7.14f);
-                SummonMurloc(476.03f, -723.86f, -7.14f);
-                SummonMurloc(472.69f, -723.69f, -7.14f);
-                SummonMurloc(469.04f, -723.63f, -7.14f);
+                m_creature->CastSpell(m_creature,SPELL_SUMMON_MURLOC_A6,true);
+                m_creature->CastSpell(m_creature,SPELL_SUMMON_MURLOC_A7,true);
+                m_creature->CastSpell(m_creature,SPELL_SUMMON_MURLOC_A8,true);
+                m_creature->CastSpell(m_creature,SPELL_SUMMON_MURLOC_A9,true);
+                m_creature->CastSpell(m_creature,SPELL_SUMMON_MURLOC_A10,true);
 
                 //south
-                SummonMurloc(311.63f, -725.04f, -13.15f);
-                SummonMurloc(307.81f, -725.34f, -13.15f);
-                SummonMurloc(303.91f, -725.64f, -13.06f);
-                SummonMurloc(300.23f, -726.0f , -11.89f);
-                SummonMurloc(296.82f, -726.33f, -10.82f);
-                SummonMurloc(293.64f, -726.64f, -9.81f );
+                m_creature->CastSpell(m_creature,SPELL_SUMMON_MURLOC_B6,true);
+                m_creature->CastSpell(m_creature,SPELL_SUMMON_MURLOC_B7,true);
+                m_creature->CastSpell(m_creature,SPELL_SUMMON_MURLOC_B8,true);
+                m_creature->CastSpell(m_creature,SPELL_SUMMON_MURLOC_B9,true);
+                m_creature->CastSpell(m_creature,SPELL_SUMMON_MURLOC_B10,true);
 
                 DoScriptText(EMOTE_EARTHQUAKE, m_creature);
 
@@ -206,13 +199,22 @@ struct MANGOS_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
                 for(uint8 i = 0; i < 4; i++)
                 {
                     Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
-                    if (pTarget && (pTarget->GetTypeId() == TYPEID_PLAYER) && !pTarget->HasAura(SPELL_WATERY_GRAVE, 0) && pTarget->IsWithinDistInMap(m_creature, 50))
-                        ApplyWateryGrave(pTarget, i);
+
+                    if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER && !pTarget->HasAuraType(SPELL_AURA_MOD_STUN) && pTarget->IsWithinDistInMap(m_creature, 45.0f))
+                    {
+                        switch(i)
+                        {
+                            case 0: m_creature->CastSpell(pTarget,SPELL_WATERY_GRAVE_1,false); break;
+                            case 1: m_creature->CastSpell(pTarget,SPELL_WATERY_GRAVE_2,false); break;
+                            case 2: m_creature->CastSpell(pTarget,SPELL_WATERY_GRAVE_3,false); break;
+                            case 3: m_creature->CastSpell(pTarget,SPELL_WATERY_GRAVE_4,false); break;
+                        }
+                    }
                 }
 
                 DoScriptText(urand(0,1) ? SAY_SUMMON_BUBL1 : SAY_SUMMON_BUBL2, m_creature);
-
                 DoScriptText(EMOTE_WATERY_GRAVE, m_creature);
+
                 m_uiWateryGrave_Timer = 30000;
             }else m_uiWateryGrave_Timer -= uiDiff;
 
@@ -225,12 +227,12 @@ struct MANGOS_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
             //m_uiWateryGlobules_Timer
             if (m_uiWateryGlobules_Timer < uiDiff)
             {
-                SummonWaterGlobule(afWateryGrave[0][0], afWateryGrave[0][1], afWateryGrave[0][2]);
-                SummonWaterGlobule(afWateryGrave[1][0], afWateryGrave[1][1], afWateryGrave[1][2]);
-                SummonWaterGlobule(afWateryGrave[2][0], afWateryGrave[2][1], afWateryGrave[2][2]);
-                SummonWaterGlobule(afWateryGrave[3][0], afWateryGrave[3][1], afWateryGrave[3][2]);
-
                 DoScriptText(EMOTE_WATERY_GLOBULES, m_creature);
+
+                m_creature->CastSpell(m_creature,SPELL_SUMMON_GLOBULE_1,true);
+                m_creature->CastSpell(m_creature,SPELL_SUMMON_GLOBULE_2,true);
+                m_creature->CastSpell(m_creature,SPELL_SUMMON_GLOBULE_3,true);
+                m_creature->CastSpell(m_creature,SPELL_SUMMON_GLOBULE_4,false);
 
                 m_uiWateryGlobules_Timer = 25000;
             }else m_uiWateryGlobules_Timer -= uiDiff;
@@ -251,10 +253,7 @@ struct MANGOS_DLL_DECL mob_water_globuleAI : public ScriptedAI
     void Reset()
     {
         m_uiCheck_Timer = 1000;
-
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->setFaction(14);
     }
 
     void MoveInLineOfSight(Unit* pWho)
@@ -273,7 +272,7 @@ struct MANGOS_DLL_DECL mob_water_globuleAI : public ScriptedAI
     void UpdateAI(const uint32 uiDiff)
     {
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
         if (m_uiCheck_Timer < uiDiff)

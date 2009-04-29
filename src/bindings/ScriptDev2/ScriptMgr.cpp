@@ -623,7 +623,7 @@ extern void AddSC_boss_brutallus();
 extern void AddSC_boss_eredar_twins();
 extern void AddSC_boss_felmyst();
 extern void AddSC_boss_kalecgos();
-extern void AddSC_boss_kiljaeden();
+extern void AddSC_boss_Kiljaeden();
 extern void AddSC_boss_muru_entropius();
 extern void AddSC_instance_sunwell_plateau();
 
@@ -1685,7 +1685,7 @@ void ScriptsInit()
     AddSC_boss_felmyst();
     AddSC_boss_eredar_twins();
     AddSC_boss_muru_entropius();
-    AddSC_boss_kiljaeden();
+    AddSC_boss_Kiljaeden();
 
     //Swamp of Sorrows
     /* Not Implemented */

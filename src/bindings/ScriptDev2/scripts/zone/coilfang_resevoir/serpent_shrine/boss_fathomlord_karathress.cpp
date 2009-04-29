@@ -24,7 +24,8 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_serpent_shrine.h"
 
-enum {
+enum
+{
     SAY_AGGRO                       = -1548021,
     SAY_GAIN_BLESSING               = -1548022,
     SAY_GAIN_ABILITY1               = -1548023,

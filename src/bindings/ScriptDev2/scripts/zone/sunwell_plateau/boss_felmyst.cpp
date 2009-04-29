@@ -257,7 +257,6 @@ struct MANGOS_DLL_DECL boss_felmystAI : public ScriptedAI
         if(summon->GetEntry() == MOB_DEAD)
         {
             summon->AI()->AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
-            DoZoneInCombat(summon);
             summon->CastSpell(summon, SPELL_DEAD_PASSIVE, true);
         }
     }
@@ -575,9 +574,9 @@ struct MANGOS_DLL_DECL mob_felmyst_vaporAI : public ScriptedAI
 
     void Aggro(Unit* who)
     {
-        DoZoneInCombat();
         //m_creature->CastSpell(m_creature, SPELL_VAPOR_FORCE, true); //core bug
     }
+
     void UpdateAI(const uint32 diff)
     {
         if(!m_creature->getVictim())
@@ -598,7 +597,6 @@ struct MANGOS_DLL_DECL mob_felmyst_trailAI : public ScriptedAI
         m_creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 0.01); // core bug
     }
     void Reset() {}
-    void Aggro(Unit* who) { }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
     void UpdateAI(const uint32 diff) {}

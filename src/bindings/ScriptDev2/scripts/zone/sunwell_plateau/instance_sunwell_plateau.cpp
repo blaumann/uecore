@@ -30,13 +30,23 @@ UPDATE `creature_template` SET `ScriptName` = 'mob_hand_of_the_deceiver' WHERE `
 UPDATE `creature_template` SET `ScriptName` = 'mob_felfire_portal' WHERE `entry` = '25603';
 UPDATE `creature_template` SET `ScriptName` = 'mob_volatile_felfire_fiend' WHERE `entry` = '25598';
 UPDATE `creature_template` SET `ScriptName`='mob_shield_orb',`minlevel` = 70, `maxlevel` = 70, `minhealth` = 13986, `maxhealth` = 13986, `faction_A`=14, `faction_H`=14 WHERE entry =25502;
+UPDATE `creature_template` SET `ScriptName` = 'mob_kalecgos' WHERE `entry` = '25319';
+UPDATE `gameobject_template` SET `ScriptName`='go_orb_of_the_blue_flight', `type`=10 WHERE `entry`=188415;
 UPDATE `instance_template` SET `script`='instance_sunwell_plateau' WHERE `map`=580;
-UPDATE `creature_template` SET `minlevel` = 70, `maxlevel` = 70, `minmana` = 10000, `maxmana` = 10000, `InhabitType`=4 WHERE entry =26046;
+UPDATE `creature_template` SET `minlevel` = 70, `maxlevel` = 70, `minhealth` = 1, `maxhealth` = 1, `minmana` = 10000, `maxmana` = 10000, `InhabitType`=4 WHERE entry =26046;
+UPDATE `creature_template` SET `minlevel` = 70, `maxlevel` = 70, `minhealth` = 97805, `maxhealth` = 97805, `minmana` = 10000, `maxmana` = 10000, `spell1` = 45862, `spell2` = 45860, `spell3` = 45856, `spell4` = 45848 WHERE entry =25653;
 DELETE FROM `creature` WHERE map = 580 AND `id` in (25038, 26046);
 INSERT INTO `creature` (`id`, `map`, `spawnMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`) VALUES 
 (25038, 580, 1, 0, 0, 1459.35, 636.81, 19.9428, 4.93474, 25, 0, 0, 6100000, 4164, 0, 0),
-(26046, 580, 1, 0, 0, 1698.45, 628.03, 28.1989, 0.331613, 25, 0, 0, 1, 1, 0, 0);
+(26046, 580, 1, 0, 0, 1698.45, 628.03, 28.1989, 0.331613, 25, 0, 0, 1, 1, 0, 0),
+(25319, 580, 1, 0, 0, 1685.79, 594.08, 120.20, 0.87, 25, 0, 0, 1, 1, 0, 0);
 UPDATE gameobject SET `state`='1' WHERE `map`=580 AND `id` IN (188075,187766,187764,187990,188118,187765);
+DELETE FROM `gameobject` WHERE `id` in (188415);
+INSERT INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
+('188415','580','1','1','1703.912','581.981','28.132','1.761','0.0','0.0','0.0','1.0','180','0','1'),
+('188415','580','1','1','1747.589','621.556','28.05','3.111','0.0','0.0','0.0','1.0','180','0','1'),
+('188415','580','1','1','1694.322','676.565','28.05','4.808','0.0','0.0','0.0','1.0','180','0','1'),
+('188415','580','1','1','1651.385','635.547','28.142','6.163','0.0','0.0','0.0','1.0','180','0','1');
 */
 
 
@@ -78,6 +88,7 @@ struct MANGOS_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
     uint64 KilJaeden;
     uint64 KilJaedenController;
     uint64 Anveena;
+    uint64 Kalecgos;
 
     /** GameObjects **/
     uint64 ForceField;                                      // Kalecgos Encounter
@@ -107,6 +118,7 @@ struct MANGOS_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
         KilJaeden               = 0;
         KilJaedenController     = 0;
         Anveena                 = 0;
+        Kalecgos                = 0;
 
         /*** GameObjects ***/
         ForceField              = 0;
@@ -149,6 +161,7 @@ struct MANGOS_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
             case 25315: KilJaeden           = creature->GetGUID(); break;
             case 25608: KilJaedenController = creature->GetGUID(); break;
             case 26046: Anveena             = creature->GetGUID(); break;
+            case 25319: Kalecgos             = creature->GetGUID(); break;
         }
     }
 
@@ -168,13 +181,8 @@ struct MANGOS_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
 
     void OpenDoor(uint64 DoorGUID, bool open)
     {
-    	Player *player = GetPlayerInMap();
-
-        if (!player)
-            return;
-
-        if (GameObject *Door = instance->GetGameObject(DoorGUID))
-            Door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
+        if (open)
+            DoUseDoorOrButton(DoorGUID);
     }
 
     uint32 GetData(uint32 id)
@@ -209,6 +217,7 @@ struct MANGOS_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
             case DATA_KILJAEDEN:            return KilJaeden;           break;
             case DATA_KILJAEDEN_CONTROLLER: return KilJaedenController; break;
             case DATA_ANVEENA:              return Anveena;             break;
+            case DATA_KALECGOS:             return Kalecgos;            break;
 
             case DATA_RANDOM_SPECTRAL_PLAYER:
                 return *(SpectralRealmList.begin() + rand()%SpectralRealmList.size());
