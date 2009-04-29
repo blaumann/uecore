@@ -344,7 +344,8 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleUnused,                                    //290 unused
     &Aura::HandleUnused,                                    //291 unused
     &Aura::HandleNULL,                                      //292 call stabled pet
-    &Aura::HandleNULL                                       //293 2 test spells
+    &Aura::HandleNULL,                                       //293 2 test spells
+    &Aura::HandleNULL                                       //294 2 spells, possible prevent mana regen
 };
 
 static AuraType const frozenAuraTypes[] = { SPELL_AURA_MOD_ROOT, SPELL_AURA_MOD_STUN, SPELL_AURA_NONE };
@@ -2800,18 +2801,16 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
             case FORM_BEAR:
             case FORM_DIREBEAR:
             case FORM_CAT:
-            {
                 if(Aura* dummy = m_target->GetDummyAura(37315) )
                     m_target->CastSpell(m_target,37316,true,NULL,dummy);
                 break;
-            }
             // Nordrassil Regalia - bonus
             case FORM_MOONKIN:
-            {
                 if(Aura* dummy = m_target->GetDummyAura(37324) )
                     m_target->CastSpell(m_target,37325,true,NULL,dummy);
                 break;
-            }
+            default:
+                break;
         }
     }
 
