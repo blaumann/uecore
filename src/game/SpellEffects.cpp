@@ -4425,6 +4425,7 @@ void Spell::EffectSummonPet(uint32 i)
 
     if(m_caster->getClass() == CLASS_WARLOCK) {
         // when player get a pet first at high level, pet auto level up. (only warlock)
+        // skip learnLevelupSpellsWarlock routine in InitStatsForLevel - by set mode 1
         NewSummon->InitStatsForLevel(petlevel, 1);
     }
     else {

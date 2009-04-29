@@ -234,6 +234,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
 
     if(owner->getClass() == CLASS_WARLOCK) {
         // if player level up without pet, when player summon a pet, pet auto level up. (only warlock)
+        // skip learnLevelupSpellsWarlock routine in InitStatsForLevel - by set mode 1
         InitStatsForLevel(petlevel, 1);
     }
     else {
@@ -906,6 +907,9 @@ bool Pet::InitStatsForLevel(uint32 petlevel, uint32 mode)
                         if(mode == 0)
                         {
                             // WARLOCK
+                            // LoadPetFromDB and EffectSummonPet skip this routine.
+                            // because the spells is init after learnLevelupSpellsWarlock by _LoadSpells or InitPetCreateSpells.
+                            // so learnLevelupSpellsWarlock must perporm after pet spawned.
                             learnLevelupSpellsWarlock();
                         }
 
@@ -1144,7 +1148,13 @@ void Pet::_LoadSpells()
         {
             Field *fields = result->Fetch();
 
-            addSpell(fields[0].GetUInt32(), fields[1].GetUInt16(), PETSPELL_UNCHANGED);
+            // Warlock voidwalker check auto cast(ex. sacrifice) -- if db is no error , it doesn't need.
+            if(checkAutocastWarlock(fields[0].GetUInt32()) == 0 && fields[1].GetUInt32() == ACT_ENABLED) {
+                addSpell(fields[0].GetUInt32(), ACT_DISABLED, PETSPELL_CHANGED);
+            }
+            else {
+                addSpell(fields[0].GetUInt32(), fields[1].GetUInt16(), PETSPELL_UNCHANGED);
+            }
         }
         while( result->NextRow() );
 
@@ -1447,6 +1457,47 @@ void Pet::learnLevelupSpells()
     }
 }
 
+uint32 Pet::checkAutocastWarlock(uint32 spellid)
+{
+    Unit* owner = GetOwner();
+    if(!owner)
+    {
+        return(1);
+    }
+
+    if(owner->GetTypeId() != TYPEID_PLAYER || owner->getClass() != CLASS_WARLOCK || getPetType() != SUMMON_PET)
+    {
+        return(1);
+    }
+
+    // return value 0 = no auto cast
+    // return value 1 =    auto cast
+
+    if(!(PetLevelupSpellSet const *)(spellmgr.GetPetLevelupSpellListWarlock(GetCreatureInfo()->family))) {
+        return(1);
+    }
+
+    PetLevelupSpellMapWarlock::const_iterator spell_begin = spellmgr.GetBeginLevelupSpellListWarlock(GetCreatureInfo()->family);
+    PetLevelupSpellMapWarlock::const_iterator spell_end   = spellmgr.GetEndLevelupSpellListWarlock(GetCreatureInfo()->family);
+
+    for(PetLevelupSpellMapWarlock::const_iterator itr = spell_begin; itr != spell_end; ++itr)
+    {
+        if(itr->second.spell == spellid)
+        {
+            if(itr->second.autocast == 0)
+            {
+                // no auto cast
+                return(0);
+            }
+            else {
+                return(1);
+            }
+        }
+    }
+
+    return(1);
+}
+
 void Pet::learnLevelupSpellsWarlock()
 {
     Unit* owner = GetOwner();
@@ -1455,46 +1506,57 @@ void Pet::learnLevelupSpellsWarlock()
         return;
     }
 
-    if(owner->GetTypeId() != TYPEID_PLAYER)
+    if(owner->GetTypeId() != TYPEID_PLAYER || owner->getClass() != CLASS_WARLOCK || getPetType() != SUMMON_PET)
     {
         return;
     }
 
-    if(owner->getClass() != CLASS_WARLOCK)
-    {
-            return;
-    }
-
-    if(getPetType() != SUMMON_PET)
-    {
-            return;
-    }
-
-    PetLevelupSpellSet const *levelupSpells = spellmgr.GetPetLevelupSpellListWarlock(GetCreatureInfo()->family);
-    if(!levelupSpells)
+    if(!(PetLevelupSpellSet const *)(spellmgr.GetPetLevelupSpellListWarlock(GetCreatureInfo()->family))) {
         return;
+    }
 
     uint32 level = getLevel();
 
-    for(PetLevelupSpellSet::const_iterator itr = levelupSpells->begin(); itr != levelupSpells->end(); ++itr)
+    PetLevelupSpellMapWarlock::const_iterator spell_begin = spellmgr.GetBeginLevelupSpellListWarlock(GetCreatureInfo()->family);
+    PetLevelupSpellMapWarlock::const_iterator spell_end   = spellmgr.GetEndLevelupSpellListWarlock(GetCreatureInfo()->family);
+
+    for(PetLevelupSpellMapWarlock::const_iterator itr = spell_begin; itr != spell_end; ++itr)
     {
-        if((itr->first & 0xffff) <= level) {
+        if(itr->second.level <= level) {
 
-            if(existAddSpell(itr->second) == true) {
+            // Temporary check, this spell is the status to add ?
+            if(existAddSpell(itr->second.spell) == true) {
 
-                if(existLowRankOfSpell(itr->second) == false)
+                // this spell is low rank or same rank of spell chain against now pet spell ?
+                if(existLowRankOfSpell(itr->second.spell) == false)
                 {
-                    learnSpell(itr->second);
+                    bool levelspellhigh_exist = false;
+                    PetLevelupSpellMapWarlock::const_iterator bitr = itr;
+                    ++bitr;
+                    for( ; bitr != spell_end; ++bitr) {
+                        if(bitr->second.level <= level) {
+                            if(spellmgr.IsHighRankOfSpell(bitr->second.spell,itr->second.spell)) {
+                                levelspellhigh_exist = true;
+                                break;
+                           }
+                        }
+                    }
+
+                    if(levelspellhigh_exist == false)
+                    {
+                        // if player level up without pet, when player summon a pet, pet auto level up only one high rank of spell.
+                        learnSpell(itr->second.spell);
+                    }
                 }
             }
         }
         else {
-            if(existDeleteSpell(itr->second) == true) {
-                unlearnSpell(itr->second);
+            // Temporary check, this spell is the status to delete ?
+            if(existDeleteSpell(itr->second.spell) == true) {
+                unlearnSpell(itr->second.spell);
             }
         }
     }
-
 }
 
 bool Pet::existLowRankOfSpell(uint32 spell_id)
@@ -1835,6 +1897,14 @@ void Pet::ToggleAutocast(uint32 spellid, bool apply)
     }
 
     PetSpellMap::const_iterator itr = m_spells.find((uint16)spellid);
+
+    uint32 autocastval = checkAutocastWarlock(spellid);
+
+    if(!autocastval)
+    {
+        // Warlock no auto cast spell
+        apply = 0;
+    }
 
     int i;
 

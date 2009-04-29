@@ -561,7 +561,15 @@ typedef std::multimap<uint32, SkillLineAbilityEntry const*> SkillLineAbilityMap;
 
 typedef std::map<uint32, uint32> PetLevelupSpellSet;
 typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
-typedef std::map<uint32, PetLevelupSpellSet> WarlockPetLevelupSpellMap;
+
+struct PetLevelupSpellSetWarlock
+{
+    uint32 level;
+    uint32 spell;
+    uint32 autocast;
+};
+
+typedef std::multimap<uint32, PetLevelupSpellSetWarlock> PetLevelupSpellMapWarlock;
 
 inline bool IsPrimaryProfessionSkill(uint32 skill)
 {
@@ -813,18 +821,19 @@ class SpellMgr
                 return NULL;
         }
         
-		PetLevelupSpellSet const* GetWarlockPetLevelupSpellList(uint32 petFamily) const
+        PetLevelupSpellMapWarlock::const_iterator GetBeginLevelupSpellListWarlock(uint32 petFamily) const
         {
-            WarlockPetLevelupSpellMap::const_iterator itr = mWarlockPetLevelupSpellMap.find(petFamily);
-            if(itr != mWarlockPetLevelupSpellMap.end())
-                return &itr->second;
-            else
-                return NULL;
+            return mPetLevelupSpellMapWarlock.lower_bound(petFamily);
         }
 
-        PetLevelupSpellSet const* GetPetLevelupSpellListWarlock(uint32 petFamily) const
+        PetLevelupSpellMapWarlock::const_iterator GetEndLevelupSpellListWarlock(uint32 petFamily) const
         {
-            PetLevelupSpellMap::const_iterator itr = mPetLevelupSpellMapWarlock.find(petFamily);
+            return mPetLevelupSpellMapWarlock.upper_bound(petFamily);
+        }
+
+        PetLevelupSpellSetWarlock const* GetPetLevelupSpellListWarlock(uint32 petFamily) const
+        {
+            PetLevelupSpellMapWarlock::const_iterator itr = mPetLevelupSpellMapWarlock.find(petFamily);
             if(itr != mPetLevelupSpellMapWarlock.end())
                 return &itr->second;
             else
@@ -896,9 +905,8 @@ class SpellMgr
         SpellBonusMap      mSpellBonusMap;
         SkillLineAbilityMap mSkillLineAbilityMap;
         SpellPetAuraMap     mSpellPetAuraMap;
-		WarlockPetLevelupSpellMap mWarlockPetLevelupSpellMap;
+		PetLevelupSpellMapWarlock  mPetLevelupSpellMapWarlock;
         PetLevelupSpellMap  mPetLevelupSpellMap;
-        PetLevelupSpellMap  mPetLevelupSpellMapWarlock;
         SpellAreaMap         mSpellAreaMap;
         SpellAreaForQuestMap mSpellAreaForQuestMap;
         SpellAreaForQuestMap mSpellAreaForActiveQuestMap;

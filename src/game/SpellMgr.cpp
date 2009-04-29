@@ -2133,8 +2133,8 @@ uint32* SpellMgr::LoadPetLevelupSpellMapWarlockInit(uint32 *pet_spell_db_count)
     uint32 *pet_spell_data = NULL;
     *pet_spell_db_count = 0;
 
-    //                                                 0      1
-    QueryResult *result = WorldDatabase.PQuery("SELECT entry, spell FROM pet_levelspell");
+    //                                                 0               1         2
+    QueryResult *result = WorldDatabase.PQuery("SELECT creature_entry, spell_id, auto_cast FROM pet_levelspell");
 
     if(!result)
     {
@@ -2148,7 +2148,7 @@ uint32* SpellMgr::LoadPetLevelupSpellMapWarlockInit(uint32 *pet_spell_db_count)
 
         if(*pet_spell_db_count)
         {
-            if ((pet_spell_data = (uint32 *) malloc(*pet_spell_db_count * sizeof(uint32) * 2)) == NULL) {
+            if ((pet_spell_data = (uint32 *) malloc(*pet_spell_db_count * sizeof(uint32) * 3)) == NULL) {
                 sLog.outErrorDb(">> Loaded 0 pet dblevel spell. DB table `pet_levelspell` allocate memory error.");
                 *pet_spell_db_count = 0;
                 return(NULL);
@@ -2162,8 +2162,9 @@ uint32* SpellMgr::LoadPetLevelupSpellMapWarlockInit(uint32 *pet_spell_db_count)
         do {
             Field *fields = result->Fetch();
 
-            pet_spell_data[(pet_spell_count*2)+0] = fields[0].GetUInt32();
-            pet_spell_data[(pet_spell_count*2)+1] = fields[1].GetUInt32();
+            pet_spell_data[(pet_spell_count*3)+0] = fields[0].GetUInt32();
+            pet_spell_data[(pet_spell_count*3)+1] = fields[1].GetUInt32();
+            pet_spell_data[(pet_spell_count*3)+2] = fields[2].GetUInt32();
 
             pet_spell_count++;
 
@@ -2237,9 +2238,16 @@ void SpellMgr::LoadPetLevelupSpellMapWarlock()
 
             for(uint32 k = 0; k < warlock_pet_spell_count; k++)
             {
-                if(creatureFamily->ID == warlock_pet_spell_data[(k*2)+0] && spell->Id == warlock_pet_spell_data[(k*2)+1])
+                if(creatureFamily->ID == warlock_pet_spell_data[(k*3)+0] && spell->Id == warlock_pet_spell_data[(k*3)+1])
                 {
-                    mPetLevelupSpellMapWarlock[creatureFamily->ID][spell->spellLevel + (k*0x10000)] = spell->Id;
+                    PetLevelupSpellSetWarlock node;
+
+                    node.spell = spell->Id;
+                    node.level = spell->spellLevel;
+                    node.autocast = warlock_pet_spell_data[(k*3)+2];
+
+                    mPetLevelupSpellMapWarlock.insert(PetLevelupSpellMapWarlock::value_type(creatureFamily->ID,node));
+
                     count++;
                     break;
                 }
