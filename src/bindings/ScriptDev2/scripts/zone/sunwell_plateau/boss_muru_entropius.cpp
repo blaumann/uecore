@@ -24,49 +24,49 @@ EndScriptData */
 #include "def_sunwell_plateau.h"
 
 // Boss spells
-#define ENRAGE 26662
-#define DARKNESS 45996
-#define SHADOW_PORTAL 40280
-#define ENTROPIUS_EFFECT 46223
-#define SUMMON_BERSERKER 46037
-#define SUMMON_ENTROPIUS 46217
-#define SUMMON_FURY_MAGE 46038
-#define SUMMON_VOID_SENTINEL 45988
-#define NEGATIVE_ENERGY_TRIGGER 46009
+#define ENRAGE                            26662
+#define DARKNESS                          45996
+#define SHADOW_PORTAL                     40280
+#define ENTROPIUS_EFFECT                  46223
+#define SUMMON_BERSERKER                  46037
+#define SUMMON_ENTROPIUS                  46217
+#define SUMMON_FURY_MAGE                  46038
+#define SUMMON_VOID_SENTINEL              45988
+#define NEGATIVE_ENERGY_TRIGGER           46009
 
-#define ENTROPIUS_DARKNESS 46269 //Need's core support
-#define ENTROPIUS_VOID_ZONE 46263
+#define ENTROPIUS_DARKNESS                46269 //Need's core support
+#define ENTROPIUS_VOID_ZONE               46263
 #define ENTROPIUS_NEGATIVE_ENERGY_TRIGGER 46284 //Triggered spell need's core support
 
 //Spells casting time (in msecs)
-#define ENRAGE_TIMER 360000
-#define DARKNESS_TIMER 45000
-#define SUMMON_HUMANOIDS_TIMER 60000
-#define SUMMON_VOID_SENTINEL_TIMER 30000
+#define ENRAGE_TIMER                      360000
+#define DARKNESS_TIMER                    45000
+#define SUMMON_HUMANOIDS_TIMER            60000
+#define SUMMON_VOID_SENTINEL_TIMER        30000
 
-#define SINGULARITY_TIMER 60000
+#define SINGULARITY_TIMER                 60000
 
 //Boss Summons
-#define ID_SWB 25799
-#define ID_SWM 25798
-#define ID_DARK_FIEND 25744
-#define ID_VOID_SENTINEL 25772
+#define ID_SWB                            25799
+#define ID_SWM                            25798
+#define ID_DARK_FIEND                     25744
+#define ID_VOID_SENTINEL                  25772
 
-#define ID_SINGULARITY 25855
+#define ID_SINGULARITY                    25855
 
-#define DARK_FIEND_AURA 45934
-#define DARK_FIEND_DEBUFF 45944
+#define DARK_FIEND_AURA                   45934
+#define DARK_FIEND_DEBUFF                 45944
 
 //Distance of Mob Spawn
 #define MIN 5
 #define MAX 10
 
 //Boss sounds
-#define SOUND_CHANGE_PHASE 12560
+#define SOUND_CHANGE_PHASE                12560
 
 //Shadow Portal Spawns
-#define SP_SPAWN_Z 78
-#define ID_WORLD_TRIGGER 12999
+#define SP_SPAWN_Z                        78
+#define ID_WORLD_TRIGGER                  12999
 
 float ShadowPortalSpawn[5][3] =
 {
@@ -164,17 +164,17 @@ struct MANGOS_DLL_DECL boss_muruAI : public Scripted_NoMovementAI
 
     void JustDied(Unit* Killer)
     {
-        m_creature->SetHealth(1); //Temporarily ress M'uru allowing him to summon entropius
-        m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+        //m_creature->SetHealth(1); //Temporarily ress M'uru allowing him to summon entropius
+        //m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+        //m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-
-        m_creature->CastSpell(m_creature, ENTROPIUS_EFFECT, true);
-        m_creature->CastSpell(m_creature, SUMMON_ENTROPIUS, true);
+        Killer->CastSpell(m_creature, ENTROPIUS_EFFECT, true);
+        Killer->CastSpell(m_creature, SUMMON_ENTROPIUS, true);
         DoPlaySoundToSet(m_creature, SOUND_CHANGE_PHASE);
-        m_creature->SetVisibility(VISIBILITY_OFF);
+        //m_creature->SetVisibility(VISIBILITY_OFF);
+        m_creature->RemoveCorpse();
 
-        KillMob(m_creature);
+        //KillMob(m_creature);
         for (uint8 i = 0; i < 5; i++)
         {
             KillMob(WayPoint[i]);
@@ -357,8 +357,6 @@ struct MANGOS_DLL_DECL dark_fiendAI : public ScriptedAI
 {
     dark_fiendAI(Creature *c) : ScriptedAI(c) { Reset(); }
 
-    uint32 SingularityTimer;
-
     void Reset() {}
 
     void Aggro(Unit *who)
@@ -382,15 +380,13 @@ struct MANGOS_DLL_DECL dark_fiendAI : public ScriptedAI
             if( m_creature->IsWithinDistInMap(m_creature->getVictim(), ATTACK_DISTANCE))
             {
                 m_creature->CastSpell(m_creature->getVictim(), DARK_FIEND_DEBUFF, true);
-                m_creature->AttackerStateUpdate(m_creature->getVictim());
-                m_creature->resetAttackTimer();
+                //m_creature->AttackerStateUpdate(m_creature->getVictim());
+                //m_creature->resetAttackTimer();
             }
         }
+        DoMeleeAttackIfReady();
     }
 };
-
-
-/* Adding Scripts */
 
 CreatureAI* GetAI_boss_muru(Creature *_Creature)
 {

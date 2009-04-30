@@ -21,6 +21,7 @@ SD%Complete: 95%
 SDComment: Missing ending animation, and Sinister Reflection need to be implemented.
 SDCategory: Sunwell_Plateau
 EndScriptData */
+
 #include "precompiled.h"
 #include "def_sunwell_plateau.h"
 
@@ -50,8 +51,8 @@ EndScriptData */
 #define SPELL_SINISTER_REFLECTION_CLONE        45785 // Cause the target to become a clone of the caster.
 #define SPELL_SINISTER_REFLECTION_SUMMON       45891
 #define SPELL_SHADOW_SPIKE                     46680 // Bombard random raid members with Shadow Spikes (Very similar to Void Reaver orbs)
-#define SPELL_SHADOW_SPIKE_EFFECT              45885 // Inflicts 5100 to 6900% Shadow damage to an enemy and leaves it wounded, reducing the effectiveness of any healing by 50% for 10 sec.
 #define SPELL_SHADOW_SPIKE_VISUAL              46589
+#define SPELL_SHADOW_SPIKE_EFFECT              45885 // Inflicts 5100 to 6900% Shadow damage to an enemy and leaves it wounded, reducing the effectiveness of any healing by 50% for 10 sec.
 #define SPELL_FLAME_DART                       45740 // Bombards the raid with flames every 3(?) seconds
 #define SPELL_DARKNESS_OF_A_THOUSAND_SOULS     46605 // Begins a 8-second channeling, after which he will deal 50'000 damage to the raid
 #define SPELL_DARKNESS_OF_A_THOUSAND_SOULS_EFFECT 45657 // Deals 47500 to 52500 Shadow damage to all enemies within reach.
@@ -183,6 +184,7 @@ struct MANGOS_DLL_DECL mob_kalecgosAI : public ScriptedAI
         FindOrbs();
 
         m_creature->SetVisibility(VISIBILITY_OFF);
+        m_creature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
     }
 
     void UpdateAI(const uint32 diff) {
@@ -334,6 +336,16 @@ struct MANGOS_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();
+
+        // hack spell 45885
+        SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_SHADOW_SPIKE_EFFECT);
+        if (TempSpell && TempSpell->EffectImplicitTargetB[0] != 16)
+        {
+               TempSpell->EffectImplicitTargetA[0] = 53;
+               TempSpell->EffectImplicitTargetA[1] = 0;
+               TempSpell->EffectImplicitTargetB[0] = 16;
+               TempSpell->EffectImplicitTargetB[1] = 0;
+        }
     }
 
     /* GUIDs */
@@ -388,32 +400,41 @@ struct MANGOS_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
         // Reset the controller
         if(pInstance)
         {
-//            if(Creature* Control = ((Creature*)Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_KILJAEDEN_CONTROLLER))))
-//                ((Scripted_NoMovementAI*)Control->AI())->Reset();
-
             pInstance->SetData(DATA_KILJAEDEN_EVENT, NOT_STARTED);
         }
     }
 
+    void Aggro(Unit* who) { DoZoneInCombat(); }
+
     void MoveInLineOfSight(Unit* who) {
         if (!m_creature->getVictim() && who->GetTypeId() == TYPEID_PLAYER)
-        {
             AttackStart(who);
-            DoZoneInCombat();
-        }
     }
 
     void CastSinisterReflection()
     {
-        Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-        if (target)
-        {
-            DoCast(target, SPELL_SINISTER_REFLECTION_CLASS);
-            DoCast(target, SPELL_SINISTER_REFLECTION_CLONE);
-            DoCast(target, SPELL_SINISTER_REFLECTION_SUMMON);
-        }
+
 //        for (uint8 i = 0; i < 4; ++i) // disadvantage is it may be duplicated target
 //            DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_SINISTER_REFLECTION);
+        // workaround
+        for (uint8 i = 0; i < 4; ++i)
+        {
+            Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+            if (target)
+            {
+                Unit* pSummon = target->SummonCreature(25708, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 45000);
+                pSummon->SetDisplayId(target->GetDisplayId());
+                pSummon->setFaction(m_creature->getFaction());
+                pSummon->SetMaxHealth(target->GetMaxHealth());
+                pSummon->SetHealth(target->GetMaxHealth());
+                pSummon->CastSpell(target, SPELL_SINISTER_REFLECTION_CLASS, true);
+                pSummon->CastSpell(target, SPELL_SINISTER_REFLECTION_CLONE, true);
+                pSummon->CastSpell(target, SPELL_COPY_WEAPON, true);
+                pSummon->CastSpell(target, SPELL_COPY_WEAPON2, true);
+                pSummon->CastSpell(target, SPELL_COPY_OFFHAND, true);
+                pSummon->CastSpell(target, SPELL_COPY_OFFHAND_WEAPON, true);
+            }
+        }
 
         switch(rand()%2)
         {
@@ -473,17 +494,17 @@ struct MANGOS_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
             m_creature->InterruptNonMeleeSpells(true);
 
             // Sinister Reflection
-            //CastSinisterReflection();
+            CastSinisterReflection();
 
             // Shadow Spike
-            m_creature->CastSpell(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_SHADOW_SPIKE, true);
-            //DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_SHADOW_SPIKE);
+            DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_SHADOW_SPIKE);
 
-            SummonShieldOrbTimer += 30000;
-            FireBloomTimer       += 30000; // Don't let other spells
+            SoulFlayTimer         = 30000; // Don't let other spells
             LegionLightningTimer += 30000; // interrupt Shadow Spikes
+            FireBloomTimer       += 30000; 
+            SummonShieldOrbTimer += 30000;
             FlameDartTimer       += 30000;
-            SoulFlayTimer         = 30000;
+            //DarknessTimer        += 30000;
             ShadowSpikeCount      = 30000; // shadow spike visual timer
 
             // Active orb after 35 seconds
@@ -501,14 +522,10 @@ struct MANGOS_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
         if (ShadowSpikeCount)
             if(ShadowSpikeTimer < diff)
             {
-                // not working right, it damages Jil'Jaeden himself not player
+                // workaround
                 Unit* target (SelectUnit(SELECT_TARGET_RANDOM, 0));
                 if (target)
-                {
-                    // workaround
-                    DoCast(target, SPELL_SHADOW_SPIKE_VISUAL);
-                    target->CastSpell(target, SPELL_SHADOW_SPIKE_EFFECT, true);
-                }
+                    m_creature->CastSpell(target, SPELL_SHADOW_SPIKE_VISUAL, true);
 
                 ShadowSpikeTimer = 5000;
                 ShadowSpikeCount -= ShadowSpikeTimer;
@@ -558,23 +575,23 @@ struct MANGOS_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
         // *****************************************
         // *********** Phase 4 spells **************
         // *****************************************
-        if(Phase == PHASE_ARMAGEDDON && ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 55))
+        if(Phase == PHASE_DARKNESS && ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 55))
         {
             m_creature->InterruptNonMeleeSpells(true);
 
             // Sinister Reflection
-            //CastSinisterReflection();
+            CastSinisterReflection();
 
             // Shadow Spike
-            m_creature->CastSpell(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_SHADOW_SPIKE, true);
-            //DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_SHADOW_SPIKE);
+            DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_SHADOW_SPIKE);
 
-            SummonShieldOrbTimer += 30000;
-            FireBloomTimer       += 30000; // Don't let other spells
+            SoulFlayTimer         = 30000; // Don't let other spells
             LegionLightningTimer += 30000; // interrupt Shadow Spikes
+            FireBloomTimer       += 30000; 
+            SummonShieldOrbTimer += 30000;
             FlameDartTimer       += 30000;
+            DarknessTimer        += 30000;
             ArmageddonTimer      += 30000;
-            SoulFlayTimer         = 30000;
             ShadowSpikeCount      = 30000; // shadow spike visual timer
 
             // Active orb after 35 seconds
@@ -583,7 +600,7 @@ struct MANGOS_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
 
             Phase = PHASE_ARMAGEDDON;
         }
-        else if(Phase <= PHASE_ARMAGEDDON) return;
+        else if(Phase <= PHASE_DARKNESS) return;
 
         // Armageddon
         if(ArmageddonTimer < diff)
@@ -606,22 +623,24 @@ struct MANGOS_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
         // *****************************************
         // *********** Phase 5 spells **************
         // *****************************************
-        if(Phase == PHASE_DARKNESS && ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 25))
+        if(Phase == PHASE_ARMAGEDDON && ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 25))
         {
             m_creature->InterruptNonMeleeSpells(true);
 
             // Sinister Reflection
-            //CastSinisterReflection();
+            CastSinisterReflection();
 
             // Shadow Spike
             DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_SHADOW_SPIKE);
 
-            SummonShieldOrbTimer += 30000;
-            FireBloomTimer       += 30000; // Don't let other spells
+            SoulFlayTimer         = 30000; // Don't let other spells
             LegionLightningTimer += 30000; // interrupt Shadow Spikes
+            FireBloomTimer       += 30000; 
+            SummonShieldOrbTimer += 30000;
             FlameDartTimer       += 30000;
+            DarknessTimer        += 30000;
             ArmageddonTimer      += 30000;
-            SoulFlayTimer         = 30000;
+            ShadowSpikeCount      = 30000; // shadow spike visual timer
 
             // Active orb after 35 seconds
             if (Creature* pKalecgos = ((Creature*)Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_KALECGOS))))
@@ -629,7 +648,7 @@ struct MANGOS_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
 
             Phase = PHASE_SACRIFICE;
         }
-        else if(Phase <= PHASE_DARKNESS) return;
+        else if(Phase <= PHASE_ARMAGEDDON) return;
     }
 
     void KilledUnit(Unit *victim)
@@ -992,7 +1011,7 @@ struct MANGOS_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
                     {
                         DoCast(m_creature, SPELL_ANVEENA_ENERGY_DRAIN);
                         pAnveena->SetVisibility(VISIBILITY_ON);
-                        pAnveena->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        pAnveena->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
                         pAnveena->CastSpell(pAnveena, SPELL_ANVEENA_PRISON, true);
                         //pAnveena->GetMotionMaster()->MovePoint(0, 1698.45, 628.03, 88.1989);
                         pAnveena->Relocate(1698.45, 628.03, 88.1989);
@@ -1131,7 +1150,10 @@ struct MANGOS_DLL_DECL mob_felfire_portalAI : public Scripted_NoMovementAI
 
     uint32 SpawnFiendTimer;
 
-    void Reset() { SpawnFiendTimer = 5000; }
+    void Reset() {
+        SpawnFiendTimer = 5000;
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+    }
 
     void UpdateAI(const uint32 diff)
     {

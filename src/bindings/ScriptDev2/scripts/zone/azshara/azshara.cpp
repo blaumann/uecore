@@ -501,14 +501,14 @@ void AddSC_azshara()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_rizzle_sprysprocket";
+    newscript->Name = "mob_rizzle_sprysprocket";
     newscript->GetAI = GetAI_mob_rizzle_sprysprocket;
     newscript->pGossipHello =  &GossipHello_mob_rizzle_sprysprocket;
     newscript->pGossipSelect = &GossipSelect_mob_rizzle_sprysprocket;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_depth_charge";
+    newscript->Name = "mob_depth_charge";
     newscript->GetAI = GetAI_mob_depth_charge;
     newscript->RegisterSelf();
 }
