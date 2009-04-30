@@ -35,6 +35,7 @@ enum
     SAY_CORRUPT_SLAY1           = -1548006,
     SAY_CORRUPT_SLAY2           = -1548007,
     SAY_CORRUPT_DEATH           = -1548008,
+
     SWITCH_RADIUS               = 18,
 
     MODEL_CORRUPT               = 20609,
@@ -58,6 +59,7 @@ enum
     SPELL_SUMMON_WATER_ELEMENT  = 36459,                    //not in use yet(in use ever?)
     SPELL_ELEMENTAL_SPAWNIN     = 25035,
     SPELL_BLUE_BEAM             = 38015,                    //channeled Hydross Beam Helper (not in use yet)
+
     NPC_PURE_SPAWN              = 22035,
     NPC_TAINTED_SPAWN           = 22036
 };
@@ -150,7 +152,8 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
     void SpawnAdds()
     {
         for(uint8 i = 0; i < 4; ++i)
-            DoSpawnCreature(m_bCorruptedForm ? NPC_TAINTED_SPAWN : NPC_PURE_SPAWN, afSpawnDiffs[i][0], afSpawnDiffs[i][1], 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+            DoSpawnCreature(m_bCorruptedForm ? NPC_TAINTED_SPAWN : NPC_PURE_SPAWN,
+                afSpawnDiffs[i][0], afSpawnDiffs[i][1], 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
     }
 
     void UpdateAI(const uint32 uiDiff)
