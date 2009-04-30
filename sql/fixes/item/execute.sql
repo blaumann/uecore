@@ -1,0 +1,1 @@
+UPDATE `item_template` SET `ScriptName`='item_jeremiahs_tools' WHERE `entry`=35943;

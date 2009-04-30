@@ -41,6 +41,7 @@ item_voodoo_charm                   Provide proper error message and target(q256
 item_vorenthals_presence(i30259)    Prevents abuse of this item
 item_yehkinyas_bramble(i10699)      Allow cast spell on vale screecher only and remove corpse if cast sucessful (q3520)
 item_zezzak_shard(i31463)           Quest The eyes of Grillok (q10813). Prevents abuse
++item_jeremiahs_tools(i35943)        Quest Repurposed Technology (q12035). Prevents abuse
 EndContentData */
 
 #include "precompiled.h"
@@ -527,6 +528,26 @@ bool ItemUse_item_pouch_crushed_bloodspore(Player *player, Item* _Item, SpellCas
         return true;
 }
 
+/*#####
+# item_jeremiahs_tools
+#####*/
+
+bool ItemUse_item_jeremiahs_tools(Player *player, Item* _Item, SpellCastTargets const& targets)
+{
+    if (targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId()==TYPEID_UNIT &&
+        targets.getUnitTarget()->GetEntry() == 25623 &&     //Harvest Collector
+        targets.getUnitTarget()->isDead() &&                //Harvest Collector must be dead
+        player->GetQuestStatus(12035) == QUEST_STATUS_INCOMPLETE //quest Repurposed Technology must be incompleted
+        )
+    {
+        ((Creature*)(targets.getUnitTarget()))->RemoveCorpse(); //Remove corpse to prevent multiple use of item on one creature
+        return false;
+    }
+                        
+    player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,_Item,NULL);
+    return true;
+}
+
 void AddSC_item_scripts()
 {
     Script *newscript;
@@ -654,5 +675,10 @@ void AddSC_item_scripts()
     newscript = new Script;
     newscript->Name = "item_pouch_crushed_bloodspore";
     newscript->pItemUse = &ItemUse_item_pouch_crushed_bloodspore;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "item_jeremiahs_tools";
+    newscript->pItemUse = &ItemUse_item_jeremiahs_tools;
     newscript->RegisterSelf();
 }
