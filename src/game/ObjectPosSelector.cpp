@@ -118,7 +118,7 @@ bool ObjectPosSelector::NextUsedAngle(float& angle)
             if(localDebug) sLog.outError("ObjectPosSelector::NextUsedAngle: RETURN POINT 1 (angle = %f)", angle);
             return true;
         }
-            
+
         if(++localCounter > 100) {
             sLog.outError("ObjectPosSelector::NextUsedAngle: WHILE LOOP more then 100 iterations, BREAK (angle = %f)", angle);
             break;

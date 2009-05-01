@@ -3864,6 +3864,26 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
                 }
                 break;
             }
+			case SCRIPT_COMMAND_ADD_QUEST_COUNT:
+			{
+				Quest const* quest = GetQuestTemplate(tmp.datalong);
+				if( tmp.datalong2 > 4 )
+				{
+					sLog.outErrorDb("Table `%s` has x for requirement [] (x: %u) in SCRIPT_COMMAND_ADD_QUEST_COUNT in `datalong2` for script id %u",tablename,tmp.datalong2,tmp.id);
+					continue;
+				}
+				if( tmp.dataint < 1 )
+				{
+					sLog.outErrorDb("Table `%s` has increment value (Value: %u) in SCRIPT_COMMAND_ADD_QUEST_COUNT in `dataint` for script id %u",tablename,tmp.dataint,tmp.id);
+					continue;
+				}
+				if(!quest)
+				{
+					sLog.outErrorDb("Table `%s` has invalid quest (ID: %u) in SCRIPT_COMMAND_ADD_QUEST_COUNT in `datalong` for script id %u",tablename,tmp.datalong,tmp.id);
+					continue;
+				}
+				break;
+			} 
         }
 
         if (scripts.find(tmp.id) == scripts.end())
@@ -3941,7 +3961,7 @@ void ObjectMgr::LoadSpellScripts()
             if( !spellInfo->Effect[i] )
                 continue;
 
-            if( spellInfo->Effect[i] == SPELL_EFFECT_SCRIPT_EFFECT )
+            if( spellInfo->Effect[i] == SPELL_EFFECT_SCRIPT_EFFECT || spellInfo->Effect[i] == SPELL_EFFECT_SEND_EVENT )
             {
                 found =  true;
                 break;
@@ -6605,6 +6625,46 @@ const char *ObjectMgr::GetMangosString(int32 entry, int locale_idx) const
     else
         sLog.outErrorDb("Mangos string entry %i not found in DB.",entry);
     return "<error>";
+}
+
+void ObjectMgr::LoadSpellDisabledEntrys()
+{
+    m_spell_disabled.clear();                                // need for reload case
+    QueryResult *result = WorldDatabase.Query("SELECT entry, ischeat_spell FROM spell_disabled where active=1");
+
+    uint32 total_count = 0;
+	uint32 cheat_spell_count=0;
+
+    if( !result )
+    {
+        barGoLink bar( 1 );
+        bar.step();
+
+        sLog.outString();
+        sLog.outString( ">> Loaded %u disabled spells", total_count );
+        return;
+    }
+
+    barGoLink bar( result->GetRowCount() );
+
+    Field* fields;
+    do
+    {
+        bar.step();
+        fields = result->Fetch();
+        uint32 spellid = fields[0].GetUInt32();
+		bool ischeater = fields[1].GetBool();
+        m_spell_disabled[spellid] = ischeater;
+        ++total_count;
+		if(ischeater)
+		++cheat_spell_count;
+
+   } while ( result->NextRow() );
+
+    delete result;
+
+    sLog.outString();
+    sLog.outString( ">> Loaded %u disabled spells ( %u - is cheaters spells)", total_count, cheat_spell_count);
 }
 
 void ObjectMgr::LoadFishingBaseSkillLevel()

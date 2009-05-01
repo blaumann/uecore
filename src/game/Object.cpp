@@ -1142,6 +1142,15 @@ float WorldObject::GetDistance(const float x, const float y, const float z) cons
     return ( dist > 0 ? dist : 0);
 }
 
+float WorldObject::GetDistance(const float x, const float y, const float z, const float sx, const float sy, const float sz) const
+{
+    float dx =  x - sx;
+    float dy =  y - sy;
+    float dz =  z - sz;
+    float dist = sqrt((dx*dx) + (dy*dy) + (dz*dz));
+    return ( dist > 0 ? dist : 0);
+}
+
 float WorldObject::GetDistance2d(const WorldObject* obj) const
 {
     float dx = GetPositionX() - obj->GetPositionX();
@@ -1317,22 +1326,6 @@ void Object::ForceValuesUpdateAtIndex(uint32 i)
 			m_objectUpdated = true;
 		}
 	}
-}
-
-GameObject* WorldObject::SummonGameObject(uint32 id, float x, float y, float z, float ang, uint32 despwtime)
-{
-  GameObject* pGameObj = new GameObject;
-
-  if(!pGameObj->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), id, GetMap(), GetPhaseMask(), x, y, z, ang, 0, 0, 0, 0, 100, GO_STATE_READY))
-  {
-    delete pGameObj;
-    return NULL;
-  }
-  pGameObj->SetRespawnTime(despwtime > 0 ? despwtime/1000 : 0);
-
-  GetMap()->Add(pGameObj);
-
-  return pGameObj;
 }
 
 namespace MaNGOS
@@ -1570,41 +1563,55 @@ Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, floa
     return pCreature;
 }
 
-Vehicle* WorldObject::SummonVehicle(uint32 entry, float x, float y, float z, float ang)
+GameObject* WorldObject::SummonGameObject(uint32 id, float x, float y, float z, float ang, uint32 despwtime)
 {
-    CreatureInfo const *ci = objmgr.GetCreatureTemplate(entry);
-    if(!ci)
-        return false;
+	GameObject* pGameObj = new GameObject;
 
-    uint32 id = ci->spells[7]; //temp store id here
-    VehicleEntry const *ve = sVehicleStore.LookupEntry(id);
-    if(!ve)
-        return false;
+	if(!pGameObj->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), id, GetMap(), GetPhaseMask(), x, y, z, ang, 0, 0, 0, 0, 100, GO_STATE_READY))
+	{
+		delete pGameObj;
+		return NULL;
+	}
 
-    Vehicle *v = new Vehicle;
-    Map *map = GetMap();
-    uint32 team = 0;
-    if (GetTypeId()==TYPEID_PLAYER)
-        team = ((Player*)this)->GetTeam();
-    if(!v->Create(objmgr.GenerateLowGuid(HIGHGUID_VEHICLE), map, entry, id, team))
-    {
-        delete v;
-        return NULL;
-    }
+	pGameObj->SetRespawnTime(despwtime > 0 ? despwtime/1000 : 0);
 
-    v->Relocate(x, y, z, ang);
+	GetMap()->Add(pGameObj);
 
-    if(!v->IsPositionValid())
-    {
-        sLog.outError("ERROR: Vehicle (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
-            v->GetGUIDLow(), v->GetEntry(), v->GetPositionX(), v->GetPositionY());
-        delete v;
-        return NULL;
-    }
+	return pGameObj;
+}
 
-    map->Add((Creature*)v);
+Vehicle* WorldObject::SummonVehicle(uint32 entry, uint32 vehicleId, float x, float y, float z, uint32 team)
+{
+	CreatureInfo const *ci = objmgr.GetCreatureTemplate(entry);
 
-    return v;
+	if(!ci)
+		return NULL;
+
+	VehicleEntry const *ve = sVehicleStore.LookupEntry(vehicleId);
+
+	if(!ve)
+		return NULL;
+
+	Vehicle *v = new Vehicle;
+	if(!v->Create(objmgr.GenerateLowGuid(HIGHGUID_VEHICLE), GetMap(), entry, vehicleId, team) )
+	{
+		delete v;
+		return NULL;
+	}
+
+	v->Relocate(x, y, z, GetOrientation());
+
+	if(!v->IsPositionValid())
+	{
+		sLog.outError("Vehicle (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
+			v->GetGUIDLow(), v->GetEntry(), v->GetPositionX(), v->GetPositionY());
+		delete v;
+		return NULL;
+	}
+
+	GetMap()->Add((Creature*)v);
+
+	return v;
 }
 
 namespace MaNGOS
@@ -1773,18 +1780,18 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, 
 
         if(IsWithinLOS(x,y,z))
             return;
-    }
 
         // Start outputting debug when angle == 0.00
         if(!angle && !localCounter) {
                 sLog.outError("WorldObject::GetNearPoint: DEBUG START (angle = %f, map_id = %u, x = %f, y = %f, z = %f)", angle, GetMapId(), x, y, z);
                 localDebug = true;
         }
-        
+
         if(++localCounter > 100) {
             sLog.outError("WorldObject::GetNearPoint: FIRST WHILE LOOP more then 100 iterations, BREAK (angle = %f, map_id = %u, x = %f, y = %f, z = %f)", angle, GetMapId(), x, y, z);
-            return;
+            break;
         }
+    }
 
     // BAD NEWS: not free pos (or used or have LOS problems)
     // Attempt find _used_ pos without LOS problem
@@ -1846,7 +1853,7 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, 
             if(localDebug) sLog.outError("WorldObject::GetNearPoint: RETURN POINT 3 (angle = %f, map_id = %u, x = %f, y = %f, z = %f)", angle, GetMapId(), x, y, z);
             return;
         }
-        
+
         if(++localCounter2 > 100) {
             sLog.outError("WorldObject::GetNearPoint: SECOND WHILE LOOP more then 100 iterations, BREAK (angle = %f, map_id = %u, x = %f, y = %f, z = %f)", angle, GetMapId(), x, y, z);
             break;

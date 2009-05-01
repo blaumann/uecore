@@ -428,6 +428,7 @@ class MANGOS_DLL_SPEC WorldObject : public Object
 
         float GetDistance( const WorldObject* obj ) const;
         float GetDistance(const float x, const float y, const float z) const;
+		float GetDistance(const float x, const float y, const float z, const float sx, const float sy, const float sz) const;
         float GetDistance2d(const WorldObject* obj) const;
         float GetDistance2d(const float x, const float y) const;
         float GetDistanceZ(const WorldObject* obj) const;
@@ -480,9 +481,9 @@ class MANGOS_DLL_SPEC WorldObject : public Object
 
         Map      * GetMap() const;
         Map const* GetBaseMap() const;
-        Creature*  SummonCreature(uint32 id, float x, float y, float z, float ang,TempSummonType spwtype,uint32 despwtime);
-        Vehicle*   SummonVehicle(uint32 entry, float x, float y, float z, float ang);
+        Creature* SummonCreature(uint32 id, float x, float y, float z, float ang,TempSummonType spwtype,uint32 despwtime);
         GameObject* SummonGameObject(uint32 id, float x, float y, float z, float ang, uint32 despwtime);
+		Vehicle* SummonVehicle(uint32 entry, uint32 vehicleId, float x, float y, float z, uint32 team);
 
     protected:
         explicit WorldObject();

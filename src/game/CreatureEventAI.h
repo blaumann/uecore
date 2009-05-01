@@ -30,7 +30,7 @@ class WorldObject;
 #define EVENT_UPDATE_TIME               500
 #define SPELL_RUN_AWAY                  8225
 #define MAX_ACTIONS                     3
-#define TEXT_SOURCE_RANGE               -1000000            //the amount of entries each text source has available
+#define TEXT_SOURCE_RANGE               -5000000            //the amount of entries each text source has available
 
 enum EventAI_Type
 {
