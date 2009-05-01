@@ -772,8 +772,8 @@ void Spell::prepareDataForTriggerSystem()
             case SPELLFAMILY_WARLOCK: // For Hellfire Effect / Rain of Fire / Seed of Corruption triggers need do it
                 if (m_spellInfo->SpellFamilyFlags & 0x0000800000000060LL) m_canTrigger = true;
             break;
-            case SPELLFAMILY_PRIEST:  // For Penance heal/damage triggers need do it
-                if (m_spellInfo->SpellFamilyFlags & 0x0001800000000000LL) m_canTrigger = true;
+            case SPELLFAMILY_PRIEST:  // For Penance,Mind Sear,Mind Flay heal/damage triggers need do it
+                if (m_spellInfo->SpellFamilyFlags & 0x0009800000800000LL) m_canTrigger = true;
             break;
             case SPELLFAMILY_ROGUE:   // For poisons need do it
                 if (m_spellInfo->SpellFamilyFlags & 0x000000101001E000LL) m_canTrigger = true;
@@ -1105,6 +1105,9 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
 
 void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
 {
+    if (m_caster->hasUnitState(UNIT_STAT_DIED)) 
+        return;
+
     if(!unit || !effectMask)
         return;
 
@@ -1534,6 +1537,12 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,UnitList& TagUnitMap)
         }
         case TARGET_CHAIN_DAMAGE:
         {
+            // Charge casted on self
+            if (m_spellInfo->Effect[i] == SPELL_EFFECT_CHARGE)
+            {
+                TagUnitMap.push_back(m_caster);
+                break;
+            }
             if (EffectChainTarget <= 1)
             {
                 if(Unit* pUnitTarget = m_caster->SelectMagnetTarget(m_targets.getUnitTarget(), m_spellInfo))
@@ -2247,6 +2256,19 @@ void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
             return;
         }
     }
+    
+    if(uint8 result = objmgr.IsSpellDisabled(m_spellInfo->Id))
+	{
+		if(m_caster->GetTypeId() == TYPEID_PLAYER)
+		{
+			sLog.outDebug("Player %s cast a spell %u which was disabled by server administrator",   m_caster->GetName(), m_spellInfo->Id);
+			if(result == 2)
+			sLog.outChar("Player %s cast a spell %u which was disabled by server administrator and marked as CheatSpell",   m_caster->GetName(), m_spellInfo->Id);
+		}
+		SendCastResult(SPELL_FAILED_SPELL_UNAVAILABLE);
+        finish(false);
+        return;
+	}
 
     // Fill cost data
     m_powerCost = CalculatePowerCost();
@@ -2423,10 +2445,10 @@ void Spell::cast(bool skipCheck)
         }
         case SPELLFAMILY_PALADIN:
         {
-            if (m_spellInfo->SpellFamilyFlags&0x0000000000400080LL)    // Divine Shield, Divine Protection or Hand of Protection //Avenging Wrath
-                m_preCastSpell = 25771; // Forbearance 
-            if (m_spellInfo->Id == 25771 || m_spellInfo->Id == 31884) 
-                m_preCastSpell = 61987;  //Avenging Wrath Marker
+            if (m_spellInfo->SpellFamilyFlags&0x0000000000400080LL)    // Divine Shield, Divine Protection or Hand of Protection
+                m_preCastSpell = 25771;                                // Forbearance
+             else if (m_spellInfo->Id == 31884)
+                m_preCastSpell = 61987;                                // Avenging Wrath Marker
             break;
         }
         case SPELLFAMILY_SHAMAN:
@@ -2804,6 +2826,27 @@ void Spell::finish(bool ok)
     //remove spell mods
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_caster)->RemoveSpellMods(this);
+
+    //holy nova heal
+    if(m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST && m_spellInfo->SpellIconID == 1874)
+    {
+        int holy_nova_heal = 0;
+        switch(m_spellInfo->Id)
+        {
+            case 15237: holy_nova_heal = 23455; break;
+            case 15430: holy_nova_heal = 23458; break;
+            case 15431: holy_nova_heal = 23459; break;
+            case 27799: holy_nova_heal = 27803; break;
+            case 27800: holy_nova_heal = 27804; break;
+            case 27801: holy_nova_heal = 27805; break;
+            case 25331: holy_nova_heal = 25329; break;
+            case 48077: holy_nova_heal = 48075; break;
+            case 48078: holy_nova_heal = 48076; break;
+            default:break;
+        }
+        if(holy_nova_heal)
+            m_caster->CastSpell(m_caster, holy_nova_heal, true);
+    }
 
     // handle SPELL_AURA_ADD_TARGET_TRIGGER auras
     Unit::AuraList const& targetTriggers = m_caster->GetAurasByType(SPELL_AURA_ADD_TARGET_TRIGGER);
@@ -3772,13 +3815,13 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
     }
 
-    if(m_spellInfo->Id == 498 || m_spellInfo->Id == 1022 || m_spellInfo->Id == 5599 || m_spellInfo->Id == 10278)
-    {
+	if(m_spellInfo->Id == 498 || m_spellInfo->Id == 1022 || m_spellInfo->Id == 5599 || m_spellInfo->Id == 10278)
+        {
         Unit *target = m_targets.getUnitTarget();
 
         if(target->HasAura(25771))
             return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-    }
+        }
     if(m_spellInfo->Id == 642 && m_caster->HasAura(25771))
         return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
@@ -3806,6 +3849,10 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     if(Unit *target = m_targets.getUnitTarget())
     {
+         // Paladin immunity spells & Avenging wrath
+        if((m_spellInfo->Id == 642 || m_spellInfo->Id == 498 || m_spellInfo->Id == 1022 || m_spellInfo->Id == 5599 || m_spellInfo->Id == 10278) && target->HasAura(61987))
+            return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
         // target state requirements (not allowed state), apply to self also
         if(m_spellInfo->TargetAuraStateNot && target->HasAuraState(AuraState(m_spellInfo->TargetAuraStateNot)))
             return SPELL_FAILED_TARGET_AURASTATE;
@@ -3913,8 +3960,12 @@ SpellCastResult Spell::CheckCast(bool strict)
             //Exclusion for Pounce and Mutilate: Facing Limitation was removed in 2.0.1 and 3.0.3, but they still use the same, old Ex-Flags
             if((m_spellInfo->SpellFamilyName != SPELLFAMILY_DRUID || m_spellInfo->SpellFamilyFlags != 0x0000000000020000LL) && !(m_spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE && m_spellInfo->SpellFamilyFlags == 0x0020000000000000LL))
             {
-                SendInterrupted(2);
-                return SPELL_FAILED_NOT_BEHIND;
+                //Exclusion for Multilate: Facing Limitation was removed in 3.0.2, but it still uses the same, old Ex-Flags
+                if (m_spellInfo->SpellFamilyFlags != 0x000020000000000000LL)
+                {
+                    SendInterrupted(2);
+                    return SPELL_FAILED_NOT_BEHIND;
+                }
             }
         }
 
@@ -4590,10 +4641,16 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if(m_targets.getUnitTarget()->getPowerType()!=POWER_MANA)
                     return SPELL_FAILED_BAD_TARGETS;
 
-                break;
-            }
-            default:
-                break;
+				break;
+			}
+			case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
+				{
+					if(m_caster->IsFriendlyTo(m_targets.getUnitTarget()) && !IsPositiveSpell(m_spellInfo->Id))
+						return SPELL_FAILED_TARGET_FRIENDLY;
+					break;
+				}
+			default:
+				break;
         }
     }
 
@@ -4672,9 +4729,16 @@ SpellCastResult Spell::CheckCasterAuras() const
 {
     // Flag drop spells totally immuned to caster auras
     // FIXME: find more nice check for all totally immuned spells
-    // AttributesEx3 & 0x10000000?
-    if(m_spellInfo->Id==23336 || m_spellInfo->Id==23334 || m_spellInfo->Id==34991)
-        return SPELL_CAST_OK;
+    switch(m_spellInfo->Id)
+    {
+        case 23336:     // Alliance Flag Drop
+        case 23334:     // Horde Flag Drop
+        case 34991:     // Summon Netherstorm Flag
+        case 22812:     // Barkskin
+            return SPELL_CAST_OK;
+        default:
+            break;
+    }
 
     uint8 school_immune = 0;
     uint32 mechanic_immune = 0;

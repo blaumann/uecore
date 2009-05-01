@@ -56,6 +56,10 @@
 #include "SkillDiscovery.h"
 #include "Formulas.h"
 #include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -617,7 +621,7 @@ void Spell::EffectSchoolDMG(uint32 effect_idx)
                 else if(m_spellInfo->SpellFamilyFlags & 0x100000000LL)
                 {
                     int32 base = irand((int32)m_caster->GetWeaponDamageRange(RANGED_ATTACK, MINDAMAGE),(int32)m_caster->GetWeaponDamageRange(RANGED_ATTACK, MAXDAMAGE));
-                    damage += int32(float(base)/m_caster->GetAttackTime(RANGED_ATTACK)*2800 + m_caster->GetTotalAttackPowerValue(RANGED_ATTACK)*0.2f);
+                    damage += int32(float(base)/m_caster->GetAttackTime(RANGED_ATTACK)*2800 + m_caster->GetTotalAttackPowerValue(RANGED_ATTACK)*0.1f);
                 }
                 // Explosive Trap Effect
                 else if(m_spellInfo->SpellFamilyFlags & 0x00000004)
@@ -1217,6 +1221,69 @@ void Spell::EffectDummy(uint32 i)
                 case 58418:                                 // Portal to Orgrimmar
                 case 58420:                                 // Portal to Stormwind
                     return;                                 // implemented in EffectScript[0]
+				case 45109:
+				{
+					if( !unitTarget || unitTarget->GetEntry() != 25084 && GetCaster()->GetTypeId() != TYPEID_PLAYER )
+						return;
+
+					// Iterate for all slave masters
+					CellPair pair(MaNGOS::ComputeCellPair( m_targets.m_destX, m_targets.m_destY) );
+					Cell cell(pair);
+					cell.data.Part.reserved = ALL_DISTRICT;
+					cell.SetNoCreate();
+
+					std::list<Creature*> creatureList;
+					std::vector<Creature*> creatureVector;
+
+					MaNGOS::AnyUnitInObjectRangeCheck go_check(unitTarget, 25); // 25 yards check
+					MaNGOS::CreatureListSearcher<MaNGOS::AnyUnitInObjectRangeCheck> go_search(unitTarget, creatureList, go_check);
+					TypeContainerVisitor<MaNGOS::CreatureListSearcher<MaNGOS::AnyUnitInObjectRangeCheck>, GridTypeMapContainer> go_visit(go_search);
+
+					CellLock<GridReadGuard> cell_lock(cell, pair);
+					// Get Creatures
+					cell_lock->Visit(cell_lock, go_visit, *(unitTarget->GetMap()));
+
+					if (!creatureList.empty())
+					{
+						for(std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
+						{
+							if( (*itr)->GetEntry() == 25060 ) // Add to vector only if its Myrmidon creature
+								creatureVector.push_back(*itr);
+						}
+					}
+					if( !creatureVector.empty() )
+					{	// Attack slave's master
+						bool found = false;
+						Creature * Myrmidon = creatureVector[ rand()%creatureVector.size()]; // Get random one from all possible
+						for( std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr )
+						{
+							if( (*itr)->GetEntry() == 25084 && (*itr)->GetDistance2d( m_targets.m_destX, m_targets.m_destY) < 10 )
+							{
+								found = true;
+								(*itr)->SetEntry(25085); // Change creature to Freed Murloc
+								(*itr)->AddThreat( Myrmidon, 10.0f );
+								(*itr)->SetInCombatWith( Myrmidon );
+								(*itr)->GetMotionMaster()->MoveChase( Myrmidon );
+								(*itr)->Attack( Myrmidon, true );
+							}
+						}
+						if( found )	((Player*)GetCaster())->KilledMonster( 25086, 0 ); // Increment quest count
+					}
+					return;
+				}
+				case 33655:
+				{
+					if( m_caster->GetTypeId() != TYPEID_PLAYER )
+						return;
+					if( !m_caster->isInFlight() )
+						return;
+
+					if( m_caster->GetDistance( m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, -145.554, 1511.28, 34.3641) < 25 )
+						((Player*)m_caster)->KilledMonster( 19291, 0 );
+					if( m_caster->GetDistance( m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, -304.408, 1524.45, 37.9685 ) < 25 )
+						((Player*)m_caster)->KilledMonster( 19292, 0 );
+					return;
+				}
             }
 
             //All IconID Check in there
@@ -2730,6 +2797,19 @@ void Spell::EffectHeal( uint32 /*i*/ )
                 unitTarget->RemoveAurasDueToSpell(targetAura->GetId());
 
             addhealth += tickheal * tickcount;
+        }
+        //Nourish 20% of heal increase if target is afected by Druids HOTs
+        else if(m_spellInfo->SpellFamilyFlags&0x0200000000000000LL){
+            Unit::AuraList const& RejorRegr = unitTarget->GetAurasByType(SPELL_AURA_PERIODIC_HEAL);
+
+            for(Unit::AuraList::const_iterator i = RejorRegr.begin(); i != RejorRegr.end(); ++i)
+            {
+                if((*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID)
+                {
+                    addhealth+=addhealth*0.2;
+                    break;
+                }
+            }
         }
         else
             addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, addhealth, HEAL);
@@ -4568,7 +4648,7 @@ void Spell::EffectWeaponDmg(uint32 i)
                 if(((Player*)m_caster)->GetWeaponForAttack(OFF_ATTACK,true))
                     spell_bonus += m_caster->CalculateDamage (OFF_ATTACK, normalized);
             }
-            // Devastate bonus
+            // Devastate bonus and sunder armor refresh
             else if(m_spellInfo->SpellFamilyFlags & 0x0000004000000000LL)
             {
                 uint32 stack = 0;
@@ -4759,8 +4839,8 @@ void Spell::EffectThreat(uint32 /*i*/)
         return;
 
     // Sunder Armor (including Devastate)
-    if( m_spellInfo->SpellFamilyFlags & 0x4000 )
-        damage+= m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.05f;
+	if( m_spellInfo->SpellFamilyFlags & 0x4000 )
+		damage+= m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.05f;
 
     unitTarget->AddThreat(m_caster, float(damage));
 }
@@ -5320,6 +5400,42 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     }
                     return;
                 }
+                // Demonic Empowerment
+                case 47193:
+                {
+                    if(m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    Pet* pet = m_caster->GetPet();
+                    if(!pet)        // Return if no pet
+                        return;
+
+                    if(pet->getPetType() != SUMMON_PET || m_caster != pet->GetOwner())
+                        return;
+
+                    // Select appropriate spell based on creature family
+                    uint32 pSpellId = 0;
+                    int32 bp0 = 0;
+                    switch(pet->GetCreatureInfo()->family)
+                    {
+                        case CREATURE_FAMILY_FELHUNTER:     pSpellId = 54509; break;
+                        case CREATURE_FAMILY_SUCCUBUS:      pSpellId = 54435; break;
+                        case CREATURE_FAMILY_IMP:           pSpellId = 54444; break;
+                        case CREATURE_FAMILY_FELGUARD:      pSpellId = 54508; break;
+                        case CREATURE_FAMILY_VOIDWALKER:    // Needs BasePoints0 to be corrected
+                        {
+                            pSpellId = 54443; 
+                            if(SpellEntry const* voidSpell = sSpellStore.LookupEntry(pSpellId))
+                                bp0 = int32(pet->GetMaxHealth() * (voidSpell->EffectBasePoints[0]+1) / 100);
+                            break;
+                        }
+                        default: break;
+                    }
+
+                    if(pSpellId)
+                        bp0 ? pet->CastCustomSpell(pet, pSpellId, &bp0, NULL, NULL, true) : pet->CastSpell(pet, pSpellId, true);
+                    return;
+                }
             }
             break;
         }
@@ -5346,6 +5462,15 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         }
                     }
                     return;
+                }
+                // Divine Hymn
+                case 47951:
+                {
+                if(!unitTarget)
+                return;
+                unitTarget->CastSpell(unitTarget,47953,true);
+                unitTarget->CastSpell(unitTarget,59600,true);
+                break;
                 }
                 default:
                     break;
@@ -5606,13 +5731,17 @@ void Spell::EffectAddComboPoints(uint32 /*i*/)
     if(!unitTarget)
         return;
 
-    if(m_caster->GetTypeId() != TYPEID_PLAYER)
-        return;
-
     if(damage <= 0)
         return;
 
-    ((Player*)m_caster)->AddComboPoints(unitTarget, damage);
+    if( m_caster->GetTypeId() == TYPEID_PLAYER )
+		((Player*)m_caster)->AddComboPoints(unitTarget, damage);
+
+    if( GUID_HIPART(m_caster) == HIGHGUID_VEHICLE )
+	{
+		if(m_caster->GetCharmer() && m_caster->GetCharmer()->GetTypeId() == TYPEID_PLAYER )
+		((Player*)m_caster->GetCharmer())->AddComboPoints(unitTarget, damage);
+	}
 }
 
 void Spell::EffectDuel(uint32 i)
@@ -6295,10 +6424,14 @@ void Spell::EffectCharge(uint32 /*i*/)
     if(!unitTarget || !m_caster)
         return;
 
+    Unit *chargeTarget = m_targets.getUnitTarget();
+    if (!chargeTarget)
+        return;
+
     float x, y, z;
-    unitTarget->GetContactPoint(m_caster, x, y, z);
-    if(unitTarget->GetTypeId() != TYPEID_PLAYER)
-        ((Creature *)unitTarget)->StopMoving();
+    chargeTarget->GetContactPoint(m_caster, x, y, z);
+    if(chargeTarget->GetTypeId() != TYPEID_PLAYER)
+        ((Creature *)chargeTarget)->StopMoving();
 
     // Only send MOVEMENTFLAG_WALK_MODE, client has strange issues with other move flags
     m_caster->SendMonsterMove(x, y, z, 0, MOVEMENTFLAG_WALK_MODE, 1);
@@ -6308,7 +6441,7 @@ void Spell::EffectCharge(uint32 /*i*/)
 
     // not all charge effects used in negative spells
     if ( !IsPositiveSpell(m_spellInfo->Id))
-        m_caster->Attack(unitTarget,true);
+        m_caster->Attack(chargeTarget,true);
 }
 
 void Spell::EffectSummonCritter(uint32 i)
@@ -7133,17 +7266,4 @@ void Spell::EffectRenamePet(uint32 /*eff_idx*/)
         return;
 
     unitTarget->SetByteValue(UNIT_FIELD_BYTES_2, 2, UNIT_RENAME_ALLOWED);
-}
-
-void Spell::EffectSummonVehicle(uint32 i)
-{
-    uint32 entry = m_spellInfo->EffectMiscValue[i];
-    if(!entry)
-        return;
-
-    float x, y, z;
-    m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
-    Vehicle *vehicle = m_caster->SummonVehicle(entry, x, y, z, m_caster->GetOrientation());
-
-    vehicle->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 }

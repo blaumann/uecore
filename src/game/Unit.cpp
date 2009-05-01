@@ -396,6 +396,16 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
         RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
 
+		Unit::AuraMap const& PlayerAurass = pVictim->GetAuras();
+        for(Unit::AuraMap::const_iterator itr = PlayerAurass.begin();itr!=PlayerAurass.end();itr++)
+        {
+             if((*itr).second->GetId() == 22570 || (*itr).second->GetId() == 49802)
+             {
+				 pVictim->RemoveAurasDueToSpell((*itr).second->GetId());
+                 break;
+             }
+        }
+
         if(pVictim != this)
             RemoveSpellsCausingAura(SPELL_AURA_MOD_INVISIBILITY);
 
@@ -4917,19 +4927,19 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 triggered_spell_id = 29077;
                 break;
             }
-	   //Arcane Potency
-           if (dummySpell->SpellIconID == 2120)
-           {
-               if(!procSpell)
+            //Arcane Potency
+            if (dummySpell->SpellIconID == 2120)
+            {
+                if(!procSpell)
                     return false;
 
-               switch (dummySpell->Id)
-	          {
-		case 31571: triggered_spell_id = 57529; break;
-		case 31572: triggered_spell_id = 57531; break;
-		}
-	       break;
-           }
+                switch (dummySpell->Id)
+                {
+                    case 31571: triggered_spell_id = 57529; break;
+                    case 31572: triggered_spell_id = 57531; break;
+                }
+                break;
+            }
             // Hot Streak
             if (dummySpell->SpellIconID == 2999)
             {
@@ -5263,7 +5273,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
         {
             switch(dummySpell->Id)
             {
-                // Leader of the Pack
+				// Leader of the Pack
                 case 24932:
                 {
                     if (triggerAmount == 0)
@@ -5507,7 +5517,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
 			CastSpell ( this,57669,true,NULL,GetDummyAura ( dummySpell->Id ),GetGUID() );
 		break;
 	}
-
             // Seal of Righteousness - melee proc dummy (addition ${$MWS*(0.022*$AP+0.044*$SPH)} damage)
             if (dummySpell->SpellFamilyFlags&0x000000008000000LL && effIndex==0)
             {
@@ -5562,8 +5571,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 {
                     if (pVictim->getPowerType() == POWER_MANA)
                     {
-                        int32 gainMana = pVictim->GetCreateMana() * triggeredByAura->GetBasePoints() / 100;
-                        pVictim->CastCustomSpell(pVictim, 20268, &gainMana, 0, 0, true, 0, triggeredByAura);
+                        int32 bp = 2*(pVictim->GetCreateMana() / 100);
+                        pVictim->CastCustomSpell(pVictim, 20268, &bp, 0, 0, true, 0, triggeredByAura);
                     }
                     return true;
                 }
@@ -5605,6 +5614,15 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                         return false;
 
                     triggered_spell_id = 31803;
+                    break;
+                }
+                // Seal of Corruption
+                case 53736:
+                {
+                    if(effIndex != 0)
+                        return false;
+
+                    triggered_spell_id = 53742;
                     break;
                 }
                 // Spiritual Attunement
@@ -6070,7 +6088,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
             if (dummySpell->Id == 49005)
             {
                 // TODO: need more info (cooldowns/PPM)
-                triggered_spell_id = 50424;
+                triggered_spell_id = 61607;
                 break;
             }
             // Vendetta
@@ -6457,15 +6475,6 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                 }
                 //else if (auraSpellInfo->Id==40363)// Entangling Roots ()
                 //    trigger_spell_id = ????;
-                // Leader of the Pack
-                else if (auraSpellInfo->Id == 24932)
-                {
-                    if (triggerAmount == 0)
-                        return false;
-                    basepoints0 = triggerAmount * GetMaxHealth() / 100;
-                    trigger_spell_id = 34299;
-                }
-                break;
             }
             case SPELLFAMILY_HUNTER:
                 break;
@@ -6758,6 +6767,13 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                 return false;
             break;
         }
+		// Unyielding Knights
+		case 38164:
+		{
+			// Do not summont our knights if we arent fighting specific enemy
+			if( GetTypeId() != TYPEID_PLAYER || pVictim->GetEntry() != 19457)
+				return false;
+		}
     }
 
     // Costum basepoints/target for exist spell
@@ -9508,6 +9524,7 @@ void Unit::setDeathState(DeathState s)
         CombatStop();
         DeleteThreatList();
         ClearComboPointHolders();                           // any combo points pointed to unit lost at it death
+        StopMoving();
 
         if(IsNonMeleeSpellCasted(false))
             InterruptNonMeleeSpells(false);
@@ -10434,13 +10451,25 @@ void CharmInfo::InitPetActionBar()
 
 void CharmInfo::InitEmptyActionBar()
 {
-    for(uint32 x = 1; x < 10; ++x)
-    {
-        PetActionBar[x].Type = ACT_PASSIVE;
-        PetActionBar[x].SpellOrAction = 0;
-    }
-    PetActionBar[0].Type = ACT_COMMAND;
-    PetActionBar[0].SpellOrAction = COMMAND_ATTACK;
+    if(this->m_unit->GetTypeId() != TYPEID_PLAYER && !((Creature*)this->m_unit)->isVehicle() )
+	{
+		// If its not vehicle, first one is always attack
+		for(uint32 x = 1; x < 10; ++x)
+		{
+			PetActionBar[x].Type = ACT_PASSIVE;
+			PetActionBar[x].SpellOrAction = 0;
+		}
+		PetActionBar[0].Type = ACT_COMMAND;
+		PetActionBar[0].SpellOrAction = COMMAND_ATTACK;
+	}
+	else 
+	{
+		for(uint32 x = 0; x < 10; ++x)
+		{
+			PetActionBar[x].Type = ACT_PASSIVE;
+			PetActionBar[x].SpellOrAction = 0;
+		}		
+	}
 }
 
 void CharmInfo::InitPossessCreateSpells()

@@ -546,7 +546,7 @@ void WorldSession::HandlePetSpellAutocastOpcode( WorldPacket& recvPacket )
     }
 
     // do not add not learned spells/ passive spells
-    if(!pet->HasSpell(spellid) || IsPassiveSpell(spellid))
+    if( GUID_HIPART(pet) != HIGHGUID_VEHICLE && (!pet->HasSpell(spellid) || IsPassiveSpell(spellid)) )
         return;
 
     CharmInfo *charmInfo = pet->GetCharmInfo();
@@ -616,6 +616,7 @@ void WorldSession::HandlePetCastSpellOpcode( WorldPacket& recvPacket )
         return;
 
     pet->clearUnitState(UNIT_STAT_FOLLOW);
+    pet->InterruptNonMeleeSpells(false);
 
     Spell *spell = new Spell(pet, spellInfo, false);
     spell->m_cast_count = cast_count;                       // probably pending spell cast

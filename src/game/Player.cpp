@@ -3735,7 +3735,7 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
 
     // check primary prof. limit
     if(spellmgr.IsPrimaryProfessionFirstRankSpell(spell->Id) && GetFreePrimaryProffesionPoints() == 0)
-        return TRAINER_SPELL_RED;
+        return TRAINER_SPELL_GREEN_DISABLED;
 
     return TRAINER_SPELL_GREEN;
 }
@@ -18271,7 +18271,8 @@ void Player::learnQuestRewardedSpells(Quest const* quest)
     {
         // not have first rank learned (unlearned prof?)
         uint32 first_spell = spellmgr.GetFirstSpellInChain(learned_0);
-        if( !HasSpell(first_spell) )
+        uint32 prev_spell = spellmgr.GetPrevSpellInChain(learned_0);
+        if( !HasSpell(first_spell) || !HasSpell(prev_spell) )
             return;
 
         SpellEntry const *learnedInfo = sSpellStore.LookupEntry(learned_0);
@@ -19463,6 +19464,8 @@ void Player::InitGlyphsForLevel()
     SetUInt32Value(PLAYER_GLYPHS_ENABLED, value);
 }
 
+#define DEFAULT_SPELL_STATE 0x8100
+
 void Player::EnterVehicle(Vehicle *vehicle)
 {
     VehicleEntry const *ve = sVehicleStore.LookupEntry(vehicle->GetVehicleId());
@@ -19508,7 +19511,26 @@ void Player::EnterVehicle(Vehicle *vehicle)
     data << uint32(0);                                      // fall time
     GetSession()->SendPacket(&data);
 
-    VehicleSpellInitialize();
+    data.Initialize(SMSG_PET_SPELLS, 8+4+4+4+4*10+1+1);
+    data << uint64(vehicle->GetGUID());
+    data << uint32(0x00000000);
+    data << uint32(0x00000000);
+    data << uint32(0x00000101);
+
+    for(uint32 i = 0; i < 10; ++i)
+        data << uint16(0) << uint8(0) << uint8(i+8);
+
+    data << uint8(0);
+    data << uint8(0);
+    GetSession()->SendPacket(&data);
+
+	CharmInfo *charmInfo = vehicle->InitCharmInfo(vehicle);
+	charmInfo->InitPossessCreateSpells();
+
+	PossessSpellInitialize();
+
+	vehicle->setPowerType( POWER_ENERGY ); // FEANOR TODO: Get Type from DB ?
+	vehicle->SetPower(POWER_ENERGY, 100); // FEANOR TODO: Get Type from DB ?
 }
 
 void Player::ExitVehicle(Vehicle *vehicle)

@@ -318,6 +318,9 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex)
         case SPELL_EFFECT_ENERGIZE_PCT:
             return true;
 
+        // Charge casted on self to run - so must be positive
+        case SPELL_EFFECT_CHARGE:
+            return true;
             // non-positive aura use
         case SPELL_EFFECT_APPLY_AURA:
         case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
@@ -369,7 +372,13 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex)
                         }
                     }
                     break;
-                case SPELL_AURA_PROC_TRIGGER_SPELL:
+				case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
+					{
+						if(spellproto->SpellFamilyName == SPELLFAMILY_PRIEST && spellproto->SpellIconID == 548)
+							return false;
+					}
+					break;
+				case SPELL_AURA_PROC_TRIGGER_SPELL:
                     // many positive auras have negative triggered spells at damage for example and this not make it negative (it can be canceled for example)
                     break;
                 case SPELL_AURA_MOD_STUN:                   //have positive and negative spells, we can't sort its correctly at this moment.
@@ -450,6 +459,7 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex)
                     }
                 }   break;
                 case SPELL_AURA_MOD_HEALING_PCT:
+                case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE:
                     if(spellproto->CalculateSimpleValue(effIndex) < 0)
                         return false;
                     break;
@@ -1263,6 +1273,9 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
 
             // Combustion and Fire Protection Aura (multi-family check)
             if( spellInfo_1->Id == 11129 && spellInfo_2->SpellIconID == 33 && spellInfo_2->SpellVisual[0] == 321 )
+                return false;
+
+            if( spellInfo_1->EffectSpellClassMaskC[0] == 262144 && spellInfo_2->EffectSpellClassMaskC[0] == 262144)
                 return false;
 
             break;
