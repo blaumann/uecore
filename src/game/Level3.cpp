@@ -49,6 +49,7 @@
 #include "BattleGroundMgr.h"
 #include "InstanceSaveMgr.h"
 #include "InstanceData.h"
+#include "CreatureEventAIMgr.h"
 #include "AuctionHouseBot.h"
 
 bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
@@ -528,6 +529,7 @@ bool ChatHandler::HandleReloadAllCommand(const char*)
 
     HandleReloadAllAchievementCommand("");
     HandleReloadAllAreaCommand("");
+    HandleReloadAllEventAICommand("");
     HandleReloadAllLootCommand("");
     HandleReloadAllNpcCommand("");
     HandleReloadAllQuestCommand("");
@@ -604,6 +606,23 @@ bool ChatHandler::HandleReloadAllScriptsCommand(const char*)
     HandleReloadSpellScriptsCommand("a");
     SendGlobalSysMessage("DB tables `*_scripts` reloaded.");
     HandleReloadDbScriptStringCommand("a");
+    return true;
+}
+
+bool ChatHandler::HandleReloadAllEventAICommand(const char*)
+{
+    if(sWorld.IsScriptScheduled())
+    {
+        PSendSysMessage("DB scripts used currently, please attempt reload later.");
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    sLog.outString( "Re-Loading Event AI Scripts..." );
+    HandleReloadEventAITextsCommand("a");
+    HandleReloadEventAISummonsCommand("a");
+    HandleReloadEventAIScriptsCommand("a");
+    SendGlobalSysMessage("DB tables `creature_ai_*` reloaded.");
     return true;
 }
 
@@ -1074,6 +1093,48 @@ bool ChatHandler::HandleReloadEventScriptsCommand(const char* arg)
 
     if(*arg!='a')
         SendGlobalSysMessage("DB table `event_scripts` reloaded.");
+
+    return true;
+}
+
+bool ChatHandler::HandleReloadEventAITextsCommand(const char* arg)
+{
+
+    if(*arg!='a')
+        sLog.outString( "Re-Loading Texts from `creature_ai_texts`...");
+
+    CreatureEAI_Mgr.LoadCreatureEventAI_Texts();
+
+    if(*arg!='a')
+        SendGlobalSysMessage("DB table `creature_ai_texts` reloaded.");
+
+    return true;
+}
+
+bool ChatHandler::HandleReloadEventAISummonsCommand(const char* arg)
+{
+
+    if(*arg!='a')
+        sLog.outString( "Re-Loading Summons from `creature_ai_summons`...");
+
+    CreatureEAI_Mgr.LoadCreatureEventAI_Summons();
+
+    if(*arg!='a')
+        SendGlobalSysMessage("DB table `creature_ai_summons` reloaded.");
+
+    return true;
+}
+
+bool ChatHandler::HandleReloadEventAIScriptsCommand(const char* arg)
+{
+
+    if(*arg!='a')
+        sLog.outString( "Re-Loading Scripts from `creature_ai_scripts`...");
+
+    CreatureEAI_Mgr.LoadCreatureEventAI_Scripts();
+
+    if(*arg!='a')
+        SendGlobalSysMessage("DB table `creature_ai_scripts` reloaded.");
 
     return true;
 }
