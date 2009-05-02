@@ -699,14 +699,23 @@ TalentsInspecting = 1
 #                 1.5 - 150%
 #                 0   - off (0%)
 #
+#    CreatureFamilyFleeAssistanceRadius
+#        Radius which creature will use to seek for a near creature for assistance. Creature will flee to this creature.
+#        Default: 30
+#                 0   - off
+#
 #    CreatureFamilyAssistanceRadius
-#        Creature family assistance radius
+#        Radius which creature will use to call assistance without moving
 #        Default: 10
 #                 0   - off
 #
 #    CreatureFamilyAssistanceDelay
 #        Reaction time for creature assistance call
-#        Default: 1500 (1.5s)
+#       Default: 1500 (1.5s)
+#
+#    CreatureFamilyFleeDelay
+#        Time during which creature can flee when no assistant found
+#        Default: 7000 (7s)
 #
 #    WorldBossLevelDiff
 #        Difference for boss dynamic level with target
@@ -764,8 +773,10 @@ TalentsInspecting = 1
 
 ThreatRadius = 100
 Rate.Creature.Aggro = 0.5
+CreatureFamilyFleeAssistanceRadius = 30
 CreatureFamilyAssistanceRadius = 10
 CreatureFamilyAssistanceDelay = 1500
+CreatureFamilyFleeDelay = 7000
 WorldBossLevelDiff = 3
 Corpse.Decay.NORMAL = 60
 Corpse.Decay.RARE = 300
@@ -922,9 +933,9 @@ GM.AllowAchievementGain  = 1
 #    Visibility.Distance.Creature
 #    Visibility.Distance.Player
 #        Visibility distance for different in game object
-#        Max limited by active player zone: ~ 166
+#        Max limited by active player zone: ~ 333
 #        Min limit dependent from objects
-#        Default: 66 (cell size)
+#        Default: 132 (cell size)
 #        Min limit is max aggro radius (45) * Rate.Creature.Aggro
 #
 #    Visibility.Distance.Object
@@ -950,10 +961,10 @@ GM.AllowAchievementGain  = 1
 ###################################################################################################################
 
 Visibility.GroupMode = 0
-Visibility.Distance.Creature      = 66
-Visibility.Distance.Player        = 66
-Visibility.Distance.Object        = 66
-Visibility.Distance.InFlight      = 66
+Visibility.Distance.Creature      = 100
+Visibility.Distance.Player        = 100
+Visibility.Distance.Object        = 100
+Visibility.Distance.InFlight      = 100
 Visibility.Distance.Grey.Unit   = 1
 Visibility.Distance.Grey.Object = 10
 
@@ -1474,76 +1485,3 @@ Anticheat.Movement.BanTime = "1m"
 Anticheat.Movement.MaxXYT = 0.04
 Anticheat.Movement.IgnoreSecAfterTeleport = 10
 Anticheat.Movement.GmLevel = 0
-
-###################################################################################################################
-# This must have set to correct value, or the server chrashes when you us the chat
-# Chat log parameters
-ChatLogEnable = 0
-
-# If this is enabled, all $d in file names are replaced with current date
-# This does include innormative lexics log
-ChatLogDateSplit = 1
-
-# If this is enabled, UTF8 header is written into new files
-ChatLogUTFHeader = 1
-
-# If this is enabled, chat log will ignore messages with unprintable chars
-ChatLogIgnoreUnprintable = 1
-
-# Chat log files
-ChatLogChatFile = main_chat-$d.log
-ChatLogPartyFile = party_chat-$d.log
-ChatLogGuildFile = guild_chat-$d.log
-ChatLogWhisperFile = whisper_chat-$d.log
-ChatLogChannelFile = channel_chat-$d.log
-ChatLogRaidFile = raid_chat-$d.log
-ChatLogBattleGroundFile = bg_chat-$d.log
-
-# Chat log screen logging
-ChatLogChatScreen = 0
-ChatLogPartyScreen = 0
-ChatLogGuildScreen = 0
-ChatLogWhisperScreen = 0
-ChatLogChannelScreen = 0
-ChatLogRaidScreen = 0
-ChatLogBattleGroundScreen = 0
-
-# Lexics cutter parameters
-LexicsCutterEnable = 1
-
-LexicsCutterInnormativeCut = 1
-LexicsCutterCutReplacement = &!@^%!^&*!!!
-LexicsCutterLogFile = innormative-$d.log
-LexicsCutterScreenLog = 0
-LexicsCutterAnalogsFile = letter_analogs.txt
-LexicsCutterWordsFile = innormative_words.txt
-
-# Where to cut lexics
-LexicsCutInChat = 1
-LexicsCutInParty = 1
-LexicsCutInGuild = 1
-LexicsCutInWhisper = 1
-LexicsCutInChannel = 1
-LexicsCutInRaid = 1
-LexicsCutInBattleGround = 1
-
-# Ignore word spaces like: W O R D
-LexicsCutterIgnoreSpaces = 1
-
-# Ignore repeats like: WWOOOORRRRRD
-LexicsCutterIgnoreRepeats = 1
-
-# --- Action:
-# ---   0: log only
-# ---   1: sheep
-# ---   2: stun
-# ---   3: kill
-# ---   4: leave 5 health
-# ---   5: disable chat
-# ---   6: stuck (works as stun + 50% health) [by KAPATEJIb]
-# ---   7: resurrection sickness [by Koshei]
-LexicsCutterAction = 0
-LexicsCutterActionDuration = 60000
-
-# Do not perform action on GM if this is enabled
-LexicsCutterNoActionOnGM = 1

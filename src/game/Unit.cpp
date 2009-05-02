@@ -288,6 +288,9 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 ty
             break;
     }
 
+    if(MovementFlags & MONSTER_MOVE_FLAG_SPLINE)            // we shouldn't get here with this flag
+        sLog.outError("SHIT HAPPENED!");
+
     data << uint32(MovementFlags);
     data << uint32(Time);                                   // Time in between points
     data << uint32(1);                                      // 1 single waypoint
@@ -305,13 +308,13 @@ void Unit::SendMonsterMoveByPath(Path const& path, uint32 start, uint32 end, uin
 
     uint32 pathSize = end-start;
 
-    WorldPacket data( SMSG_MONSTER_MOVE, (GetPackGUID().size()+4+4+4+4+1+4+4+4+pathSize*4*3) );
+    WorldPacket data( SMSG_MONSTER_MOVE, (GetPackGUID().size()+1+4+4+4+4+1+4+4+4+pathSize*4*3) );
     data.append(GetPackGUID());
     data << uint8(0);
     data << GetPositionX();
     data << GetPositionY();
     data << GetPositionZ();
-    data << getMSTime();
+    data << uint32(getMSTime());
     data << uint8( 0 );
     data << uint32( MovementFlags );
     data << uint32( traveltime );
@@ -7418,7 +7421,10 @@ bool Unit::AttackStop(bool targetSwitch /*=false*/)
 
     // reset only at real combat stop
     if(!targetSwitch && GetTypeId()==TYPEID_UNIT )
+    {
         ((Creature*)this)->SetNoCallAssistance(false);
+        ((Creature*)this)->SetNoSearchAssistance(false);
+    }
 
     SendAttackStop(victim);
 
@@ -7543,10 +7549,9 @@ void Unit::ModifyAuraState(AuraState flag, bool apply)
 
 Unit *Unit::GetOwner() const
 {
-    uint64 ownerid = GetOwnerGUID();
-    if(!ownerid)
-        return NULL;
-    return ObjectAccessor::GetUnit(*this, ownerid);
+    if(uint64 ownerid = GetOwnerGUID())
+        return ObjectAccessor::GetUnit(*this, ownerid);
+    return NULL;
 }
 
 Unit *Unit::GetCharmer() const
@@ -11045,7 +11050,7 @@ void Unit::StopMoving()
     //    Relocate(GetPositionX(), GetPositionY(), z);
     Relocate(GetPositionX(), GetPositionY(),GetPositionZ());
 
-    SendMonsterMove(GetPositionX(), GetPositionY(), GetPositionZ(), 0, true, 0);
+    SendMonsterMove(GetPositionX(), GetPositionY(), GetPositionZ(), 0, 0, 0);
 
     // update position and orientation;
     WorldPacket data;
@@ -11053,7 +11058,7 @@ void Unit::StopMoving()
     SendMessageToSet(&data,false);
 }
 
-void Unit::SetFeared(bool apply, uint64 casterGUID, uint32 spellID)
+void Unit::SetFeared(bool apply, uint64 casterGUID, uint32 spellID, uint32 time)
 {
     if( apply )
     {
@@ -11067,7 +11072,7 @@ void Unit::SetFeared(bool apply, uint64 casterGUID, uint32 spellID)
 
         Unit* caster = ObjectAccessor::GetUnit(*this,casterGUID);
 
-        GetMotionMaster()->MoveFleeing(caster);             // caster==NULL processed in MoveFleeing
+        GetMotionMaster()->MoveFleeing(caster, time);       // caster==NULL processed in MoveFleeing
     }
     else
     {
