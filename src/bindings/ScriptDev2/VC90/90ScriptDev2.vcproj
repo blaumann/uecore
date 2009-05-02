@@ -185,7 +185,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine=""
+				CommandLine="&#x0D;&#x0A;copy ..\..\..\bindings\ScriptDev2\scriptdev2.conf.dist.in ..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)\scriptdev2.conf"
 			/>
 		</Configuration>
 		<Configuration

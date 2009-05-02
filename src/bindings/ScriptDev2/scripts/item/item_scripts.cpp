@@ -41,7 +41,7 @@ item_voodoo_charm                   Provide proper error message and target(q256
 item_vorenthals_presence(i30259)    Prevents abuse of this item
 item_yehkinyas_bramble(i10699)      Allow cast spell on vale screecher only and remove corpse if cast sucessful (q3520)
 item_zezzak_shard(i31463)           Quest The eyes of Grillok (q10813). Prevents abuse
-+item_jeremiahs_tools(i35943)        Quest Repurposed Technology (q12035). Prevents abuse
+item_jeremiahs_tools(i35943)        Quest Repurposed Technology (q12035). Prevents abuse
 EndContentData */
 
 #include "precompiled.h"
@@ -53,13 +53,17 @@ EndContentData */
 # item_area_52_special
 #####*/
 
-/*bool ItemUse_item_area_52_special(Player *player, Item* _Item, SpellCastTargets const& targets)
+bool ItemUse_item_area_52_special(Player *player, Item* _Item, SpellCastTargets const& targets)
 {
-    if (player->GetAreaEntryByAreaID() == 3803)
+    if (player->GetAreaId() == 3803)
+    {
         return false;
-
-    player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE,_Item,NULL);
-    return true;
+    }
+    else
+    {
+        player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE,_Item,NULL);
+        return true;
+    }
 }
 
 /*#####
@@ -135,7 +139,6 @@ bool ItemUse_item_draenei_fishing_net(Player *player, Item* _Item, SpellCastTarg
             player->SendEquipError(msg,NULL,NULL);
         }
     }
-    //}
     return false;
 }
 
@@ -443,6 +446,20 @@ bool ItemUse_item_zezzak_shard(Player *player, Item* _Item, SpellCastTargets con
 }
 
 /*#####
+# item_36847 (Frost Gem)
+#####*/
+
+bool ItemUse_item_frost_gem(Player *player, Item* _Item, SpellCastTargets const& targets)
+{
+    if( targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId()==TYPEID_UNIT &&
+        targets.getUnitTarget()->GetEntry() == 26283 ) //Ice Revenant
+        return false;
+                        
+      player->SendEquipError(EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM,_Item,NULL);
+        return true;
+}
+
+/*#####
 # item_42624 (Battered Storm Hammer)
 #####*/
 
@@ -464,34 +481,6 @@ bool ItemUse_item_blood_gem(Player *player, Item* _Item, SpellCastTargets const&
 {
     if( targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId()==TYPEID_UNIT &&
         targets.getUnitTarget()->GetEntry() == 26411 ) //Deranged Indu'le Villager
-        return false;
-                        
-      player->SendEquipError(EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM,_Item,NULL);
-        return true;
-}
-
-/*#####
-# item_36835 (Unholy Gem)
-#####*/
-
-bool ItemUse_item_unholy_gem(Player *player, Item* _Item, SpellCastTargets const& targets)
-{
-    if( targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId()==TYPEID_UNIT &&
-        targets.getUnitTarget()->GetEntry() == 26926 ) //Duke Vallenhal
-        return false;
-                        
-      player->SendEquipError(EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM,_Item,NULL);
-        return true;
-}
-
-/*#####
-# item_36847 (Frost Gem)
-#####*/
-
-bool ItemUse_item_frost_gem(Player *player, Item* _Item, SpellCastTargets const& targets)
-{
-    if( targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId()==TYPEID_UNIT &&
-        targets.getUnitTarget()->GetEntry() == 26283 ) //Ice Revenant
         return false;
                         
       player->SendEquipError(EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM,_Item,NULL);
@@ -529,8 +518,22 @@ bool ItemUse_item_pouch_crushed_bloodspore(Player *player, Item* _Item, SpellCas
 }
 
 /*#####
-# item_jeremiahs_tools
+# item_36835 (Unholy Gem)
 #####*/
+
+bool ItemUse_item_unholy_gem(Player *player, Item* _Item, SpellCastTargets const& targets)
+{
+    if( targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId()==TYPEID_UNIT &&
+        targets.getUnitTarget()->GetEntry() == 26926 ) //Duke Vallenhal
+        return false;
+                        
+      player->SendEquipError(EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM,_Item,NULL);
+        return true;
+}
+
+ /*#####
+# item_jeremiahs_tools
+ #####*/
 
 bool ItemUse_item_jeremiahs_tools(Player *player, Item* _Item, SpellCastTargets const& targets)
 {
@@ -541,9 +544,9 @@ bool ItemUse_item_jeremiahs_tools(Player *player, Item* _Item, SpellCastTargets 
         )
     {
         ((Creature*)(targets.getUnitTarget()))->RemoveCorpse(); //Remove corpse to prevent multiple use of item on one creature
-        return false;
+         return false;
     }
-                        
+
     player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,_Item,NULL);
     return true;
 }
@@ -552,10 +555,10 @@ void AddSC_item_scripts()
 {
     Script *newscript;
 
-    /*newscript = new Script; <- this fix it later
+    newscript = new Script;
     newscript->Name = "item_area_52_special";
     newscript->pItemUse = &ItemUse_item_area_52_special;
-    newscript->RegisterSelf();*/
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "item_arcane_charges";
