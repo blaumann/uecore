@@ -373,9 +373,8 @@ extern void AddSC_boss_the_maker();
 extern void AddSC_instance_blood_furnace();
 
 //--Ramparts
-extern void AddSC_boss_nazan_and_vazruden();
+extern void  AddSC_boss_vazruden_the_herald();
 extern void AddSC_boss_omor_the_unscarred();
-extern void AddSC_boss_vazruden_the_herald();
 extern void AddSC_boss_watchkeeper_gargolmar();
 extern void AddSC_instance_ramparts();
 
@@ -1434,9 +1433,8 @@ void ScriptsInit()
     AddSC_instance_blood_furnace();
 
     //--Ramparts
-    AddSC_boss_nazan_and_vazruden();
+     AddSC_boss_vazruden_the_herald();
     AddSC_boss_omor_the_unscarred();
-    AddSC_boss_vazruden_the_herald();
     AddSC_boss_watchkeeper_gargolmar();;
     AddSC_instance_ramparts();
 

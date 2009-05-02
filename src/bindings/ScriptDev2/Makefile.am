@@ -243,7 +243,6 @@ scripts/zone/hellfire_citadel/blood_furnace/def_blood_furnace.h \
 scripts/zone/hellfire_citadel/blood_furnace/instance_blood_furnace.cpp \
 scripts/zone/hellfire_citadel/hellfire_ramparts/boss_nazan_and_vazruden.cpp \
 scripts/zone/hellfire_citadel/hellfire_ramparts/boss_omor_the_unscarred.cpp \
-scripts/zone/hellfire_citadel/hellfire_ramparts/boss_vazruden_the_herald.cpp \
 scripts/zone/hellfire_citadel/hellfire_ramparts/boss_watchkeeper_gargolmar.cpp \
 scripts/zone/hellfire_citadel/hellfire_ramparts/def_hellfire_ramparts.h \
 scripts/zone/hellfire_citadel/hellfire_ramparts/instance_hellfire_ramparts.cpp \
