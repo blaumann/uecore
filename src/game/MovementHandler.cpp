@@ -622,7 +622,6 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     if(plMover)                                             // nothing is charmed, or player charmed
     {
         plMover->m_movementInfo = movementInfo;
-        plMover->SetUnitMovementFlags(movementInfo.flags);
         plMover->SetPosition(movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
         plMover->UpdateFallInformationIfNeed(movementInfo,recv_data.GetOpcode());
 
@@ -664,7 +663,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     {
         if(Map *map = mover->GetMap())
             map->CreatureRelocation((Creature*)mover, movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
-        mover->SetUnitMovementFlags(movementInfo.flags);
+        //mover->SetUnitMovementFlags(movementInfo.flags);
     }
 }
 
