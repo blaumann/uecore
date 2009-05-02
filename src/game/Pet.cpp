@@ -1885,8 +1885,7 @@ void Pet::ToggleAutocast(uint32 spellid, bool apply)
         return;
 
     // Sacrifice is not autocastable
-    switch(spellid)
-	{
+    switch(spellid) {
         case 7812:	// Sacrifice Rank 1
         case 19438:	// Sacrifice Rank 2
         case 19440:	// Sacrifice Rank 3
