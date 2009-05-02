@@ -122,10 +122,10 @@ struct MANGOS_DLL_DECL npc_grimstoneAI : public npc_escortAI
         CanWalk = false;
     }
 
-    void DoGate(uint32 id, GOState state)
+    void DoGate(uint32 id, uint32 state)
     {
-        if (GameObject *go = pInstance->instance->GetGameObject(pInstance->GetData64(id)))
-            go->SetGoState(GO_STATE_ACTIVE);
+        if (GameObject* pGo = pInstance->instance->GetGameObject(pInstance->GetData64(id)))
+            pGo->SetGoState(GOState(state));
 
         debug_log("SD2: npc_grimstone, arena gate update state.");
     }
@@ -237,7 +237,7 @@ struct MANGOS_DLL_DECL npc_grimstoneAI : public npc_escortAI
                 {
                     case 0:
                         DoScriptText(-1000000, m_creature);//1
-                        DoGate(DATA_ARENA4, GO_STATE_READY);
+                        DoGate(DATA_ARENA4,1);
                         Start(false, false, false);
                         CanWalk = true;
                         Event_Timer = 0;
@@ -250,7 +250,7 @@ struct MANGOS_DLL_DECL npc_grimstoneAI : public npc_escortAI
                         Event_Timer = 2000;
                         break;
                     case 3:
-                        DoGate(DATA_ARENA1, GO_STATE_ACTIVE);
+                        DoGate(DATA_ARENA1,GO_STATE_ACTIVE);
                         Event_Timer = 3000;
                         break;
                     case 4:
@@ -270,13 +270,13 @@ struct MANGOS_DLL_DECL npc_grimstoneAI : public npc_escortAI
                         break;
                     case 7:
                         m_creature->SetVisibility(VISIBILITY_ON);
-                        DoGate(DATA_ARENA1, GO_STATE_READY);
+                        DoGate(DATA_ARENA1,GO_STATE_READY);
                         DoScriptText(-1000000, m_creature);//4
                         CanWalk = true;
                         Event_Timer = 0;
                         break;
                     case 8:
-                        DoGate(DATA_ARENA2, GO_STATE_ACTIVE);
+                        DoGate(DATA_ARENA2,GO_STATE_ACTIVE);
                         Event_Timer = 5000;
                         break;
                     case 9:
@@ -286,9 +286,9 @@ struct MANGOS_DLL_DECL npc_grimstoneAI : public npc_escortAI
                         break;
                     case 10:
                         //if quest, complete
-                        DoGate(DATA_ARENA2, GO_STATE_READY);
-                        DoGate(DATA_ARENA3, GO_STATE_ACTIVE);
-                        DoGate(DATA_ARENA4, GO_STATE_ACTIVE);
+                        DoGate(DATA_ARENA2,GO_STATE_READY);
+                        DoGate(DATA_ARENA3,GO_STATE_ACTIVE);
+                        DoGate(DATA_ARENA4,GO_STATE_ACTIVE);
                         CanWalk = true;
                         Event_Timer = 0;
                         break;
@@ -537,10 +537,10 @@ struct MANGOS_DLL_DECL npc_rocknotAI : public npc_escortAI
         BreakDoor_Timer = 0;
     }
 
-    void DoGo(uint32 id, GOState state)
+    void DoGo(uint32 id, uint32 state)
     {
-        if (GameObject *go = pInstance->instance->GetGameObject(pInstance->GetData64(id)))
-            go->SetGoState(state);
+        if (GameObject* pGo = pInstance->instance->GetGameObject(pInstance->GetData64(id)))
+            pGo->SetGoState(GOState(state));
     }
 
     void WaypointReached(uint32 i)
@@ -578,7 +578,7 @@ struct MANGOS_DLL_DECL npc_rocknotAI : public npc_escortAI
         {
             if (BreakKeg_Timer <= diff)
             {
-                DoGo(DATA_GO_BAR_KEG, GO_STATE_ACTIVE);
+                DoGo(DATA_GO_BAR_KEG,0);
                 BreakKeg_Timer = 0;
                 BreakDoor_Timer = 1000;
             }else BreakKeg_Timer -= diff;
@@ -588,8 +588,8 @@ struct MANGOS_DLL_DECL npc_rocknotAI : public npc_escortAI
         {
             if (BreakDoor_Timer <= diff)
             {
-                DoGo(DATA_GO_BAR_DOOR, GO_STATE_ACTIVE_ALTERNATIVE);
-                DoGo(DATA_GO_BAR_KEG_TRAP, GO_STATE_ACTIVE);               //doesn't work very well, leaving code here for future
+                DoGo(DATA_GO_BAR_DOOR,2);
+                DoGo(DATA_GO_BAR_KEG_TRAP,0);               //doesn't work very well, leaving code here for future
                                                             //spell by trap has effect61, this indicate the bar go hostile
 
                 if (Unit *tmp = Unit::GetUnit(*m_creature,pInstance->GetData64(DATA_PHALANX)))
