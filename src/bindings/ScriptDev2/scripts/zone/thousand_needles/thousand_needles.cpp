@@ -6,24 +6,25 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /* ScriptData
 SDName: Thousand Needles
 SD%Complete: 100
-SDComment: Support for Quest: 4770, 1950
+SDComment: Quest support: 1950, 4770
 SDCategory: Thousand Needles
-EndScriptData */
+EndScriptData
+*/
 
 /* ContentData
 npc_swiftmountain
-npc_plucky
+npc_plucky_johnson
 EndContentData */
 
 #include "precompiled.h"
@@ -111,7 +112,7 @@ bool QuestAccept_npc_swiftmountain(Player* player, Creature* creature, Quest con
 
 CreatureAI* GetAI_npc_swiftmountain(Creature *_Creature)
 {
-    npc_swiftmountainAI* thisAI = new npc_swiftmountainAI(_Creature);
+   npc_swiftmountainAI* thisAI = new npc_swiftmountainAI(_Creature);
 
    thisAI->AddWaypoint(0, -5156.69, -1220.49, 48.78, 5000);
    thisAI->AddWaypoint(1, -5157.12, -1220.13, 48.67);
@@ -186,126 +187,125 @@ CreatureAI* GetAI_npc_swiftmountain(Creature *_Creature)
    thisAI->AddWaypoint(70, -4938.3, -1100.41, -50.71, 5000);
    thisAI->AddWaypoint(71, -4937.34, -1102.87, -49.82);
 
-    return (CreatureAI*)thisAI;
+   return (CreatureAI*)thisAI;
 }
 
-/*#####
-# npc_plucky
+/*######
+# "Plucky" Johnson
 ######*/
 
-#define GOSSIP_P    "<Learn Secret phrase>"
-
-#define SPELL_TRANSFORM_HUMAN 9192
-#define QUEST_GET_THE_SCOOP 1950
-
-struct MANGOS_DLL_DECL npc_pluckyAI : public ScriptedAI
+enum
 {
-    npc_pluckyAI(Creature *c) : ScriptedAI(c) {Reset();}
+    FACTION_FRIENDLY        = 35,
+    QUEST_SCOOP             = 1950,
+    SPELL_PLUCKY_HUMAN      = 9192,
+    SPELL_PLUCKY_CHICKEN    = 9220
+};
 
-    bool Transformed;
-    bool Chicken;
+#define GOSSIP_ITEM_QUEST   "Please tell me the Phrase.."
 
-    uint32 Timer;
-    uint32 ChickenTimer;
-
-    void Reset()   {
-
-       Transformed = false;
-       Chicken     = false;
-       m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-       Timer        = 0;
-       ChickenTimer = 0;
-       }
-
-    void Aggro(Unit *who){}
-
-    void TransformHuman(uint32 emoteid)
+struct MANGOS_DLL_DECL npc_plucky_johnsonAI : public ScriptedAI
+{
+    npc_plucky_johnsonAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-         if (!Transformed)
-         {
-             Transformed = true;
-             DoCast(m_creature, SPELL_TRANSFORM_HUMAN);
-             Timer = 120000;
-             if (emoteid == TEXTEMOTE_BECKON)
-                 m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-             else
-             {
-                 ChickenTimer = 1500;
-                 Chicken = true;
-             }
-         }
+        m_uiNormFaction = pCreature->getFaction();
+        Reset();
     }
 
-    void UpdateAI(const uint32 diff)
+    uint32 m_uiNormFaction;
+    uint32 m_uiResetTimer;
+
+    void Reset()
     {
-        if (Transformed)
+        m_uiResetTimer = 120000;
+
+        if (m_creature->getFaction() != m_uiNormFaction)
+            m_creature->setFaction(m_uiNormFaction);
+
+        if (m_creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+            m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+        m_creature->CastSpell(m_creature, SPELL_PLUCKY_CHICKEN, false);
+    }
+
+    void ReceiveEmote(Player* pPlayer, uint32 uiTextEmote)
+    {
+        if (pPlayer->GetQuestStatus(QUEST_SCOOP) == QUEST_STATUS_INCOMPLETE)
         {
-            if (Timer < diff)
-                Reset();
-            else Timer-=diff;
+            if (uiTextEmote == TEXTEMOTE_BECKON)
+            {
+                m_creature->setFaction(FACTION_FRIENDLY);
+                m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                m_creature->CastSpell(m_creature, SPELL_PLUCKY_HUMAN, false);
+            }
         }
 
-       if(Chicken)
-       {
-           if (ChickenTimer < diff)
-           {
-               m_creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
-               Chicken = false;
-           }else ChickenTimer-=diff;
-       }
+        if (uiTextEmote == TEXTEMOTE_CHICKEN)
+        {
+            if (m_creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+                return;
+            else
+            {
+                m_creature->setFaction(FACTION_FRIENDLY);
+                m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                m_creature->CastSpell(m_creature, SPELL_PLUCKY_HUMAN, false);
+                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
+            }
+        }
+    }
 
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (m_creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+        {
+            if (m_uiResetTimer < uiDiff)
+            {
+                if (!m_creature->getVictim())
+                    EnterEvadeMode();
+                else
+                    m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+                return;
+            }
+            else
+                m_uiResetTimer -= uiDiff;
+        }
+
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
         DoMeleeAttackIfReady();
-   }
+    }
 };
 
-bool ReceiveEmote_npc_plucky( Player *player, Creature *_Creature, uint32 emote )
+CreatureAI* GetAI_npc_plucky_johnson(Creature* pCreature)
 {
-    if( (emote == TEXTEMOTE_BECKON || emote == TEXTEMOTE_CHICKEN &&
-        player->GetQuestStatus(QUEST_GET_THE_SCOOP) == QUEST_STATUS_INCOMPLETE) )
+    return new npc_plucky_johnsonAI(pCreature);
+}
+
+bool GossipHello_npc_plucky_johnson(Player* pPlayer, Creature* pCreature)
+{
+    if (pPlayer->GetQuestStatus(QUEST_SCOOP) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_QUEST, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+    pPlayer->SEND_GOSSIP_MENU(720, pCreature->GetGUID());
+    return true;
+}
+
+bool GossipSelect_npc_plucky_johnson(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    if (uiAction == GOSSIP_ACTION_INFO_DEF)
     {
-        _Creature->SetInFront(player);
-        ((npc_pluckyAI*)((Creature*)_Creature)->AI())->TransformHuman(emote);
+        pPlayer->SEND_GOSSIP_MENU(738, pCreature->GetGUID());
+        pPlayer->AreaExploredOrEventHappens(QUEST_SCOOP);
     }
 
     return true;
 }
-
-bool GossipHello_npc_plucky(Player *player, Creature *_Creature)
-{
-    if(player->GetQuestStatus(QUEST_GET_THE_SCOOP) == QUEST_STATUS_INCOMPLETE)
-        player->ADD_GOSSIP_ITEM(0, GOSSIP_P, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-    player->SEND_GOSSIP_MENU(738, _Creature->GetGUID());
-
-    return true;
-}
-
-bool GossipSelect_npc_plucky(Player *player, Creature *_Creature, uint32 sender, uint32 action)
-{
-    switch( action )
-    {
-        case GOSSIP_ACTION_INFO_DEF+1:
-            player->CLOSE_GOSSIP_MENU();
-            player->CompleteQuest(QUEST_GET_THE_SCOOP);
-        break;
-    }
-    return true;
-}
-
-CreatureAI* GetAI_npc_plucky(Creature *_Creature)
-{
-return new npc_pluckyAI(_Creature);
-}
-
-/*#####
-#
-######*/
 
 void AddSC_thousand_needles()
 {
-    Script *newscript;
+    Script* newscript;
 
     newscript = new Script;
     newscript->Name = "npc_swiftmountain";
@@ -314,10 +314,9 @@ void AddSC_thousand_needles()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name = "npc_plucky";
-    newscript->GetAI = &GetAI_npc_plucky;
-    newscript->pGossipHello =   &GossipHello_npc_plucky;
-    newscript->pGossipSelect = &GossipSelect_npc_plucky;
+    newscript->Name = "npc_plucky_johnson";
+    newscript->GetAI = &GetAI_npc_plucky_johnson;
+    newscript->pGossipHello = &GossipHello_npc_plucky_johnson;
+    newscript->pGossipSelect = &GossipSelect_npc_plucky_johnson;
     newscript->RegisterSelf();
 }
-

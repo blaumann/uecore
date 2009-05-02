@@ -854,6 +854,31 @@ namespace MaNGOS
             float i_range;
     };
 
+    class NearestAssistCreatureInCreatureRangeCheck
+    {
+        public:
+            NearestAssistCreatureInCreatureRangeCheck(Creature* obj, Unit* enemy, float range)
+                : i_obj(obj), i_enemy(enemy), i_range(range) {}
+
+            bool operator()(Creature* u)
+            {
+                if(u->getFaction() == i_obj->getFaction() && !u->isInCombat() && !u->GetCharmerOrOwnerGUID() && u->IsHostileTo(i_enemy) && u->isAlive()&& i_obj->IsWithinDistInMap(u, i_range) && i_obj->IsWithinLOSInMap(u))
+                {
+                    i_range = i_obj->GetDistance(u);         // use found unit range as new range limit for next check
+                    return true;
+                }
+                return false;
+            }
+            float GetLastRange() const { return i_range; }
+        private:
+            Creature* const i_obj;
+            Unit* const i_enemy;
+            float  i_range;
+
+            // prevent clone this object
+            NearestAssistCreatureInCreatureRangeCheck(NearestAssistCreatureInCreatureRangeCheck const&);
+    };
+
     // Success at unit in range, range update for next check (this can be use with CreatureLastSearcher to find nearest creature)
     class NearestCreatureEntryWithLiveStateInObjectRangeCheck
     {
