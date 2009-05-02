@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /* ScriptData
@@ -36,7 +36,6 @@ EndScriptData */
 #define H_SPELL_CRIPPLE                 54814
 #define SPELL_CURSE_PLAGUEBRINGER       28213
 #define H_SPELL_CURSE_PLAGUEBRINGER     54835
-#define SOUND_DEATH      8848
 
 #define C_PLAGUED_WARRIOR               16984
 
@@ -51,7 +50,7 @@ EndScriptData */
 
 struct MANGOS_DLL_DECL boss_nothAI : public ScriptedAI
 {
-    boss_nothAI(Creature *c) : ScriptedAI(c) {}
+    boss_nothAI(Creature *c) : ScriptedAI(c) {Reset();}
 
     uint32 Blink_Timer;
     uint32 Curse_Timer;
@@ -68,18 +67,9 @@ struct MANGOS_DLL_DECL boss_nothAI : public ScriptedAI
     {
         switch (rand()%3)
         {
-        case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
-        case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
-        case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
-        }
-    }
-
-    void KilledUnit(Unit* victim)
-    {
-        switch (rand()%2)
-        {
-        case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-        case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+            case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
+            case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
+            case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
         }
     }
 
@@ -87,6 +77,15 @@ struct MANGOS_DLL_DECL boss_nothAI : public ScriptedAI
     {
         if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
             summoned->AddThreat(target,0.0f);
+    }
+
+    void KilledUnit(Unit* victim)
+    {
+        switch (rand()%2)
+        {
+            case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+            case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+        }
     }
 
     void JustDied(Unit* Killer)
@@ -111,7 +110,7 @@ struct MANGOS_DLL_DECL boss_nothAI : public ScriptedAI
         //Curse_Timer
         if (Curse_Timer < diff)
         {
-             DoCast(m_creature->getVictim(),SPELL_CURSE_PLAGUEBRINGER);
+            DoCast(m_creature->getVictim(),SPELL_CURSE_PLAGUEBRINGER);
             Curse_Timer = 28000;
         }else Curse_Timer -= diff;
 
@@ -121,7 +120,7 @@ struct MANGOS_DLL_DECL boss_nothAI : public ScriptedAI
             DoScriptText(SAY_SUMMON, m_creature);
 
             for(uint8 i = 0; i < 6; i++)
-                  m_creature->SummonCreature(C_PLAGUED_WARRIOR,2684.804,-3502.517,261.313,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,80000);
+                m_creature->SummonCreature(C_PLAGUED_WARRIOR,2684.804,-3502.517,261.313,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,80000);
 
             Summon_Timer = 30500;
         } else Summon_Timer -= diff;
@@ -129,6 +128,7 @@ struct MANGOS_DLL_DECL boss_nothAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_noth(Creature *_Creature)
 {
     return new boss_nothAI (_Creature);

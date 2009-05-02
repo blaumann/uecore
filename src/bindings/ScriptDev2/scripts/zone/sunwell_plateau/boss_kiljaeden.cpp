@@ -1,33 +1,16 @@
-/* Copyright 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-*/
-
 /* ScriptData
 SDName: boss_kiljaeden
 SDAuthor: ckegg
-SD%Complete: 95%
+SD%Complete: 80%
 SDComment: Missing ending animation, and Sinister Reflection need to be implemented.
 SDCategory: Sunwell_Plateau
 EndScriptData */
-
 #include "precompiled.h"
 #include "def_sunwell_plateau.h"
 
 /*** Spells used during the encounter ***/
 /* Hand of the Deceiver's spells and cosmetics */
-#define SPELL_SHADOW_BOLT_VOLLEY               45575 // ~30 yard range Shadow Bolt Volley for ~2k(?) damage
+#define SPELL_SHADOW_BOLT_VOLLEY               45770 // ~30 yard range Shadow Bolt Volley for ~2k(?) damage
 #define SPELL_SHADOW_INFUSION                  45772 // They gain this at 20% - Immunity to Stun/Silence and makes them look angry!
 #define SPELL_FELFIRE_PORTAL                   46875 // Creates a portal that spawns Felfire Fiends (LIVE FOR THE SWARM!1 FOR THE OVERMIND!)
 #define SPELL_SHADOW_CHANNELING                46757 // Channeling animation out of combat
@@ -103,41 +86,41 @@ EndScriptData */
 
 /*** Speech and sounds***/
 // These are used throughout Sunwell and Magisters(?). Players can hear this while running through the instances.
-#define SAY_KJ_OFFCOMBAT1                       -1580056
-#define SAY_KJ_OFFCOMBAT2                       -1580057
-#define SAY_KJ_OFFCOMBAT3                       -1580058
-#define SAY_KJ_OFFCOMBAT4                       -1580059
-#define SAY_KJ_OFFCOMBAT5                       -1580060
+#define SAY_KJ_OFFCOMBAT1                       -2580056
+#define SAY_KJ_OFFCOMBAT2                       -2580057
+#define SAY_KJ_OFFCOMBAT3                       -2580058
+#define SAY_KJ_OFFCOMBAT4                       -2580059
+#define SAY_KJ_OFFCOMBAT5                       -2580060
 
 // Encounter speech and sounds
-#define SAY_KJ_EMERGE                           -1580061
-#define SAY_KJ_SLAY1                            -1580062
-#define SAY_KJ_SLAY2                            -1580063
-#define SAY_KJ_REFLECTION1                      -1580064
-#define SAY_KJ_REFLECTION2                      -1580065
-#define SAY_KJ_DARKNESS1                        -1580066
-#define SAY_KJ_DARKNESS2                        -1580067
-#define SAY_KJ_DARKNESS3                        -1580068
-#define SAY_KJ_CANNOT_WIN                       -1580070
-#define SAY_KJ_DENINE                           -1580069
-#define SAY_KJ_LOST_POWER                       -1580071
+#define SAY_KJ_EMERGE                           -2580061
+#define SAY_KJ_SLAY1                            -2580062
+#define SAY_KJ_SLAY2                            -2580063
+#define SAY_KJ_REFLECTION1                      -2580064
+#define SAY_KJ_REFLECTION2                      -2580065
+#define SAY_KJ_DARKNESS1                        -2580066
+#define SAY_KJ_DARKNESS2                        -2580067
+#define SAY_KJ_DARKNESS3                        -2580068
+#define SAY_KJ_CANNOT_WIN                       -2580070
+#define SAY_KJ_DENINE                           -2580069
+#define SAY_KJ_LOST_POWER                       -2580071
 
 /*** Kalecgos - Anveena speech at the beginning of Phase 5; Anveena's sacrifice ***/
-#define SAY_KALECGOS_INTRO                      -1580072
-#define SAY_KALECGOS_AWAKEN                     -1580073
-#define SAY_ANVEENA_IMPRISONED                  -1580074
-#define SAY_KALECGOS_LETGO                      -1580075
-#define SAY_ANVEENA_LOST                        -1580076
-#define SAY_KALECGOS_FOCUS                      -1580077
-#define SAY_ANVEENA_KALEC                       -1580078
-#define SAY_KALECGOS_FATE                       -1580079
-#define SAY_ANVEENA_GOODBYE                     -1580080
-#define SAY_KALECGOS_GOODBYE                    -1580081
-#define SAY_KALECGOS_ENCOURAGE                  -1580082
-#define SAY_KALECGOS_ORB1                       -1580083
-#define SAY_KALECGOS_ORB2                       -1580084
-#define SAY_KALECGOS_ORB3                       -1580085
-#define SAY_KALECGOS_ORB4                       -1580086
+#define SAY_KALECGOS_INTRO                      -2580072
+#define SAY_KALECGOS_AWAKEN                     -2580073
+#define SAY_ANVEENA_IMPRISONED                  -2580074
+#define SAY_KALECGOS_LETGO                      -2580075
+#define SAY_ANVEENA_LOST                        -2580076
+#define SAY_KALECGOS_FOCUS                      -2580077
+#define SAY_ANVEENA_KALEC                       -2580078
+#define SAY_KALECGOS_FATE                       -2580079
+#define SAY_ANVEENA_GOODBYE                     -2580080
+#define SAY_KALECGOS_GOODBYE                    -2580081
+#define SAY_KALECGOS_ENCOURAGE                  -2580082
+#define SAY_KALECGOS_ORB1                       -2580083
+#define SAY_KALECGOS_ORB2                       -2580084
+#define SAY_KALECGOS_ORB3                       -2580085
+#define SAY_KALECGOS_ORB4                       -2580086
 // Charming
 
 /*** Error messages ***/
@@ -1302,4 +1285,4 @@ void AddSC_boss_Kiljaeden()
     newscript->Name = "go_orb_of_the_blue_flight";
     newscript->pGOHello = &GOHello_orb_of_the_blue_flight;
     newscript->RegisterSelf();
-};
+}
