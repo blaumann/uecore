@@ -354,7 +354,7 @@ void Creature::Update(uint32 diff)
                 if(GetMap()->IsBattleGround() && ((BattleGroundMap*)GetMap())->GetBG())
                     ((BattleGroundMap*)GetMap())->GetBG()->OnCreatureRespawn(this); // for alterac valley needed to adjust the correct level again
 
-                // Call AI respawn virtual function
+                //Call AI respawn virtual function
                 i_AI->JustRespawned();
 
                 uint16 poolid = poolhandler.IsPartOfAPool(GetGUIDLow(), GetTypeId());
