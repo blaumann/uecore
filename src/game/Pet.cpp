@@ -1337,10 +1337,12 @@ bool Pet::addSpell(uint32 spell_id, uint16 active, PetSpellState state, PetSpell
         {
             // can be in case spell loading but learned at some previous spell loading
             itr->second->state = PETSPELL_UNCHANGED;
-            // restore previous autocast state 
-            // (applicable only for ActiveStates with castable (0x8000) bit)
-            if (active & 0x8000)
-                ToggleAutocast(spell_id, active & 0x4000); // true if auto cast flag (0x4000) is set
+
+            if(active == ACT_ENABLED)
+                ToggleAutocast(spell_id, true);
+            else if(active == ACT_DISABLED)
+                ToggleAutocast(spell_id, false);
+
             return false;
         }
         else
@@ -1920,8 +1922,13 @@ void Pet::ToggleAutocast(uint32 spellid, bool apply)
         if (i == m_autospells.size())
         {
             m_autospells.push_back(spellid);
-            itr->second->active = ACT_ENABLED;
-            itr->second->state = PETSPELL_CHANGED;
+
+            if(itr->second->active != ACT_ENABLED)
+            {
+                itr->second->active = ACT_ENABLED;
+                if(itr->second->state != PETSPELL_NEW)
+                    itr->second->state = PETSPELL_CHANGED;
+            }
         }
     }
     else
@@ -1933,8 +1940,12 @@ void Pet::ToggleAutocast(uint32 spellid, bool apply)
         if (i < m_autospells.size())
         {
             m_autospells.erase(itr2);
-            itr->second->active = ACT_DISABLED;
-            itr->second->state = PETSPELL_CHANGED;
+            if(itr->second->active != ACT_DISABLED)
+            {
+                itr->second->active = ACT_DISABLED;
+                if(itr->second->state != PETSPELL_NEW)
+                    itr->second->state = PETSPELL_CHANGED;
+            }
         }
     }
 }

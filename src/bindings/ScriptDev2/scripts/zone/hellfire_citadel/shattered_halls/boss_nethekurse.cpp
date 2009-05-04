@@ -242,8 +242,8 @@ struct MANGOS_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
 
         if (pInstance->GetData64(DATA_NETHEKURSE_DOOR))
         {
-            if (GameObject *Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_NETHEKURSE_DOOR)))
-                Door->SetGoState(GO_STATE_ACTIVE);
+            if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_NETHEKURSE_DOOR)))
+                pDoor->SetGoState(GO_STATE_ACTIVE);
         }
     }
 
