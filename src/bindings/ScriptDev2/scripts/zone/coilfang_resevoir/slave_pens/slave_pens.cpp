@@ -1,15 +1,13 @@
-
-/*Coilfang Slavehandler
 /*
 *|||||||||||||||||||||||||
 *|| ||
 *||* UNDER DEVELOPMENT* ||
 *|| ||
 *|||||||||||||||||||||||||
+*/
 
-
-#include "../../sc_defines.h"
-
+#include "precompiled.h"
+/*
 // Slavehandler spell's
 #define SPELL_HAMSTRING 26211
 #define SPELL_HEAD_CRACK 35161
