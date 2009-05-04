@@ -34,11 +34,11 @@
 #include "World.h"
 #include "ObjectAccessor.h"
 #include "BattleGroundMgr.h"
+#include "SocialMgr.h"
+#include "zlib/zlib.h"
 #include "OutdoorPvPMgr.h"
 #include "Language.h"                                       // for CMSG_DISMOUNT handler
 #include "Chat.h"
-#include "SocialMgr.h"
-#include "zlib/zlib.h"
 
 /// WorldSession constructor
 WorldSession::WorldSession(uint32 id, WorldSocket *sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale) :
@@ -313,6 +313,7 @@ void WorldSession::LogoutPlayer(bool Save)
 
         ///- Remove from OutdoorPvP
         sOutdoorPvPMgr.HandlePlayerLeaveZone(_player,_player->GetZoneId());
+
         ///- Teleport to home if the player is in an invalid instance
         if(!_player->m_InstanceValid && !_player->isGameMaster())
             _player->TeleportTo(_player->m_homebindMapId, _player->m_homebindX, _player->m_homebindY, _player->m_homebindZ, _player->GetOrientation());
@@ -586,7 +587,7 @@ void WorldSession::LoadTutorialsData()
         {
             Field *fields = result->Fetch();
 
-            for (int iI = 0; iI < 8; iI++)
+            for (int iI = 0; iI < 8; ++iI)
                 m_Tutorials[iI] = fields[iI].GetUInt32();
         }
         while( result->NextRow() );

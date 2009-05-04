@@ -2473,7 +2473,14 @@ void InstanceMap::UnloadAll(bool pForce)
         }
     }
 
-    if(m_resetAfterUnload == true)
+    MapRefManager::iterator itr = m_mapRefManager.begin();
+    Player *plr = itr->getSource();
+    bool instanceHasId = false;
+
+    if(plr->GetBoundInstance(GetId(), GetSpawnMode()))
+        bool instanceHasId = true;
+
+    if(m_resetAfterUnload == true && instanceHasId == false)
         objmgr.DeleteRespawnTimeForInstance(GetInstanceId());
 
     Map::UnloadAll(pForce);

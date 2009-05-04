@@ -258,8 +258,11 @@ extern void AddSC_instance_serpentshrine_cavern();
 extern void AddSC_mob_underbog_colossus();
 
 //--Slave Pens
+extern void AddSC_mennu_the_betrayer();
+extern void AddSC_boss_quagmirran();
 extern void AddSC_boss_rokmar_the_crackler();
-//extern void AddSC_mennu_the_betrayer();
+//extern void AddSC_npc_slavehandler():
+
 
 //--Steam Vault
 extern void AddSC_boss_hydromancer_thespia();
@@ -1319,8 +1322,10 @@ void ScriptsInit()
 
 
     //--Slave Pens
+    AddSC_mennu_the_betrayer();
+    AddSC_boss_quagmirran();
     AddSC_boss_rokmar_the_crackler();
-    //AddSC_mennu_the_betrayer();
+    //AddSC_npc_slavehandler();
 
     //--Steam Vault
     AddSC_mob_underbog_colossus();

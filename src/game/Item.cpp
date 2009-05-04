@@ -750,6 +750,10 @@ bool Item::IsFitToSpellRequirements(SpellEntry const* spellInfo) const
 {
     ItemPrototype const* proto = GetProto();
 
+    if(spellInfo->Effect[0] == SPELL_EFFECT_ENCHANT_ITEM && ((spellInfo->EquippedItemClass == ITEM_CLASS_ARMOR && proto->SubClass == ITEM_SUBCLASS_ARMOR_ENCHANTMENT) ||
+        (spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_ENCHANTMENT)) && proto->Class == ITEM_CLASS_TRADE_GOODS)
+        return true;
+
     if (spellInfo->EquippedItemClass != -1)                 // -1 == any item class
     {
         if(spellInfo->EquippedItemClass != int32(proto->Class))

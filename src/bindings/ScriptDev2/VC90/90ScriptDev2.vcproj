@@ -185,7 +185,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="&#x0D;&#x0A;copy ..\..\..\bindings\ScriptDev2\scriptdev2.conf.dist.in ..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)\scriptdev2.conf"
+				CommandLine="&#x0D;&#x0A;copy ..\..\..\bindings\ScriptDev2\scriptdev2.conf.dist.in ..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)\scriptdev2.conf&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -2495,7 +2495,15 @@
 							>
 						</File>
 						<File
+							RelativePath="..\scripts\zone\coilfang_resevoir\slave_pens\boss_quagmirran.cpp"
+							>
+						</File>
+						<File
 							RelativePath="..\scripts\zone\coilfang_resevoir\slave_pens\boss_rokmar.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\coilfang_resevoir\slave_pens\slave_pens.cpp"
 							>
 						</File>
 					</Filter>

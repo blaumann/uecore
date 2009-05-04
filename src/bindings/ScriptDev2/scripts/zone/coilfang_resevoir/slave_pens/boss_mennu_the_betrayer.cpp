@@ -24,7 +24,7 @@ EndScriptData */
 
 #include "precompiled.h"
 #include "sc_creature.h"
-/* Complete this boss later
+
 enum Spells
 {
     //Spells
@@ -37,27 +37,26 @@ enum Spells
 
 struct MANGOS_DLL_DECL boss_mennu_the_betrayerAI : public ScriptedAI
 {
-    boss_mennu_the_betrayerAI(Creature *c) : ScriptedAI(c)
+    boss_mennu_the_betrayerAI(Creature* pCreature) : ScriptedAI(pCreature)
 	{
         Reset();
-		EnterEvadeMode();
 	}
     
-    uint32 Healing_Ward_Timer;
-    uint32 Tainted_Earthgrab_Timer;
-    uint32 Tainted_Stoneskin_Timer;
-    uint32 Corrupted_Nova_Timer;
-    uint32 Lightning_Bolt_Timer;
+    uint32 m_uiHealing_Ward_Timer;
+    uint32 m_uiTainted_Earthgrab_Timer;
+    uint32 m_uiTainted_Stoneskin_Timer;
+    uint32 m_uiCorrupted_Nova_Timer;
+    uint32 m_uiLightning_Bolt_Timer;
     uint32 CheckTether;
     bool OneTime;
 
-    void EnterEvadeMode()
+    void Reset()
     {
-        Healing_Ward_Timer = 1000;
-        Tainted_Stoneskin_Timer = 1500;
-        Tainted_Earthgrab_Timer = 2000;
-        Corrupted_Nova_Timer = 2500;
-        Lightning_Bolt_Timer = 7000;
+        m_uiHealing_Ward_Timer = 1000;
+        m_uiTainted_Stoneskin_Timer = 1500;
+        m_uiTainted_Earthgrab_Timer = 2000;
+        m_uiCorrupted_Nova_Timer = 2500;
+        m_uiLightning_Bolt_Timer = 7000;
         CheckTether;
         m_creature->RemoveAllAuras();
         m_creature->DeleteThreatList();
@@ -120,48 +119,48 @@ struct MANGOS_DLL_DECL boss_mennu_the_betrayerAI : public ScriptedAI
          //Check if we have a current target
          if( m_creature->getVictim() && m_creature->isAlive())
          {  
-            if (Corrupted_Nova_Timer < diff)
+            if (m_uiCorrupted_Nova_Timer < diff)
               {
                 DoCast(m_creature, SPELL_CORRUPTED_NOVA_TOTEM);
-                Corrupted_Nova_Timer = (rand()%10000) + 20000;
+                m_uiCorrupted_Nova_Timer = (rand()%10000) + 20000;
               }
-             else Corrupted_Nova_Timer -= diff;
+             else m_uiCorrupted_Nova_Timer -= diff;
               
-            if (Tainted_Earthgrab_Timer < diff)
+            if (m_uiTainted_Earthgrab_Timer < diff)
               {
                 DoCast(m_creature, SPELL_TAINTED_EARTHGRAB_TOTEM);
-                Tainted_Earthgrab_Timer = (rand()%10000) + 20000;
+                m_uiTainted_Earthgrab_Timer = (rand()%10000) + 20000;
               }
-             else Tainted_Earthgrab_Timer -= diff;
+             else m_uiTainted_Earthgrab_Timer -= diff;
            
-            if (Healing_Ward_Timer < diff)
+            if (m_uiHealing_Ward_Timer < diff)
              {
                DoCast(m_creature, SPELL_MENNUS_HEALING_WARD);
-               Healing_Ward_Timer = (rand()%10000) + 20000;
+               m_uiHealing_Ward_Timer = (rand()%10000) + 20000;
              }
-            else Healing_Ward_Timer -= diff;
+            else m_uiHealing_Ward_Timer -= diff;
 
-             if (Tainted_Stoneskin_Timer < diff)
+             if (m_uiTainted_Stoneskin_Timer < diff)
               {
                 DoCast(m_creature, SPELL_TAINTED_STONESKIN_TOTEM);
-                Tainted_Stoneskin_Timer = (rand()%10000) + 20000;;
+                m_uiTainted_Stoneskin_Timer = (rand()%10000) + 20000;;
               }
-             else Tainted_Stoneskin_Timer -= diff;
+             else m_uiTainted_Stoneskin_Timer -= diff;
               
-             if (Lightning_Bolt_Timer < diff)
+             if (m_uiLightning_Bolt_Timer < diff)
               {
                 DoCast(m_creature, SPELL_LIGHTNING_BOLT);
-                Tainted_Stoneskin_Timer = (rand()%10000) + 5000;;
+                m_uiTainted_Stoneskin_Timer = (rand()%10000) + 5000;;
               }
-             else Lightning_Bolt_Timer -= diff;
+             else m_uiLightning_Bolt_Timer -= diff;
             }
             DoMeleeAttackIfReady();
       }
 }; 
 
-CreatureAI* GetAI_boss_mennu_the_betrayer(Creature *_Creature)
+CreatureAI* GetAI_boss_mennu_the_betrayer(Creature* pCreature)
 {
-    return new boss_mennu_the_betrayerAI (Creature *_Creature);
+    return new boss_mennu_the_betrayerAI(pCreature);
 }
 
 void AddSC_boss_mennu_the_betrayer()
@@ -172,4 +171,4 @@ void AddSC_boss_mennu_the_betrayer()
     newscript->Name = "boss_mennu_the_betrayer";
     newscript->GetAI = &GetAI_boss_mennu_the_betrayer;
     newscript->RegisterSelf();
-}*/
+}

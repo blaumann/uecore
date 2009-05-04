@@ -4131,6 +4131,55 @@ void Spell::EffectEnchantItemPerm(uint32 effect_idx)
             item_owner->GetName(),item_owner->GetSession()->GetAccountId());
     }
 
+    if(ItemPrototype const* targetProto = itemTarget->GetProto())
+    {
+        // EffectItemType serves as the entry of the item to be created.
+        if(m_spellInfo->EffectItemType[effect_idx] && targetProto->Class == ITEM_CLASS_TRADE_GOODS)
+        {
+            if((m_spellInfo->EquippedItemClass == ITEM_CLASS_ARMOR && targetProto->SubClass == ITEM_SUBCLASS_ARMOR_ENCHANTMENT) ||
+               (m_spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON && targetProto->SubClass == ITEM_SUBCLASS_WEAPON_ENCHANTMENT))
+            {
+                // If the target is correct create the new item and store it if possible
+                uint32 newitemid = m_spellInfo->EffectItemType[effect_idx];
+                if(!newitemid)
+                    return;
+
+                uint16 pos = itemTarget->GetPos();
+
+                Item *pNewItem = Item::CreateItem( newitemid, 1, p_caster);
+                if( !pNewItem )
+                    return;
+
+                if( p_caster->IsInventoryPos( pos ) )
+                {
+                    ItemPosCountVec dest;
+                    uint8 msg = p_caster->CanStoreItem( itemTarget->GetBagSlot(), itemTarget->GetSlot(), dest, pNewItem, true );
+                    if( msg == EQUIP_ERR_OK )
+                    {
+                        p_caster->DestroyItem(itemTarget->GetBagSlot(), itemTarget->GetSlot(),true);
+                        itemTarget = NULL;
+
+                        p_caster->StoreItem( dest, pNewItem, true);
+                        return;
+                    }
+                }
+                else if( p_caster->IsBankPos ( pos ) )
+                {
+                    ItemPosCountVec dest;
+                    uint8 msg = p_caster->CanBankItem( itemTarget->GetBagSlot(), itemTarget->GetSlot(), dest, pNewItem, true );
+                    if( msg == EQUIP_ERR_OK )
+                    {
+                        p_caster->DestroyItem(itemTarget->GetBagSlot(), itemTarget->GetSlot(),true);
+                        itemTarget = NULL;
+
+                        p_caster->BankItem( dest, pNewItem, true);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     // remove old enchanting before applying new if equipped
     item_owner->ApplyEnchantment(itemTarget,PERM_ENCHANTMENT_SLOT,false);
 

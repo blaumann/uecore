@@ -5046,11 +5046,14 @@ SpellCastResult Spell::CheckItems()
 
     Player* p_caster = (Player*)m_caster;
 
+    // if m_CastItem = EffectItemType[0] of the spell we don't need reagents (e.g.: Scroll of Enchant *)
+    bool isNoReagentReqCast = m_CastItem ? m_CastItem->GetEntry() == m_spellInfo->EffectItemType[0] : false;
+
     // cast item checks
     if(m_CastItem)
     {
         uint32 itemid = m_CastItem->GetEntry();
-        if( !p_caster->HasItemCount(itemid,1) )
+        if( !p_caster->HasItemCount(itemid,1) && !isNoReagentReqCast)
             return SPELL_FAILED_ITEM_NOT_READY;
 
         ItemPrototype const *proto = m_CastItem->GetProto();
@@ -5155,7 +5158,7 @@ SpellCastResult Spell::CheckItems()
     }
 
     // check reagents (ignore triggered spells with reagents processed by original spell) and special reagent ignore case.
-    if (!m_IsTriggeredSpell && !p_caster->CanNoReagentCast(m_spellInfo))
+    if (!m_IsTriggeredSpell && !p_caster->CanNoReagentCast(m_spellInfo) && !isNoReagentReqCast)
     {
         for(uint32 i=0;i<8;++i)
         {
@@ -5201,7 +5204,7 @@ SpellCastResult Spell::CheckItems()
         }else
         totems -= 1;
     }
-    if(totems != 0)
+    if(totems != 0 && !isNoReagentReqCast)
         return SPELL_FAILED_TOTEMS;                         //0x7C
 
     // Check items for TotemCategory  (items presence in inventory)
@@ -5219,7 +5222,7 @@ SpellCastResult Spell::CheckItems()
         else
             TotemCategory -= 1;
     }
-    if(TotemCategory != 0)
+    if(TotemCategory != 0 && !isNoReagentReqCast)
         return SPELL_FAILED_TOTEM_CATEGORY;                 //0x7B
 
     // special checks for spell effects
