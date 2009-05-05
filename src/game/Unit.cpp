@@ -261,6 +261,8 @@ void Unit::SendMonsterMoveWithSpeed(float x, float y, float z, uint32 transitTim
 
 void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 type, uint32 MovementFlags, uint32 Time, Player* player)
 {
+    float moveTime = Time;
+
     WorldPacket data( SMSG_MONSTER_MOVE, (41 + GetPackGUID().size()) );
     data.append(GetPackGUID());
     data << uint8(0);                                       // new in 3.1
@@ -288,11 +290,12 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 ty
             break;
     }
 
-    if(MovementFlags & MONSTER_MOVE_FLAG_SPLINE)            // we shouldn't get here with this flag
-        sLog.outError("SHIT HAPPENED!");
-
     data << uint32(MovementFlags);
-    data << uint32(Time);                                   // Time in between points
+
+    if(MovementFlags & MONSTER_MOVE_WALK)
+        moveTime *= 1.4f;
+
+    data << uint32(moveTime);                               // Time in between points
     data << uint32(1);                                      // 1 single waypoint
     data << NewPosX << NewPosY << NewPosZ;                  // the single waypoint Point B
 
@@ -3442,6 +3445,7 @@ bool Unit::AddAura(Aura *Aur)
     }
 
     SpellEntry const* aurSpellInfo = Aur->GetSpellProto();
+    AuraType aurName = Aur->GetModifier()->m_auraname;
 
     spellEffectPair spair = spellEffectPair(Aur->GetId(), Aur->GetEffIndex());
     AuraMap::iterator i = m_Auras.find( spair );
@@ -3469,7 +3473,7 @@ bool Unit::AddAura(Aura *Aur)
                 }
 
                 bool stop = false;
-                switch(aurSpellInfo->EffectApplyAuraName[Aur->GetEffIndex()])
+                switch(aurName)
                 {
                     // DoT/HoT/etc
                     case SPELL_AURA_PERIODIC_DAMAGE:    // allow stack
@@ -3545,13 +3549,13 @@ bool Unit::AddAura(Aura *Aur)
     // add aura, register in lists and arrays
     Aur->_AddAura();
     m_Auras.insert(AuraMap::value_type(spellEffectPair(Aur->GetId(), Aur->GetEffIndex()), Aur));
-    if (Aur->GetModifier()->m_auraname < TOTAL_AURAS)
+    if (aurName < TOTAL_AURAS)
     {
-        m_modAuras[Aur->GetModifier()->m_auraname].push_back(Aur);
+        m_modAuras[aurName].push_back(Aur);
     }
 
     Aur->ApplyModifier(true,true);
-    sLog.outDebug("Aura %u now is in use", Aur->GetModifier()->m_auraname);
+    sLog.outDebug("Aura %u now is in use", aurName);
     return true;
 }
 

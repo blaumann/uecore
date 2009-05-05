@@ -1194,6 +1194,19 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastSpell(m_caster, 30452, true, NULL);
                     return;
                 }
+                case 51592:                                 // Pickup Primordial Hatchling
+                {
+                    if(!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    Creature* creatureTarget = (Creature*)unitTarget;
+
+                    creatureTarget->setDeathState(JUST_DIED);
+                    creatureTarget->RemoveCorpse();
+                    creatureTarget->SetHealth(0);           // just for nice GM-mode view
+                    return;
+
+                }
                 case 52308:
                 {
                     switch(i)
@@ -6496,7 +6509,7 @@ void Spell::EffectCharge(uint32 /*i*/)
         ((Creature *)chargeTarget)->StopMoving();
 
     // Only send MOVEMENTFLAG_WALK_MODE, client has strange issues with other move flags
-    m_caster->SendMonsterMove(x, y, z, 0, MONSTER_MOVE_FLAG_WALK, 1);
+    m_caster->SendMonsterMove(x, y, z, 0, MONSTER_MOVE_WALK, 1);
 
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
         m_caster->GetMap()->CreatureRelocation((Creature*)m_caster,x,y,z,m_caster->GetOrientation());

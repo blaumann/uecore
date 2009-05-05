@@ -1229,6 +1229,9 @@ void World::SetInitialWorldSettings()
     sLog.outString( ">>> Quests Relations loaded" );
     sLog.outString();
 
+    sLog.outString( "Loading UNIT_NPC_FLAG_SPELLCLICK Data..." );
+    objmgr.LoadNPCSpellClickSpells();
+
     sLog.outString( "Loading SpellArea Data..." );          // must be after quest load
     spellmgr.LoadSpellAreas();
 
