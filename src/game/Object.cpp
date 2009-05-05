@@ -61,7 +61,7 @@ uint32 GuidHigh2TypeId(uint32 guid_hi)
         case HIGHGUID_MO_TRANSPORT: return TYPEID_GAMEOBJECT;
         case HIGHGUID_VEHICLE:      return TYPEID_UNIT;
     }
-    return MAX_TYPEID;                                      // unknown
+    return NUM_CLIENT_OBJECT_TYPES;                         // unknown
 }
 
 Object::Object( )
@@ -125,10 +125,10 @@ void Object::_Create( uint32 guidlow, uint32 entry, HighGuid guidhigh )
 
 void Object::BuildMovementUpdateBlock(UpdateData * data, uint32 flags ) const
 {
-    ByteBuffer buf(500);
+    ByteBuffer buf(50);
 
     buf << uint8( UPDATETYPE_MOVEMENT );
-    buf << GetGUID();
+    buf.append(GetPackGUID());
 
     _BuildMovementUpdate(&buf, flags, 0x00000000);
 
@@ -186,12 +186,11 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData *data, Player *target) c
         }
     }
 
-    //sLog.outDebug("BuildCreateUpdate: update-type: %u, object-type: %u got flags: %X, flags2: %X", updatetype, m_objectTypeId, flags, flags2);
+    sLog.outDebug("BuildCreateUpdate: update-type: %u, object-type: %u got flags: %X, flags2: %X", updatetype, m_objectTypeId, flags, flags2);
 
-    ByteBuffer buf(500);
+    ByteBuffer buf(50);
     buf << (uint8)updatetype;
-    //buf.append(GetPackGUID());    //client crashes when using this
-    buf << (uint8)0xFF << GetGUID();
+    buf.append(GetPackGUID());    //client crashes when using this
     buf << (uint8)m_objectTypeId;
 
     _BuildMovementUpdate(&buf, flags, flags2);
@@ -228,12 +227,10 @@ void Object::SendUpdateToPlayer(Player* player)
 
 void Object::BuildValuesUpdateBlockForPlayer(UpdateData *data, Player *target) const
 {
-    ByteBuffer buf(500);
+    ByteBuffer buf(50);
 
     buf << (uint8) UPDATETYPE_VALUES;
-    //buf.append(GetPackGUID());    //client crashes when using this. but not have crash in debug mode
-    buf << (uint8)0xFF;
-    buf << GetGUID();
+    buf.append(GetPackGUID());    //client crashes when using this. but not have crash in debug mode
 
     UpdateMask updateMask;
     updateMask.SetCount( m_valuesCount );
@@ -254,7 +251,7 @@ void Object::DestroyForPlayer(Player *target) const
     ASSERT(target);
 
     WorldPacket data(SMSG_DESTROY_OBJECT, 8);
-    data << GetGUID();
+    data << uint64(GetGUID());
     data << uint8(0);                                       // WotLK (bool)
     target->GetSession()->SendPacket( &data );
 }
@@ -397,7 +394,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags, uint32 flags2
 
             FlightPathMovementGenerator *fmg = (FlightPathMovementGenerator*)(((Player*)this)->GetMotionMaster()->top());
 
-            uint32 flags3 = MONSTER_MOVE_FLAG_SPLINE_FLY;
+            uint32 flags3 = MONSTER_MOVE_SPLINE_FLY;
 
             *data << uint32(flags3);                        // splines flag?
 
@@ -467,7 +464,11 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags, uint32 flags2
             *data << ((WorldObject*)this)->GetPositionY();
             *data << ((WorldObject*)this)->GetPositionZ();
             *data << ((WorldObject*)this)->GetOrientation();
-            *data << float(0);
+
+            if(GetTypeId() == TYPEID_CORPSE)
+                *data << float(((WorldObject*)this)->GetOrientation());
+            else
+                *data << float(0);
         }
         else
         {
@@ -621,9 +622,16 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
         {
             if( updateMask->GetBit( index ) )
             {
-                // remove custom flag before send
                 if( index == UNIT_NPC_FLAGS )
-                    *data << uint32(m_uint32Values[ index ] & ~UNIT_NPC_FLAG_GUARD + UNIT_NPC_FLAG_OUTDOORPVP + UNIT_NPC_FLAG_WORLDEVENT);
+                {
+                    // remove custom flag before sending
+                    uint32 appendValue = m_uint32Values[ index ] & ~UNIT_NPC_FLAG_GUARD + UNIT_NPC_FLAG_OUTDOORPVP + UNIT_NPC_FLAG_WORLDEVENT;
+
+                    if (GetTypeId() == TYPEID_UNIT && !target->canSeeSpellClickOn((Creature*)this))
+                        appendValue &= ~UNIT_NPC_FLAG_SPELLCLICK;
+
+                    *data << uint32(appendValue);
+                }
                 // FIXME: Some values at server stored in float format but must be sent to client in uint32 format
                 else if(index >= UNIT_FIELD_BASEATTACKTIME && index <= UNIT_FIELD_RANGEDATTACKTIME)
                 {
@@ -1462,7 +1470,7 @@ void WorldObject::BuildHeartBeatMsg(WorldPacket *data) const
     data->append(GetPackGUID());
     *data << uint32(((Unit*)this)->GetUnitMovementFlags()); // movement flags
     *data << uint16(0);                                     // 2.3.0
-    *data << getMSTime();                                   // time
+    *data << uint32(getMSTime());                           // time
     *data << m_positionX;
     *data << m_positionY;
     *data << m_positionZ;
@@ -1481,7 +1489,7 @@ void WorldObject::BuildTeleportAckMsg(WorldPacket *data, float x, float y, float
     *data << uint32(0);                                     // this value increments every time
     *data << uint32(((Unit*)this)->GetUnitMovementFlags()); // movement flags
     *data << uint16(0);                                     // 2.3.0
-    *data << getMSTime();                                   // time
+    *data << uint32(getMSTime());                           // time
     *data << x;
     *data << y;
     *data << z;
@@ -1883,7 +1891,7 @@ void WorldObject::PlayDistanceSound( uint32 sound_id, Player* target /*= NULL*/ 
 {
     WorldPacket data(SMSG_PLAY_OBJECT_SOUND,4+8);
     data << uint32(sound_id);
-    data << GetGUID();
+    data << uint64(GetGUID());
     if (target)
         target->SendDirectMessage( &data );
     else
