@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: boss_Kaelthas
 SD%Complete: 60
-SDComment: SQL, weapon scripts, Mind Control, taunt immunity, interruptible/uninterruptible spells, phoenix spawn location & animation, phoenix behaviour & spawn during gravity lapse
+SDComment: SQL, phase 2, phase 3, Mind Control, taunt immunity
 SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
@@ -139,7 +139,7 @@ float KaelthasWeapons[7][5] =
 #define GRAVITY_Z 70.0f
 
 #define TIME_PHASE_2_3      120000
-#define TIME_PHASE_3_4      180000
+#define TIME_PHASE_3_4      120000
 
 #define KAEL_VISIBLE_RANGE  50.0f
 
@@ -159,8 +159,6 @@ struct MANGOS_DLL_DECL advisorbase_ai : public ScriptedAI
 
     void Reset()
     {
-        if (FakeDeath)
-            m_creature->SetMaxHealth(0.5 * (m_creature->GetMaxHealth()));
         FakeDeath = false;
         DelayRes_Timer = 0;
         DelayRes_Target = 0;
@@ -235,9 +233,6 @@ struct MANGOS_DLL_DECL advisorbase_ai : public ScriptedAI
             m_creature->GetMotionMaster()->Clear();
             m_creature->GetMotionMaster()->MoveIdle();
             m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
-
-            // Double health for Phase 3
-            m_creature->SetMaxHealth(2 * (m_creature->GetMaxHealth()));
 
             if (pInstance->GetData(DATA_KAELTHASEVENT) == 3)
                 JustDied(pKiller);
@@ -864,7 +859,7 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 m_creature->SendMonsterMove(GRAVITY_X, GRAVITY_Y, GRAVITY_Z, 0, 0, 0);
 
                                 // 1) Kael'thas will portal the whole raid right into his body
-                                for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();)
+                                for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();++i)
                                 {
                                     Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
                                     if (pUnit && (pUnit->GetTypeId() == TYPEID_PLAYER))
@@ -889,7 +884,7 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 }
 
                                 // 2) At that point he will put a Gravity Lapse debuff on everyone
-                                for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();)
+                                for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();i++)
                                 {
                                     if (Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid()))
                                     {
@@ -1200,10 +1195,10 @@ struct MANGOS_DLL_DECL boss_grand_astromancer_capernianAI : public advisorbase_a
             bool InMeleeRange = false;
             Unit *target = NULL;
             std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
-            for (std::list<HostilReference*>::iterator i = m_threatlist.begin(); i!= m_threatlist.end();)
+            for (std::list<HostilReference*>::iterator i = m_threatlist.begin(); i!= m_threatlist.end();++i)
             {
-                Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());                                       //if in melee range
-
+                Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
+                                                            //if in melee range
                 if (pUnit && pUnit->IsWithinDistInMap(m_creature, 5))
                 {
                     InMeleeRange = true;

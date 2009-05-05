@@ -58,7 +58,7 @@ struct MANGOS_DLL_DECL boss_void_reaverAI : public ScriptedAI
     void Reset()
     {
         Pounding_Timer = 15000;
-        ArcaneOrb_Timer = 18000;
+        ArcaneOrb_Timer = 3000;
         KnockAway_Timer = 30000;
         Berserk_Timer = 600000;
 
@@ -90,7 +90,6 @@ struct MANGOS_DLL_DECL boss_void_reaverAI : public ScriptedAI
     void Aggro(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-		DoZoneInCombat();
 
         if (pInstance)
             pInstance->SetData(DATA_VOIDREAVEREVENT, IN_PROGRESS);
@@ -124,9 +123,6 @@ struct MANGOS_DLL_DECL boss_void_reaverAI : public ScriptedAI
             for(std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                 target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
-                // exclude pets & totems
-                if (target->GetTypeId() != TYPEID_PLAYER)
-                continue;
 
                 //18 yard radius minimum
                 if (target && target->GetDistance2d(m_creature) > 18)
@@ -137,13 +133,11 @@ struct MANGOS_DLL_DECL boss_void_reaverAI : public ScriptedAI
 
             if (target_list.size())
                 target = *(target_list.begin()+rand()%target_list.size());
-            else
-                target = m_creature->getVictim();
 
             if (target)
                 DoCast(target, SPELL_ARCANE_ORB_MISSILE);
 
-            ArcaneOrb_Timer = 18000;
+            ArcaneOrb_Timer = 3000;
         }else ArcaneOrb_Timer -= diff;
 
         // Single Target knock back, reduces aggro

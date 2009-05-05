@@ -213,9 +213,9 @@ struct MANGOS_DLL_DECL boss_supremusAI : public ScriptedAI
         if (GameObject* pDoors = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_SUPREMUS_DOORS)))
         {
             if (close)
-                pDoors->SetGoState(GO_STATE_READY);                      // Closed
+                pDoors->SetGoState(GO_STATE_READY);         // Closed
             else
-                pDoors->SetGoState(GO_STATE_ACTIVE);                      // Open
+                pDoors->SetGoState(GO_STATE_ACTIVE);        // Open
         }
     }
 
@@ -224,9 +224,9 @@ struct MANGOS_DLL_DECL boss_supremusAI : public ScriptedAI
         if (GameObject* pDoors = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_NAJENTUS_GATE)))
         {
             if (close)
-                pDoors->SetGoState(GO_STATE_READY);                      // Closed
+                pDoors->SetGoState(GO_STATE_READY);         // Closed
             else
-                pDoors->SetGoState(GO_STATE_ACTIVE);                      // Open
+                pDoors->SetGoState(GO_STATE_ACTIVE);        // Open
         }
     }
 

@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: Boss_Gothik
-SD%Complete: 0
-SDComment: Placeholder
+SD%Complete: 80
+SDComment: Need's Test
 SDCategory: Naxxramas
 EndScriptData */
 
@@ -196,7 +196,7 @@ struct MANGOS_DLL_DECL boss_gothikAI : public ScriptedAI
 		}
     }
 	
-	void AttackStart(Unit *who)
+	/*void AttackStart(Unit *who)
     {
         if (!who)
             return;
@@ -206,7 +206,7 @@ struct MANGOS_DLL_DECL boss_gothikAI : public ScriptedAI
                 AttackStart(who);
                 Aggro(who);
         }
-    }
+    }*/ 
 	
 	void MoveInLineOfSight(Unit *who){}
 
@@ -214,14 +214,14 @@ struct MANGOS_DLL_DECL boss_gothikAI : public ScriptedAI
     {
         if (!InCombat)
         {
-            DoZoneInCombat();
+            DoZoneInCombat(m_creature);
             InCombat = true;
             DoYell(SAY_START,LANG_UNIVERSAL,NULL);
             DoPlaySoundToSet(m_creature,SOUND_START);
             phase = 0; 
 			phase1end_timer = 24000;  
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            HandleDoors(GO_VACCUUM_ENTER, 1);
+            //m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            HandleDoors(GO_VACCUUM_ENTER, GO_STATE_READY);
             HandleDoors(GO_VACCUUM_COMBAT, 1);
         }
     }

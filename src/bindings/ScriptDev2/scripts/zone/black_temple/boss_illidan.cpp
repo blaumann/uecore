@@ -420,7 +420,7 @@ struct MANGOS_DLL_SPEC npc_akama_illidanAI : public ScriptedAI
             for(uint8 i = DATA_GAMEOBJECT_ILLIDAN_DOOR_R; i < DATA_GAMEOBJECT_ILLIDAN_DOOR_L + 1; ++i)
             {
                 if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(i)))
-                    pDoor->SetGoState(GO_STATE_READY);
+                    pDoor->SetGoState(GO_STATE_ACTIVE);
             }
         }
 
@@ -486,8 +486,8 @@ struct MANGOS_DLL_SPEC npc_akama_illidanAI : public ScriptedAI
 
     void AddWaypoint(uint32 id, float x, float y, float z)
     {
-        WayPoints AkamaWP(id, x, y, z);
-        WayPointList.push_back(AkamaWP);
+        WayPoints AWP(id, x, y, z);
+        WayPointList.push_back(AWP);
     }
 
     void DamageTaken(Unit *done_by, uint32 &damage)
@@ -862,6 +862,10 @@ struct MANGOS_DLL_SPEC boss_illidan_stormrageAI : public ScriptedAI
             FlameGUID[i] = 0;
             GlaiveGUID[i] = 0;
         }
+
+        AkamaGUID = 0;
+        MaievGUID = 0;
+
         Reset();
     }
 
@@ -916,44 +920,38 @@ struct MANGOS_DLL_SPEC boss_illidan_stormrageAI : public ScriptedAI
         Phase = PHASE_NORMAL;
 
         // Check if any flames/glaives are alive/existing. Kill if alive and set GUIDs to 0
-        for(uint8 i = 0; i < 2; i++)
+        for(uint8 i = 0; i < 2; ++i)
         {
-            if (FlameGUID[i])
+            if (Unit* Flame = Unit::GetUnit((*m_creature), FlameGUID[i]))
             {
-                Unit* Flame = Unit::GetUnit((*m_creature), FlameGUID[i]);
-                if (Flame)
+                if (Flame->isAlive())
                     Flame->setDeathState(JUST_DIED);
+
                 FlameGUID[i] = 0;
             }
 
-            if (GlaiveGUID[i])
+            if (Unit* Glaive = Unit::GetUnit((*m_creature), GlaiveGUID[i]))
             {
-                Unit* Glaive = Unit::GetUnit((*m_creature), GlaiveGUID[i]);
-                if (Glaive)
+                if (Glaive->isAlive())
                     Glaive->setDeathState(JUST_DIED);
+
                 GlaiveGUID[i] = 0;
             }
         }
 
-        if (AkamaGUID)
+        if (Creature* Akama = ((Creature*)Unit::GetUnit((*m_creature), AkamaGUID)))
         {
-            Creature* Akama = ((Creature*)Unit::GetUnit((*m_creature), AkamaGUID));
-            if (Akama)
-            {
-                if (!Akama->isAlive())
-                    Akama->Respawn();
+            if (!Akama->isAlive())
+                Akama->Respawn();
 
-                ((npc_akama_illidanAI*)Akama->AI())->Reset();
-                ((npc_akama_illidanAI*)Akama->AI())->EnterEvadeMode();
-                Akama->GetMotionMaster()->MoveTargetedHome();
-            }
+            ((npc_akama_illidanAI*)Akama->AI())->Reset();
+            ((npc_akama_illidanAI*)Akama->AI())->EnterEvadeMode();
+            Akama->GetMotionMaster()->MoveTargetedHome();
         }
 
         InformAkama = false;
         RefaceVictim = false;
         HasSummoned = false;
-        AkamaGUID = 0;
-        MaievGUID = 0;
 
         FaceVictimTimer = 1000;
         BerserkTimer = 1500000;
@@ -1596,12 +1594,12 @@ struct MANGOS_DLL_SPEC boss_illidan_stormrageAI : public ScriptedAI
 
         /** Signal to summon Maiev **/
         if (((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 30) && !MaievGUID &&
-            ((Phase != PHASE_DEMON) || (Phase != PHASE_DEMON_SEQUENCE)))
+            (Phase != PHASE_DEMON || Phase != PHASE_DEMON_SEQUENCE))
             SummonMaiev();
 
         /** Time for the death speech **/
         if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 1) && (!IsTalking) &&
-            ((Phase != PHASE_DEMON) || (Phase != PHASE_DEMON_SEQUENCE)))
+            (Phase != PHASE_DEMON || Phase != PHASE_DEMON_SEQUENCE))
             InitializeDeath();
 
         /***** Spells for Phase 1, 3 and 5 (Normal Form) ******/
@@ -1946,7 +1944,7 @@ void npc_akama_illidanAI::BeginEvent(uint64 PlayerGUID)
         for(uint8 i = DATA_GAMEOBJECT_ILLIDAN_DOOR_R; i < DATA_GAMEOBJECT_ILLIDAN_DOOR_L+1; ++i)
         {
             if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(i)))
-                pDoor->SetGoState(GO_STATE_ACTIVE);
+                pDoor->SetGoState(GO_STATE_READY);
         }
     }
 

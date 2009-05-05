@@ -158,14 +158,6 @@ struct MANGOS_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
 
     void SetData(uint32 type, uint32 data)
     {
-        Player *player = GetPlayerInMap();
-
-        if (!player)
-        {
-            debug_log("SD2: Instance Magtheridon: SetData (Type: %u Data %u) cannot find any player.", type, data);
-            return;
-        }
-
         switch(type)
         {
             case TYPE_MAGTHERIDON_EVENT:
@@ -174,8 +166,8 @@ struct MANGOS_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                     RespawnTimer = 10000;
                 if (data != IN_PROGRESS)
                 {
-                     if (GameObject *Door = instance->GetGameObject(DoorGUID))
-                        Door->SetGoState(GO_STATE_READY);
+                    if (GameObject* pDoor = instance->GetGameObject(DoorGUID))
+                        pDoor->SetGoState(GO_STATE_ACTIVE);
                 }
                 break;
             case TYPE_CHANNELER_EVENT:
@@ -191,19 +183,19 @@ struct MANGOS_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
 
                             for(std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                             {
-                                if (Creature* Channeler = (Creature*)Unit::GetUnit(*player, *i))
+                                if (Creature* pChanneler = instance->GetCreature(*i))
                                 {
-                                    if (Channeler->isAlive())
-                                        Channeler->AI()->EnterEvadeMode();
+                                    if (pChanneler->isAlive())
+                                        pChanneler->AI()->EnterEvadeMode();
                                     else
-                                        Channeler->Respawn();
+                                        pChanneler->Respawn();
                                 }
                             }
 
                             CageTimer = 0;
 
-                            if (GameObject *Door = instance->GetGameObject(DoorGUID))
-                                Door->SetGoState(GO_STATE_ACTIVE);
+                            if (GameObject* pDoor = instance->GetGameObject(DoorGUID))
+                                pDoor->SetGoState(GO_STATE_ACTIVE);
                         }
                         break;
                     case IN_PROGRESS:                       // Event start.
@@ -214,27 +206,28 @@ struct MANGOS_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                             // Let all five channelers aggro.
                             for(std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                             {
-                                Creature *Channeler = (Creature*)Unit::GetUnit(*player, *i);
-                                if (Channeler && Channeler->isAlive())
-                                {
-                                    AttackNearestTarget(Channeler);
-                                }
+                                Creature* pChanneler = instance->GetCreature(*i);
+
+                                if (pChanneler && pChanneler->isAlive())
+                                    AttackNearestTarget(pChanneler);
                             }
 
                             // Magtheridon breaks free after two minutes.
-                            Unit *Magtheridon = Unit::GetUnit(*player, MagtheridonGUID);
-                            if (Magtheridon && Magtheridon->isAlive())
+                            Creature* pMagtheridon = instance->GetCreature(MagtheridonGUID);
+
+                            if (pMagtheridon && pMagtheridon->isAlive())
                                 CageTimer = 120000;
 
-                            if (GameObject *Door = instance->GetGameObject(DoorGUID))
-                                Door->SetGoState(GO_STATE_READY);
+                            if (GameObject* pDoor = instance->GetGameObject(DoorGUID))
+                                pDoor->SetGoState(GO_STATE_READY);
                         }
                         break;
                     case DONE:                              // Add buff and check if all channelers are dead.
                         for(std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                         {
-                            Unit *Channeler = Unit::GetUnit(*player, *i);
-                            if (Channeler && Channeler->isAlive())
+                            Creature* pChanneler = instance->GetCreature(*i);
+
+                            if (pChanneler && pChanneler->isAlive())
                             {
                                 //Channeler->InterruptNonMeleeSpells(false);
                                 //Channeler->CastSpell(Channeler, SPELL_SOUL_TRANSFER, false);
@@ -250,8 +243,7 @@ struct MANGOS_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                 // IN_PROGRESS - collapse / NOT_STARTED - reset
                 for(std::set<uint64>::iterator i = ColumnGUID.begin(); i != ColumnGUID.end(); ++i)
                 {
-                    if (GameObject *Column = instance->GetGameObject(*i))
-                        Column->SetGoState(data ? GO_STATE_ACTIVE : GO_STATE_READY);
+                    DoUseDoorOrButton(*i);
                 }
                 break;
         }
@@ -267,26 +259,9 @@ struct MANGOS_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
         return 0;
     }
 
-    Player* GetPlayerInMap()
-    {
-        Map::PlayerList const& players = instance->GetPlayers();
-
-        if (!players.isEmpty())
-        {
-            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            {
-                if (Player* plr = itr->getSource())
-                    return plr;
-            }
-        }
-
-        debug_log("SD2: Instance Magtheridon: GetPlayer, but PlayerList is empty.");
-        return NULL;
-    }
-
     void AttackNearestTarget(Creature *creature)
     {
-        float minRange = 999.0f;
+        float minRange = VISIBLE_RANGE;
         float range;
         Player* target = NULL;
 
@@ -330,19 +305,17 @@ struct MANGOS_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
         {
             if (RespawnTimer <= diff)
             {
-                if (Player *player = GetPlayerInMap())
+                for(std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                 {
-                    for(std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
+                    if (Creature* pChanneler = instance->GetCreature(*i))
                     {
-                        if (Creature *Channeler = (Creature*)Unit::GetUnit(*player, *i))
-                        {
-                            if (Channeler->isAlive())
-                                Channeler->AI()->EnterEvadeMode();
-                            else
-                                Channeler->Respawn();
-                        }
+                        if (pChanneler->isAlive())
+                            pChanneler->AI()->EnterEvadeMode();
+                        else
+                            pChanneler->Respawn();
                     }
                 }
+
                 RespawnTimer = 0;
             }else RespawnTimer -= diff;
         }
