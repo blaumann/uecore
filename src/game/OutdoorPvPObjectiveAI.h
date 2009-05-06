@@ -19,25 +19,18 @@
 #ifndef MANGOS_OUTDOORPVPOBJECTIVEAI_H
 #define MANGOS_OUTDOORPVPOBJECTIVEAI_H
 
-#include "CreatureAI.h"
+#include "NullCreatureAI.h"
 
 class Creature;
 
-class MANGOS_DLL_DECL OutdoorPvPObjectiveAI : public CreatureAI
+class MANGOS_DLL_DECL OutdoorPvPObjectiveAI : public NullCreatureAI
 {
     public:
-
         explicit OutdoorPvPObjectiveAI(Creature *c);
 
         void MoveInLineOfSight(Unit *);
-        bool IsVisible(Unit *) const;
-        void AttackStart(Unit *);
-        void EnterEvadeMode();
-        void UpdateAI(const uint32 diff);
 
         static int Permissible(const Creature *);
-
-    private:
-        Creature *m_creature;
 };
 #endif
+

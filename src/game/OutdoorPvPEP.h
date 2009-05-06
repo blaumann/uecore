@@ -186,7 +186,7 @@ public:
     bool Update(uint32 diff);
     void FillInitialWorldStates(WorldPacket & data);
     // used when player is activated/inactivated in the area
-    void HandlePlayerEnter(Player * plr);
+    bool HandlePlayerEnter(Player * plr);
     void HandlePlayerLeave(Player * plr);
 protected:
     bool HandleCapturePointEvent(Player * plr, uint32 eventId);
@@ -194,6 +194,7 @@ protected:
     void UpdateTowerState();
 protected:
     uint32 m_TowerState;
+    uint32 m_UnitsSummonedSide;
 };
 
 class OutdoorPvPObjectiveEP_NPT : public OutdoorPvPObjective
@@ -204,7 +205,7 @@ public:
     bool Update(uint32 diff);
     void FillInitialWorldStates(WorldPacket & data);
     // used when player is activated/inactivated in the area
-    void HandlePlayerEnter(Player * plr);
+    bool HandlePlayerEnter(Player * plr);
     void HandlePlayerLeave(Player * plr);
 protected:
     bool HandleCapturePointEvent(Player * plr, uint32 eventId);
@@ -212,6 +213,7 @@ protected:
     void UpdateTowerState();
 protected:
     uint32 m_TowerState;
+    uint32 m_SummonedGOSide;
 };
 
 class OutdoorPvPObjectiveEP_CGT : public OutdoorPvPObjective
@@ -222,7 +224,7 @@ public:
     bool Update(uint32 diff);
     void FillInitialWorldStates(WorldPacket & data);
     // used when player is activated/inactivated in the area
-    void HandlePlayerEnter(Player * plr);
+    bool HandlePlayerEnter(Player * plr);
     void HandlePlayerLeave(Player * plr);
 protected:
     bool HandleCapturePointEvent(Player * plr, uint32 eventId);
@@ -230,6 +232,7 @@ protected:
     void UpdateTowerState();
 protected:
     uint32 m_TowerState;
+    uint32 m_GraveyardSide;
 };
 
 class OutdoorPvPObjectiveEP_PWT : public OutdoorPvPObjective
@@ -240,29 +243,17 @@ public:
     bool Update(uint32 diff);
     void FillInitialWorldStates(WorldPacket & data);
     // used when player is activated/inactivated in the area
-    void HandlePlayerEnter(Player * plr);
+    bool HandlePlayerEnter(Player * plr);
     void HandlePlayerLeave(Player * plr);
     bool HandleGossipOption(Player *plr, uint64 guid, uint32 gossipid);
+    bool CanTalkTo(Player * plr, Creature * c, GossipOption &gso);
 protected:
     bool HandleCapturePointEvent(Player * plr, uint32 eventId);
     void SummonFlightMaster(uint32 team);
     void UpdateTowerState();
-    // copy from player.h
-    bool SetTaximaskNode(uint32 nodeidx)
-    {
-        uint8  field   = uint8((nodeidx - 1) / 32);
-        uint32 submask = 1<<((nodeidx-1)%32);
-        if ((m_taximask[field] & submask) != submask )
-        {
-            m_taximask[field] |= submask;
-            return true;
-        }
-        else
-            return false;
-    }
 protected:
+    uint32 m_FlightMasterSpawned;
     uint32 m_TowerState;
-    TaxiMask m_taximask;
 };
 
 class OutdoorPvPEP : public OutdoorPvP
@@ -288,3 +279,4 @@ private:
 };
 
 #endif
+

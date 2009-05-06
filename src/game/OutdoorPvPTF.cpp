@@ -99,13 +99,17 @@ void OutdoorPvPObjectiveTF::UpdateTowerState()
     m_PvP->SendUpdateWorldState(uint32(TFTowerWorldStates[m_TowerType].a),uint32(bool(m_TowerState & TF_TOWERSTATE_A)));
 }
 
-void OutdoorPvPObjectiveTF::HandlePlayerEnter(Player *plr)
+bool OutdoorPvPObjectiveTF::HandlePlayerEnter(Player *plr)
 {
-    OutdoorPvPObjective::HandlePlayerEnter(plr);
-    plr->SendUpdateWorldState(TF_UI_TOWER_SLIDER_DISPLAY, 1);
-    uint32 phase = (uint32)ceil(( m_ShiftPhase + m_ShiftMaxPhase) / ( 2 * m_ShiftMaxPhase ) * 100.0f);
-    plr->SendUpdateWorldState(TF_UI_TOWER_SLIDER_POS, phase);
-    plr->SendUpdateWorldState(TF_UI_TOWER_SLIDER_N, m_NeutralValue);
+    if(OutdoorPvPObjective::HandlePlayerEnter(plr))
+    {
+        plr->SendUpdateWorldState(TF_UI_TOWER_SLIDER_DISPLAY, 1);
+        uint32 phase = (uint32)ceil(( m_ShiftPhase + m_ShiftMaxPhase) / ( 2 * m_ShiftMaxPhase ) * 100.0f);
+        plr->SendUpdateWorldState(TF_UI_TOWER_SLIDER_POS, phase);
+        plr->SendUpdateWorldState(TF_UI_TOWER_SLIDER_N, m_NeutralValue);
+        return true;
+    }
+    return false;
 }
 
 void OutdoorPvPObjectiveTF::HandlePlayerLeave(Player *plr)
@@ -274,11 +278,11 @@ bool OutdoorPvPTF::SetupOutdoorPvP()
     for(int i = 0; i < OutdoorPvPTFBuffZonesNum; ++i)
         sOutdoorPvPMgr.AddZone(OutdoorPvPTFBuffZones[i],this);
 
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveTF(this,TF_TOWER_NW));
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveTF(this,TF_TOWER_N));
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveTF(this,TF_TOWER_NE));
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveTF(this,TF_TOWER_SE));
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveTF(this,TF_TOWER_S));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveTF(this,TF_TOWER_NW));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveTF(this,TF_TOWER_N));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveTF(this,TF_TOWER_NE));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveTF(this,TF_TOWER_SE));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveTF(this,TF_TOWER_S));
 
     return true;
 }
@@ -286,8 +290,8 @@ bool OutdoorPvPTF::SetupOutdoorPvP()
 bool OutdoorPvPObjectiveTF::Update(uint32 diff)
 {
     // can update even in locked state if gathers the controlling faction
-    bool canupdate = ((((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled > 0) && this->m_AllianceActivePlayerCount > this->m_HordeActivePlayerCount) ||
-            ((((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled > 0) && this->m_AllianceActivePlayerCount < this->m_HordeActivePlayerCount);
+    bool canupdate = ((((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled > 0) && this->m_ActivePlayerGuids[0].size() > this->m_ActivePlayerGuids[1].size()) ||
+            ((((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled > 0) && this->m_ActivePlayerGuids[0].size() < this->m_ActivePlayerGuids[1].size());
     // if gathers the other faction, then only update if the pvp is unlocked
     canupdate = canupdate || !((OutdoorPvPTF*)m_PvP)->m_IsLocked;
     if(canupdate && OutdoorPvPObjective::Update(diff))
@@ -299,17 +303,17 @@ bool OutdoorPvPObjectiveTF::Update(uint32 diff)
             {
                 if(((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled)
                     ((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled--;
-                sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],objmgr.GetMangosString(LANG_OPVP_TF_LOOSE_A, -1));
+                sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],objmgr.GetMangosStringForDBCLocale(LANG_OPVP_TF_LOOSE_A));
             }
             // if changing from controlling horde to alliance
             else if ( m_OldState == OBJECTIVESTATE_HORDE )
             {
                 if(((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled)
                     ((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled--;
-                sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],objmgr.GetMangosString(LANG_OPVP_TF_LOOSE_H,-1));
+                sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],objmgr.GetMangosStringForDBCLocale(LANG_OPVP_TF_LOOSE_H));
             }
 
-            uint8 artkit = 21;
+            uint32 artkit = 21;
 
             switch(m_State)
             {
@@ -318,14 +322,14 @@ bool OutdoorPvPObjectiveTF::Update(uint32 diff)
                 artkit = 2;
                 if(((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled<TF_TOWER_NUM)
                     ((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled++;
-                sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],objmgr.GetMangosString(LANG_OPVP_TF_CAPTURE_A,-1));
+                sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],objmgr.GetMangosStringForDBCLocale(LANG_OPVP_TF_CAPTURE_A));
                 break;
             case OBJECTIVESTATE_HORDE:
                 m_TowerState = TF_TOWERSTATE_H;
                 artkit = 1;
                 if(((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled<TF_TOWER_NUM)
                     ((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled++;
-                sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],objmgr.GetMangosString(LANG_OPVP_TF_CAPTURE_H,-1));
+                sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],objmgr.GetMangosStringForDBCLocale(LANG_OPVP_TF_CAPTURE_H));
                 break;
             case OBJECTIVESTATE_NEUTRAL:
             case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
@@ -356,7 +360,8 @@ bool OutdoorPvPObjectiveTF::Update(uint32 diff)
             // send this too, sometimes it resets :S
             SendUpdateWorldState(TF_UI_TOWER_SLIDER_N, m_NeutralValue);
         }
-        return true;
+        return m_OldState != m_State;
     }
     return false;
 }
+

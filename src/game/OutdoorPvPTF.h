@@ -101,7 +101,7 @@ public:
     bool Update(uint32 diff);
     void FillInitialWorldStates(WorldPacket & data);
     // used when player is activated/inactivated in the area
-    void HandlePlayerEnter(Player * plr);
+    bool HandlePlayerEnter(Player * plr);
     void HandlePlayerLeave(Player * plr);
     void UpdateTowerState();
 protected:
@@ -133,3 +133,4 @@ private:
 };
 
 #endif
+

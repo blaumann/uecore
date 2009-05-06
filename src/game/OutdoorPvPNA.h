@@ -16,6 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+
 #ifndef OUTDOOR_PVP_NA_
 #define OUTDOOR_PVP_NA_
 
@@ -246,7 +247,7 @@ public:
     bool Update(uint32 diff);
     void FillInitialWorldStates(WorldPacket & data);
     // used when player is activated/inactivated in the area
-    void HandlePlayerEnter(Player * plr);
+    bool HandlePlayerEnter(Player * plr);
     void HandlePlayerLeave(Player * plr);
     bool HandleCustomSpell(Player *plr, uint32 spellId, GameObject * go);
     int32 HandleOpenGo(Player *plr, uint64 guid);
@@ -295,3 +296,4 @@ private:
 };
 
 #endif
+

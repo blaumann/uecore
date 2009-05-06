@@ -16,6 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+
 #ifndef OUTDOOR_PVP_H_
 #define OUTDOOR_PVP_H_
 
@@ -23,8 +24,6 @@
 
 #include <map>
 #include <set>
-
-#define OUTDOORPVP_OBJECTIVE_UPDATE_INTERVAL 1000
 
 #define OPVP_TRIGGER_CREATURE_ENTRY 12999
 
@@ -44,8 +43,7 @@ enum OutdoorPvPTypes{
     OUTDOOR_PVP_TF = 3,
     OUTDOOR_PVP_ZM = 4,
     OUTDOOR_PVP_SI = 5,
-    OUTDOOR_PVP_EP = 6,
-    OUTDOOR_PVP_LA = 7
+    OUTDOOR_PVP_EP = 6
 };
 
 // struct for go spawning
@@ -95,7 +93,7 @@ public:
     virtual void SendObjectiveComplete(uint32 id, uint64 guid);
 
     // used when player is activated/inactivated in the area
-    virtual void HandlePlayerEnter(Player * plr);
+    virtual bool HandlePlayerEnter(Player * plr);
     virtual void HandlePlayerLeave(Player * plr);
     virtual void HandlePlayerActivityChanged(Player * plr);
 
@@ -129,13 +127,11 @@ protected:
     virtual bool DelObject(uint32 type);
     virtual bool DelCapturePoint();
 
+    virtual void UpdateActivePlayerProximityCheck();
+
 protected:
-    // active players in the area of the objective
-    std::set<uint64> m_ActivePlayerGuids;
-    int32 m_AllianceActivePlayerCount;
-    int32 m_HordeActivePlayerCount;
-    // time left to capture the objective
-    uint32 m_ShiftTimer;
+    // active players in the area of the objective, 0 - alliance, 1 - horde
+    std::set<uint64> m_ActivePlayerGuids[2];
     // total shift needed to capture the objective
     float m_ShiftMaxPhase;
     // maximum speed of capture
@@ -174,7 +170,7 @@ public:
     // deletes all gos/creatures spawned by the pvp
     void DeleteSpawns();
 
-    typedef std::set<OutdoorPvPObjective *> OutdoorPvPObjectiveSet;
+    typedef std::vector<OutdoorPvPObjective *> OutdoorPvPObjectiveSet;
 
     // called from Player::UpdateZone to add / remove buffs given by outdoor pvp events
     virtual void HandlePlayerEnterZone(Player * plr, uint32 zone);
@@ -213,7 +209,6 @@ public:
     virtual void AwardKillBonus(Player * plr) {}
 
     uint32 GetTypeId() {return m_TypeId;}
-    void SetTypeId(uint32 TypeID) { m_TypeId = TypeID; }
 
     virtual bool HandleDropFlag(Player * plr, uint32 spellId);
 
@@ -229,3 +224,4 @@ protected:
 };
 
 #endif /*OUTDOOR_PVP_H_*/
+

@@ -25,10 +25,6 @@
 #include "ObjectMgr.h"
 #include "Language.h"
 
-OutdoorPvPHP::OutdoorPvPHP()
-{
-}
-
 const uint32 HP_LANG_LOOSE_A[HP_TOWER_NUM] = {LANG_OPVP_HP_LOOSE_BROKENHILL_A,LANG_OPVP_HP_LOOSE_OVERLOOK_A,LANG_OPVP_HP_LOOSE_STADIUM_A};
 
 const uint32 HP_LANG_LOOSE_H[HP_TOWER_NUM] = {LANG_OPVP_HP_LOOSE_BROKENHILL_H,LANG_OPVP_HP_LOOSE_OVERLOOK_H,LANG_OPVP_HP_LOOSE_STADIUM_H};
@@ -63,6 +59,11 @@ OutdoorPvPObjectiveHP::OutdoorPvPObjectiveHP(OutdoorPvP *pvp,OutdoorPvPHPTowerTy
         HPTowerFlags[type].rot3);
 }
 
+OutdoorPvPHP::OutdoorPvPHP()
+{
+    m_TypeId = OUTDOOR_PVP_HP;
+}
+
 bool OutdoorPvPHP::SetupOutdoorPvP()
 {
     m_AllianceTowersControlled = 0;
@@ -71,11 +72,11 @@ bool OutdoorPvPHP::SetupOutdoorPvP()
     for(int i = 0; i < OutdoorPvPHPBuffZonesNum; ++i)
         sOutdoorPvPMgr.AddZone(OutdoorPvPHPBuffZones[i],this);
 
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveHP(this,HP_TOWER_BROKEN_HILL));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveHP(this,HP_TOWER_BROKEN_HILL));
 
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveHP(this,HP_TOWER_OVERLOOK));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveHP(this,HP_TOWER_OVERLOOK));
 
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveHP(this,HP_TOWER_STADIUM));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveHP(this,HP_TOWER_STADIUM));
 
     return true;
 }
@@ -120,7 +121,7 @@ bool OutdoorPvPHP::Update(uint32 diff)
         else if(m_HordeTowersControlled == 3)
             BuffTeam(HORDE);
         else
-            BuffTeam(NULL);
+            BuffTeam(0);
         SendUpdateWorldState(HP_UI_TOWER_COUNT_A, m_AllianceTowersControlled);
         SendUpdateWorldState(HP_UI_TOWER_COUNT_H, m_HordeTowersControlled);
     }
@@ -176,13 +177,13 @@ bool OutdoorPvPObjectiveHP::Update(uint32 diff)
                 field = HP_MAP_A[m_TowerType];
                 if(((OutdoorPvPHP*)m_PvP)->m_AllianceTowersControlled)
                     ((OutdoorPvPHP*)m_PvP)->m_AllianceTowersControlled--;
-                sWorld.SendZoneText(OutdoorPvPHPBuffZones[0],objmgr.GetMangosString(HP_LANG_LOOSE_A[m_TowerType],-1));
+                sWorld.SendZoneText(OutdoorPvPHPBuffZones[0],objmgr.GetMangosStringForDBCLocale(HP_LANG_LOOSE_A[m_TowerType]));
                 break;
             case OBJECTIVESTATE_HORDE:
                 field = HP_MAP_H[m_TowerType];
                 if(((OutdoorPvPHP*)m_PvP)->m_HordeTowersControlled)
                     ((OutdoorPvPHP*)m_PvP)->m_HordeTowersControlled--;
-                sWorld.SendZoneText(OutdoorPvPHPBuffZones[0],objmgr.GetMangosString(HP_LANG_LOOSE_H[m_TowerType],-1));
+                sWorld.SendZoneText(OutdoorPvPHPBuffZones[0],objmgr.GetMangosStringForDBCLocale(HP_LANG_LOOSE_H[m_TowerType]));
                 break;
             case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
                 field = HP_MAP_N[m_TowerType];
@@ -204,8 +205,8 @@ bool OutdoorPvPObjectiveHP::Update(uint32 diff)
                 m_PvP->SendUpdateWorldState(field, 0);
                 field = 0;
             }
-            uint8 artkit = 21;
-            uint8 artkit2 = HP_TowerArtKit_N[m_TowerType];
+            uint32 artkit = 21;
+            uint32 artkit2 = HP_TowerArtKit_N[m_TowerType];
             switch(m_State)
             {
             case OBJECTIVESTATE_NEUTRAL:
@@ -217,7 +218,7 @@ bool OutdoorPvPObjectiveHP::Update(uint32 diff)
                 artkit2 = HP_TowerArtKit_A[m_TowerType];
                 if(((OutdoorPvPHP*)m_PvP)->m_AllianceTowersControlled<3)
                     ((OutdoorPvPHP*)m_PvP)->m_AllianceTowersControlled++;
-                sWorld.SendZoneText(OutdoorPvPHPBuffZones[0],objmgr.GetMangosString(HP_LANG_CAPTURE_A[m_TowerType],-1));
+                sWorld.SendZoneText(OutdoorPvPHPBuffZones[0],objmgr.GetMangosStringForDBCLocale(HP_LANG_CAPTURE_A[m_TowerType]));
                 break;
             case OBJECTIVESTATE_HORDE:
                 field = HP_MAP_H[m_TowerType];
@@ -225,7 +226,7 @@ bool OutdoorPvPObjectiveHP::Update(uint32 diff)
                 artkit2 = HP_TowerArtKit_H[m_TowerType];
                 if(((OutdoorPvPHP*)m_PvP)->m_HordeTowersControlled<3)
                     ((OutdoorPvPHP*)m_PvP)->m_HordeTowersControlled++;
-                sWorld.SendZoneText(OutdoorPvPHPBuffZones[0],objmgr.GetMangosString(HP_LANG_CAPTURE_H[m_TowerType],-1));
+                sWorld.SendZoneText(OutdoorPvPHPBuffZones[0],objmgr.GetMangosStringForDBCLocale(HP_LANG_CAPTURE_H[m_TowerType]));
                 break;
             case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
                 field = HP_MAP_N[m_TowerType];
@@ -276,7 +277,7 @@ bool OutdoorPvPObjectiveHP::Update(uint32 diff)
             // send this too, sometimes the slider disappears, dunno why :(
             SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY, 1);
         }
-        return true;
+        return m_OldState != m_State;
     }
     return false;
 }
@@ -308,13 +309,17 @@ void OutdoorPvPObjectiveHP::FillInitialWorldStates(WorldPacket &data)
     }
 }
 
-void OutdoorPvPObjectiveHP::HandlePlayerEnter(Player *plr)
+bool OutdoorPvPObjectiveHP::HandlePlayerEnter(Player *plr)
 {
-    OutdoorPvPObjective::HandlePlayerEnter(plr);
-    plr->SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY, 1);
-    uint32 phase = (uint32)ceil(( m_ShiftPhase + m_ShiftMaxPhase) / ( 2 * m_ShiftMaxPhase ) * 100.0f);
-    plr->SendUpdateWorldState(HP_UI_TOWER_SLIDER_POS, phase);
-    plr->SendUpdateWorldState(HP_UI_TOWER_SLIDER_N, m_NeutralValue);
+    if(OutdoorPvPObjective::HandlePlayerEnter(plr))
+    {
+        plr->SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY, 1);
+        uint32 phase = (uint32)ceil(( m_ShiftPhase + m_ShiftMaxPhase) / ( 2 * m_ShiftMaxPhase ) * 100.0f);
+        plr->SendUpdateWorldState(HP_UI_TOWER_SLIDER_POS, phase);
+        plr->SendUpdateWorldState(HP_UI_TOWER_SLIDER_N, m_NeutralValue);
+        return true;
+    }
+    return false;
 }
 
 void OutdoorPvPObjectiveHP::HandlePlayerLeave(Player *plr)
@@ -391,3 +396,4 @@ bool OutdoorPvPObjectiveHP::HandleCapturePointEvent(Player *plr, uint32 eventId)
     }
     return false;
 }
+

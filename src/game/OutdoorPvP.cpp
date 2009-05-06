@@ -16,6 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
 #include "ObjectAccessor.h"
@@ -27,40 +28,29 @@
 #include "WorldPacket.h"
 
 OutdoorPvPObjective::OutdoorPvPObjective(OutdoorPvP * pvp)
-: m_PvP(pvp), m_AllianceActivePlayerCount(0), m_HordeActivePlayerCount(0),
-m_ShiftTimer(0), m_ShiftPhase(0), m_ShiftMaxPhase(0), m_OldPhase(0),
-m_State(0), m_OldState(0), m_CapturePoint(0), m_NeutralValue(0), m_ShiftMaxCaptureSpeed(0), m_CapturePointCreature(0)
+: m_PvP(pvp), m_ShiftPhase(0), m_ShiftMaxPhase(0), m_OldPhase(0),
+m_State(0), m_OldState(0), m_CapturePoint(0), m_NeutralValue(0),
+m_ShiftMaxCaptureSpeed(0), m_CapturePointCreature(0)
 {
 }
 
-void OutdoorPvPObjective::HandlePlayerEnter(Player * plr)
+bool OutdoorPvPObjective::HandlePlayerEnter(Player * plr)
 {
-    // only called if really entered
+    uint32 team = (plr->GetTeam() == HORDE) ? 1 : 0;
+    // only called if really entered, so no use in the return value anymore
     // player distance and activity state was checked already in the AI
-    std::set<uint64>::iterator pitr = m_ActivePlayerGuids.find(plr->GetGUID());
-    // if not already counted as active, add player
-    if(pitr == m_ActivePlayerGuids.end())
-    {
-        if(plr->GetTeam() == ALLIANCE)
-            ++m_AllianceActivePlayerCount;
-        else
-            ++m_HordeActivePlayerCount;
-        m_ActivePlayerGuids.insert(plr->GetGUID());
+    std::pair<std::set<uint64>::iterator,bool> newinsert = m_ActivePlayerGuids[team].insert(plr->GetGUID());
+    if(newinsert.second)
         sLog.outDebug("player %u entered an outdoorpvpobjective", plr->GetGUIDLow());
-    }
+    return true;
 }
 
 void OutdoorPvPObjective::HandlePlayerLeave(Player * plr)
 {
+    uint32 team = (plr->GetTeam() == HORDE) ? 1 : 0;
     // only decrease the count if the player is in the active list
-    if(m_ActivePlayerGuids.find(plr->GetGUID())!=m_ActivePlayerGuids.end())
-    {
-        if(plr->GetTeam() == ALLIANCE)
-            --m_AllianceActivePlayerCount;
-        else
-            --m_HordeActivePlayerCount;
-        m_ActivePlayerGuids.erase(plr->GetGUID());
-    }
+    if(m_ActivePlayerGuids[team].erase(plr->GetGUID()) > 0)
+        sLog.outDebug("player %u left an outdoorpvpobjective", plr->GetGUIDLow());
 }
 
 void OutdoorPvPObjective::HandlePlayerActivityChanged(Player * plr)
@@ -95,7 +85,6 @@ bool OutdoorPvPObjective::AddObject(uint32 type, uint32 entry, uint32 map, float
     data.animprogress   = 100;
     data.spawnMask      = 1;
     data.go_state       = GO_STATE_READY;
-    data.phaseMask      = PHASEMASK_NORMAL;
 
     objmgr.AddGameobjectToGrid(guid, &data);
 
@@ -107,7 +96,7 @@ bool OutdoorPvPObjective::AddObject(uint32 type, uint32 entry, uint32 map, float
     if(!pMap)
         return true;
     GameObject * go = new GameObject;
-    if(!go->Create(guid,entry, pMap, PHASEMASK_NORMAL ,x,y,z,o,rotation0,rotation1,rotation2,rotation3,100, GO_STATE_READY))
+    if(!go->Create(guid,entry, pMap,PHASEMASK_NORMAL,x,y,z,o,rotation0,rotation1,rotation2,rotation3,100,GO_STATE_READY))
     {
         sLog.outError("Gameobject template %u not found in database.", entry);
         delete go;
@@ -142,23 +131,22 @@ bool OutdoorPvPObjective::AddCreature(uint32 type, uint32 entry, uint32 teamval,
 
     CreatureData& data = objmgr.NewOrExistCreatureData(guid);
 
-    data.id             = entry;
-    data.mapid          = map;
-    data.displayid      = displayId;
-    data.equipmentId    = cinfo->equipmentId;
-    data.posX           = x;
-    data.posY           = y;
-    data.posZ           = z;
-    data.orientation    = o;
-    data.spawntimesecs  = spawntimedelay;
-    data.spawndist      = 0;
+    data.id = entry;
+    data.mapid = map;
+    data.displayid = displayId;
+    data.equipmentId = cinfo->equipmentId;
+    data.posX = x;
+    data.posY = y;
+    data.posZ = z;
+    data.orientation = o;
+    data.spawntimesecs = spawntimedelay;
+    data.spawndist = 0;
     data.currentwaypoint = 0;
-    data.curhealth      = cinfo->maxhealth;
-    data.curmana        = cinfo->maxmana;
-    data.is_dead        = false;
-    data.movementType   = cinfo->MovementType;
-    data.spawnMask      = 1;
-    data.phaseMask      = PHASEMASK_NORMAL;
+    data.curhealth = cinfo->maxhealth;
+    data.curmana = cinfo->maxmana;
+    data.is_dead = false;
+    data.movementType = cinfo->MovementType;
+    data.spawnMask = 1;
 
     objmgr.AddCreatureToGrid(guid, &data);
 
@@ -168,22 +156,20 @@ bool OutdoorPvPObjective::AddCreature(uint32 type, uint32 entry, uint32 teamval,
     Map * pMap = MapManager::Instance().FindMap(map);
     if(!pMap)
         return true;
-
     Creature* pCreature = new Creature;
     if (!pCreature->Create(guid, pMap, PHASEMASK_NORMAL, entry, teamval))
     {
         sLog.outError("Can't create creature entry: %u",entry);
         delete pCreature;
-        return true;
+        return false;
     }
-
-    pCreature->AIM_Initialize();
 
     pCreature->Relocate(x, y, z, o);
 
     if(!pCreature->IsPositionValid())
     {
         sLog.outError("ERROR: Creature (guidlow %d, entry %d) not added to opvp. Suggested coordinates isn't valid (X: %f Y: %f)",pCreature->GetGUIDLow(),pCreature->GetEntry(),pCreature->GetPositionX(),pCreature->GetPositionY());
+        delete pCreature;
         return false;
     }
 
@@ -216,22 +202,21 @@ bool OutdoorPvPObjective::AddCapturePoint(uint32 entry, uint32 map, float x, flo
     CreatureData& cdata = objmgr.NewOrExistCreatureData(creature_guid);
 
     cdata.id = OPVP_TRIGGER_CREATURE_ENTRY;
-    cdata.mapid         = map;
-    cdata.displayid     = displayId;
-    cdata.equipmentId   = cinfo->equipmentId;
-    cdata.posX          = x;
-    cdata.posY          = y;
-    cdata.posZ          = z;
-    cdata.orientation   = o;
+    cdata.mapid = map;
+    cdata.displayid = displayId;
+    cdata.equipmentId = cinfo->equipmentId;
+    cdata.posX = x;
+    cdata.posY = y;
+    cdata.posZ = z;
+    cdata.orientation = o;
     cdata.spawntimesecs = 1;
-    cdata.spawndist     = 0;
+    cdata.spawndist = 0;
     cdata.currentwaypoint = 0;
-    cdata.curhealth     = cinfo->maxhealth;
-    cdata.curmana       = cinfo->maxmana;
-    cdata.is_dead       = false;
-    cdata.movementType  = cinfo->MovementType;
-    cdata.spawnMask     = 1;
-    cdata.phaseMask     = PHASEMASK_NORMAL;
+    cdata.curhealth = cinfo->maxhealth;
+    cdata.curmana = cinfo->maxmana;
+    cdata.is_dead = false;
+    cdata.movementType = cinfo->MovementType;
+    cdata.spawnMask = 1;
 
     objmgr.AddCreatureToGrid(creature_guid, &cdata);
     m_CapturePointCreature = MAKE_NEW_GUID(creature_guid, OPVP_TRIGGER_CREATURE_ENTRY, HIGHGUID_UNIT);
@@ -255,7 +240,6 @@ bool OutdoorPvPObjective::AddCapturePoint(uint32 entry, uint32 map, float x, flo
     data.animprogress   = 100;
     data.spawnMask      = 1;
     data.go_state       = GO_STATE_READY;
-    data.phaseMask      = PHASEMASK_NORMAL;
 
     objmgr.AddGameobjectToGrid(guid, &data);
 
@@ -272,7 +256,7 @@ bool OutdoorPvPObjective::AddCapturePoint(uint32 entry, uint32 map, float x, flo
         return true;
     // add GO...
     GameObject * go = new GameObject;
-    if(!go->Create(guid,entry, pMap, PHASEMASK_NORMAL, x,y,z,o,rotation0,rotation1,rotation2,rotation3,100, GO_STATE_READY))
+    if(!go->Create(guid,entry, pMap,PHASEMASK_NORMAL,x,y,z,o,rotation0,rotation1,rotation2,rotation3,100,GO_STATE_READY))
     {
         sLog.outError("Gameobject template %u not found in database.", entry);
         delete go;
@@ -280,25 +264,25 @@ bool OutdoorPvPObjective::AddCapturePoint(uint32 entry, uint32 map, float x, flo
     else
     {
         go->SetRespawnTime(0);
-        objmgr.SaveGORespawnTime(go->GetDBTableGUIDLow(), 0, 0); //this is useless this isn't spawned through db so it doesn't has dbtableguid (it's just 0)
+        objmgr.SaveGORespawnTime(go->GetDBTableGUIDLow(), 0, 0);
         pMap->Add(go);
     }
     // add creature...
     Creature* pCreature = new Creature;
-    if (!pCreature->Create(creature_guid, pMap,PHASEMASK_NORMAL, OPVP_TRIGGER_CREATURE_ENTRY, 0))
+    if (!pCreature->Create(creature_guid, pMap, PHASEMASK_NORMAL, OPVP_TRIGGER_CREATURE_ENTRY, 0))
     {
         sLog.outError("Can't create creature entry: %u",entry);
         delete pCreature;
+        return false;
     }
     else
     {
-        pCreature->AIM_Initialize();
-
         pCreature->Relocate(x, y, z, o);
 
         if(!pCreature->IsPositionValid())
         {
             sLog.outError("ERROR: Creature (guidlow %d, entry %d) not added to opvp. Suggested coordinates isn't valid (X: %f Y: %f)",pCreature->GetGUIDLow(),pCreature->GetEntry(),pCreature->GetPositionX(),pCreature->GetPositionY());
+            delete pCreature;
             return false;
         }
 
@@ -318,20 +302,21 @@ bool OutdoorPvPObjective::DelCreature(uint32 type)
     Creature *cr = HashMapHolder<Creature>::Find(m_Creatures[type]);
     if(!cr)
     {
-		sLog.outError("OutdoorPvPObjective: Can't find creature guid: %u",m_Creatures[type]);
+        // can happen when closing the core
+        m_Creatures[type] = 0;
         return false;
     }
     sLog.outDebug("deleting opvp creature type %u",type);
     uint32 guid = cr->GetDBTableGUIDLow();
-    // dont save respawn time
+    // Don't save respawn time
     cr->SetRespawnTime(0);
     cr->RemoveCorpse();
     cr->CleanupsBeforeDelete();
     // explicit removal from map
     // beats me why this is needed, but with the recent removal "cleanup" some creatures stay in the map if "properly" deleted
     // so this is a big fat workaround, if AddObjectToRemoveList and DoDelayedMovesAndRemoves worked correctly, this wouldn't be needed
-    if(Map * map = MapManager::Instance().FindMap(cr->GetMapId()))
-        map->Remove(cr,false);
+    //if(Map * map = MapManager::Instance().FindMap(cr->GetMapId()))
+    //    map->Remove(cr,false);
     // delete respawn time for this creature
     WorldDatabase.PExecute("DELETE FROM creature_respawn WHERE guid = '%u'", guid);
     cr->AddObjectToRemoveList();
@@ -349,7 +334,7 @@ bool OutdoorPvPObjective::DelObject(uint32 type)
     GameObject *obj = HashMapHolder<GameObject>::Find(m_Objects[type]);
     if(!obj)
     {
-		sLog.outError("OutdoorPvPObjective: Can't find gobject guid: %u",m_Objects[type]);
+        m_Objects[type] = 0;
         return false;
     }
     uint32 guid = obj->GetDBTableGUIDLow();
@@ -363,20 +348,40 @@ bool OutdoorPvPObjective::DelObject(uint32 type)
 
 bool OutdoorPvPObjective::DelCapturePoint()
 {
-    if(!m_CapturePoint)
-        return false;
-
-    GameObject *obj = HashMapHolder<GameObject>::Find(m_CapturePoint);
-    if(!obj)
+    if(m_CapturePoint)
     {
-		sLog.outError("OutdoorPvPObjective: Can't find gobject guid: %u",m_CapturePoint);
-        return false;
+        GameObject *obj = HashMapHolder<GameObject>::Find(m_CapturePoint);
+        if(obj)
+        {
+            uint32 guid = obj->GetDBTableGUIDLow();
+            obj->SetRespawnTime(0);                                 // not save respawn time
+            obj->Delete();
+            objmgr.DeleteGOData(guid);
+        }
+        m_CapturePoint = 0;
     }
-    uint32 guid = obj->GetDBTableGUIDLow();
-    obj->SetRespawnTime(0);                                 // not save respawn time
-    obj->Delete();
-    objmgr.DeleteGOData(guid);
-    m_CapturePoint = 0;
+    if(m_CapturePointCreature)
+    {
+        Creature *cr = HashMapHolder<Creature>::Find(m_CapturePointCreature);
+        if(cr)
+        {
+            uint32 guid = cr->GetDBTableGUIDLow();
+            // Don't save respawn time
+            cr->SetRespawnTime(0);
+            cr->RemoveCorpse();
+            cr->CleanupsBeforeDelete();
+            // explicit removal from map
+            // beats me why this is needed, but with the recent removal "cleanup" some creatures stay in the map if "properly" deleted
+            // so this is a big fat workaround, if AddObjectToRemoveList and DoDelayedMovesAndRemoves worked correctly, this wouldn't be needed
+            //if(Map * map = MapManager::Instance().FindMap(cr->GetMapId()))
+            //    map->Remove(cr,false);
+            // delete respawn time for this creature
+            WorldDatabase.PExecute("DELETE FROM creature_respawn WHERE guid = '%u'", guid);
+            cr->AddObjectToRemoveList();
+            objmgr.DeleteCreatureData(guid);
+        }
+        m_CapturePointCreature = 0;
+    }
     return true;
 }
 
@@ -435,15 +440,40 @@ bool OutdoorPvP::Update(uint32 diff)
     return objective_changed;
 }
 
+void OutdoorPvPObjective::UpdateActivePlayerProximityCheck()
+{
+    if(GameObject *cp = HashMapHolder<GameObject>::Find(m_CapturePoint))
+    {
+        for(int team = 0; team < 2; ++team)
+        {
+            std::set<uint64>::iterator itr, next;
+            for(itr = m_ActivePlayerGuids[team].begin(); itr != m_ActivePlayerGuids[team].end(); itr = next)
+            {
+                next = itr;
+                ++next;
+                // if the player is online
+                if(Player * pl = objmgr.GetPlayer(*itr))
+                {
+                    if(!cp->IsWithinDistInMap(pl,cp->GetGOInfo()->raw.data[0]))
+                        HandleCapturePointEvent(pl, cp->GetGOInfo()->raw.data[9]); //i_objective->HandlePlayerLeave((Player*)u);
+                }
+                else
+                {
+                    sLog.outError("Player ("I64FMTD") offline, bit still in outdoor pvp, this should never happen.",(*itr));
+                }
+            }
+        }
+    }
+}
+
 bool OutdoorPvPObjective::Update(uint32 diff)
 {
+    UpdateActivePlayerProximityCheck();
+
     uint32 Challenger = 0;
-    if(m_ShiftTimer<diff)
-    {
-        m_ShiftTimer = OUTDOORPVP_OBJECTIVE_UPDATE_INTERVAL;
 
         // get the difference of numbers
-        float fact_diff = (m_AllianceActivePlayerCount - m_HordeActivePlayerCount);
+        float fact_diff = ((float)m_ActivePlayerGuids[0].size() - (float)m_ActivePlayerGuids[1].size());
 
         if(fact_diff<0)
         {
@@ -508,9 +538,6 @@ bool OutdoorPvPObjective::Update(uint32 diff)
         }
 
         return true;
-    } else m_ShiftTimer-=diff;
-
-    return false;
 }
 
 bool OutdoorPvPObjective::HandleCaptureCreaturePlayerMoveInLos(Player * p, Creature * c)
@@ -556,27 +583,30 @@ void OutdoorPvP::SendUpdateWorldState(uint32 field, uint32 value)
 
 void OutdoorPvPObjective::SendUpdateWorldState(uint32 field, uint32 value)
 {
-    // send to all players present in the area
-    for(std::set<uint64>::iterator itr = m_ActivePlayerGuids.begin(); itr != m_ActivePlayerGuids.end(); ++itr)
+    for(uint32 team = 0; team < 2; ++team)
     {
-        Player * plr = objmgr.GetPlayer(*itr);
-        if(plr)
+        // send to all players present in the area
+        for(std::set<uint64>::iterator itr = m_ActivePlayerGuids[team].begin(); itr != m_ActivePlayerGuids[team].end(); ++itr)
         {
-            plr->SendUpdateWorldState(field,value);
+            Player * plr = objmgr.GetPlayer(*itr);
+            if(plr)
+            {
+                plr->SendUpdateWorldState(field,value);
+            }
         }
     }
 }
 
 void OutdoorPvPObjective::SendObjectiveComplete(uint32 id,uint64 guid)
 {
-    uint32 controlling_faction;
+    uint32 team;
     switch(m_State)
     {
     case OBJECTIVESTATE_ALLIANCE:
-        controlling_faction = ALLIANCE;
+        team = 0;
         break;
     case OBJECTIVESTATE_HORDE:
-        controlling_faction = HORDE;
+        team = 1;
         break;
     default:
         return;
@@ -584,10 +614,10 @@ void OutdoorPvPObjective::SendObjectiveComplete(uint32 id,uint64 guid)
     }
 
     // send to all players present in the area
-    for(std::set<uint64>::iterator itr = m_ActivePlayerGuids.begin(); itr != m_ActivePlayerGuids.end(); ++itr)
+    for(std::set<uint64>::iterator itr = m_ActivePlayerGuids[team].begin(); itr != m_ActivePlayerGuids[team].end(); ++itr)
     {
         Player * plr = objmgr.GetPlayer(*itr);
-        if(plr && plr->GetTeam() == controlling_faction)
+        if(plr)
         {
             plr->KilledMonster(id,guid);
         }
@@ -645,8 +675,9 @@ bool OutdoorPvP::IsInsideObjective(Player *plr)
 
 bool OutdoorPvPObjective::IsInsideObjective(Player *plr)
 {
-    std::set<uint64>::iterator itr = m_ActivePlayerGuids.find(plr->GetGUID());
-    return itr != m_ActivePlayerGuids.end();
+    uint32 team = (plr->GetTeam() == HORDE) ? 1 : 0;
+    std::set<uint64>::iterator itr = m_ActivePlayerGuids[team].find(plr->GetGUID());
+    return itr != m_ActivePlayerGuids[team].end();
 }
 
 bool OutdoorPvP::HandleCustomSpell(Player *plr, uint32 spellId, GameObject * go)
@@ -745,3 +776,4 @@ bool OutdoorPvP::HandleAreaTrigger(Player *plr, uint32 trigger)
 {
     return false;
 }
+

@@ -877,6 +877,13 @@ enum MangosStrings
     LANG_OPVP_SI_CAPTURE_H              = 9049,
     LANG_OPVP_SI_CAPTURE_A              = 9050,
 
+    // opvp gossips
+    LANG_OPVP_EP_FLIGHT_NPT             = 9051,
+    LANG_OPVP_EP_FLIGHT_EWT             = 9052,
+    LANG_OPVP_EP_FLIGHT_CGT             = 9053,
+    LANG_OPVP_ZM_GOSSIP_ALLIANCE        = 9054,
+    LANG_OPVP_ZM_GOSSIP_HORDE           = 9055,
+
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,
     LANG_MOVIE_NOT_EXIST                = 1201,
