@@ -586,7 +586,7 @@ void Spell::EffectSchoolDMG(uint32 effect_idx)
                 // Gouge
                 else if(m_spellInfo->SpellFamilyFlags & 0x0000000000000008LL)
                 {
-                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.02f);
+                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.21f);
                 }
                 // Instant Poison
                 else if(m_spellInfo->SpellFamilyFlags & 0x0000000000002000LL)
@@ -4572,7 +4572,7 @@ void Spell::EffectSummonPet(uint32 i)
 
     if(m_caster->getClass() == CLASS_WARLOCK) {
         // when player get a pet first at high level, pet auto level up. (only warlock)
-        // skip learnLevelupSpellsWarlock routine in InitStatsForLevel - by set mode 1
+        // skip learnLevelupSpellsWarlock routine in InitStatsForLevel - by set levelupspells_mode 1
         NewSummon->InitStatsForLevel(petlevel, 1);
     }
     else {
@@ -4621,7 +4621,7 @@ void Spell::EffectSummonPet(uint32 i)
 
     if(m_caster->getClass() == CLASS_WARLOCK) {
         // when player get a pet first at high level, pet auto level up. (only warlock)
-        NewSummon->learnLevelupSpellsWarlock();
+        NewSummon->learnWarlockLevelupSpells();
     }
 }
 
