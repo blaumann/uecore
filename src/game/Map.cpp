@@ -2528,12 +2528,14 @@ void InstanceMap::UnloadAll(bool pForce)
         }
     }
 
-    MapRefManager::iterator itr = m_mapRefManager.begin();
-    Player *plr = itr->getSource();
     bool instanceHasId = false;
 
-    if(plr->GetBoundInstance(GetId(), GetSpawnMode()))
-        bool instanceHasId = true;
+    QueryResult *result = CharacterDatabase.PQuery("SELECT id FROM instance WHERE id = '%d' AND map = '%d' AND difficulty = '%d'", GetInstanceId(), GetId(), GetSpawnMode());
+    if(result)
+    {
+        instanceHasId = true;
+        delete result;
+    }
 
     if(m_resetAfterUnload == true && instanceHasId == false)
         objmgr.DeleteRespawnTimeForInstance(GetInstanceId());
