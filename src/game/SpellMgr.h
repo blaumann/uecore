@@ -562,14 +562,13 @@ typedef std::multimap<uint32, SkillLineAbilityEntry const*> SkillLineAbilityMap;
 typedef std::map<uint32, uint32> PetLevelupSpellSet;
 typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
 
-struct PetLevelupSpellSetWarlock
+struct WarlockPetLevelupSpellSet
 {
     uint32 level;
     uint32 spell;
-    uint32 autocast;
 };
 
-typedef std::multimap<uint32, PetLevelupSpellSetWarlock> PetLevelupSpellMapWarlock;
+typedef std::multimap<uint32, WarlockPetLevelupSpellSet> WarlockPetLevelupSpellMap;
 
 inline bool IsPrimaryProfessionSkill(uint32 skill)
 {
@@ -821,23 +820,14 @@ class SpellMgr
                 return NULL;
         }
         
-        PetLevelupSpellMapWarlock::const_iterator GetBeginLevelupSpellListWarlock(uint32 petFamily) const
+        WarlockPetLevelupSpellMap::const_iterator GetWarlockBeginLevelupSpellList(uint32 petFamily) const
         {
-            return mPetLevelupSpellMapWarlock.lower_bound(petFamily);
+            return mWarlockPetLevelupSpellMap.lower_bound(petFamily);
         }
 
-        PetLevelupSpellMapWarlock::const_iterator GetEndLevelupSpellListWarlock(uint32 petFamily) const
+        WarlockPetLevelupSpellMap::const_iterator GetWarlockEndLevelupSpellList(uint32 petFamily) const
         {
-            return mPetLevelupSpellMapWarlock.upper_bound(petFamily);
-        }
-
-        PetLevelupSpellSetWarlock const* GetPetLevelupSpellListWarlock(uint32 petFamily) const
-        {
-            PetLevelupSpellMapWarlock::const_iterator itr = mPetLevelupSpellMapWarlock.find(petFamily);
-            if(itr != mPetLevelupSpellMapWarlock.end())
-                return &itr->second;
-            else
-                return NULL;
+            return mWarlockPetLevelupSpellMap.upper_bound(petFamily);
         }
 
         SpellCastResult GetSpellAllowedInLocationError(SpellEntry const *spellInfo, uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player = NULL);
@@ -887,8 +877,7 @@ class SpellMgr
         void LoadSpellThreats();
         void LoadSkillLineAbilityMap();
         void LoadSpellPetAuras();
-        uint32* LoadPetLevelupSpellMapWarlockInit(uint32 *pet_spell_db_count);
-        void LoadPetLevelupSpellMapWarlock();
+        void LoadWarlockPetLevelupSpellMap();
         void LoadPetLevelupSpellMap();
         void LoadSpellAreas();
 
@@ -905,8 +894,8 @@ class SpellMgr
         SpellBonusMap      mSpellBonusMap;
         SkillLineAbilityMap mSkillLineAbilityMap;
         SpellPetAuraMap     mSpellPetAuraMap;
-        PetLevelupSpellMapWarlock  mPetLevelupSpellMapWarlock;
         PetLevelupSpellMap  mPetLevelupSpellMap;
+        WarlockPetLevelupSpellMap  mWarlockPetLevelupSpellMap;
         SpellAreaMap         mSpellAreaMap;
         SpellAreaForQuestMap mSpellAreaForQuestMap;
         SpellAreaForQuestMap mSpellAreaForActiveQuestMap;
