@@ -1210,6 +1210,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     if( spellInfo_1->SpellIconID == 2010 && spellInfo_2->SpellIconID == 2010 )
                         return false;
 
+                    // Regular and Night Elf Ghost
+                    if( (spellInfo_1->Id == 8326 && spellInfo_2->Id == 20584) ||
+                        (spellInfo_2->Id == 8326 && spellInfo_1->Id == 20584) )
+                         return false;
+
                     break;
                 }
                 case SPELLFAMILY_WARRIOR:

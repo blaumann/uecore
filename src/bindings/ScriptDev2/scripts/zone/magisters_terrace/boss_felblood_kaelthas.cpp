@@ -130,20 +130,24 @@ struct MANGOS_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
         Phase = 0;
 
         if (pInstance)
-            pInstance->SetData(DATA_KAELTHAS_EVENT, 0);
+        {
+            pInstance->SetData(DATA_KAELTHAS_EVENT, NOT_STARTED);
 
-            GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KAEL_DOOR));
-            if (Door)
-                Door->SetGoState(GO_STATE_ACTIVE);                        // Open the big encounter door. Close it in Aggro and open it only in JustDied(and here)
+            if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KAEL_DOOR)))
+                pDoor->SetGoState(GO_STATE_ACTIVE);         // Open the big encounter door. Close it in Aggro and open it only in JustDied(and here)
                                                             // Small door opened after event are expected to be closed by default
+        }
     }
 
     void JustDied(Unit *killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        GameObject* EncounterDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KAEL_DOOR));
-        if (EncounterDoor)
-            EncounterDoor->SetGoState(GO_STATE_READY);                   // Open the encounter door
+
+        if (!pInstance)
+            return;
+
+        if (GameObject* pEncounterDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KAEL_DOOR)))
+            pEncounterDoor->SetGoState(GO_STATE_ACTIVE);    // Open the encounter door
     }
 
     void DamageTaken(Unit* done_by, uint32 &damage)
@@ -154,12 +158,11 @@ struct MANGOS_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        if (pInstance)
-        {
-            GameObject* EncounterDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KAEL_DOOR));
-            if (EncounterDoor)
-                EncounterDoor->SetGoState(GO_STATE_ACTIVE);               //Close the encounter door, open it in JustDied/Reset
-        }
+        if (!pInstance)
+            return;
+
+        if (GameObject* pEncounterDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KAEL_DOOR)))
+            pEncounterDoor->SetGoState(GO_STATE_READY);     //Close the encounter door, open it in JustDied/Reset
     }
 
     void MoveInLineOfSight(Unit *who)
@@ -348,12 +351,14 @@ struct MANGOS_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 
                                 if (pInstance)
                                 {
-                                    GameObject* KaelLeft = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KAEL_STATUE_LEFT));
-                                    if (KaelLeft) KaelLeft->SetGoState(GO_STATE_ACTIVE);
-                                    GameObject* KaelRight = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KAEL_STATUE_RIGHT));
-                                    if (KaelRight) KaelRight->SetGoState(GO_STATE_ACTIVE);
+                                    if (GameObject* pKaelLeft = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KAEL_STATUE_LEFT)))
+                                        pKaelLeft->SetGoState(GO_STATE_ACTIVE);
+
+                                    if (GameObject* pKaelRight = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KAEL_STATUE_RIGHT)))
+                                        pKaelRight->SetGoState(GO_STATE_ACTIVE);
                                 }
-                            }else
+                            }
+                            else
                             {
                                 DoScriptText(SAY_RECAST_GRAVITY, m_creature);
                             }
