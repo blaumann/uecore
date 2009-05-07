@@ -23,8 +23,9 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define	SPELL_HIT 1337 // unknown
-#define NPC_LAZY_PEON 10556
+//Variables
+#define	SPELL_HIT       19938
+#define	NPC_LAZY_PEON   10556
 
 struct MANGOS_DLL_DECL mob_lazy_peonAI : public ScriptedAI
 {
@@ -35,10 +36,10 @@ struct MANGOS_DLL_DECL mob_lazy_peonAI : public ScriptedAI
 		m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 	}
 
-	void SpellHit(Unit *pCaster, SpellEntry const* pSpell)
+	void SpellHit(Unit *pCaster, const SpellEntry *pSpell)
 	{
 		if ( !m_creature->isInCombat() && (pSpell->Id == SPELL_HIT) )
-			m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+			m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE); 
 	}
 };
 
