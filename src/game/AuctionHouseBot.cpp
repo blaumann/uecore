@@ -758,7 +758,6 @@ static void addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *config, World
       auctionHouse->RemoveAuction(auction->Id);
          // Remove from database
       auction->DeleteFromDB();
-
       delete auction;
    }
 }

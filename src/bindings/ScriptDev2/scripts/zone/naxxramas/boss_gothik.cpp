@@ -196,17 +196,17 @@ struct MANGOS_DLL_DECL boss_gothikAI : public ScriptedAI
 		}
     }
 	
-	/*void AttackStart(Unit *who)
+	void AttackStart(Unit *who)
     {
         if (!who)
             return;
 
         if (who->isTargetableForAttack() && who!= m_creature)
         {
-                AttackStart(who);
+                ScriptedAI::AttackStart(who);
                 Aggro(who);
         }
-    }*/ 
+    }
 	
 	void MoveInLineOfSight(Unit *who){}
 

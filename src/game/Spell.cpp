@@ -4572,6 +4572,25 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 break;
             }
+			//SPELL_AURA_FLY means player can fly without a mount. Here we check only for flying shapeshifting
+			//If spell is shapeshifting we will go to SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED check.
+            case SPELL_AURA_FLY:
+            {
+				if((m_spellInfo->AttributesEx4 & SPELL_ATTR_EX4_CAST_ONLY_IN_OUTLAND) == 0)
+					break;//Perhaps this is not a mount
+            }
+			//check for flying mounts. mount, that has SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED also has SPELL_AURA_MOUNTED
+			//exception is spell 49851, wich is Blizz internal and not used
+            case SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED:
+			{
+                // not allow cast mount spells at old maps by players (all spells are self target)
+				if(m_caster->GetTypeId() == TYPEID_PLAYER)
+                {
+                    if( !((Player*)m_caster)->IsAllowUseFlyMountsHere() )
+                        return SPELL_FAILED_NOT_HERE;
+                }
+				break;
+			}
             case SPELL_AURA_MOUNTED:
             {
                 if (m_caster->IsInWater())
@@ -4601,39 +4620,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                 // can be casted at non-friendly unit or own pet/charm
                 if(m_caster->IsFriendlyTo(m_targets.getUnitTarget()))
                     return SPELL_FAILED_TARGET_FRIENDLY;
-
-                break;
-            }
-            case SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED:
-            case SPELL_AURA_FLY:
-            {
-                // not allow cast fly spells at old maps by players (all spells is self target)
-                if(m_caster->GetTypeId()==TYPEID_PLAYER)
-                {
-                    if(!((Player*)m_caster)->isGameMaster())
-                    {
-                        uint32 v_map = GetVirtualMapForMapAndZone(m_caster->GetMapId(),m_caster->GetZoneId());
-                        switch(v_map)
-                        {
-                        case 0:
-                        case 1:
-                            {
-                                if (!sWorld.getConfig(CONFIG_FLYING_MOUNTS_AZEROTH))
-                                    return SPELL_FAILED_NOT_HERE;
-                            } break;
-                        case 530:
-                            {
-                                if (!sWorld.getConfig(CONFIG_FLYING_MOUNTS_OUTLAND))
-                                    return SPELL_FAILED_NOT_HERE;
-                            } break;
-                        default:
-                            {
-                                if (!sWorld.getConfig(CONFIG_FLYING_MOUNTS_OTHERS))
-                                    return SPELL_FAILED_NOT_HERE;
-                            } break;
-                        }
-                    }
-                }
 
                 break;
             }

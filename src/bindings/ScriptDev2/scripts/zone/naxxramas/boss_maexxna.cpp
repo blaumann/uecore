@@ -16,148 +16,194 @@
 
 /* ScriptData
 SDName: Boss_Maexxna
-SD%Complete: 60
+SD%Complete: 80
 SDComment: this needs review, and rewrite of the webwrap ability
 SDCategory: Naxxramas
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_naxxramas.h"
 
-#define SPELL_WEBTRAP           28622                       //Spell is normally used by the webtrap on the wall NOT by Maexxna
+// Spells and Mobs used in Maexxna encounter
+enum
+{
+    SPELL_WEBWRAP1        = 28673,                       // Strange spells that may knockback target to the wall
+    SPELL_WEBWRAP2        = 54127,                       //      and trigger SPELL_WEBWRAP_SELF
+    SPELL_WEBWRAP_SELF    = 28622,                       // Spell is normally used by the webwrap on the wall NOT by Maexxna
 
-#define SPELL_WEBSPRAY          29484
-#define H_SPELL_WEBSPRAY        54125
-#define SPELL_POISONSHOCK       28741
-#define H_SPELL_POISONSHOCK     54122
-#define SPELL_NECROTICPOISON    28776
-#define H_SPELL_NECROTICPOISON  54121
-#define SPELL_FRENZY            54123
-#define H_SPELL_FRENZY          54124
+    SPELL_WEBSPRAY        = 29484,
+    SPELL_POISONSHOCK     = 28741,
+    SPELL_NECROTICPOISON  = 28776,
+    SPELL_FRENZY          = 54123,
 
-//spellId invalid
-#define SPELL_SUMMON_SPIDERLING 29434
+    MOB_WEBWRAP           = 16486,
+    MOB_SPIDERLING        = 17055
+};
 
-#define LOC_X1    3546.796
-#define LOC_Y1    -3869.082
-#define LOC_Z1    296.450
+// Positions for Web Wrap cocoons (near the wall)
+static const uint32 MAX_PLAYERS_WEB_WRAP = 3;
 
-#define LOC_X2    3531.271
-#define LOC_Y2    -3847.424
-#define LOC_Z2    299.450
+WorldLocation WWlocs[MAX_PLAYERS_WEB_WRAP] = 
+{
+    WorldLocation(533,3502.164,-3832.138,305.178,1.570),
+    WorldLocation(533,3544.651,-3850.027,299.068,2.356),
+    WorldLocation(533,3561.365,-3884.543,297.819,3.141)
+};
 
-#define LOC_X3    3497.067
-#define LOC_Y3    -3843.384
-#define LOC_Z3    302.384
-
+// Cocoon AI. It frees player from SPELL_WEBWRAP_SELF when cocoon dies
 struct MANGOS_DLL_DECL mob_webwrapAI : public ScriptedAI
 {
-    mob_webwrapAI(Creature *c) : ScriptedAI(c) {Reset();}
-
+    mob_webwrapAI(Creature *c) : ScriptedAI(c) {victimGUID = 0; Reset();}
     uint64 victimGUID;
-
     void Reset()
     {
-        victimGUID = 0;
     }
 
     void SetVictim(Unit* victim)
     {
         if (victim)
         {
-            victimGUID = victim->GetGUID();
-            victim->CastSpell(victim, SPELL_WEBTRAP, true);
+			victimGUID = victim->GetGUID();
+            m_creature->AddThreat(victim, 1.0f);
+            m_creature->GetMotionMaster()->MovePoint(0,victim->GetPositionX(),victim->GetPositionY(),victim->GetPositionZ());
+            victim->SetDisplayId(0);
         }
     }
 
-    void DamageTaken(Unit *done_by, uint32 &damage)
+    void JustDied(Unit* Killer)
     {
-        if (damage > m_creature->GetHealth())
+        Unit* victim = Unit::GetUnit((*m_creature), victimGUID);
+        if (victim)
         {
-            if (victimGUID)
-            {
-                Unit* victim = NULL;
-                victim = Unit::GetUnit((*m_creature), victimGUID);
-                victim->RemoveAurasDueToSpell(SPELL_WEBTRAP);
-            }
+            victim->RemoveAurasDueToSpell(SPELL_WEBWRAP_SELF);
+            victim->DeMorph();
+            victimGUID = 0;
         }
     }
 
-    void MoveInLineOfSight(Unit *who) { }
-    void UpdateAI(const uint32 diff) { }
+    void UpdateAI(const uint32 diff)
+    {
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        {
+            if (m_creature->isAlive())
+                m_creature->DealDamage(m_creature,m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            return;
+        }
+        if (m_creature->getVictim()->HasAura(SPELL_WEBSPRAY))
+        {
+            m_creature->getVictim()->RemoveAurasDueToSpell(SPELL_WEBSPRAY);
+            m_creature->getVictim()->CastSpell(m_creature->getVictim(), SPELL_WEBWRAP_SELF, true);
+        }
+        m_creature->GetMotionMaster()->MovePoint(0,m_creature->getVictim()->GetPositionX(),m_creature->getVictim()->GetPositionY(),m_creature->getVictim()->GetPositionZ());
+        m_creature->AddThreat(m_creature->getVictim(), 1.0f);
+    }
 };
 
+static const int MAX_SPIDERLINGS = 16;
 struct MANGOS_DLL_DECL boss_maexxnaAI : public ScriptedAI
 {
-    boss_maexxnaAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_maexxnaAI(Creature *c) : ScriptedAI(c)
+	{
+		pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        for (int i = 0; i < MAX_PLAYERS_WEB_WRAP; i++)
+            WWplayers[i] = 0;
+        for (int i = 0; i < MAX_SPIDERLINGS; i++)
+            guidSpiderlings[i] = 0;
+		Reset();
+	}
 
-    uint32 WebTrap_Timer;
+	ScriptedInstance *pInstance;
+
+    uint32 WebWrap_Timer;
     uint32 WebSpray_Timer;
     uint32 PoisonShock_Timer;
     uint32 NecroticPoison_Timer;
     uint32 SummonSpiderling_Timer;
     bool Enraged;
 
+    uint32 WWplayers[MAX_PLAYERS_WEB_WRAP];
+    uint32 WWplayersFlyTimer[MAX_PLAYERS_WEB_WRAP];
+    uint32 WWplayersFlyTimer2[MAX_PLAYERS_WEB_WRAP];
+
+    uint64 guidSpiderlings[MAX_SPIDERLINGS];
+    uint32 Spiderlings_count;
+
     void Reset()
     {
-        WebTrap_Timer = 20000;                              //20 sec init, 40 sec normal
+        WebWrap_Timer = 20000;                              //20 sec init, 40 sec normal
         WebSpray_Timer = 40000;                             //40 seconds
         PoisonShock_Timer = 20000;                          //20 seconds
         NecroticPoison_Timer = 30000;                       //30 seconds
         SummonSpiderling_Timer = 30000;                     //30 sec init, 40 sec normal
         Enraged = false;
+
+        // Remove all Spiderlings
+        Spiderlings_count = 0;
+        for (int i = 0; i < MAX_SPIDERLINGS; i++)
+        {
+            if (Unit* pUnit = Unit::GetUnit((*m_creature), guidSpiderlings[i]))
+                pUnit->AddObjectToRemoveList();
+            guidSpiderlings[i] = 0;
+        }
+        
+        for (int i = 0; i < MAX_PLAYERS_WEB_WRAP; i++)
+            WWplayers[i] = 0;
+
+		if(pInstance)
+			m_creature->isDead() ? (pInstance->SetData(ENCOUNT_MAEXXNA, DONE)):(pInstance->SetData(ENCOUNT_MAEXXNA, NOT_STARTED));
     }
 
-    void DoCastWebWrap()
+    void EnterCombat(Unit *who)
     {
-        std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
-        std::vector<Unit *> targets;
+		//Close the room for boss fight
+		if(pInstance)
+            pInstance->SetData(ENCOUNT_MAEXXNA, IN_PROGRESS);
+    }
 
-        //This spell doesn't work if we only have 1 player on threat list
-        if(t_list.size() < 2)
+    void JustDied(Unit* Killer)
+    {
+		//Faerlina is slayed -> open all doors to Maexxna
+		if(pInstance)
+            pInstance->SetData(ENCOUNT_MAEXXNA, DONE);
+    }
+
+    void JustSummoned(Creature* temp) 
+    {
+        if (!temp)
             return;
 
-        //begin + 1 , so we don't target the one with the highest threat
-        std::list<HostilReference *>::iterator itr = t_list.begin();
-        std::advance(itr, 1);
-
-        //store the threat list in a different container
-        for( ; itr!= t_list.end(); ++itr)
+        //Summoned Spiderling will target random player
+        guidSpiderlings[Spiderlings_count++] = temp->GetGUID();
+        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
         {
-            Unit* target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
-
-            //only on alive players
-            if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
-                targets.push_back(target);
+            temp->AddThreat(target,0.2f);
+            DoZoneInCombat(temp);
         }
+    }
 
-        //cut down to size if we have more than 3 targets
-        while(targets.size() > 3)
-            targets.erase(targets.begin()+rand()%targets.size());
+    void SendPlayerToWall(Unit* target, uint8 placeOnWall)
+    {
+        if (!target || target->GetTypeId() != TYPEID_PLAYER || WWplayers[placeOnWall])
+            return;
 
-        int i = 0;
+        float vsin = sin(target->GetAngle(WWlocs[placeOnWall].x,WWlocs[placeOnWall].y));
+        float vcos = cos(target->GetAngle(WWlocs[placeOnWall].x,WWlocs[placeOnWall].y));
+        float l = target->GetDistance2d(WWlocs[placeOnWall].x,WWlocs[placeOnWall].y) * 1.4f;
+        float h = WWlocs[placeOnWall].z-target->GetPositionZ() + 30.0f;
+        h = (h > 0) ? h : 0;
 
-        for(std::vector<Unit *>::iterator iter = targets.begin(); iter!= targets.end(); ++iter, ++i)
-        {
-            // Teleport the 3 targets to a location on the wall and summon a Web Wrap on them
-            switch(i)
-            {
-                case 0:
-                    DoTeleportPlayer((*iter), LOC_X1, LOC_Y1, LOC_Z1, (*iter)->GetOrientation());
-                    if (Creature* pWrap = m_creature->SummonCreature(16486, LOC_X1, LOC_Y1, LOC_Z1, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
-                        ((mob_webwrapAI*)pWrap->AI())->SetVictim((*iter));
-                    break;
-                case 1:
-                    DoTeleportPlayer((*iter), LOC_X2, LOC_Y2, LOC_Z2, (*iter)->GetOrientation());
-                    if (Creature* pWrap = m_creature->SummonCreature(16486, LOC_X2, LOC_Y2, LOC_Z2, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
-                        ((mob_webwrapAI*)pWrap->AI())->SetVictim((*iter));
-                    break;
-                case 2:
-                    DoTeleportPlayer((*iter), LOC_X3, LOC_Y3, LOC_Z3, (*iter)->GetOrientation());
-                    if (Creature* pWrap = m_creature->SummonCreature(16486, LOC_X3, LOC_Y3, LOC_Z3, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
-                        ((mob_webwrapAI*)pWrap->AI())->SetVictim((*iter));
-                    break;
-            }
-        }
+        WorldPacket data(SMSG_MOVE_KNOCK_BACK, (8+4+4+4+4+4));
+        data.append(target->GetPackGUID());
+        data << uint32(0);                                      // Sequence
+        data << float(vcos);                                    // x direction
+        data << float(vsin);                                    // y direction
+        data << float(sqrt(l*l*10.0f/(h*2)));                   // Horizontal speed
+        data << float(-sqrt(2*10.0f*h));                        // Z Movement speed (vertical)
+
+        ((Player*)target)->GetSession()->SendPacket(&data);
+        WWplayers[placeOnWall] = target->GetGUID();
+        WWplayersFlyTimer[placeOnWall] = 2300;
+        WWplayersFlyTimer2[placeOnWall] = 99999999;
     }
 
     void UpdateAI(const uint32 diff)
@@ -165,17 +211,54 @@ struct MANGOS_DLL_DECL boss_maexxnaAI : public ScriptedAI
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
+        // Handle flying players, cast webwrap and summon cocoon
+        for (int i = 0; i < MAX_PLAYERS_WEB_WRAP; i++)
+            if (WWplayers[i])
+            {
+                Unit* pl = Unit::GetUnit((*m_creature),WWplayers[i]);
+                if (pl)
+                    pl->SetOrientation(WWlocs[i].o);
+                if (WWplayersFlyTimer2[i] < diff && pl)
+                {
+                    if (Creature* Cocoon =  m_creature->SummonCreature(MOB_WEBWRAP,pl->GetPositionX(),pl->GetPositionY(),pl->GetPositionZ(),pl->GetOrientation(),
+                                                                TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,60000))
+                    {
+                        ((mob_webwrapAI*)Cocoon->AI())->SetVictim(pl);
+                        WWplayers[i] = 0;
+                    }
+                }else WWplayersFlyTimer2[i] -= diff;
+
+                if (WWplayersFlyTimer[i] < diff && pl)
+                {
+                    pl->CastSpell(pl, SPELL_WEBWRAP_SELF, true);
+                    WWplayersFlyTimer[i] = 999999999;
+                    WWplayersFlyTimer2[i] = 1200;
+                }else WWplayersFlyTimer[i] -= diff;
+            }
+
         //WebTrap_Timer
-        if (WebTrap_Timer < diff)
+        if (WebWrap_Timer < diff)
         {
-            DoCastWebWrap();
-            WebTrap_Timer = 40000;
-        }else WebTrap_Timer -= diff;
+            Unit *target = SelectUnit(SELECT_TARGET_RANDOM,1);
+            if(target && !target->HasAura(SPELL_WEBWRAP_SELF) && !target->HasAura(SPELL_WEBSPRAY))
+                SendPlayerToWall(target,rand()%MAX_PLAYERS_WEB_WRAP);
+            WebWrap_Timer = 40000;
+        }else WebWrap_Timer -= diff;
 
         //WebSpray_Timer
         if (WebSpray_Timer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_WEBSPRAY);
+            for (int i = 0; i < MAX_PLAYERS_WEB_WRAP; i++)
+                if (WWplayers[i])
+                {
+                    Unit* pl = Unit::GetUnit((*m_creature),WWplayers[i]);
+                    if (pl)
+                    {
+                        pl->RemoveAurasDueToSpell(SPELL_WEBSPRAY);
+                        pl->CastSpell(pl,SPELL_WEBWRAP_SELF,true);
+                    }
+                }
             WebSpray_Timer = 40000;
         }else WebSpray_Timer -= diff;
 
@@ -196,7 +279,10 @@ struct MANGOS_DLL_DECL boss_maexxnaAI : public ScriptedAI
         //SummonSpiderling_Timer
         if (SummonSpiderling_Timer < diff)
         {
-            DoCast(m_creature, SPELL_SUMMON_SPIDERLING);
+            //Cast(m_creature, SPELL_SUMMON_SPIDERLING);
+            for (int i = 0; i < 8 ; i++)
+                if (Spiderlings_count < MAX_SPIDERLINGS)
+                    DoSpawnCreature(MOB_SPIDERLING,0,0,0,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,120000);
             SummonSpiderling_Timer = 40000;
         }else SummonSpiderling_Timer -= diff;
 

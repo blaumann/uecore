@@ -2,7 +2,7 @@
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
-/* Originally based on BloodWyrm scripts. Modified by danbst*/
+/* Originally based on BroodWyrm scripts. Modified by danbst*/
 
 #ifndef DEF_NAXXRAMAS_H
 #define DEF_NAXXRAMAS_H
@@ -69,7 +69,7 @@ enum
     GUID_ZELIEK       = 904,
 
     //Plague Wing
-    GUID_NOTH         = 110,
+    GUID_NOTH          = 110,
     GUID_HEIGAN       = 111,
     GUID_LOATHEB      = 112,
 
