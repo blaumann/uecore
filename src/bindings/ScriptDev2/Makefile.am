@@ -316,7 +316,7 @@ scripts/zone/naxxramas/boss_razuvious.cpp \
 scripts/zone/naxxramas/boss_sapphiron.cpp \
 scripts/zone/naxxramas/boss_thaddius.cpp \
 scripts/zone/naxxramas/def_naxxramas.h \
-scripts/zone/naxxramas/instance_naxxramas.cpp \
+scripts/zone/naxxramas/instance__naxxramas.cpp \
 scripts/zone/naxxramas/npcs_naxxramas_controller.cpp \
 scripts/zone/netherstorm/netherstorm.cpp \
 scripts/zone/nexus/eye_of_eternity/boss_malygos.cpp \
