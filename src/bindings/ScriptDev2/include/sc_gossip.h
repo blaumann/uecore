@@ -16,6 +16,7 @@
 #define GOSSIP_TEXT_BANK                "The bank"
 #define GOSSIP_TEXT_IRONFORGE_BANK      "The bank of Ironforge"
 #define GOSSIP_TEXT_STORMWIND_BANK      "The bank of Stormwind"
+#define GOSSIP_TEXT_STORMWIND_HARBOR    "Stormwind Harbor"
 #define GOSSIP_TEXT_WINDRIDER           "The wind rider master"
 #define GOSSIP_TEXT_GRYPHON             "The gryphon master"
 #define GOSSIP_TEXT_BATHANDLER          "The bat handler"
@@ -26,6 +27,7 @@
 #define GOSSIP_TEXT_FLIGHTMASTER        "The flight master"
 #define GOSSIP_TEXT_AUCTIONHOUSE        "The auction house"
 #define GOSSIP_TEXT_GUILDMASTER         "The guild master"
+#define GOSSIP_TEXT_LOCKSMITH           "Stormwind Locksmith"
 #define GOSSIP_TEXT_INN                 "The inn"
 #define GOSSIP_TEXT_MAILBOX             -1999830
 #define GOSSIP_TEXT_STABLEMASTER        "The stable master"
