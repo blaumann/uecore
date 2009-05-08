@@ -102,9 +102,10 @@ Script Data End */
 ######*/
 struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
 {
-    boss_sartharionAI(Creature *c) : ScriptedAI(c) {
-    	pInstance = ((ScriptedInstance*)c->GetInstanceData());
-    	Heroic = c->GetMap()->IsHeroic();
+    boss_sartharionAI(Creature* pCreature) : ScriptedAI(pCreature)
+	{
+    	pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+    	Heroic = pCreature->GetMap()->IsHeroic();
     	Reset();
     }
 
@@ -391,9 +392,10 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL mob_tenebronAI : public ScriptedAI
 {
-    mob_tenebronAI(Creature *c) : ScriptedAI(c) {
-    	pInstance = ((ScriptedInstance*)c->GetInstanceData());
-    	Heroic = c->GetMap()->IsHeroic();
+    mob_tenebronAI(Creature* pCreature) : ScriptedAI(pCreature)
+	{
+    	pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+    	Heroic = pCreature->GetMap()->IsHeroic();
     	Reset();
     }
 
@@ -537,9 +539,10 @@ struct MANGOS_DLL_DECL mob_tenebronAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL mob_shadronAI : public ScriptedAI
 {
-    mob_shadronAI(Creature *c) : ScriptedAI(c) {
-    	pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Heroic = c->GetMap()->IsHeroic();
+    mob_shadronAI(Creature* pCreature) : ScriptedAI(pCreature)
+	{
+    	pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+        Heroic = pCreature->GetMap()->IsHeroic();
     	Reset();
     }
 
@@ -681,9 +684,10 @@ struct MANGOS_DLL_DECL mob_shadronAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL mob_vesperonAI : public ScriptedAI
 {
-    mob_vesperonAI(Creature *c) : ScriptedAI(c) {
-    	pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Heroic = c->GetMap()->IsHeroic();
+    mob_vesperonAI(Creature* pCreature) : ScriptedAI(pCreature)
+	{
+    	pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+        Heroic = pCreature->GetMap()->IsHeroic();
     	Reset();
     }
 
@@ -814,8 +818,9 @@ struct MANGOS_DLL_DECL mob_vesperonAI : public ScriptedAI
 ######*/
 struct MANGOS_DLL_DECL mob_acolyte_of_shadronAI : public ScriptedAI
 {
-    mob_acolyte_of_shadronAI(Creature *c) : ScriptedAI(c) {
-    	pInstance = ((ScriptedInstance*)c->GetInstanceData());
+    mob_acolyte_of_shadronAI(Creature* pCreature) : ScriptedAI(pCreature)
+	{
+    	pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
     	Reset();
     }
 
@@ -899,8 +904,9 @@ struct MANGOS_DLL_DECL mob_acolyte_of_shadronAI : public ScriptedAI
 ######*/
 struct MANGOS_DLL_DECL mob_acolyte_of_vesperonAI : public ScriptedAI
 {
-    mob_acolyte_of_vesperonAI(Creature *c) : ScriptedAI(c) {
-    	pInstance = ((ScriptedInstance*)c->GetInstanceData());
+    mob_acolyte_of_vesperonAI(Creature* pCreature) : ScriptedAI(pCreature)
+	{
+    	pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
     	Reset();
     }
 
@@ -1001,7 +1007,7 @@ struct MANGOS_DLL_DECL mob_twilight_eggsAI : public Scripted_NoMovementAI
 ######*/
 struct MANGOS_DLL_DECL mob_twilight_whelpAI : public ScriptedAI
 {
-    mob_twilight_whelpAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    mob_twilight_whelpAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     uint32 fade_armor_timer;
 
@@ -1028,44 +1034,44 @@ struct MANGOS_DLL_DECL mob_twilight_whelpAI : public ScriptedAI
     void JustDied(Unit* killer)  {}
 };
 
-CreatureAI* GetAI_mob_tenebron(Creature *_Creature)
+CreatureAI* GetAI_mob_tenebron(Creature* pCreature)
 {
-    return new mob_tenebronAI (_Creature);
+    return new mob_tenebronAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_shadron(Creature *_Creature)
+CreatureAI* GetAI_mob_shadron(Creature* pCreature)
 {
-    return new mob_shadronAI (_Creature);
+    return new mob_shadronAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_vesperon(Creature *_Creature)
+CreatureAI* GetAI_mob_vesperon(Creature* pCreature)
 {
-    return new mob_vesperonAI (_Creature);
+    return new mob_vesperonAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_sartharion(Creature *_Creature)
+CreatureAI* GetAI_boss_sartharion(Creature* pCreature)
 {
-    return new boss_sartharionAI (_Creature);
+    return new boss_sartharionAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_acolyte_of_shadron(Creature *_Creature)
+CreatureAI* GetAI_mob_acolyte_of_shadron(Creature* pCreature)
 {
-    return new mob_acolyte_of_shadronAI (_Creature);
+    return new mob_acolyte_of_shadronAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_acolyte_of_vesperon(Creature *_Creature)
+CreatureAI* GetAI_mob_acolyte_of_vesperon(Creature* pCreature)
 {
-    return new mob_acolyte_of_vesperonAI (_Creature);
+    return new mob_acolyte_of_vesperonAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_twilight_eggs(Creature *_Creature)
+CreatureAI* GetAI_mob_twilight_eggs(Creature* pCreature)
 {
-    return new mob_twilight_eggsAI (_Creature);
+    return new mob_twilight_eggsAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_twilight_whelp(Creature *_Creature)
+CreatureAI* GetAI_mob_twilight_whelp(Creature* pCreature)
 {
-    return new mob_twilight_whelpAI (_Creature);
+    return new mob_twilight_whelpAI(pCreature);
 }
 
 void AddSC_boss_sartharion()

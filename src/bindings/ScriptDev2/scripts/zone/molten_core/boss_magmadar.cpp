@@ -34,9 +34,9 @@ EndScriptData */
 
 struct MANGOS_DLL_DECL boss_magmadarAI : public ScriptedAI
 {
-    boss_magmadarAI(Creature *c) : ScriptedAI(c)
+    boss_magmadarAI(Creature* pCreature) : ScriptedAI(pCreature)
 	{
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
@@ -96,9 +96,9 @@ struct MANGOS_DLL_DECL boss_magmadarAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_magmadar(Creature *_Creature)
+CreatureAI* GetAI_boss_magmadar(Creature* pCreature)
 {
-    return new boss_magmadarAI (_Creature);
+    return new boss_magmadarAI(pCreature);
 }
 
 void AddSC_boss_magmadar()

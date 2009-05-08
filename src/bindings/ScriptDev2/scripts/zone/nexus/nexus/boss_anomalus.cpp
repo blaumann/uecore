@@ -31,7 +31,7 @@ update creature_template set scriptname = '' where entry = '';
 
 struct MANGOS_DLL_DECL boss_anomalusAI : public ScriptedAI
 {
-    boss_anomalusAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_anomalusAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
 	uint8 Phase;
 	// 0 = Not started
@@ -127,7 +127,7 @@ struct MANGOS_DLL_DECL boss_anomalusAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL mob_crazed_mana_wraithAI : public ScriptedAI
 {
-    mob_crazed_mana_wraithAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    mob_crazed_mana_wraithAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) {}
@@ -160,7 +160,7 @@ struct MANGOS_DLL_DECL mob_crazed_mana_wraithAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL npc_chaotic_riftAI : public ScriptedAI
 {
-    npc_chaotic_riftAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    npc_chaotic_riftAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) {}
@@ -189,19 +189,19 @@ struct MANGOS_DLL_DECL npc_chaotic_riftAI : public ScriptedAI
 	}
 };
 
-CreatureAI* GetAI_npc_chaotic_rift(Creature *_Creature)
+CreatureAI* GetAI_npc_chaotic_rift(Creature* pCreature)
 {
-    return new npc_chaotic_riftAI (_Creature);
+    return new npc_chaotic_riftAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_anomalus(Creature *_Creature)
+CreatureAI* GetAI_boss_anomalus(Creature* pCreature)
 {
-    return new boss_anomalusAI (_Creature);
+    return new boss_anomalusAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_crazed_mana_wraith(Creature *_Creature)
+CreatureAI* GetAI_mob_crazed_mana_wraith(Creature* pCreature)
 {
-    return new boss_anomalusAI (_Creature);
+    return new boss_anomalusAI(pCreature);
 }
 
 void AddSC_boss_anomalus()

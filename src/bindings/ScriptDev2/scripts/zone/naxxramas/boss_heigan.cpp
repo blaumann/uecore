@@ -64,9 +64,9 @@ EndScriptData */
  
 struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
 {
-    boss_heiganAI(Creature *c) : ScriptedAI(c) 
+    boss_heiganAI(Creature* pCreature) : ScriptedAI(pCreature) 
     {
-        pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
+        pInstance = (pCreature->GetInstanceData()) ? ((ScriptedInstance*)pCreature->GetInstanceData()) : NULL;
         Reset();
     }
 
@@ -261,7 +261,7 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
  
 struct MANGOS_DLL_DECL mob_eye_stalksAI : public ScriptedAI
 {
-    mob_eye_stalksAI(Creature *c) : ScriptedAI(c) {;}
+    mob_eye_stalksAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
  
     uint32 MindFlay_Timer;
  
@@ -348,13 +348,14 @@ struct MANGOS_DLL_DECL mob_eye_stalksAI : public ScriptedAI
  
 };
  
-CreatureAI* GetAI_boss_heigan(Creature *_Creature)
+CreatureAI* GetAI_boss_heigan(Creature* pCreature)
 {
-    return new boss_heiganAI (_Creature);
+    return new boss_heiganAI(pCreature);
 }
-CreatureAI* GetAI_mob_eye_stalks(Creature *_Creature)
+
+CreatureAI* GetAI_mob_eye_stalks(Creature* pCreature)
 {
-    return new mob_eye_stalksAI (_Creature);
+    return new mob_eye_stalksAI(pCreature);
 }
  
 void AddSC_boss_heigan()

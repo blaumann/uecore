@@ -34,7 +34,7 @@ update creature_template set scriptname = 'boss_moorabi' where entry = '';
 
 struct MANGOS_DLL_DECL boss_moorabiAI : public ScriptedAI
 {
-    boss_moorabiAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_moorabiAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) 
@@ -69,9 +69,9 @@ struct MANGOS_DLL_DECL boss_moorabiAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_moorabi(Creature *_Creature)
+CreatureAI* GetAI_boss_moorabi(Creature* pCreature)
 {
-    return new boss_moorabiAI (_Creature);
+    return new boss_moorabiAI(pCreature);
 }
 
 void AddSC_boss_moorabi()

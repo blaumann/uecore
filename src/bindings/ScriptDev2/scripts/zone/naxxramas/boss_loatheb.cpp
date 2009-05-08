@@ -58,7 +58,7 @@ off-players stories
 
 struct MANGOS_DLL_DECL boss_loathebAI : public ScriptedAI
 {
-	boss_loathebAI(Creature *c) : ScriptedAI(c) {Reset();}
+	boss_loathebAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     uint32 NecroticAura_Timer;
     uint32 Deathbloom_Timer;
@@ -137,14 +137,14 @@ struct MANGOS_DLL_DECL boss_loathebAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_loatheb(Creature *_Creature)
+CreatureAI* GetAI_boss_loatheb(Creature* pCreature)
 {
-    return new boss_loathebAI (_Creature);
+    return new boss_loathebAI(pCreature);
 }
 
 struct MANGOS_DLL_DECL mob_loatheb_sporesAI : public ScriptedAI
 {
-    mob_loatheb_sporesAI(Creature *c) : ScriptedAI(c){Reset();}
+    mob_loatheb_sporesAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     bool InCombat;
     void Reset(){}
@@ -164,9 +164,9 @@ struct MANGOS_DLL_DECL mob_loatheb_sporesAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 }; 
-CreatureAI* GetAI_mob_loatheb_spores(Creature *_Creature)
+CreatureAI* GetAI_mob_loatheb_spores(Creature* pCreature)
 {
-    return new mob_loatheb_sporesAI (_Creature);
+    return new mob_loatheb_sporesAI(pCreature);
 }
 
 void AddSC_boss_loatheb()

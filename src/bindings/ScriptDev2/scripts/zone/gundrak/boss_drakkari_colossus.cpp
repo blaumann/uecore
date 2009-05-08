@@ -18,7 +18,7 @@ update creature_template set scriptname = '' where entry = '';
 
 struct MANGOS_DLL_DECL boss_drakkari_colossusAI : public ScriptedAI
 {
-    boss_drakkari_colossusAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_drakkari_colossusAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) {}
@@ -35,9 +35,9 @@ struct MANGOS_DLL_DECL boss_drakkari_colossusAI : public ScriptedAI
     void JustDied(Unit* killer)  {}
 };
 
-CreatureAI* GetAI_boss_drakkari_colossus(Creature *_Creature)
+CreatureAI* GetAI_boss_drakkari_colossus(Creature* pCreature)
 {
-    return new boss_drakkari_colossusAI (_Creature);
+    return new boss_drakkari_colossusAI(pCreature);
 }
 
 void AddSC_boss_drakkari_colossus()

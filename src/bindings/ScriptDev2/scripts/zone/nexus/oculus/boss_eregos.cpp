@@ -67,7 +67,7 @@ update creature_template set scriptname = '' where entry = '';
 
 struct MANGOS_DLL_DECL boss_eregosAI : public ScriptedAI
 {
-    boss_eregosAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_eregosAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) {}
@@ -84,9 +84,9 @@ struct MANGOS_DLL_DECL boss_eregosAI : public ScriptedAI
     void JustDied(Unit* killer)  {}
 };
 
-CreatureAI* GetAI_boss_eregos(Creature *_Creature)
+CreatureAI* GetAI_boss_eregos(Creature* pCreature)
 {
-    return new boss_eregosAI (_Creature);
+    return new boss_eregosAI(pCreature);
 }
 
 void AddSC_boss_eregos()

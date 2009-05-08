@@ -62,9 +62,9 @@ static const uint32 MAX_CRYPT_GUARDS = 8;
 //Anub'Rekhan AI
 struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
 {
-    boss_anubrekhanAI(Creature *c) : ScriptedAI(c) 
+    boss_anubrekhanAI(Creature* pCreature) : ScriptedAI(pCreature) 
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         
         for (int i = 0; i < MAX_CRYPT_GUARDS; i++)
             guidCryptGuards[i] = 0;
@@ -289,9 +289,9 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_anubrekhan(Creature *_Creature)
+CreatureAI* GetAI_boss_anubrekhan(Creature* pCreature)
 {
-    return new boss_anubrekhanAI (_Creature);
+    return new boss_anubrekhanAI(pCreature);
 }
 
 void AddSC_boss_anubrekhan()

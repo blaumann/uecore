@@ -77,9 +77,9 @@ EndScriptData */
 
 struct MANGOS_DLL_DECL boss_thaddiusAI : public ScriptedAI
 {
-    boss_thaddiusAI(Creature *c) : ScriptedAI(c) 
+    boss_thaddiusAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
+        pInstance = (pCreature->GetInstanceData()) ? ((ScriptedInstance*)pCreature->GetInstanceData()) : NULL;
         adds_death = false;
         Reset();
     }
@@ -333,9 +333,9 @@ struct MANGOS_DLL_DECL boss_thaddiusAI : public ScriptedAI
         }
     }
 }; 
-CreatureAI* GetAI_boss_thaddius(Creature *_Creature)
+CreatureAI* GetAI_boss_thaddius(Creature* pCreature)
 {
-    return new boss_thaddiusAI (_Creature);
+    return new boss_thaddiusAI(pCreature);
 }
 
 //Feugen
@@ -352,9 +352,9 @@ CreatureAI* GetAI_boss_thaddius(Creature *_Creature)
 
 struct MANGOS_DLL_DECL mob_feugenAI : public ScriptedAI
 {
-    mob_feugenAI(Creature *c) : ScriptedAI(c) 
+    mob_feugenAI(Creature* pCreature) : ScriptedAI(pCreature) 
     {
-        pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
+        pInstance = (pCreature->GetInstanceData()) ? ((ScriptedInstance*)pCreature->GetInstanceData()) : NULL;
         Reset();
     }
 
@@ -501,9 +501,9 @@ struct MANGOS_DLL_DECL mob_feugenAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 }; 
-CreatureAI* GetAI_mob_feugen(Creature *_Creature)
+CreatureAI* GetAI_mob_feugen(Creature* pCreature)
 {
-    return new mob_feugenAI (_Creature);
+    return new mob_feugenAI(pCreature);
 }
 
 //Stalagg
@@ -520,9 +520,9 @@ CreatureAI* GetAI_mob_feugen(Creature *_Creature)
 
 struct MANGOS_DLL_DECL mob_stalaggAI : public ScriptedAI
 {
-    mob_stalaggAI(Creature *c) : ScriptedAI(c) 
+    mob_stalaggAI(Creature* pCreature) : ScriptedAI(pCreature) 
     {
-        pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
+        pInstance = (pCreature->GetInstanceData()) ? ((ScriptedInstance*)pCreature->GetInstanceData()) : NULL;
         Reset();
     }
 
@@ -664,9 +664,9 @@ struct MANGOS_DLL_DECL mob_stalaggAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 }; 
-CreatureAI* GetAI_mob_stalagg(Creature *_Creature)
+CreatureAI* GetAI_mob_stalagg(Creature* pCreature)
 {
-    return new mob_stalaggAI (_Creature);
+    return new mob_stalaggAI(pCreature);
 }
 
 void AddSC_boss_thaddius()

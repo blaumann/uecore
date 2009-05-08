@@ -365,9 +365,9 @@ struct MANGOS_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
         }
     }
 }; 
-CreatureAI* GetAI_boss_ragnaros(Creature *_Creature)
+CreatureAI* GetAI_boss_ragnaros(Creature* pCreature)
 {
-    return new boss_ragnarosAI (_Creature);
+    return new boss_ragnarosAI(pCreature);
 }
 
 

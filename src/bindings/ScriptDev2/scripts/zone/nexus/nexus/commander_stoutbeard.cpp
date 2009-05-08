@@ -24,9 +24,9 @@ update creature_template set scriptname = 'boss_commander_stoutbeard' where entr
 
 struct MANGOS_DLL_DECL boss_commander_stoutbeardAI : public ScriptedAI
 {
-    boss_commander_stoutbeardAI(Creature *c) : ScriptedAI(c)
+    boss_commander_stoutbeardAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        //pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        //pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
 		HeroicMode = m_creature->GetMap()->IsHeroic();
     }
@@ -114,9 +114,9 @@ if (WHIRLWIND_Timer < diff)
     }
 };
 
-CreatureAI* GetAI_boss_commander_stoutbeard(Creature *_Creature)
+CreatureAI* GetAI_boss_commander_stoutbeard(Creature* pCreature)
 {
-    return new boss_commander_stoutbeardAI (_Creature);
+    return new boss_commander_stoutbeardAI(pCreature);
 }
 
 void AddSC_boss_commander_stoutbeard()

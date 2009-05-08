@@ -53,7 +53,7 @@ WorldLocation WWlocs[MAX_PLAYERS_WEB_WRAP] =
 // Cocoon AI. It frees player from SPELL_WEBWRAP_SELF when cocoon dies
 struct MANGOS_DLL_DECL mob_webwrapAI : public ScriptedAI
 {
-    mob_webwrapAI(Creature *c) : ScriptedAI(c) {victimGUID = 0; Reset();}
+    mob_webwrapAI(Creature* pCreature) : ScriptedAI(pCreature) {victimGUID = 0; Reset();}
     uint64 victimGUID;
     void Reset()
     {
@@ -102,9 +102,9 @@ struct MANGOS_DLL_DECL mob_webwrapAI : public ScriptedAI
 static const int MAX_SPIDERLINGS = 16;
 struct MANGOS_DLL_DECL boss_maexxnaAI : public ScriptedAI
 {
-    boss_maexxnaAI(Creature *c) : ScriptedAI(c)
+    boss_maexxnaAI(Creature* pCreature) : ScriptedAI(pCreature)
 	{
-		pInstance = ((ScriptedInstance*)c->GetInstanceData());
+		pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         for (int i = 0; i < MAX_PLAYERS_WEB_WRAP; i++)
             WWplayers[i] = 0;
         for (int i = 0; i < MAX_SPIDERLINGS; i++)
@@ -297,14 +297,14 @@ struct MANGOS_DLL_DECL boss_maexxnaAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_webwrap(Creature* _Creature)
+CreatureAI* GetAI_mob_webwrap(Creature* pCreature)
 {
-    return new mob_webwrapAI (_Creature);
+    return new mob_webwrapAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_maexxna(Creature *_Creature)
+CreatureAI* GetAI_boss_maexxna(Creature* pCreature)
 {
-    return new boss_maexxnaAI (_Creature);
+    return new boss_maexxnaAI(pCreature);
 }
 
 void AddSC_boss_maexxna()

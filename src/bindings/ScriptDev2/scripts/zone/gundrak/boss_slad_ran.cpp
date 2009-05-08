@@ -33,7 +33,7 @@ update creature_template set scriptname = 'boss_slad_ran' where entry = '';
 
 struct MANGOS_DLL_DECL boss_slad_ranAI : public ScriptedAI
 {
-    boss_slad_ranAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_slad_ranAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) 
@@ -68,9 +68,9 @@ struct MANGOS_DLL_DECL boss_slad_ranAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_slad_ran(Creature *_Creature)
+CreatureAI* GetAI_boss_slad_ran(Creature* pCreature)
 {
-    return new boss_slad_ranAI (_Creature);
+    return new boss_slad_ranAI(pCreature);
 }
 
 void AddSC_boss_slad_ran()

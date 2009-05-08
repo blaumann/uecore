@@ -70,9 +70,9 @@ EndScriptData */
 
 struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
 {
-    boss_gluthAI(Creature *c) : ScriptedAI(c) 
+    boss_gluthAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
+        pInstance = (pCreature->GetInstanceData()) ? ((ScriptedInstance*)pCreature->GetInstanceData()) : NULL;
         Reset();
     }
 
@@ -317,9 +317,9 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 }; 
-CreatureAI* GetAI_boss_gluth(Creature *_Creature)
+CreatureAI* GetAI_boss_gluth(Creature* pCreature)
 {
-    return new boss_gluthAI (_Creature);
+    return new boss_gluthAI(pCreature);
 }
 
 

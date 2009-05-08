@@ -48,7 +48,7 @@ Script Data End */
 
 struct MANGOS_DLL_DECL boss_magus_telestraAI : public ScriptedAI
 {
-    boss_magus_telestraAI(Creature *c) : ScriptedAI(c) 
+    boss_magus_telestraAI(Creature* pCreature) : ScriptedAI(pCreature) 
 	{
 		Reset();
 		//pInstance = ((ScriptedInstance*)c->GetInstanceData());
@@ -144,7 +144,7 @@ SPELL_GAVITY_WELL_Timer = 7500;
 
 struct MANGOS_DLL_DECL Mob_Frost_MagusAI : public ScriptedAI
 {
-    Mob_Frost_MagusAI(Creature *c) : ScriptedAI(c) { Reset(); 
+    Mob_Frost_MagusAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); 
 	 HeroicMode = m_creature->GetMap()->IsHeroic();
 	}
     bool HeroicMode;
@@ -194,7 +194,7 @@ struct MANGOS_DLL_DECL Mob_Frost_MagusAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL Mob_Fire_MagusAI : public ScriptedAI
 {
-    Mob_Fire_MagusAI(Creature *c) : ScriptedAI(c) { Reset(); 
+    Mob_Fire_MagusAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); 
 	 HeroicMode = m_creature->GetMap()->IsHeroic();
 	}
     bool HeroicMode;
@@ -244,7 +244,7 @@ struct MANGOS_DLL_DECL Mob_Fire_MagusAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL Mob_Arcane_MagusAI : public ScriptedAI
 {
-    Mob_Arcane_MagusAI(Creature *c) : ScriptedAI(c) { Reset();
+    Mob_Arcane_MagusAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset();
 	 HeroicMode = m_creature->GetMap()->IsHeroic();
 	}
     bool HeroicMode;
@@ -288,24 +288,24 @@ struct MANGOS_DLL_DECL Mob_Arcane_MagusAI : public ScriptedAI
 
 	}
 };
-CreatureAI* GetAI_boss_magus_telestra(Creature *_Creature)
+CreatureAI* GetAI_boss_magus_telestra(Creature* pCreature)
 {
-    return new boss_magus_telestraAI (_Creature);
+    return new boss_magus_telestraAI(pCreature);
 }
 
-CreatureAI* GetAI_Mob_Frost_Magus(Creature *_Creature)
+CreatureAI* GetAI_Mob_Frost_Magus(Creature* pCreature)
 {
-    return new Mob_Frost_MagusAI (_Creature);
+    return new Mob_Frost_MagusAI(pCreature);
 }
 
-CreatureAI* GetAI_Mob_Fire_Magus(Creature *_Creature)
+CreatureAI* GetAI_Mob_Fire_Magus(Creature* pCreature)
 {
-    return new Mob_Fire_MagusAI (_Creature);
+    return new Mob_Fire_MagusAI(pCreature);
 }
 
-CreatureAI* GetAI_Mob_Arcane_Magus(Creature *_Creature)
+CreatureAI* GetAI_Mob_Arcane_Magus(Creature* pCreature)
 {
-    return new Mob_Arcane_MagusAI (_Creature);
+    return new Mob_Arcane_MagusAI(pCreature);
 }
 
 void AddSC_boss_magus_telestra()

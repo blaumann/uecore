@@ -130,7 +130,7 @@ static Summon Text[]=
 
 struct MANGOS_DLL_DECL mob_wisp_invisAI : public ScriptedAI
 {
-    mob_wisp_invisAI(Creature *c) : ScriptedAI(c)
+    mob_wisp_invisAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         Creaturetype = delay = spell = spell2 = 0;
         //that's hack but there are no info about range of this spells in dbc
@@ -197,7 +197,7 @@ struct MANGOS_DLL_DECL mob_wisp_invisAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL mob_headAI : public ScriptedAI
 {
-    mob_headAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_headAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     uint64 bodyGUID;
 
@@ -316,7 +316,7 @@ struct MANGOS_DLL_DECL mob_headAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
 {
-    boss_headless_horsemanAI(Creature *c) : ScriptedAI(c)
+    boss_headless_horsemanAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         SpellEntry *confl = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_CONFLAGRATION);
         if(confl)
@@ -336,7 +336,7 @@ struct MANGOS_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
             speed->Effect[1] = SPELL_EFFECT_APPLY_AURA;
             speed->EffectApplyAuraName[1] = SPELL_AURA_MOD_CONFUSE;
         }*/
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
@@ -716,7 +716,7 @@ void mob_headAI::Disappear()
 
 struct MANGOS_DLL_DECL mob_pulsing_pumpkinAI : public ScriptedAI
 {
-    mob_pulsing_pumpkinAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_pulsing_pumpkinAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     bool sprouted;
     uint64 debuffGUID;
@@ -799,24 +799,24 @@ bool GOHello_go_loosely_turned_soil(Player *plr, GameObject* soil)
     return true;
 }
 
-CreatureAI* GetAI_mob_head(Creature *_Creature)
+CreatureAI* GetAI_mob_head(Creature* pCreature)
 {
-    return new mob_headAI (_Creature);
+    return new mob_headAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_headless_horseman(Creature *_Creature)
+CreatureAI* GetAI_boss_headless_horseman(Creature* pCreature)
 {
-    return new boss_headless_horsemanAI (_Creature);
+    return new boss_headless_horsemanAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_pulsing_pumpkin(Creature *_Creature)
+CreatureAI* GetAI_mob_pulsing_pumpkin(Creature* pCreature)
 {
-    return new mob_pulsing_pumpkinAI (_Creature);
+    return new mob_pulsing_pumpkinAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_wisp_invis(Creature *_Creature)
+CreatureAI* GetAI_mob_wisp_invis(Creature* pCreature)
 {
-    return new mob_wisp_invisAI (_Creature);
+    return new mob_wisp_invisAI(pCreature);
 }
 
 void AddSC_boss_headless_horseman()

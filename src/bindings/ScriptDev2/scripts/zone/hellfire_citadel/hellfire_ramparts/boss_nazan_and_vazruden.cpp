@@ -59,7 +59,7 @@ const float VazrudenRing[2][3] =
 
 struct MANGOS_DLL_DECL boss_nazanAI : public ScriptedAI
 {
-    boss_nazanAI(Creature *c) : ScriptedAI(c)
+    boss_nazanAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
         VazrudenGUID = 0;
@@ -172,7 +172,7 @@ struct MANGOS_DLL_DECL boss_nazanAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL boss_vazrudenAI : public ScriptedAI
 {
-    boss_vazrudenAI(Creature *c) : ScriptedAI(c)
+    boss_vazrudenAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
         Reset();
@@ -248,7 +248,7 @@ struct MANGOS_DLL_DECL boss_vazrudenAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
 {
-    boss_vazruden_the_heraldAI(Creature *c) : ScriptedAI(c)
+    boss_vazruden_the_heraldAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         summoned = false;
         sentryDown = false;
@@ -407,7 +407,7 @@ struct MANGOS_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL mob_hellfire_sentryAI : public ScriptedAI
 {
-    mob_hellfire_sentryAI(Creature *c) : ScriptedAI(c)
+    mob_hellfire_sentryAI(Creature* pCreature) : ScriptedAI(pCreature)
     { Reset();}
 
     uint32 KidneyShot_Timer;
@@ -435,25 +435,25 @@ struct MANGOS_DLL_DECL mob_hellfire_sentryAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_vazruden_the_herald(Creature *_Creature)
+CreatureAI* GetAI_boss_vazruden_the_herald(Creature* pCreature)
 {
-    return new boss_vazruden_the_heraldAI (_Creature);
+    return new boss_vazruden_the_heraldAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_vazruden(Creature *_Creature)
+CreatureAI* GetAI_boss_vazruden(Creature* pCreature)
 {
-    return new boss_vazrudenAI (_Creature);
+    return new boss_vazrudenAI(pCreature);
 }
 
 
-CreatureAI* GetAI_boss_nazan(Creature *_Creature)
+CreatureAI* GetAI_boss_nazan(Creature* pCreature)
 {
-    return new boss_nazanAI (_Creature);
+    return new boss_nazanAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_hellfire_sentry(Creature *_Creature)
+CreatureAI* GetAI_mob_hellfire_sentry(Creature* pCreature)
 {
-    return new mob_hellfire_sentryAI (_Creature);
+    return new mob_hellfire_sentryAI(pCreature);
 }
 
 void AddSC_boss_vazruden_the_herald()

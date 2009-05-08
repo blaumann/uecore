@@ -26,9 +26,9 @@ update creature_template set scriptname = 'boss_commander_kolurg' where entry = 
 
 struct MANGOS_DLL_DECL boss_commander_kolurgAI : public ScriptedAI
 {
-    boss_commander_kolurgAI(Creature *c) : ScriptedAI(c)
+    boss_commander_kolurgAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        //pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        //pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
 		HeroicMode = m_creature->GetMap()->IsHeroic();
     }
@@ -117,9 +117,9 @@ if (WHIRLWIND_Timer < diff)
     }
 };
 
-CreatureAI* GetAI_boss_commander_kolurg(Creature *_Creature)
+CreatureAI* GetAI_boss_commander_kolurg(Creature* pCreature)
 {
-    return new boss_commander_kolurgAI (_Creature);
+    return new boss_commander_kolurgAI(pCreature);
 }
 
 void AddSC_boss_commander_kolurg()

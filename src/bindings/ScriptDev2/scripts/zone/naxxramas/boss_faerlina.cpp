@@ -49,9 +49,9 @@ enum
 
 struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
 {
-    boss_faerlinaAI(Creature *c) : ScriptedAI(c)
+    boss_faerlinaAI(Creature* pCreature) : ScriptedAI(pCreature)
 	{
-		pInstance = ((ScriptedInstance*)c->GetInstanceData());
+		pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
 		Reset();
 	}
 
@@ -149,16 +149,16 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_faerlina(Creature *_Creature)
+CreatureAI* GetAI_boss_faerlina(Creature* pCreature)
 {
-    return new boss_faerlinaAI (_Creature);
+    return new boss_faerlinaAI(pCreature);
 }
 
 struct MANGOS_DLL_DECL mob_faerlina_worshipperAI : public ScriptedAI
 {
-    mob_faerlina_worshipperAI(Creature *c) : ScriptedAI(c)
+    mob_faerlina_worshipperAI(Creature* pCreature) : ScriptedAI(pCreature)
 	{
-		pInstance = ((ScriptedInstance*)c->GetInstanceData());
+		pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
 		Reset();
 	}
 
@@ -198,9 +198,9 @@ struct MANGOS_DLL_DECL mob_faerlina_worshipperAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 }; 
-CreatureAI* GetAI_mob_faerlina_worshipper(Creature *_Creature)
+CreatureAI* GetAI_mob_faerlina_worshipper(Creature* pCreature)
 {
-    return new mob_faerlina_worshipperAI (_Creature);
+    return new mob_faerlina_worshipperAI(pCreature);
 }
 
 void AddSC_boss_faerlina()

@@ -124,9 +124,9 @@ float teleport_spots[2][3] =
 
 struct MANGOS_DLL_DECL boss_gothikAI : public ScriptedAI
 {
-    boss_gothikAI(Creature *c) : ScriptedAI(c)
+    boss_gothikAI(Creature* pCreature) : ScriptedAI(pCreature)
     {  
-        pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
+        pInstance = (pCreature->GetInstanceData()) ? ((ScriptedInstance*)pCreature->GetInstanceData()) : NULL;
         Reset();
     }
 
@@ -374,14 +374,14 @@ struct MANGOS_DLL_DECL boss_gothikAI : public ScriptedAI
     }   
 };
 
-CreatureAI* GetAI_boss_gothik(Creature *_Creature)
+CreatureAI* GetAI_boss_gothik(Creature* pCreature)
 {
-    return new boss_gothikAI (_Creature);
+    return new boss_gothikAI(pCreature);
 };
 
 struct MANGOS_DLL_DECL mob_u_traineeAI : public ScriptedAI
 {
-    mob_u_traineeAI(Creature *c) : ScriptedAI(c)
+    mob_u_traineeAI(Creature* pCreature) : ScriptedAI(pCreature)
     {  
         Reset();
     }
@@ -428,15 +428,15 @@ struct MANGOS_DLL_DECL mob_u_traineeAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_u_trainee(Creature *_Creature)
+CreatureAI* GetAI_mob_u_trainee(Creature* pCreature)
 {
-    return new mob_u_traineeAI (_Creature);
+    return new mob_u_traineeAI(pCreature);
 };
 
 
 struct MANGOS_DLL_DECL mob_u_deathknightAI : public ScriptedAI
 {
-    mob_u_deathknightAI(Creature *c) : ScriptedAI(c)
+    mob_u_deathknightAI(Creature* pCreature) : ScriptedAI(pCreature)
     {  
         Reset();
     }
@@ -489,16 +489,16 @@ struct MANGOS_DLL_DECL mob_u_deathknightAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_u_deathknight(Creature *_Creature)
+CreatureAI* GetAI_mob_u_deathknight(Creature* pCreature)
 {
-    return new mob_u_deathknightAI (_Creature);
+    return new mob_u_deathknightAI(pCreature);
 };
 
 
 
 struct MANGOS_DLL_DECL mob_u_riderAI : public ScriptedAI
 {
-    mob_u_riderAI(Creature *c) : ScriptedAI(c)
+    mob_u_riderAI(Creature* pCreature) : ScriptedAI(pCreature)
     {  
         Reset();
     }
@@ -556,9 +556,9 @@ struct MANGOS_DLL_DECL mob_u_riderAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_u_rider(Creature *_Creature)
+CreatureAI* GetAI_mob_u_rider(Creature* pCreature)
 {
-    return new mob_u_riderAI (_Creature);
+    return new mob_u_riderAI(pCreature);
 };
 
 void AddSC_boss_gothik()

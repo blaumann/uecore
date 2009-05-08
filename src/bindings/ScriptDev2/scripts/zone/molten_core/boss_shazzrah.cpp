@@ -31,9 +31,9 @@ EndScriptData */
 
 struct MANGOS_DLL_DECL boss_shazzrahAI : public ScriptedAI
 {
-    boss_shazzrahAI(Creature *c) : ScriptedAI(c)
+    boss_shazzrahAI(Creature* pCreature) : ScriptedAI(pCreature)
 	{
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
@@ -134,9 +134,9 @@ struct MANGOS_DLL_DECL boss_shazzrahAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 }; 
-CreatureAI* GetAI_boss_shazzrah(Creature *_Creature)
+CreatureAI* GetAI_boss_shazzrah(Creature* pCreature)
 {
-    return new boss_shazzrahAI (_Creature);
+    return new boss_shazzrahAI(pCreature);
 }
 
 

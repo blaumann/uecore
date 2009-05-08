@@ -137,9 +137,9 @@ bool QuestAccept_npc_willix(Player* player, Creature* creature, Quest const* que
     return true;
 }
 
-CreatureAI* GetAI_npc_willix(Creature *_Creature)
+CreatureAI* GetAI_npc_willix(Creature* pCreature)
 {
-    npc_willixAI* thisAI = new npc_willixAI(_Creature);
+    npc_willixAI* thisAI = new npc_willixAI(pCreature);
 
     thisAI->AddWaypoint(0, 2194.38, 1791.65, 65.48, 5000);
     thisAI->AddWaypoint(1, 2188.56, 1805.87, 64.45);

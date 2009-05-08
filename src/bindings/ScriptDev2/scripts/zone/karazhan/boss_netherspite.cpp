@@ -128,10 +128,11 @@ struct MANGOS_DLL_DECL boss_netherspiteAI : public ScriptedAI {
         ScriptedInstance* pInstance;
  
  
-    boss_netherspiteAI(Creature *c) : ScriptedAI(c) {
-                pInstance = ((ScriptedInstance*)c->GetInstanceData());
+    boss_netherspiteAI(Creature* pCreature) : ScriptedAI(pCreature)
+	{
+                pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
                 Reset();
-        }
+    }
  
     void Reset() {
         LastCandidatesGUID[0] = m_creature->GetGUID();
@@ -1137,7 +1138,7 @@ struct MANGOS_DLL_DECL boss_netherspiteAI : public ScriptedAI {
  
 struct MANGOS_DLL_DECL mob_void_zoneAI : public ScriptedAI
 {
-        mob_void_zoneAI(Creature *c) : ScriptedAI(c) { Reset(); }
+        mob_void_zoneAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
  
     uint32 VoidEffect_timer;
  
@@ -1155,15 +1156,18 @@ struct MANGOS_DLL_DECL mob_void_zoneAI : public ScriptedAI
     }
 };
  
-CreatureAI* GetAI_boss_netherspite(Creature *_Creature) {
-    return new boss_netherspiteAI(_Creature);
+CreatureAI* GetAI_boss_netherspite(Creature* pCreature)
+{
+    return new boss_netherspiteAI(pCreature);
 }
  
-CreatureAI* GetAI_mob_void_zone(Creature *_Creature) {
-    return new mob_void_zoneAI(_Creature);
+CreatureAI* GetAI_mob_void_zone(Creature* pCreature)
+{
+    return new mob_void_zoneAI(pCreature);
 }
  
-void AddSC_boss_netherspite() {
+void AddSC_boss_netherspite()
+{
     Script *newscript;
  
     newscript = new Script;

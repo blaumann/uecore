@@ -39,9 +39,9 @@ Enrages 26527*/
 
 struct MANGOS_DLL_DECL boss_grobbulusAI : public ScriptedAI
 {
-    boss_grobbulusAI(Creature *c) : ScriptedAI(c) 
+    boss_grobbulusAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
+        pInstance = (pCreature->GetInstanceData()) ? ((ScriptedInstance*)pCreature->GetInstanceData()) : NULL;
         Reset();
     }
 
@@ -179,15 +179,15 @@ struct MANGOS_DLL_DECL boss_grobbulusAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_grobbulus(Creature *_Creature)
+CreatureAI* GetAI_boss_grobbulus(Creature* pCreature)
 {
-    return new boss_grobbulusAI (_Creature);
+    return new boss_grobbulusAI(pCreature);
 }
 
 
 struct MANGOS_DLL_DECL mob_grobbulus_poisoncloudAI : public ScriptedAI
 {
-    mob_grobbulus_poisoncloudAI(Creature *c) : ScriptedAI(c) 
+    mob_grobbulus_poisoncloudAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         Reset();
     }
@@ -216,9 +216,9 @@ struct MANGOS_DLL_DECL mob_grobbulus_poisoncloudAI : public ScriptedAI
 
 };
 
-CreatureAI* GetAI_mob_grobbulus_poisoncloud(Creature *_Creature)
+CreatureAI* GetAI_mob_grobbulus_poisoncloud(Creature* pCreature)
 {
-    return new mob_grobbulus_poisoncloudAI (_Creature);
+    return new mob_grobbulus_poisoncloudAI(pCreature);
 }
 
 

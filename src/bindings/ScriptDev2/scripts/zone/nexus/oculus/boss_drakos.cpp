@@ -32,7 +32,7 @@ update creature_template set scriptname = '' where entry = '';
 
 struct MANGOS_DLL_DECL boss_drakosAI : public ScriptedAI
 {
-    boss_drakosAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_drakosAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) 
@@ -66,9 +66,9 @@ struct MANGOS_DLL_DECL boss_drakosAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_drakos(Creature *_Creature)
+CreatureAI* GetAI_boss_drakos(Creature* pCreature)
 {
-    return new boss_drakosAI (_Creature);
+    return new boss_drakosAI(pCreature);
 }
 
 void AddSC_boss_drakos()

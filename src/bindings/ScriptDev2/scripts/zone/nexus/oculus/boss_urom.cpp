@@ -37,7 +37,7 @@ update creature_template set scriptname = '' where entry = '';
 
 struct MANGOS_DLL_DECL boss_uromAI : public ScriptedAI
 {
-    boss_uromAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_uromAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) 
@@ -71,9 +71,9 @@ struct MANGOS_DLL_DECL boss_uromAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_urom(Creature *_Creature)
+CreatureAI* GetAI_boss_urom(Creature* pCreature)
 {
-    return new boss_uromAI (_Creature);
+    return new boss_uromAI(pCreature);
 }
 
 void AddSC_boss_urom()

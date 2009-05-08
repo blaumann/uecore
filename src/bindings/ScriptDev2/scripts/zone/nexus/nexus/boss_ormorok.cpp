@@ -27,10 +27,10 @@ Script Data End */
 
 struct MANGOS_DLL_DECL boss_ormorokAI : public ScriptedAI
 {
-    boss_ormorokAI(Creature *c) : ScriptedAI(c) 
+    boss_ormorokAI(Creature* pCreature) : ScriptedAI(pCreature) 
 
 		{
-        //pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        //pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
 		HeroicMode = m_creature->GetMap()->IsHeroic();
 
@@ -132,9 +132,9 @@ if (SPELL_CRYSTAL_SPIKES_Timer < diff)
     }
 };
 
-CreatureAI* GetAI_boss_ormorok(Creature *_Creature)
+CreatureAI* GetAI_boss_ormorok(Creature* pCreature)
 {
-    return new boss_ormorokAI (_Creature);
+    return new boss_ormorokAI(pCreature);
 }
 
 void AddSC_boss_ormorok()

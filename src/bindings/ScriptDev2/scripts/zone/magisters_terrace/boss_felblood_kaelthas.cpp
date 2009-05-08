@@ -77,11 +77,11 @@ float KaelLocations[3][2]=
 
 struct MANGOS_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 {
-    boss_felblood_kaelthasAI(Creature* c) : ScriptedAI(c)
+    boss_felblood_kaelthasAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
-        Heroic = c->GetMap()->IsHeroic();
+        Heroic = pCreature->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
@@ -393,7 +393,7 @@ struct MANGOS_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 
                                 Creature* Orb = DoSpawnCreature(CREATURE_ARCANE_SPHERE, 5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
                                 if (Orb && target)
-                                { 
+                                {
                                     //SetThreatList(Orb);
                                     Orb->AddThreat(target, 1.0f);
                                     Orb->AI()->AttackStart(target);
@@ -422,10 +422,10 @@ struct MANGOS_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL mob_felkael_flamestrikeAI : public ScriptedAI
 {
-    mob_felkael_flamestrikeAI(Creature *c) : ScriptedAI(c)
+    mob_felkael_flamestrikeAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         Reset();
-        Heroic = c->GetMap()->IsHeroic();
+        Heroic = pCreature->GetMap()->IsHeroic();
     }
 
     uint32 FlameStrikeTimer;
@@ -454,17 +454,17 @@ struct MANGOS_DLL_DECL mob_felkael_flamestrikeAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
 {
-    mob_felkael_phoenixAI(Creature* c) : ScriptedAI(c)
+    mob_felkael_phoenixAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
     ScriptedInstance* pInstance;
     uint32 BurnTimer;
     uint32 Death_Timer;
-    bool Rebirth;  
-    bool FakeDeath;  
+    bool Rebirth;
+    bool FakeDeath;
 
     void Reset()
     {
@@ -505,7 +505,7 @@ struct MANGOS_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
             m_creature->ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             m_creature->ClearAllReactives();
-            m_creature->SetUInt64Value(UNIT_FIELD_TARGET,0); 
+            m_creature->SetUInt64Value(UNIT_FIELD_TARGET,0);
             m_creature->GetMotionMaster()->Clear();
             m_creature->GetMotionMaster()->MoveIdle();
             m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
@@ -524,21 +524,21 @@ struct MANGOS_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
 
         //If we are fake death, we cast revbirth and after that we kill the phoenix to spawn the egg.
         if (FakeDeath)
-        {  
+        {
             if (!Rebirth)
             {
                 DoCast(m_creature, SPELL_REBIRTH_DMG);
                 Rebirth = true;
             }
 
-            if (Rebirth) 
+            if (Rebirth)
             {
-            
+
                 if (Death_Timer < diff)
                 {
-                    DoSpawnCreature(CREATURE_PHOENIX_EGG, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);   
+                    DoSpawnCreature(CREATURE_PHOENIX_EGG, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
                     m_creature->setDeathState(JUST_DIED);
-                    m_creature->RemoveCorpse(); 
+                    m_creature->RemoveCorpse();
                     Rebirth = false;
                 }else Death_Timer -= diff;
             }
@@ -564,13 +564,13 @@ struct MANGOS_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL mob_felkael_phoenix_eggAI : public ScriptedAI
 {
-    mob_felkael_phoenix_eggAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_felkael_phoenix_eggAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     uint32 HatchTimer;
 
-    void Reset() 
-    { 
-        HatchTimer = 10000; 
+    void Reset()
+    {
+        HatchTimer = 10000;
 
     }
 
@@ -589,7 +589,7 @@ struct MANGOS_DLL_DECL mob_felkael_phoenix_eggAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL mob_arcane_sphereAI : public ScriptedAI
 {
-    mob_arcane_sphereAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_arcane_sphereAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     uint32 DespawnTimer;
     uint32 ChangeTargetTimer;
@@ -629,29 +629,29 @@ struct MANGOS_DLL_DECL mob_arcane_sphereAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_felblood_kaelthas(Creature* c)
+CreatureAI* GetAI_boss_felblood_kaelthas(Creature* pCreature)
 {
-    return new boss_felblood_kaelthasAI(c);
+    return new boss_felblood_kaelthasAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_arcane_sphere(Creature* c)
+CreatureAI* GetAI_mob_arcane_sphere(Creature* pCreature)
 {
-    return new mob_arcane_sphereAI(c);
+    return new mob_arcane_sphereAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_felkael_phoenix(Creature* c)
+CreatureAI* GetAI_mob_felkael_phoenix(Creature* pCreature)
 {
-    return new mob_felkael_phoenixAI(c);
+    return new mob_felkael_phoenixAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_felkael_phoenix_egg(Creature* c)
+CreatureAI* GetAI_mob_felkael_phoenix_egg(Creature* pCreature)
 {
-    return new mob_felkael_phoenix_eggAI(c);
+    return new mob_felkael_phoenix_eggAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_felkael_flamestrike(Creature* c)
+CreatureAI* GetAI_mob_felkael_flamestrike(Creature* pCreature)
 {
-    return new mob_felkael_flamestrikeAI(c);
+    return new mob_felkael_flamestrikeAI(pCreature);
 }
 
 void AddSC_boss_felblood_kaelthas()

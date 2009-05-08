@@ -87,7 +87,7 @@ bool MalygosPhase1 = true, //Phases not yet implemented
 
 struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
 {
-    boss_malygosAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_malygosAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) 
@@ -142,9 +142,9 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_malygos(Creature *_Creature)
+CreatureAI* GetAI_boss_malygos(Creature* pCreature)
 {
-    return new boss_malygosAI (_Creature);
+    return new boss_malygosAI(pCreature);
 }
 
 void AddSC_boss_malygos()

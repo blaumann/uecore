@@ -27,9 +27,9 @@ Script Data End */
 
 struct MANGOS_DLL_DECL boss_keristraszaAI : public ScriptedAI
 {
-    boss_keristraszaAI(Creature *c) : ScriptedAI(c)
+    boss_keristraszaAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        //pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        //pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
 		HeroicMode = m_creature->GetMap()->IsHeroic();
 
@@ -134,9 +134,9 @@ if (CRYSTALFIRE_BREATH_Timer < diff)
     }
 };
 
-CreatureAI* GetAI_boss_keristrasza(Creature *_Creature)
+CreatureAI* GetAI_boss_keristrasza(Creature* pCreature)
 {
-    return new boss_keristraszaAI (_Creature);
+    return new boss_keristraszaAI(pCreature);
 }
 
 void AddSC_boss_keristrasza()

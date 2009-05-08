@@ -66,23 +66,6 @@ struct MANGOS_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
             Encounter[i] = NOT_STARTED;
     }
 
-    Player* GetPlayerInMap()
-    {
-        Map::PlayerList const& players = instance->GetPlayers();
-
-        if (!players.isEmpty())
-        {
-            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            {
-                if (Player* plr = itr->getSource())
-                    return plr;
-            }
-        }
-
-        debug_log("SD2: Instance Shadowfang Keep: GetPlayerInMap, but PlayerList is empty!");
-        return NULL;
-    }
-
     void OnCreatureCreate(Creature* pCreature, uint32 uiCreature)
     {
         switch(pCreature->GetEntry())
@@ -99,41 +82,30 @@ struct MANGOS_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
             case GO_COURTYARD_DOOR:
                 DoorCourtyardGUID = go->GetGUID();
                 if (Encounter[0] == DONE)
-                    go->SetGoState(GO_STATE_ACTIVE);
+                    DoUseDoorOrButton(DoorCourtyardGUID);
                 break;
             case GO_SORCERER_DOOR:
                 DoorSorcererGUID = go->GetGUID();
                 if (Encounter[2] == DONE)
-                    go->SetGoState(GO_STATE_ACTIVE);
+                    DoUseDoorOrButton(DoorSorcererGUID);
                 break;
             case GO_ARUGAL_DOOR:
                 DoorArugalGUID = go->GetGUID();
                 if (Encounter[3] == DONE)
-                    go->SetGoState(GO_STATE_ACTIVE);
+                    DoUseDoorOrButton(DoorArugalGUID);
                 break;
         }
     }
 
-    void HandleGameObject(uint64 guid, GOState state)
-    {
-        if (GameObject *go = instance->GetGameObject(guid))
-            go->SetGoState(state);
-    }
-
     void DoSpeech()
     {
-        Player* pPlayer = GetPlayerInMap();
+        Creature* pAda = instance->GetCreature(uiAdaGUID);
+        Creature* pAsh = instance->GetCreature(uiAshGUID);
 
-        if (pPlayer)
+        if (pAda && pAda->isAlive() && pAsh && pAsh->isAlive())
         {
-            Unit* pAda = Unit::GetUnit(*pPlayer,uiAdaGUID);
-            Unit* pAsh = Unit::GetUnit(*pPlayer,uiAshGUID);
-
-            if (pAda && pAda->isAlive() && pAsh && pAsh->isAlive())
-            {
-                DoScriptText(SAY_BOSS_DIE_AD,pAda);
-                DoScriptText(SAY_BOSS_DIE_AS,pAsh);
-            }
+            DoScriptText(SAY_BOSS_DIE_AD,pAda);
+            DoScriptText(SAY_BOSS_DIE_AS,pAsh);
         }
     }
 
@@ -143,7 +115,7 @@ struct MANGOS_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
         {
             case TYPE_FREE_NPC:
                 if (data == DONE)
-                    HandleGameObject(DoorCourtyardGUID, GO_STATE_ACTIVE);
+                    DoUseDoorOrButton(DoorCourtyardGUID);
                 Encounter[0] = data;
                 break;
             case TYPE_RETHILGORE:
@@ -153,12 +125,12 @@ struct MANGOS_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
                 break;
             case TYPE_FENRUS:
                 if (data == DONE)
-                    HandleGameObject(DoorSorcererGUID, GO_STATE_ACTIVE);
+                    DoUseDoorOrButton(DoorSorcererGUID);
                 Encounter[2] = data;
                 break;
             case TYPE_NANDOS:
                 if (data == DONE)
-                    HandleGameObject(DoorArugalGUID, GO_STATE_ACTIVE);
+                    DoUseDoorOrButton(DoorArugalGUID);
                 Encounter[3] = data;
                 break;
         }

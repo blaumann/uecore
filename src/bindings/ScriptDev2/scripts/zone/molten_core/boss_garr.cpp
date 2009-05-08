@@ -35,9 +35,9 @@ EndScriptData */
 
 struct MANGOS_DLL_DECL boss_garrAI : public ScriptedAI
 {
-    boss_garrAI(Creature *c) : ScriptedAI(c)
+    boss_garrAI(Creature* pCreature) : ScriptedAI(pCreature)
 	{
-		pInstance = ((ScriptedInstance*)c->GetInstanceData());
+		pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
 		Reset();
 	}
 	ScriptedInstance *pInstance;
@@ -110,9 +110,9 @@ struct MANGOS_DLL_DECL boss_garrAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL mob_fireswornAI : public ScriptedAI
 {
-    mob_fireswornAI(Creature *c) : ScriptedAI(c)
+    mob_fireswornAI(Creature* pCreature) : ScriptedAI(pCreature)
 	{
-		pInstance = ((ScriptedInstance*)c->GetInstanceData());
+		pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
 		Reset();
 	}
 	ScriptedInstance *pInstance;
@@ -175,13 +175,13 @@ struct MANGOS_DLL_DECL mob_fireswornAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 }; 
-CreatureAI* GetAI_boss_garr(Creature *_Creature)
+CreatureAI* GetAI_boss_garr(Creature* pCreature)
 {
-    return new boss_garrAI (_Creature);
+    return new boss_garrAI(pCreature);
 }
-CreatureAI* GetAI_mob_firesworn(Creature *_Creature)
+CreatureAI* GetAI_mob_firesworn(Creature* pCreature)
 {
-    return new mob_fireswornAI (_Creature);
+    return new mob_fireswornAI(pCreature);
 }
 
 
