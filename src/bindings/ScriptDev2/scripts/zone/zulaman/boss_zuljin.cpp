@@ -122,9 +122,9 @@ static TransformStruct Transform[] =
 
 struct MANGOS_DLL_DECL boss_zuljinAI : public ScriptedAI
 {
-    boss_zuljinAI(Creature *c) : ScriptedAI(c)
+    boss_zuljinAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         // wait for core patch be accepted
         SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_CLAW_RAGE_DAMAGE);
         if(TempSpell)
@@ -590,14 +590,14 @@ struct MANGOS_DLL_DECL boss_zuljinAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_zuljin(Creature *_Creature)
+CreatureAI* GetAI_boss_zuljin(Creature* pCreature)
 {
-    return new boss_zuljinAI (_Creature);
+    return new boss_zuljinAI(pCreature);
 }
 
 struct MANGOS_DLL_DECL do_nothingAI : public ScriptedAI
 {
-    do_nothingAI(Creature *c) : ScriptedAI(c) {}
+    do_nothingAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
     void Reset() {}
     void Aggro(Unit* who) {}
     void AttackStart(Unit* who) {}
@@ -605,14 +605,14 @@ struct MANGOS_DLL_DECL do_nothingAI : public ScriptedAI
     void UpdateAI(const uint32 diff) {}
 };
 
-CreatureAI* GetAI_do_nothing(Creature *_Creature)
+CreatureAI* GetAI_do_nothing(Creature* pCreature)
 {
-    return new do_nothingAI (_Creature);
+    return new do_nothingAI(pCreature);
 }
 
 struct MANGOS_DLL_DECL feather_vortexAI : public ScriptedAI
 {
-    feather_vortexAI(Creature *c) : ScriptedAI(c) {}
+    feather_vortexAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
 
@@ -632,9 +632,9 @@ struct MANGOS_DLL_DECL feather_vortexAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_feather_vortexAI(Creature *_Creature)
+CreatureAI* GetAI_feather_vortexAI(Creature* pCreature)
 {
-    return new feather_vortexAI (_Creature);
+    return new feather_vortexAI(pCreature);
 }
 
 void AddSC_boss_zuljin()

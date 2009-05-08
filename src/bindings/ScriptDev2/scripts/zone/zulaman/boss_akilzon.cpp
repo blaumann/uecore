@@ -55,9 +55,9 @@ EndScriptData */
 
 struct MANGOS_DLL_DECL boss_akilzonAI : public ScriptedAI
 {
-    boss_akilzonAI(Creature *c) : ScriptedAI(c)
+    boss_akilzonAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
     ScriptedInstance *pInstance;
@@ -447,7 +447,7 @@ struct MANGOS_DLL_DECL boss_akilzonAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL mob_soaring_eagleAI : public ScriptedAI
 {
-    mob_soaring_eagleAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_soaring_eagleAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     uint32 EagleSwoop_Timer;
     bool arrived;
@@ -523,14 +523,14 @@ struct MANGOS_DLL_DECL mob_soaring_eagleAI : public ScriptedAI
 };
 
 //Soaring Eagle
-CreatureAI* GetAI_mob_soaring_eagle(Creature *_Creature)
+CreatureAI* GetAI_mob_soaring_eagle(Creature* pCreature)
 {
-    return new mob_soaring_eagleAI(_Creature);
+    return new mob_soaring_eagleAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_akilzon(Creature *_Creature)
+CreatureAI* GetAI_boss_akilzon(Creature* pCreature)
 {
-    return new boss_akilzonAI(_Creature);
+    return new boss_akilzonAI(pCreature);
 }
 
 void AddSC_boss_akilzon()

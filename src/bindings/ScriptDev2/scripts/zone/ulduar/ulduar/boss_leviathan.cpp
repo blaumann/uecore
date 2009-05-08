@@ -42,7 +42,7 @@ update creature_template set scriptname = '' where entry = '';
 
 struct MANGOS_DLL_DECL boss_leviathanAI : public ScriptedAI
 {
-    boss_leviathanAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_leviathanAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) 
@@ -76,9 +76,9 @@ struct MANGOS_DLL_DECL boss_leviathanAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_leviathan(Creature *_Creature)
+CreatureAI* GetAI_boss_leviathan(Creature* pCreature)
 {
-    return new boss_leviathanAI (_Creature);
+    return new boss_leviathanAI(pCreature);
 }
 
 void AddSC_boss_leviathan()

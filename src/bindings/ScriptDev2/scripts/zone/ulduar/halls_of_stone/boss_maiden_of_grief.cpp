@@ -31,7 +31,7 @@ update creature_template set scriptname = 'boss_maiden_of_grief' where entry = '
 
 struct MANGOS_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
 {
-    boss_maiden_of_griefAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_maiden_of_griefAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) 
@@ -65,9 +65,9 @@ struct MANGOS_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_maiden_of_grief(Creature *_Creature)
+CreatureAI* GetAI_boss_maiden_of_grief(Creature* pCreature)
 {
-    return new boss_maiden_of_griefAI (_Creature);
+    return new boss_maiden_of_griefAI(pCreature);
 }
 
 void AddSC_boss_maiden_of_grief()

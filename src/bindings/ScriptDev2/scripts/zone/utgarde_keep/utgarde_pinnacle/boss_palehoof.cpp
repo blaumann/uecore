@@ -24,7 +24,7 @@ update creature_template set scriptname = 'boss_palehoof' where entry = '';
 
 struct MANGOS_DLL_DECL boss_palehoofAI : public ScriptedAI
 {
-    boss_palehoofAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_palehoofAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) 
@@ -62,9 +62,9 @@ struct MANGOS_DLL_DECL boss_palehoofAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_palehoof(Creature *_Creature)
+CreatureAI* GetAI_boss_palehoof(Creature* pCreature)
 {
-    return new boss_palehoofAI (_Creature);
+    return new boss_palehoofAI(pCreature);
 }
 
 void AddSC_boss_palehoof()

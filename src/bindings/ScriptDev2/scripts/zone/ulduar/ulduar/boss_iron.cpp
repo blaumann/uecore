@@ -34,7 +34,7 @@ update creature_template set scriptname = 'boss_volkhan' where entry = '';
 
 struct MANGOS_DLL_DECL boss_ironAI : public ScriptedAI
 {
-    boss_ironAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_ironAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) 
@@ -68,9 +68,9 @@ struct MANGOS_DLL_DECL boss_ironAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_iron(Creature *_Creature)
+CreatureAI* GetAI_boss_iron(Creature* pCreature)
 {
-    return new boss_ironAI (_Creature);
+    return new boss_ironAI(pCreature);
 }
 
 void AddSC_boss_iron()
@@ -78,7 +78,7 @@ void AddSC_boss_iron()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_iron";
+    newscript->Name = "boss_iron";
     newscript->GetAI = GetAI_boss_iron;
     newscript->RegisterSelf();
 }

@@ -35,9 +35,9 @@ enum
 
 struct MANGOS_DLL_DECL boss_erekemAI : public ScriptedAI
 {
-    boss_erekemAI(Creature *c) : ScriptedAI(c)
+    boss_erekemAI(Creature* pCreature) : ScriptedAI(pCreature)
 	{
-        //pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        //pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
 		Reset();
 		HeroicMode = m_creature->GetMap()->IsHeroic();
 	}
@@ -84,9 +84,9 @@ struct MANGOS_DLL_DECL boss_erekemAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_erekem(Creature *_Creature)
+CreatureAI* GetAI_boss_erekem(Creature* pCreature)
 {
-    return new boss_erekemAI (_Creature);
+    return new boss_erekemAI(pCreature);
 }
 
 void AddSC_boss_erekem()

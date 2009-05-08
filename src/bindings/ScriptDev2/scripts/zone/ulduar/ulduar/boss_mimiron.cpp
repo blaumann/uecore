@@ -34,7 +34,7 @@ update creature_template set scriptname = 'boss_volkhan' where entry = '';
 
 struct MANGOS_DLL_DECL boss_mimironAI : public ScriptedAI
 {
-    boss_mimironAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_mimironAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) 
@@ -68,9 +68,9 @@ struct MANGOS_DLL_DECL boss_mimironAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_mimiron(Creature *_Creature)
+CreatureAI* GetAI_boss_mimiron(Creature* pCreature)
 {
-    return new boss_mimironAI (_Creature);
+    return new boss_mimironAI(pCreature);
 }
 
 void AddSC_boss_mimiron()

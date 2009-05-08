@@ -34,7 +34,7 @@ update creature_template set scriptname = 'boss_ymiron' where entry = '';
 
 struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
 {
-    boss_ymironAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_ymironAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) 
@@ -69,9 +69,9 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_ymiron(Creature *_Creature)
+CreatureAI* GetAI_boss_ymiron(Creature* pCreature)
 {
-    return new boss_ymironAI (_Creature);
+    return new boss_ymironAI(pCreature);
 }
 
 void AddSC_boss_ymiron()

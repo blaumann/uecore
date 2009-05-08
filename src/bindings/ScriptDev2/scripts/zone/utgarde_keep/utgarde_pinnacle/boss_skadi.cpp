@@ -35,7 +35,7 @@ update creature_template set scriptname = 'boss_skadi' where entry = '';
 
 struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
 {
-    boss_skadiAI(Creature *c) : ScriptedAI(c) { Reset(); } 
+    boss_skadiAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();} 
     
     void Reset() {}
     void Aggro(Unit* who) 
@@ -69,9 +69,9 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_skadi(Creature *_Creature)
+CreatureAI* GetAI_boss_skadi(Creature* pCreature)
 {
-    return new boss_skadiAI (_Creature);
+    return new boss_skadiAI(pCreature);
 }
 
 void AddSC_boss_skadi()

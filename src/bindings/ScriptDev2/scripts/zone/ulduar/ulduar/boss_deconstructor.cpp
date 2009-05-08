@@ -37,7 +37,7 @@ update creature_template set scriptname = 'boss_loken' where entry = '';
 
 struct MANGOS_DLL_DECL boss_deconstructorAI : public ScriptedAI
 {
-    boss_deconstructorAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_deconstructorAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) 
@@ -71,9 +71,9 @@ struct MANGOS_DLL_DECL boss_deconstructorAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_deconstructor(Creature *_Creature)
+CreatureAI* GetAI_boss_deconstructor(Creature* pCreature)
 {
-    return new boss_deconstructorAI (_Creature);
+    return new boss_deconstructorAI(pCreature);
 }
 
 void AddSC_boss_deconstructor()
@@ -81,7 +81,7 @@ void AddSC_boss_deconstructor()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_deconstructor";
+    newscript->Name = "boss_deconstructor";
     newscript->GetAI = GetAI_boss_deconstructor;
     newscript->RegisterSelf();
 }

@@ -20,9 +20,9 @@ enum
 
 struct MANGOS_DLL_DECL boss_moraggAI : public ScriptedAI
 {
-    boss_moraggAI(Creature *c) : ScriptedAI(c)
+    boss_moraggAI(Creature* pCreature) : ScriptedAI(pCreature)
 	{
-        //pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        //pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
 		Reset();
 		HeroicMode = m_creature->GetMap()->IsHeroic();
 	}
@@ -44,9 +44,9 @@ struct MANGOS_DLL_DECL boss_moraggAI : public ScriptedAI
     void JustDied(Unit* killer) {}
 };
 
-CreatureAI* GetAI_boss_moragg(Creature *_Creature)
+CreatureAI* GetAI_boss_moragg(Creature* pCreature)
 {
-    return new boss_moraggAI (_Creature);
+    return new boss_moraggAI(pCreature);
 }
 
 void AddSC_boss_moragg()

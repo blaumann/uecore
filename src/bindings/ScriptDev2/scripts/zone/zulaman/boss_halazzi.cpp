@@ -66,9 +66,9 @@ enum PhaseHalazzi
 
 struct MANGOS_DLL_DECL boss_halazziAI : public ScriptedAI
 {
-    boss_halazziAI(Creature *c) : ScriptedAI(c)
+    boss_halazziAI(Creature* pCreature) : ScriptedAI(pCreature)
     { 
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
         // wait for core patch be accepted
         SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_SUMMON_TOTEM);
@@ -321,7 +321,7 @@ struct MANGOS_DLL_DECL boss_halazziAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL boss_spiritlynxAI : public ScriptedAI
 {
-    boss_spiritlynxAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_spiritlynxAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     uint32 FrenzyTimer;
     uint32 shredder_timer;
@@ -368,14 +368,14 @@ struct MANGOS_DLL_DECL boss_spiritlynxAI : public ScriptedAI
 
 };
 
-CreatureAI* GetAI_boss_halazziAI(Creature *_Creature)
+CreatureAI* GetAI_boss_halazziAI(Creature* pCreature)
 {
-    return new boss_halazziAI (_Creature);
+    return new boss_halazziAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_spiritlynxAI(Creature *_Creature)
+CreatureAI* GetAI_boss_spiritlynxAI(Creature* pCreature)
 {
-    return new boss_spiritlynxAI (_Creature);
+    return new boss_spiritlynxAI(pCreature);
 }
 
 void AddSC_boss_halazzi()

@@ -38,7 +38,7 @@ float AttackLoc[3]={197.636, 194.046, 40.8164};
 
 struct MANGOS_DLL_DECL mob_frost_tombAI : public ScriptedAI
 {
-    mob_frost_tombAI(Creature *c) : ScriptedAI(c)
+    mob_frost_tombAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         FrostTombGUID = 0;
         Reset();
@@ -76,11 +76,11 @@ struct MANGOS_DLL_DECL mob_frost_tombAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL  boss_kelesethAI : public ScriptedAI
 {
-    boss_kelesethAI(Creature *c) : ScriptedAI(c)
+    boss_kelesethAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
-        Heroic = c->GetMap()->IsHeroic();
+        Heroic = pCreature->GetMap()->IsHeroic();
     }
     
     ScriptedInstance* pInstance;
@@ -192,9 +192,9 @@ struct MANGOS_DLL_DECL  boss_kelesethAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL  mob_vrykul_skeletonAI : public ScriptedAI
 {
-    mob_vrykul_skeletonAI(Creature *c) : ScriptedAI(c) 
+    mob_vrykul_skeletonAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
@@ -287,19 +287,19 @@ struct MANGOS_DLL_DECL  mob_vrykul_skeletonAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_frost_tomb(Creature *_Creature)
+CreatureAI* GetAI_mob_frost_tomb(Creature* pCreature)
 {
-    return new mob_frost_tombAI(_Creature);
+    return new mob_frost_tombAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_keleseth(Creature *_Creature)
+CreatureAI* GetAI_boss_keleseth(Creature* pCreature)
 {
-    return new boss_kelesethAI (_Creature);
+    return new boss_kelesethAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_vrykul_skeleton(Creature *_Creature)
+CreatureAI* GetAI_mob_vrykul_skeleton(Creature* pCreature)
 {
-    return new mob_vrykul_skeletonAI (_Creature);
+    return new mob_vrykul_skeletonAI(pCreature);
 }
 
 void AddSC_boss_keleseth()

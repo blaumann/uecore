@@ -182,9 +182,9 @@ static PlayerAbilityStruct PlayerAbility[][3] =
 
 struct MANGOS_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
 {
-    boss_hex_lord_malacrassAI(Creature *c) : ScriptedAI(c)
+    boss_hex_lord_malacrassAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         SelectAddEntry();
         for(uint8 i = 0; i < 4; ++i)
             AddGUID[i] = 0;
@@ -460,9 +460,9 @@ struct MANGOS_DLL_DECL boss_hexlord_addAI : public ScriptedAI
 {
     ScriptedInstance* pInstance;
 
-    boss_hexlord_addAI(Creature* c) : ScriptedAI(c)
+    boss_hexlord_addAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
@@ -867,50 +867,51 @@ struct MANGOS_DLL_DECL boss_koraggAI : public boss_hexlord_addAI
     }
 };
 
-CreatureAI* GetAI_boss_hex_lord_malacrass(Creature *_Creature)
+CreatureAI* GetAI_boss_hex_lord_malacrass(Creature* pCreature)
 {
-    return new boss_hex_lord_malacrassAI (_Creature);
+    return new boss_hex_lord_malacrassAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_thurg(Creature *_Creature)
+CreatureAI* GetAI_boss_thurg(Creature* pCreature)
 {
-    return new boss_thurgAI (_Creature);
+    return new boss_thurgAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_alyson_antille(Creature *_Creature)
+CreatureAI* GetAI_boss_alyson_antille(Creature* pCreature)
 {
-    return new boss_alyson_antilleAI (_Creature);
+    return new boss_alyson_antilleAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_gazakroth(Creature *_Creature)
+CreatureAI* GetAI_boss_gazakroth(Creature* pCreature)
 {
-    return new boss_gazakrothAI (_Creature);
+    return new boss_gazakrothAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_lord_raadan(Creature *_Creature)
+CreatureAI* GetAI_boss_lord_raadan(Creature* pCreature)
 {
-    return new boss_lord_raadanAI (_Creature);
+    return new boss_lord_raadanAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_darkheart(Creature *_Creature)
+CreatureAI* GetAI_boss_darkheart(Creature* pCreature)
 {
-    return new boss_darkheartAI (_Creature);
+    return new boss_darkheartAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_slither(Creature *_Creature)
+CreatureAI* GetAI_boss_slither(Creature* pCreature)
 {
-    return new boss_slitherAI (_Creature);
+    return new boss_slitherAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_fenstalker(Creature *_Creature)
+CreatureAI* GetAI_boss_fenstalker(Creature* pCreature)
 {
-    return new boss_fenstalkerAI (_Creature);
+    return new boss_fenstalkerAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_koragg(Creature *_Creature)
+CreatureAI* GetAI_boss_koragg(Creature* pCreature)
 {
-    return new boss_koraggAI (_Creature);
+    return new boss_koraggAI(pCreature);
 }
+
 void AddSC_boss_hex_lord_malacrass()
 {
     Script *newscript;

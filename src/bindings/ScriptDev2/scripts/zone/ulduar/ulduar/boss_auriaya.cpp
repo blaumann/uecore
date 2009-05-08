@@ -34,7 +34,7 @@ update creature_template set scriptname = 'boss_volkhan' where entry = '';
 
 struct MANGOS_DLL_DECL boss_auriayaAI : public ScriptedAI
 {
-    boss_auriayaAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_auriayaAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) 
@@ -68,9 +68,9 @@ struct MANGOS_DLL_DECL boss_auriayaAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_auriaya(Creature *_Creature)
+CreatureAI* GetAI_boss_auriaya(Creature* pCreature)
 {
-    return new boss_auriayaAI (_Creature);
+    return new boss_auriayaAI(pCreature);
 }
 
 void AddSC_boss_auriaya()

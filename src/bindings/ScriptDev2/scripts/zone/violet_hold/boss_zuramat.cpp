@@ -33,9 +33,9 @@ enum
 
 struct MANGOS_DLL_DECL boss_zuramatAI : public ScriptedAI
 {
-    boss_zuramatAI(Creature *c) : ScriptedAI(c)
+    boss_zuramatAI(Creature* pCreature) : ScriptedAI(pCreature)
 	{
-        //pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        //pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
 		Reset();
 		HeroicMode = m_creature->GetMap()->IsHeroic();
 	}
@@ -74,9 +74,9 @@ struct MANGOS_DLL_DECL boss_zuramatAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_zuramat(Creature *_Creature)
+CreatureAI* GetAI_boss_zuramat(Creature* pCreature)
 {
-    return new boss_zuramatAI (_Creature);
+    return new boss_zuramatAI(pCreature);
 }
 
 void AddSC_boss_zuramat()

@@ -59,9 +59,9 @@ EndScriptData */
 
 struct MANGOS_DLL_DECL boss_nalorakkAI : public ScriptedAI
 {
-    boss_nalorakkAI(Creature *c) : ScriptedAI(c)
+    boss_nalorakkAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
@@ -292,9 +292,9 @@ struct MANGOS_DLL_DECL boss_nalorakkAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_nalorakk(Creature *_Creature)
+CreatureAI* GetAI_boss_nalorakk(Creature* pCreature)
 {
-    return new boss_nalorakkAI (_Creature);
+    return new boss_nalorakkAI(pCreature);
 }
 
 void AddSC_boss_nalorakk()

@@ -36,7 +36,7 @@ update creature_template set scriptname = 'boss_ionar' where entry = '';
 
 struct MANGOS_DLL_DECL boss_razorscaleAI : public ScriptedAI
 {
-    boss_razorscaleAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_razorscaleAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) 
@@ -70,9 +70,9 @@ struct MANGOS_DLL_DECL boss_razorscaleAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_razorscale(Creature *_Creature)
+CreatureAI* GetAI_boss_razorscale(Creature* pCreature)
 {
-    return new boss_razorscaleAI (_Creature);
+    return new boss_razorscaleAI(pCreature);
 }
 
 void AddSC_boss_razorscale()

@@ -40,9 +40,9 @@ EndScriptData */
 
 struct MANGOS_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
 {
-    boss_skarvald_the_constructorAI(Creature *c) : ScriptedAI(c) 
+    boss_skarvald_the_constructorAI(Creature* pCreature) : ScriptedAI(pCreature) 
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         HeroicMode = m_creature->GetMap()->IsHeroic();
         Reset();
     }
@@ -176,16 +176,16 @@ struct MANGOS_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_skarvald_the_constructor(Creature *_Creature)
+CreatureAI* GetAI_boss_skarvald_the_constructor(Creature* pCreature)
 {
-    return new boss_skarvald_the_constructorAI (_Creature);
+    return new boss_skarvald_the_constructorAI(pCreature);
 }
 
 struct MANGOS_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
 {
-    boss_dalronn_the_controllerAI(Creature *c) : ScriptedAI(c) 
+    boss_dalronn_the_controllerAI(Creature* pCreature) : ScriptedAI(pCreature) 
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         HeroicMode = m_creature->GetMap()->IsHeroic();
         Reset();
     }
@@ -343,9 +343,9 @@ struct MANGOS_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_dalronn_the_controller(Creature *_Creature)
+CreatureAI* GetAI_boss_dalronn_the_controller(Creature* pCreature)
 {
-    return new boss_dalronn_the_controllerAI (_Creature);
+    return new boss_dalronn_the_controllerAI(pCreature);
 }
 
 void AddSC_boss_skarvald_dalronn()
@@ -353,12 +353,12 @@ void AddSC_boss_skarvald_dalronn()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_skarvald_the_constructor";
+    newscript->Name = "boss_skarvald_the_constructor";
     newscript->GetAI = &GetAI_boss_skarvald_the_constructor;
     newscript->RegisterSelf();
     
     newscript = new Script;
-    newscript->Name="boss_dalronn_the_controller";
+    newscript->Name = "boss_dalronn_the_controller";
     newscript->GetAI = &GetAI_boss_dalronn_the_controller;
     newscript->RegisterSelf();
 }

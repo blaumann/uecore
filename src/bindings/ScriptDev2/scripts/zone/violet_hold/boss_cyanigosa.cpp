@@ -35,9 +35,9 @@ enum
 
 struct MANGOS_DLL_DECL boss_cyanigosaAI : public ScriptedAI
 {
-    boss_cyanigosaAI(Creature *c) : ScriptedAI(c)
+    boss_cyanigosaAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        //pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        //pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
         HeroicMode = m_creature->GetMap()->IsHeroic();
     }
@@ -95,9 +95,9 @@ struct MANGOS_DLL_DECL boss_cyanigosaAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_cyanigosa(Creature *_Creature)
+CreatureAI* GetAI_boss_cyanigosa(Creature* pCreature)
 {
-    return new boss_cyanigosaAI (_Creature);
+    return new boss_cyanigosaAI(pCreature);
 }
 
 void AddSC_boss_cyanigosa()

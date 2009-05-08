@@ -34,9 +34,9 @@ enum
 
 struct MANGOS_DLL_DECL boss_xevozzAI : public ScriptedAI
 {
-    boss_xevozzAI(Creature *c) : ScriptedAI(c)
+    boss_xevozzAI(Creature* pCreature) : ScriptedAI(pCreature)
 	{
-        //pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        //pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
 		Reset();
 		HeroicMode = m_creature->GetMap()->IsHeroic();
 	}
@@ -75,9 +75,9 @@ struct MANGOS_DLL_DECL boss_xevozzAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_xevozz(Creature *_Creature)
+CreatureAI* GetAI_boss_xevozz(Creature* pCreature)
 {
-    return new boss_xevozzAI (_Creature);
+    return new boss_xevozzAI(pCreature);
 }
 
 void AddSC_boss_xevozz()
