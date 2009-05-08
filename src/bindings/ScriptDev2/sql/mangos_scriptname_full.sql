@@ -79,6 +79,7 @@ UPDATE item_template SET ScriptName='item_yehkinyas_bramble' WHERE entry=10699;
 UPDATE item_template SET ScriptName='item_zezzaks_shard' WHERE entry=31463;
 
 /* NPC (usually creatures to be found in more than one specific zone) */
+UPDATE creature_template SET ScriptName='npc_air_force_bots' WHERE entry IN (2614, 2615, 21974, 21993, 21996, 21997, 21999, 22001, 22002, 22003, 22063, 22065, 22066, 22068, 22069, 22070, 22071, 22078, 22079, 22080, 22086, 22087, 22088, 22090, 22124, 22125, 22126);
 UPDATE creature_template SET ScriptName='npc_chicken_cluck' WHERE entry=620;
 UPDATE creature_template SET ScriptName='npc_dancing_flames' WHERE entry=25305;
 UPDATE creature_template SET ScriptName='npc_garments_of_quests' WHERE entry IN (12429,12423,12427,12430,12428);
@@ -757,6 +758,7 @@ UPDATE creature_template SET ScriptName='npc_neltharaku' WHERE entry=21657;
 UPDATE creature_template SET ScriptName='npc_oronok_tornheart' WHERE entry=21183;
 UPDATE creature_template SET ScriptName='mob_mature_netherwing_drake' WHERE entry=21648;
 UPDATE creature_template SET ScriptName='mob_enslaved_netherwing_drake' WHERE entry=21722;
+UPDATE creature_template SET ScriptName='npc_karynaku' WHERE entry=22112;
 
 /* SHATTRATH */
 UPDATE creature_template SET ScriptName='npc_dirty_larry' WHERE entry=19720;
