@@ -33,7 +33,7 @@ EndContentData */
 
 struct MANGOS_DLL_DECL mob_yennikuAI : public ScriptedAI
 {
-    mob_yennikuAI(Creature *c) : ScriptedAI(c)
+    mob_yennikuAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         bReset = false;
         Reset();
@@ -85,9 +85,9 @@ struct MANGOS_DLL_DECL mob_yennikuAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_mob_yenniku(Creature *_Creature)
+CreatureAI* GetAI_mob_yenniku(Creature* pCreature)
 {
-    return new mob_yennikuAI (_Creature);
+    return new mob_yennikuAI(pCreature);
 }
 
 /*######

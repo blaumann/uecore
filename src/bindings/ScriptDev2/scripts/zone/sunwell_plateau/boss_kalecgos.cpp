@@ -119,9 +119,9 @@ void TeleportToInnerVeil(Player* plr)
 
 struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
 {
-    boss_kalecgosAI(Creature* c) : ScriptedAI(c)
+    boss_kalecgosAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
@@ -377,9 +377,9 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL boss_sathrovarrAI : public ScriptedAI
 {
-    boss_sathrovarrAI(Creature* c) : ScriptedAI(c)
+    boss_sathrovarrAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
@@ -498,9 +498,9 @@ struct MANGOS_DLL_DECL boss_sathrovarrAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL boss_kalecgos_humanoidAI : public ScriptedAI
 {
-    boss_kalecgos_humanoidAI(Creature* c) : ScriptedAI(c)
+    boss_kalecgos_humanoidAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 

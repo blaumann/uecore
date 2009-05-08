@@ -145,9 +145,9 @@ enum Phase
 ######*/
 struct MANGOS_DLL_DECL mob_kalecgosAI : public ScriptedAI
 {
-    mob_kalecgosAI(Creature* c) : ScriptedAI(c)
+    mob_kalecgosAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
     ScriptedInstance* pInstance;
@@ -246,8 +246,9 @@ struct MANGOS_DLL_DECL mob_kalecgosAI : public ScriptedAI
 ######*/
 struct MANGOS_DLL_DECL mob_shield_orbAI : public ScriptedAI
 {
-    mob_shield_orbAI(Creature* c) : ScriptedAI(c) {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+    mob_shield_orbAI(Creature* pCreature) : ScriptedAI(pCreature)
+	{
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
     ScriptedInstance* pInstance;
@@ -315,9 +316,9 @@ struct MANGOS_DLL_DECL mob_shield_orbAI : public ScriptedAI
 ######*/
 struct MANGOS_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
 {
-    boss_kiljaedenAI(Creature* c) : Scripted_NoMovementAI(c)
+    boss_kiljaedenAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
 
         // hack spell 45885
@@ -658,9 +659,9 @@ struct MANGOS_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
 ######*/
 struct MANGOS_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
 {
-    mob_kiljaeden_controllerAI(Creature* c) : Scripted_NoMovementAI(c)
+    mob_kiljaeden_controllerAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
@@ -1044,9 +1045,9 @@ struct MANGOS_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
 ######*/
 struct MANGOS_DLL_DECL mob_hand_of_the_deceiverAI : public ScriptedAI
 {
-    mob_hand_of_the_deceiverAI(Creature* c) : ScriptedAI(c)
+    mob_hand_of_the_deceiverAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
@@ -1126,7 +1127,7 @@ struct MANGOS_DLL_DECL mob_hand_of_the_deceiverAI : public ScriptedAI
 ######*/
 struct MANGOS_DLL_DECL mob_felfire_portalAI : public Scripted_NoMovementAI
 {
-    mob_felfire_portalAI(Creature* c) : Scripted_NoMovementAI(c)
+    mob_felfire_portalAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
     {
         Reset();
     }
@@ -1157,7 +1158,7 @@ struct MANGOS_DLL_DECL mob_felfire_portalAI : public Scripted_NoMovementAI
 ######*/
 struct MANGOS_DLL_DECL mob_volatile_felfire_fiendAI : public ScriptedAI
 {
-    mob_volatile_felfire_fiendAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    mob_volatile_felfire_fiendAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
 
     uint32 ExplodeTimer;
     bool LockedTarget;
@@ -1194,49 +1195,49 @@ struct MANGOS_DLL_DECL mob_volatile_felfire_fiendAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_kiljaeden(Creature *_Creature)
+CreatureAI* GetAI_boss_kiljaeden(Creature* pCreature)
 {
-    return new boss_kiljaedenAI (_Creature);
+    return new boss_kiljaedenAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_kiljaeden_controller(Creature *_Creature)
+CreatureAI* GetAI_mob_kiljaeden_controller(Creature* pCreature)
 {
-    return new mob_kiljaeden_controllerAI (_Creature);
+    return new mob_kiljaeden_controllerAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_hand_of_the_deceiver(Creature *_Creature)
+CreatureAI* GetAI_mob_hand_of_the_deceiver(Creature* pCreature)
 {
-    return new mob_hand_of_the_deceiverAI (_Creature);
+    return new mob_hand_of_the_deceiverAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_felfire_portal(Creature *_Creature)
+CreatureAI* GetAI_mob_felfire_portal(Creature* pCreature)
 {
-    return new mob_felfire_portalAI (_Creature);
+    return new mob_felfire_portalAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_volatile_felfire_fiend(Creature *_Creature)
+CreatureAI* GetAI_mob_volatile_felfire_fiend(Creature* pCreature)
 {
-    return new mob_volatile_felfire_fiendAI (_Creature);
+    return new mob_volatile_felfire_fiendAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_shield_orb(Creature *_Creature)
+CreatureAI* GetAI_mob_shield_orb(Creature* pCreature)
 {
-    return new mob_shield_orbAI (_Creature);
+    return new mob_shield_orbAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_kalecgos(Creature *_Creature)
+CreatureAI* GetAI_mob_kalecgos(Creature* pCreature)
 {
-    return new mob_kalecgosAI (_Creature);
+    return new mob_kalecgosAI(pCreature);
 }
 
-bool GOHello_orb_of_the_blue_flight(Player* player, GameObject* go)
+bool GOHello_orb_of_the_blue_flight(Player* pPlayer, GameObject* go)
 {
-    ScriptedInstance *pInstance = (player->GetInstanceData()) ? ((ScriptedInstance*)player->GetInstanceData()) : NULL;
+    ScriptedInstance *pInstance = (pPlayer->GetInstanceData()) ? ((ScriptedInstance*)pPlayer->GetInstanceData()) : NULL;
 
     if (pInstance && pInstance->GetData(DATA_KILJAEDEN_EVENT) == IN_PROGRESS && !go->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
     {
-        player->CastSpell(player, SPELL_SUMMON_BLUE_DRAKE, true);
-        player->CastSpell(player, SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, true);
+        pPlayer->CastSpell(pPlayer, SPELL_SUMMON_BLUE_DRAKE, true);
+        pPlayer->CastSpell(pPlayer, SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, true);
     }
 
     return false;

@@ -110,9 +110,9 @@ bool QuestAccept_npc_swiftmountain(Player* player, Creature* creature, Quest con
     return true;
 }
 
-CreatureAI* GetAI_npc_swiftmountain(Creature *_Creature)
+CreatureAI* GetAI_npc_swiftmountain(Creature* pCreature)
 {
-   npc_swiftmountainAI* thisAI = new npc_swiftmountainAI(_Creature);
+   npc_swiftmountainAI* thisAI = new npc_swiftmountainAI(pCreature);
 
    thisAI->AddWaypoint(0, -5156.69, -1220.49, 48.78, 5000);
    thisAI->AddWaypoint(1, -5157.12, -1220.13, 48.67);

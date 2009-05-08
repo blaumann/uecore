@@ -34,7 +34,7 @@ update creature_template set scriptname = 'boss_volkhan' where entry = '';
 
 struct MANGOS_DLL_DECL boss_volkhanAI : public ScriptedAI
 {
-    boss_volkhanAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_volkhanAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) 
@@ -85,7 +85,7 @@ struct MANGOS_DLL_DECL boss_volkhanAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL mob_molten_golemAI : public ScriptedAI
 {
-    mob_molten_golemAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    mob_molten_golemAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) {}
@@ -102,14 +102,14 @@ struct MANGOS_DLL_DECL mob_molten_golemAI : public ScriptedAI
     void JustDied(Unit* killer)  {}
 };
 
-CreatureAI* GetAI_mob_molten_golem(Creature *_Creature)
+CreatureAI* GetAI_mob_molten_golem(Creature* pCreature)
 {
-    return new mob_molten_golemAI (_Creature);
+    return new mob_molten_golemAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_volkhan(Creature *_Creature)
+CreatureAI* GetAI_boss_volkhan(Creature* pCreature)
 {
-    return new boss_volkhanAI (_Creature);
+    return new boss_volkhanAI(pCreature);
 }
 
 void AddSC_boss_volkhan()

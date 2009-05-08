@@ -53,9 +53,9 @@ float waypoint[6][3] =
 
 struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
 {
-    boss_alarAI(Creature *c) : ScriptedAI(c)
+    boss_alarAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         DefaultSize = m_creature->GetFloatValue(OBJECT_FIELD_SCALE_X);
         DefaultModel = m_creature->GetUInt32Value(UNIT_FIELD_DISPLAYID);
         DefaultMoveSpeedRate = m_creature->GetSpeedRate(MOVE_RUN);
@@ -510,16 +510,16 @@ struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_alar(Creature *_Creature)
+CreatureAI* GetAI_boss_alar(Creature* pCreature)
 {
-    return new boss_alarAI (_Creature);
+    return new boss_alarAI(pCreature);
 }
 
 struct MANGOS_DLL_DECL mob_ember_of_alarAI : public ScriptedAI
 {
-    mob_ember_of_alarAI(Creature *c) : ScriptedAI(c)
+    mob_ember_of_alarAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
@@ -568,14 +568,14 @@ struct MANGOS_DLL_DECL mob_ember_of_alarAI : public ScriptedAI
 
 };
 
-CreatureAI* GetAI_mob_ember_of_alar(Creature *_Creature)
+CreatureAI* GetAI_mob_ember_of_alar(Creature* pCreature)
 {
-    return new mob_ember_of_alarAI (_Creature);
+    return new mob_ember_of_alarAI(pCreature);
 }
 
 struct MANGOS_DLL_DECL mob_flame_patch_alarAI : public ScriptedAI
 {
-    mob_flame_patch_alarAI(Creature *c) : ScriptedAI(c) {}
+    mob_flame_patch_alarAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
 
@@ -587,9 +587,9 @@ struct MANGOS_DLL_DECL mob_flame_patch_alarAI : public ScriptedAI
 
 };
 
-CreatureAI* GetAI_mob_flame_patch_alar(Creature *_Creature)
+CreatureAI* GetAI_mob_flame_patch_alar(Creature* pCreature)
 {
-    return new mob_flame_patch_alarAI (_Creature);
+    return new mob_flame_patch_alarAI(pCreature);
 }
 
 void AddSC_boss_alar()

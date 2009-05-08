@@ -59,9 +59,9 @@ EndScriptData */
 ######*/
 struct MANGOS_DLL_DECL boss_sacrolashAI : public ScriptedAI
 {
-    boss_sacrolashAI(Creature *c) : ScriptedAI(c)
+    boss_sacrolashAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
@@ -290,9 +290,9 @@ struct MANGOS_DLL_DECL boss_sacrolashAI : public ScriptedAI
 ######*/
 struct MANGOS_DLL_DECL boss_alythessAI : public ScriptedAI
 {
-    boss_alythessAI(Creature *c) : ScriptedAI(c)
+    boss_alythessAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
@@ -512,7 +512,7 @@ struct MANGOS_DLL_DECL boss_alythessAI : public ScriptedAI
 ######*/
 struct MANGOS_DLL_DECL mob_shadow_imageAI : public ScriptedAI
 {
-    mob_shadow_imageAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_shadow_imageAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     uint32 shadowfury_timer;
     uint32 touched_timer;
@@ -558,7 +558,7 @@ struct MANGOS_DLL_DECL mob_shadow_imageAI : public ScriptedAI
 ######*/
 struct MANGOS_DLL_DECL mob_blaze_fireAI : public ScriptedAI
 {
-    mob_blaze_fireAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_blaze_fireAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     uint32 burn_timer;
     
@@ -581,24 +581,24 @@ struct MANGOS_DLL_DECL mob_blaze_fireAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_sacrolash(Creature *_Creature)
+CreatureAI* GetAI_boss_sacrolash(Creature* pCreature)
 {
-    return new boss_sacrolashAI (_Creature);
+    return new boss_sacrolashAI(pCreature);
 };
 
-CreatureAI* GetAI_boss_alythess(Creature *_Creature)
+CreatureAI* GetAI_boss_alythess(Creature* pCreature)
 {
-    return new boss_alythessAI (_Creature);
+    return new boss_alythessAI(pCreature);
 };
 
-CreatureAI* GetAI_mob_shadow_image(Creature *_Creature)
+CreatureAI* GetAI_mob_shadow_image(Creature* pCreature)
 {
-    return new mob_shadow_imageAI (_Creature);
+    return new mob_shadow_imageAI(pCreature);
 };
 
-CreatureAI* GetAI_mob_blaze_fire(Creature *_Creature)
+CreatureAI* GetAI_mob_blaze_fire(Creature* pCreature)
 {
-    return new mob_blaze_fireAI (_Creature);
+    return new mob_blaze_fireAI(pCreature);
 };
 
 void AddSC_boss_eredar_twins()

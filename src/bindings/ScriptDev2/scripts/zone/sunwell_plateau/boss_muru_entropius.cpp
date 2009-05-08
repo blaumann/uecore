@@ -116,9 +116,9 @@ void KillMob(Creature* Mob)
 ######*/
 struct MANGOS_DLL_DECL boss_muruAI : public Scripted_NoMovementAI
 {
-    boss_muruAI(Creature *c) : Scripted_NoMovementAI(c)
+    boss_muruAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
     ScriptedInstance *pInstance;
@@ -272,9 +272,9 @@ struct MANGOS_DLL_DECL boss_muruAI : public Scripted_NoMovementAI
 ######*/
 struct MANGOS_DLL_DECL boss_entropiusAI : public ScriptedAI
 {
-    boss_entropiusAI(Creature *c) : ScriptedAI(c)
+    boss_entropiusAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
     ScriptedInstance *pInstance;
@@ -355,7 +355,7 @@ struct MANGOS_DLL_DECL boss_entropiusAI : public ScriptedAI
 ######*/
 struct MANGOS_DLL_DECL dark_fiendAI : public ScriptedAI
 {
-    dark_fiendAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    dark_fiendAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
 
@@ -388,19 +388,19 @@ struct MANGOS_DLL_DECL dark_fiendAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_muru(Creature *_Creature)
+CreatureAI* GetAI_boss_muru(Creature* pCreature)
 {
-    return new boss_muruAI(_Creature);
+    return new boss_muruAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_entropius(Creature *_Creature)
+CreatureAI* GetAI_boss_entropius(Creature* pCreature)
 {
-    return new boss_entropiusAI(_Creature);
+    return new boss_entropiusAI(pCreature);
 }
 
-CreatureAI* GetAI_dark_fiend(Creature *_Creature)
+CreatureAI* GetAI_dark_fiend(Creature* pCreature)
 {
-    return new dark_fiendAI(_Creature);
+    return new dark_fiendAI(pCreature);
 }
 
 void AddSC_boss_muru_entropius()

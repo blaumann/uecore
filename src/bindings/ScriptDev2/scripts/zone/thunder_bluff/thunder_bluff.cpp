@@ -25,7 +25,6 @@ EndScriptData */
 
 /*#####
 # npc_cairne_bloodhoof
-# npc_kyle_frenzied
 ######*/
 
 #define SPELL_BERSERKER_CHARGE  16636
@@ -37,7 +36,7 @@ EndScriptData */
 //TODO: verify abilities/timers
 struct MANGOS_DLL_DECL npc_cairne_bloodhoofAI : public ScriptedAI
 {
-    npc_cairne_bloodhoofAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    npc_cairne_bloodhoofAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
 
     uint32 BerserkerCharge_Timer;
     uint32 Cleave_Timer;
@@ -56,36 +55,36 @@ struct MANGOS_DLL_DECL npc_cairne_bloodhoofAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
-        if( BerserkerCharge_Timer < diff )
+        if (BerserkerCharge_Timer < diff)
         {
             Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if( target )
+            if (target)
                 DoCast(target,SPELL_BERSERKER_CHARGE);
             BerserkerCharge_Timer = 25000;
         }else BerserkerCharge_Timer -= diff;
 
-        if( Uppercut_Timer < diff )
+        if (Uppercut_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_UPPERCUT);
             Uppercut_Timer = 20000;
         }else Uppercut_Timer -= diff;
 
-        if( Thunderclap_Timer < diff )
+        if (Thunderclap_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_THUNDERCLAP);
             Thunderclap_Timer = 15000;
         }else Thunderclap_Timer -= diff;
 
-        if( MortalStrike_Timer < diff )
+        if (MortalStrike_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MORTAL_STRIKE);
             MortalStrike_Timer = 15000;
         }else MortalStrike_Timer -= diff;
 
-        if( Cleave_Timer < diff )
+        if (Cleave_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CLEAVE);
             Cleave_Timer = 7000;
@@ -94,30 +93,30 @@ struct MANGOS_DLL_DECL npc_cairne_bloodhoofAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_npc_cairne_bloodhoof(Creature *_Creature)
+CreatureAI* GetAI_npc_cairne_bloodhoof(Creature* pCreature)
 {
-    return new npc_cairne_bloodhoofAI (_Creature);
+    return new npc_cairne_bloodhoofAI(pCreature);
 }
 
-bool GossipHello_npc_cairne_bloodhoof(Player *player, Creature *_Creature)
+bool GossipHello_npc_cairne_bloodhoof(Player* pPlayer, Creature* pCreature)
 {
-    if (_Creature->isQuestGiver())
-        player->PrepareQuestMenu( _Creature->GetGUID() );
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-    if( player->GetQuestStatus(925) == QUEST_STATUS_INCOMPLETE )
-        player->ADD_GOSSIP_ITEM( 0, "I know this is rather silly but a young ward who is a bit shy would like your hoofprint.", GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO );
+    if (pPlayer->GetQuestStatus(925) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(0, "I know this is rather silly but a young ward who is a bit shy would like your hoofprint.", GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
 
-    player->SEND_GOSSIP_MENU(7013, _Creature->GetGUID() );
+    pPlayer->SEND_GOSSIP_MENU(7013, pCreature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_cairne_bloodhoof(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+bool GossipSelect_npc_cairne_bloodhoof(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
-    if( action == GOSSIP_SENDER_INFO )
+    if (action == GOSSIP_SENDER_INFO)
     {
-        player->CastSpell(player, 23123, false);
-        player->SEND_GOSSIP_MENU(7014, _Creature->GetGUID() );
+        pPlayer->CastSpell(pPlayer, 23123, false);
+        pPlayer->SEND_GOSSIP_MENU(7014, pCreature->GetGUID());
     }
     return true;
 }
@@ -128,7 +127,7 @@ bool GossipSelect_npc_cairne_bloodhoof(Player *player, Creature *_Creature, uint
 
 struct MANGOS_DLL_DECL npc_kyle_frenziedAI : public ScriptedAI
 {
-    npc_kyle_frenziedAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_kyle_frenziedAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     int STATE;
     uint32 wait;
@@ -220,9 +219,9 @@ struct MANGOS_DLL_DECL npc_kyle_frenziedAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_kyle_frenzied(Creature *_Creature)
+CreatureAI* GetAI_npc_kyle_frenzied(Creature* pCreature)
 {
-    return new npc_kyle_frenziedAI (_Creature);
+    return new npc_kyle_frenziedAI(pCreature);
 }
 
 void AddSC_thunder_bluff()

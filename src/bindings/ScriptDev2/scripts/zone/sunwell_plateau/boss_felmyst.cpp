@@ -119,9 +119,9 @@ static EventFelmyst MaxTimer[]=
 ######*/
 struct MANGOS_DLL_DECL boss_felmystAI : public ScriptedAI
 {
-    boss_felmystAI(Creature *c) : ScriptedAI(c)
+    boss_felmystAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
 
         // wait for core patch be accepted
@@ -565,7 +565,7 @@ struct MANGOS_DLL_DECL boss_felmystAI : public ScriptedAI
 ######*/
 struct MANGOS_DLL_DECL mob_felmyst_vaporAI : public ScriptedAI
 {
-    mob_felmyst_vaporAI(Creature *c) : ScriptedAI(c)
+    mob_felmyst_vaporAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetSpeed(MOVE_RUN, 0.8);
@@ -589,7 +589,7 @@ struct MANGOS_DLL_DECL mob_felmyst_vaporAI : public ScriptedAI
 ######*/
 struct MANGOS_DLL_DECL mob_felmyst_trailAI : public ScriptedAI
 {
-    mob_felmyst_trailAI(Creature *c) : ScriptedAI(c)
+    mob_felmyst_trailAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->CastSpell(m_creature, SPELL_TRAIL_TRIGGER, true);
@@ -602,19 +602,19 @@ struct MANGOS_DLL_DECL mob_felmyst_trailAI : public ScriptedAI
     void UpdateAI(const uint32 diff) {}
 };
 
-CreatureAI* GetAI_boss_felmyst(Creature *_Creature)
+CreatureAI* GetAI_boss_felmyst(Creature* pCreature)
 {
-    return new boss_felmystAI(_Creature);
+    return new boss_felmystAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_felmyst_vapor(Creature *_Creature)
+CreatureAI* GetAI_mob_felmyst_vapor(Creature* pCreature)
 {
-    return new mob_felmyst_vaporAI(_Creature);
+    return new mob_felmyst_vaporAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_felmyst_trail(Creature *_Creature)
+CreatureAI* GetAI_mob_felmyst_trail(Creature* pCreature)
 {
-    return new mob_felmyst_trailAI(_Creature);
+    return new mob_felmyst_trailAI(pCreature);
 }
 
 void AddSC_boss_felmyst()

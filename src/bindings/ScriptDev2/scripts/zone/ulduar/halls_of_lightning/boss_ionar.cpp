@@ -36,7 +36,7 @@ update creature_template set scriptname = 'boss_ionar' where entry = '';
 
 struct MANGOS_DLL_DECL boss_ionarAI : public ScriptedAI
 {
-    boss_ionarAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_ionarAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) 
@@ -72,7 +72,7 @@ struct MANGOS_DLL_DECL boss_ionarAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL npc_spark_of_ionarAI : public ScriptedAI
 {
-    npc_spark_of_ionarAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    npc_spark_of_ionarAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) {}
@@ -89,13 +89,13 @@ struct MANGOS_DLL_DECL npc_spark_of_ionarAI : public ScriptedAI
     void JustDied(Unit* killer)  {}
 };
 
-CreatureAI* GetAI_npc_spark_of_ionar(Creature *_Creature)
+CreatureAI* GetAI_npc_spark_of_ionar(Creature* pCreature)
 {
-    return new npc_spark_of_ionarAI (_Creature);
+    return new npc_spark_of_ionarAI(pCreature);
 }
-CreatureAI* GetAI_boss_ionar(Creature *_Creature)
+CreatureAI* GetAI_boss_ionar(Creature* pCreature)
 {
-    return new boss_ionarAI (_Creature);
+    return new boss_ionarAI(pCreature);
 }
 
 void AddSC_boss_ionar()
