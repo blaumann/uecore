@@ -32,9 +32,9 @@
 
 struct MANGOS_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
 {
-    boss_rage_winterchillAI(Creature *c) : hyjal_trashAI(c)
+    boss_rage_winterchillAI(Creature* pCreature) : hyjal_trashAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         go = false;    
         pos = 0;
     }
@@ -176,9 +176,9 @@ struct MANGOS_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
     }
 };
 
-CreatureAI* GetAI_boss_rage_winterchill(Creature *_Creature)
+CreatureAI* GetAI_boss_rage_winterchill(Creature* pCreature)
 {
-    return new boss_rage_winterchillAI (_Creature);
+    return new boss_rage_winterchillAI(pCreature);
 }
 
 void AddSC_boss_rage_winterchill()

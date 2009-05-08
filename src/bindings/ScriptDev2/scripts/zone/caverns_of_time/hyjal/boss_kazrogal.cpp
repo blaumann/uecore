@@ -26,9 +26,9 @@
 
 struct MANGOS_DLL_DECL boss_kazrogalAI : public hyjal_trashAI
 {
-    boss_kazrogalAI(Creature *c) : hyjal_trashAI(c)
+    boss_kazrogalAI(Creature* pCreature) : hyjal_trashAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         go = false;    
         pos = 0;
         SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_MARK);
@@ -181,9 +181,9 @@ struct MANGOS_DLL_DECL boss_kazrogalAI : public hyjal_trashAI
     }
 };
 
-CreatureAI* GetAI_boss_kazrogal(Creature *_Creature)
+CreatureAI* GetAI_boss_kazrogal(Creature* pCreature)
 {
-    return new boss_kazrogalAI (_Creature);
+    return new boss_kazrogalAI(pCreature);
 }
 
 void AddSC_boss_kazrogal()

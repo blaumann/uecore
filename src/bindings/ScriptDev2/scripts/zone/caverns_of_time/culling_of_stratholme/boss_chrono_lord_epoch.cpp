@@ -38,7 +38,7 @@ EndScriptData */
 
 struct MANGOS_DLL_DECL boss_chrono_lord_epochAI : public ScriptedAI
 {
-	boss_chrono_lord_epochAI(Creature *c) : ScriptedAI(c) {Reset();}
+	boss_chrono_lord_epochAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
 	uint32 TimeWarp_Timer;
 	uint32 Curse_Timer;
@@ -118,9 +118,9 @@ struct MANGOS_DLL_DECL boss_chrono_lord_epochAI : public ScriptedAI
 	}
 };
 
-CreatureAI* GetAI_boss_chrono_lord_epoch(Creature *_Creature)
+CreatureAI* GetAI_boss_chrono_lord_epoch(Creature* pCreature)
 {
-    return new boss_chrono_lord_epochAI (_Creature);
+    return new boss_chrono_lord_epochAI(pCreature);
 }
 
 void AddSC_boss_chrono_lord_epoch()

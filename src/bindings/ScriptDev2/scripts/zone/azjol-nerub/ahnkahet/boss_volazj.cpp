@@ -35,7 +35,7 @@ bool VolazjPhase1 = true,
 
 struct MANGOS_DLL_DECL boss_volazjAI : public ScriptedAI
 {
-    boss_volazjAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_volazjAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
     
     void Reset() {}
     void Aggro(Unit* who) 
@@ -74,9 +74,9 @@ struct MANGOS_DLL_DECL boss_volazjAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_volazj(Creature *_Creature)
+CreatureAI* GetAI_boss_volazj(Creature* pCreature)
 {
-    return new boss_volazjAI (_Creature);
+    return new boss_volazjAI(pCreature);
 }
 
 void AddSC_boss_volazj()

@@ -28,9 +28,9 @@ EndScriptData */
 #define SPELL_GRIEVOUS_WOUND  31956
 #define SPELL_ENSARING_MOSS   31948
 
-CreatureAI* GetAI_boss_rokmar_the_crackler(Creature *_Creature)
+CreatureAI* GetAI_boss_rokmar_the_crackler(Creature* pCreature)
 {
-    SimpleAI* ai = new SimpleAI (_Creature);
+    SimpleAI* ai = new SimpleAI (pCreature);
 
     //Watter Spit
     ai->Spell[0].Enabled = true;

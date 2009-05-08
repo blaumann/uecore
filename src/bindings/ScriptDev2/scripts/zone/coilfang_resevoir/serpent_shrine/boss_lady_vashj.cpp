@@ -101,9 +101,9 @@ const float afShieldGeneratorChannelPos[4][4] =
 //Lady Vashj AI
 struct MANGOS_DLL_DECL boss_lady_vashjAI : public ScriptedAI
 {
-    boss_lady_vashjAI (Creature* c) : ScriptedAI(c)
+    boss_lady_vashjAI (Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
@@ -441,9 +441,9 @@ struct MANGOS_DLL_DECL boss_lady_vashjAI : public ScriptedAI
 //If one of them reaches Vashj he will increase her damage done by 5%.
 struct MANGOS_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
 {
-    mob_enchanted_elementalAI(Creature* c) : ScriptedAI(c)
+    mob_enchanted_elementalAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
@@ -488,9 +488,9 @@ struct MANGOS_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
 //This mob has 7,900 life, doesn't move, and shoots Poison Bolts at one person anywhere in the area, doing 3,000 nature damage and placing a posion doing 2,000 damage every 2 seconds. He will switch targets often, or sometimes just hang on a single player, but there is nothing you can do about it except heal the damage and kill the Tainted Elemental
 struct MANGOS_DLL_DECL mob_tainted_elementalAI : public ScriptedAI
 {
-    mob_tainted_elementalAI(Creature* c) : ScriptedAI(c)
+    mob_tainted_elementalAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
@@ -534,9 +534,9 @@ struct MANGOS_DLL_DECL mob_tainted_elementalAI : public ScriptedAI
 //Toxic Spores: Used in m_uiPhase 3 by the Spore Bats, it creates a contaminated green patch of ground, dealing about 2775-3225 nature damage every second to anyone who stands in it.
 struct MANGOS_DLL_DECL mob_toxic_sporebatAI : public ScriptedAI
 {
-    mob_toxic_sporebatAI(Creature* c) : ScriptedAI(c)
+    mob_toxic_sporebatAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
@@ -633,9 +633,9 @@ CreatureAI* GetAI_mob_coilfang_strider(Creature* pCreature)
 
 struct MANGOS_DLL_DECL mob_shield_generator_channelAI : public ScriptedAI
 {
-    mob_shield_generator_channelAI(Creature* c) : ScriptedAI(c)
+    mob_shield_generator_channelAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 

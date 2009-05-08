@@ -19,7 +19,7 @@ update creature_template set scriptname = 'boss_hadronox' where entry = '';
 
 struct MANGOS_DLL_DECL boss_hadronoxAI : public ScriptedAI
 {
-    boss_hadronoxAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_hadronoxAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) {}
@@ -36,9 +36,9 @@ struct MANGOS_DLL_DECL boss_hadronoxAI : public ScriptedAI
     void JustDied(Unit* killer)  {}
 };
 
-CreatureAI* GetAI_boss_hadronox(Creature *_Creature)
+CreatureAI* GetAI_boss_hadronox(Creature* pCreature)
 {
-    return new boss_hadronoxAI (_Creature);
+    return new boss_hadronoxAI(pCreature);
 }
 
 void AddSC_boss_hadronox()

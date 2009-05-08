@@ -36,7 +36,7 @@ EndScriptData */
 3 - Warlord Kalithresh Event
 */
 
-bool GOHello_go_main_chambers_access_panel(Player *player, GameObject* _GO)
+bool GOHello_go_main_chambers_access_panel(Player* pPlayer, GameObject* _GO)
 {
     ScriptedInstance* pInstance = (ScriptedInstance*)_GO->GetInstanceData();
 
@@ -88,30 +88,13 @@ struct MANGOS_DLL_DECL instance_steam_vault : public ScriptedInstance
         return false;
     }
 
-    Player* GetPlayerInMap()
+    void OnCreatureCreate(Creature* pCreature, uint32 creature_entry)
     {
-        Map::PlayerList const& players = instance->GetPlayers();
-
-        if (!players.isEmpty())
+        switch(pCreature->GetEntry())
         {
-            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            {
-                if (Player* plr = itr->getSource())
-                    return plr;
-            }
-        }
-
-        debug_log("SD2: Instance Steamvault: GetPlayerInMap, but PlayerList is empty!");
-        return NULL;
-    }
-
-    void OnCreatureCreate(Creature *creature, uint32 creature_entry)
-    {
-        switch(creature->GetEntry())
-        {
-            case 17797: ThespiaGUID = creature->GetGUID(); break;
-            case 17796: MekgineerGUID = creature->GetGUID(); break;
-            case 17798: KalithreshGUID = creature->GetGUID(); break;
+            case 17797: ThespiaGUID = pCreature->GetGUID(); break;
+            case 17796: MekgineerGUID = pCreature->GetGUID(); break;
+            case 17798: KalithreshGUID = pCreature->GetGUID(); break;
         }
     }
 
@@ -132,13 +115,13 @@ struct MANGOS_DLL_DECL instance_steam_vault : public ScriptedInstance
             case TYPE_HYDROMANCER_THESPIA:
                 if (data == SPECIAL)
                 {
-                    if (GameObject *_go = instance->GetGameObject(AccessPanelHydro))
-                        _go->SetGoState(GO_STATE_ACTIVE);
+                    if (GameObject* pGo = instance->GetGameObject(AccessPanelHydro))
+                        pGo->SetGoState(GO_STATE_ACTIVE);
 
                     if (GetData(TYPE_MEKGINEER_STEAMRIGGER) == SPECIAL)
                     {
-                        if (GameObject *_go = instance->GetGameObject(MainChambersDoor))
-                            _go->SetGoState(GO_STATE_ACTIVE);
+                        if (GameObject* pGo = instance->GetGameObject(MainChambersDoor))
+                            pGo->SetGoState(GO_STATE_ACTIVE);
                     }
 
                     debug_log("SD2: Instance Steamvault: Access panel used.");
@@ -148,13 +131,13 @@ struct MANGOS_DLL_DECL instance_steam_vault : public ScriptedInstance
             case TYPE_MEKGINEER_STEAMRIGGER:
                 if (data == SPECIAL)
                 {
-                    if (GameObject *_go = instance->GetGameObject(AccessPanelMek))
-                        _go->SetGoState(GO_STATE_ACTIVE);
+                    if (GameObject* pGo = instance->GetGameObject(AccessPanelMek))
+                        pGo->SetGoState(GO_STATE_ACTIVE);
 
                     if (GetData(TYPE_HYDROMANCER_THESPIA) == SPECIAL)
                     {
-                        if (GameObject *_go = instance->GetGameObject(MainChambersDoor))
-                            _go->SetGoState(GO_STATE_ACTIVE);
+                        if (GameObject* pGo = instance->GetGameObject(MainChambersDoor))
+                            pGo->SetGoState(GO_STATE_ACTIVE);
                     }
 
                     debug_log("SD2: Instance Steamvault: Access panel used.");

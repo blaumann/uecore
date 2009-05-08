@@ -44,7 +44,7 @@ EndScriptData */
 
 struct MANGOS_DLL_DECL boss_salrammAI : public ScriptedAI
 {
-	boss_salrammAI(Creature *c) : ScriptedAI(c) {Reset();}
+	boss_salrammAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
 	uint32 Steal_Timer;
 	uint32 Bolt_Timer;
@@ -149,9 +149,9 @@ struct MANGOS_DLL_DECL boss_salrammAI : public ScriptedAI
 	}
 };
 
-CreatureAI* GetAI_boss_salramm(Creature *_Creature)
+CreatureAI* GetAI_boss_salramm(Creature* pCreature)
 {
-    return new boss_salrammAI (_Creature);
+    return new boss_salrammAI(pCreature);
 }
 
 void AddSC_boss_salramm()

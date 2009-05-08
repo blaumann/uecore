@@ -38,9 +38,9 @@
 
 struct MANGOS_DLL_DECL boss_anetheronAI : public hyjal_trashAI
 {
-    boss_anetheronAI(Creature *c) : hyjal_trashAI(c)
+    boss_anetheronAI(Creature* pCreature) : hyjal_trashAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         go = false;    
         pos = 0;
         SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_SLEEP);
@@ -212,9 +212,9 @@ struct MANGOS_DLL_DECL boss_anetheronAI : public hyjal_trashAI
     }
 };
 
-CreatureAI* GetAI_boss_anetheron(Creature *_Creature)
+CreatureAI* GetAI_boss_anetheron(Creature* pCreature)
 {
-    return new boss_anetheronAI (_Creature);
+    return new boss_anetheronAI(pCreature);
 }
 
 #define SPELL_IMMOLATION 31303
@@ -222,9 +222,9 @@ CreatureAI* GetAI_boss_anetheron(Creature *_Creature)
 
 struct MANGOS_DLL_DECL mob_towering_infernalAI : public ScriptedAI
 {
-    mob_towering_infernalAI(Creature *c) : ScriptedAI(c)
+    mob_towering_infernalAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         if(pInstance)
             AnetheronGUID = pInstance->GetData64(DATA_ANETHERON);
     }
@@ -297,9 +297,9 @@ struct MANGOS_DLL_DECL mob_towering_infernalAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_towering_infernal(Creature *_Creature)
+CreatureAI* GetAI_mob_towering_infernal(Creature* pCreature)
 {
-    return new mob_towering_infernalAI (_Creature);
+    return new mob_towering_infernalAI(pCreature);
 }
 
 void AddSC_boss_anetheron()

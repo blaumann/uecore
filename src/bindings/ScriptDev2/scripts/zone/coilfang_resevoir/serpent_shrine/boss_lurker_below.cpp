@@ -46,9 +46,9 @@ float AddPos[9][3] =
 
 struct MANGOS_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 {
-    boss_the_lurker_belowAI(Creature *c) : Scripted_NoMovementAI(c) 
+    boss_the_lurker_belowAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
 	{
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
 		Reset();
 	}
 
@@ -393,9 +393,9 @@ struct MANGOS_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 	}
 };
 
-CreatureAI* GetAI_boss_the_lurker_below(Creature *_Creature)
+CreatureAI* GetAI_boss_the_lurker_below(Creature* pCreature)
 {
-    return new boss_the_lurker_belowAI (_Creature);
+    return new boss_the_lurker_belowAI(pCreature);
 }
 
 void AddSC_boss_the_lurker_below()
@@ -448,9 +448,9 @@ struct MANGOS_DLL_DECL mob_coilfang_ambusherAI : public Scripted_NoMovementAI
 	}
 };
 
-CreatureAI* GetAI_mob_coilfang_ambusher(Creature *_Creature)
+CreatureAI* GetAI_mob_coilfang_ambusher(Creature* pCreature)
 {
-    return new mob_coilfang_ambusherAI (_Creature);
+    return new mob_coilfang_ambusherAI(pCreature);
 }
 
 void AddSC_mob_coilfang_ambusher()
@@ -464,7 +464,7 @@ void AddSC_mob_coilfang_ambusher()
 
 struct MANGOS_DLL_DECL mob_coilfang_guardianAI : public ScriptedAI
 {
-    mob_coilfang_guardianAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_coilfang_guardianAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
 	uint32 SmashTimer;
 	uint32 HamstringTimer;
@@ -503,9 +503,9 @@ struct MANGOS_DLL_DECL mob_coilfang_guardianAI : public ScriptedAI
 	}
 };
 
-CreatureAI* GetAI_mob_coilfang_guardian(Creature *_Creature)
+CreatureAI* GetAI_mob_coilfang_guardian(Creature* pCreature)
 {
-    return new mob_coilfang_guardianAI (_Creature);
+    return new mob_coilfang_guardianAI(pCreature);
 }
 
 void AddSC_mob_coilfang_guardian()

@@ -64,7 +64,7 @@ struct MANGOS_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
     bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < ENCOUNTERS; i++)
-            if(Encounter[i]) return true;
+            if (Encounter[i]) return true;
 
         return false;
     }
@@ -73,54 +73,31 @@ struct MANGOS_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
     {
         switch(go->GetEntry())
         {
-            case REFECTORY_DOOR: RefectoryDoorGUID = go->GetGUID(); break;
-            case SCREAMING_HALL_DOOR: ScreamingHallDoorGUID = go->GetGUID(); break;
+            case REFECTORY_DOOR:
+                RefectoryDoorGUID = go->GetGUID();
+                if (Encounter[2] == DONE)
+                    DoUseDoorOrButton(RefectoryDoorGUID);
+                break;
+            case SCREAMING_HALL_DOOR:
+                ScreamingHallDoorGUID = go->GetGUID();
+                if (Encounter[3] == DONE)
+                    DoUseDoorOrButton(ScreamingHallDoorGUID);
+                break;
         }
     }
 
-    void OnCreatureCreate(Creature *creature, uint32 creature_entry)
+    void OnCreatureCreate(Creature* pCreature, uint32 creature_entry)
     {
-        switch(creature->GetEntry())
+        switch(pCreature->GetEntry())
         {
             case 18732:
-                GrandmasterVorpil = creature->GetGUID();
+                GrandmasterVorpil = pCreature->GetGUID();
                 break;
             case 18796:
                 ++FelOverseerCount;
                 debug_log("SD2: Shadow Labyrinth: counting %u Fel Overseers.",FelOverseerCount);
                 break;
         }
-    }
-
-    Player* GetPlayerInMap()
-    {
-        Map::PlayerList const& players = instance->GetPlayers();
-
-        if (!players.isEmpty())
-        {
-            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            {
-                if (Player* plr = itr->getSource())
-                    return plr;
-            }
-        }
-
-        debug_log("SD2: Instance Shadow Labyrinth: GetPlayerInMap, but PlayerList is empty!");
-        return NULL;
-    }
-
-    void HandleGameObject(uint64 guid, GOState state)
-    {
-        Player *player = GetPlayerInMap();
-
-        if (!player || !guid)
-        {
-            debug_log("SD2: Shadow Labyrinth: HandleGameObject fail");
-            return;
-        }
-
-        if (GameObject *go = instance->GetGameObject(guid))
-            go->SetGoState(state);
     }
 
     void SetData(uint32 type, uint32 data)
@@ -148,17 +125,13 @@ struct MANGOS_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
 
             case DATA_BLACKHEARTTHEINCITEREVENT:
                 if (data == DONE)
-                {
-                    HandleGameObject(RefectoryDoorGUID, GO_STATE_ACTIVE);
-                }
+                    DoUseDoorOrButton(RefectoryDoorGUID);
                 Encounter[2] = data;
                 break;
 
             case DATA_GRANDMASTERVORPILEVENT:
                 if (data == DONE)
-                {
-                    HandleGameObject(ScreamingHallDoorGUID, GO_STATE_ACTIVE);
-                }
+                    DoUseDoorOrButton(ScreamingHallDoorGUID);
                 Encounter[3] = data;
                 break;
 

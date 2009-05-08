@@ -306,9 +306,9 @@ float HordeFirePos[65][8]=//spawn points for the fire visuals (GO) in the horde 
     {5545.43,    -2647.82,    1483.05,    5.38848,    0,    0,    0.432578,    -0.901596}
 };
 
-hyjalAI::hyjalAI(Creature *c) : npc_escortAI(c), Summons(m_creature)
+hyjalAI::hyjalAI(Creature* pCreature) : npc_escortAI(pCreature), Summons(m_creature)
 {
-    pInstance = ((ScriptedInstance*)c->GetInstanceData());
+    pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
     VeinsSpawned[0] = false;
     VeinsSpawned[1] = false;
     for(uint8 i=0;i<14;i++)
@@ -442,7 +442,7 @@ void hyjalAI::Aggro(Unit *who)
 void hyjalAI::MoveInLineOfSight(Unit *who)
 {
     if(IsDummy)return;
-    if (IsBeingEscorted && !GetAttack())
+    if (IsBeingEscorted)
         return;
 
     if(m_creature->getVictim() || !m_creature->GetAttackDistance(who))

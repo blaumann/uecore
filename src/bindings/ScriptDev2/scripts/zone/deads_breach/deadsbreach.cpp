@@ -27,7 +27,7 @@ EndScriptData */
 
 struct MANGOS_DLL_DECL npc_crusade_persuadedAI : public ScriptedAI
 {
-    npc_crusade_persuadedAI(Creature *c) : ScriptedAI(c) {}
+    npc_crusade_persuadedAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
     void Reset(){}
     void Aggro(Unit* who)
     {
@@ -52,7 +52,7 @@ struct MANGOS_DLL_DECL npc_crusade_persuadedAI : public ScriptedAI
 //and customize the spell1id=52361,spellcharges_1`=-1 for item 900007 
 struct MANGOS_DLL_DECL npc_Death_RaceAI : public ScriptedAI
 {
-	npc_Death_RaceAI(Creature *c) : ScriptedAI(c) {}
+	npc_Death_RaceAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 	void Reset(){}
 	void Aggro(Unit* who)
 	{ 
@@ -71,19 +71,19 @@ struct MANGOS_DLL_DECL npc_Death_RaceAI : public ScriptedAI
 	}
 };
 
-/*CreatureAI* GetAI_npc_snake_trap_serpents(Creature *_Creature)
+/*CreatureAI* GetAI_npc_snake_trap_serpents(Creature* pCreature)
 {
-    return new npc_snake_trap_serpentsAI(_Creature);
+    return new npc_snake_trap_serpentsAI(pCreature);
 }*/
 
-CreatureAI* GetAI_npc_Death_Race(Creature *_Creature)
+CreatureAI* GetAI_npc_Death_Race(Creature* pCreature)
 {
-    return new npc_Death_RaceAI (_Creature);
+    return new npc_Death_RaceAI(pCreature);
 }
 
-CreatureAI* GetAI_npc_crusade_persuaded(Creature *_Creature)
+CreatureAI* GetAI_npc_crusade_persuaded(Creature* pCreature)
 {
-    return new npc_crusade_persuadedAI (_Creature);
+    return new npc_crusade_persuadedAI(pCreature);
 }
 
 void AddSC_deadsbreach()

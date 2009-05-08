@@ -29,7 +29,7 @@ EndScriptData */
 
 struct MANGOS_DLL_DECL mob_lazy_peonAI : public ScriptedAI
 {
-	mob_lazy_peonAI(Creature *c) : ScriptedAI(c) {Reset();}
+	mob_lazy_peonAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
 	void Reset()
 	{
@@ -43,9 +43,9 @@ struct MANGOS_DLL_DECL mob_lazy_peonAI : public ScriptedAI
 	}
 };
 
-CreatureAI* GetAI_mob_lazy_peon(Creature *_Creature)
+CreatureAI* GetAI_mob_lazy_peon(Creature* pCreature)
 {
-    return new mob_lazy_peonAI (_Creature);
+    return new mob_lazy_peonAI(pCreature);
 };
 
 void AddSC_mob_lazy_peon()

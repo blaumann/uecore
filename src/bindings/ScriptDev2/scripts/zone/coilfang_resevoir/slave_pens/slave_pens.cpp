@@ -109,9 +109,9 @@ if( m_creature->getVictim() && m_creature->isAlive())
 }
 };
 
-CreatureAI* GetAI_npc_slavehandler(Creature *_Creature)
+CreatureAI* GetAI_npc_slavehandler(Creature* pCreature)
 {
-return new npc_slavehandlerAI (_Creature);
+return new npc_slavehandlerAI(pCreature);
 }
 
 

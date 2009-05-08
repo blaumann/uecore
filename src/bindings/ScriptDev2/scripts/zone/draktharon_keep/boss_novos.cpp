@@ -33,7 +33,7 @@ update creature_template set scriptname = 'boss_novos' where entry = '';
 
 struct MANGOS_DLL_DECL boss_novosAI : public ScriptedAI
 {
-    boss_novosAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_novosAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
     
     void Reset() {}
     void Aggro(Unit* who) 
@@ -59,9 +59,9 @@ struct MANGOS_DLL_DECL boss_novosAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_novos(Creature *_Creature)
+CreatureAI* GetAI_boss_novos(Creature* pCreature)
 {
-    return new boss_novosAI (_Creature);
+    return new boss_novosAI(pCreature);
 }
 
 void AddSC_boss_novos()

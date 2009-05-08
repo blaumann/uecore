@@ -42,9 +42,9 @@ EndContentData */
 #define ITEM_TEAR_OF_GODDESS        24494
 
 
-CreatureAI* GetAI_npc_jaina_proudmoore(Creature *_Creature)
+CreatureAI* GetAI_npc_jaina_proudmoore(Creature* pCreature)
 {
-    hyjalAI* ai = new hyjalAI(_Creature);
+    hyjalAI* ai = new hyjalAI(pCreature);
 
     ai->Reset();
     ai->EnterEvadeMode();
@@ -110,9 +110,9 @@ bool GossipSelect_npc_jaina_proudmoore(Player *player, Creature *_Creature, uint
     return true;
 }
 
-CreatureAI* GetAI_npc_thrall(Creature *_Creature)
+CreatureAI* GetAI_npc_thrall(Creature* pCreature)
 {
-    hyjalAI* ai = new hyjalAI(_Creature);
+    hyjalAI* ai = new hyjalAI(pCreature);
 
     ai->Reset();
     ai->EnterEvadeMode();
@@ -180,9 +180,9 @@ bool GossipSelect_npc_thrall(Player *player, Creature *_Creature, uint32 sender,
     return true;
 }
 
-CreatureAI* GetAI_npc_tyrande_whisperwind(Creature *_Creature)
+CreatureAI* GetAI_npc_tyrande_whisperwind(Creature* pCreature)
 {
-    hyjalAI* ai = new hyjalAI(_Creature);
+    hyjalAI* ai = new hyjalAI(pCreature);
     ai->Reset();
     ai->EnterEvadeMode();
     return ai;

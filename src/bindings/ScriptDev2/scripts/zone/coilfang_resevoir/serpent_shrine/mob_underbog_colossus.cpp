@@ -41,7 +41,7 @@ EndScriptData */
 
 struct MANGOS_DLL_DECL mob_underbog_colossusAI : public ScriptedAI
 {
-    mob_underbog_colossusAI(Creature *c) : ScriptedAI(c) 
+    mob_underbog_colossusAI(Creature* pCreature) : ScriptedAI(pCreature)
 	{
 		Reset();
 		DoSetupSpells();
@@ -159,7 +159,7 @@ struct MANGOS_DLL_DECL mob_underbog_colossusAI : public ScriptedAI
 };
 struct MANGOS_DLL_DECL mob_refreshing_mistAI : public ScriptedAI
 {
-    mob_refreshing_mistAI(Creature *c) : ScriptedAI(c)
+    mob_refreshing_mistAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
 		Reset();
     } 
@@ -198,13 +198,13 @@ struct MANGOS_DLL_DECL mob_refreshing_mistAI : public ScriptedAI
         return;
     }
 };
-CreatureAI* GetAI_mob_refreshing_mist(Creature *_Creature)
+CreatureAI* GetAI_mob_refreshing_mist(Creature* pCreature)
 {
-    return new mob_refreshing_mistAI (_Creature);
+    return new mob_refreshing_mistAI(pCreature);
 }
-CreatureAI* GetAI_mob_underbog_colossus(Creature *_Creature)
+CreatureAI* GetAI_mob_underbog_colossus(Creature* pCreature)
 {
-    return new mob_underbog_colossusAI (_Creature);
+    return new mob_underbog_colossusAI(pCreature);
 }
 
 void AddSC_mob_underbog_colossus()

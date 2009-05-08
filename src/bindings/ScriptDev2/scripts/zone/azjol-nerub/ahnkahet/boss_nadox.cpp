@@ -27,7 +27,7 @@ update creature_template set scriptname = 'boss_nadox' where entry = '';
 
 struct MANGOS_DLL_DECL boss_nadoxAI : public ScriptedAI
 {
-    boss_nadoxAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_nadoxAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     
@@ -65,9 +65,9 @@ struct MANGOS_DLL_DECL boss_nadoxAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_nadox(Creature *_Creature)
+CreatureAI* GetAI_boss_nadox(Creature* pCreature)
 {
-    return new boss_nadoxAI (_Creature);
+    return new boss_nadoxAI(pCreature);
 }
 
 void AddSC_boss_nadox()

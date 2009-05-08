@@ -31,7 +31,7 @@ update creature_template set scriptname = 'boss_taldaram' where entry = '';
 
 struct MANGOS_DLL_DECL boss_taldaramAI : public ScriptedAI
 {
-    boss_taldaramAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_taldaramAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) 
@@ -67,9 +67,9 @@ struct MANGOS_DLL_DECL boss_taldaramAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_taldaram(Creature *_Creature)
+CreatureAI* GetAI_boss_taldaram(Creature* pCreature)
 {
-    return new boss_taldaramAI (_Creature);
+    return new boss_taldaramAI(pCreature);
 }
 
 void AddSC_boss_taldaram()

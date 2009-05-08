@@ -141,9 +141,9 @@ float HordeOverrunWP[21][3]=//waypoints in the horde base used in the end in the
 
 void hyjal_trashAI::Reset(){}
 
-hyjal_trashAI::hyjal_trashAI(Creature *c) : npc_escortAI(c)
+hyjal_trashAI::hyjal_trashAI(Creature* pCreature) : npc_escortAI(pCreature)
 {
-    pInstance = ((ScriptedInstance*)c->GetInstanceData());
+    pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
     IsEvent = false;
     Delay = 0;
     LastOverronPos = 0;
@@ -476,9 +476,9 @@ void hyjal_trashAI::JustDied(Unit *victim)
 
 struct mob_giant_infernalAI : public hyjal_trashAI
 {
-    mob_giant_infernalAI(Creature* c) : hyjal_trashAI(c)
+    mob_giant_infernalAI(Creature* pCreature) : hyjal_trashAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         meteor = false;//call once!
         CanMove = false;
         Delay = rand()%30000;
@@ -611,9 +611,9 @@ CreatureAI* GetAI_mob_giant_infernal(Creature* _Creature)
 
 struct mob_abominationAI : public hyjal_trashAI
 {
-    mob_abominationAI(Creature* c) : hyjal_trashAI(c)
+    mob_abominationAI(Creature* pCreature) : hyjal_trashAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         go = false;    
         pos = 0;
         Reset();
@@ -721,9 +721,9 @@ CreatureAI* GetAI_mob_abomination(Creature* _Creature)
 
 struct mob_ghoulAI : public hyjal_trashAI
 {
-    mob_ghoulAI(Creature* c) : hyjal_trashAI(c)
+    mob_ghoulAI(Creature* pCreature) : hyjal_trashAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         go = false;    
         pos = 0;
         Reset();
@@ -839,9 +839,9 @@ CreatureAI* GetAI_mob_ghoul(Creature* _Creature)
 
 struct mob_necromancerAI : public hyjal_trashAI
 {
-    mob_necromancerAI(Creature* c) : hyjal_trashAI(c), summons(m_creature)
+    mob_necromancerAI(Creature* pCreature) : hyjal_trashAI(pCreature), summons(m_creature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         go = false;    
         pos = 0;
         Reset();
@@ -957,9 +957,9 @@ struct mob_necromancerAI : public hyjal_trashAI
 };
 
 
-CreatureAI* GetAI_mob_necromancer(Creature* _Creature)
+CreatureAI* GetAI_mob_necromancer(Creature* pCreature)
 {
-    return new mob_necromancerAI(_Creature);
+    return new mob_necromancerAI(pCreature);
 }
 
 #define SPELL_BANSHEE_CURSE 31651
@@ -968,9 +968,9 @@ CreatureAI* GetAI_mob_necromancer(Creature* _Creature)
 
 struct mob_bansheeAI : public hyjal_trashAI
 {
-    mob_bansheeAI(Creature* c) : hyjal_trashAI(c)
+    mob_bansheeAI(Creature* pCreature) : hyjal_trashAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         go = false;    
         pos = 0;
         Reset();
@@ -1069,18 +1069,18 @@ struct mob_bansheeAI : public hyjal_trashAI
 };
 
 
-CreatureAI* GetAI_mob_banshee(Creature* _Creature)
+CreatureAI* GetAI_mob_banshee(Creature* pCreature)
 {
-    return new mob_bansheeAI(_Creature);
+    return new mob_bansheeAI(pCreature);
 }
 
 #define SPELL_WEB 28991
 
 struct mob_crypt_fiendAI : public hyjal_trashAI
 {
-    mob_crypt_fiendAI(Creature* c) : hyjal_trashAI(c)
+    mob_crypt_fiendAI(Creature* pCreature) : hyjal_trashAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         go = false;    
         pos = 0;
         Reset();
@@ -1166,18 +1166,18 @@ struct mob_crypt_fiendAI : public hyjal_trashAI
 };
 
 
-CreatureAI* GetAI_mob_crypt_fiend(Creature* _Creature)
+CreatureAI* GetAI_mob_crypt_fiend(Creature* pCreature)
 {
-    return new mob_crypt_fiendAI(_Creature);
+    return new mob_crypt_fiendAI(pCreature);
 }
 
 #define SPELL_MANA_BURN 31729
 
 struct mob_fel_stalkerAI : public hyjal_trashAI
 {
-    mob_fel_stalkerAI(Creature* c) : hyjal_trashAI(c)
+    mob_fel_stalkerAI(Creature* pCreature) : hyjal_trashAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         go = false;    
         pos = 0;
         Reset();
@@ -1263,18 +1263,18 @@ struct mob_fel_stalkerAI : public hyjal_trashAI
 };
 
 
-CreatureAI* GetAI_mob_fel_stalker(Creature* _Creature)
+CreatureAI* GetAI_mob_fel_stalker(Creature* pCreature)
 {
-    return new mob_fel_stalkerAI(_Creature);
+    return new mob_fel_stalkerAI(pCreature);
 }
 
 #define SPELL_FROST_BREATH 31688
 
 struct mob_frost_wyrmAI : public hyjal_trashAI
 {
-    mob_frost_wyrmAI(Creature* c) : hyjal_trashAI(c)
+    mob_frost_wyrmAI(Creature* pCreature) : hyjal_trashAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         go = false;
         pos = 0;
         Reset();
@@ -1372,18 +1372,18 @@ struct mob_frost_wyrmAI : public hyjal_trashAI
 };
 
 
-CreatureAI* GetAI_mob_frost_wyrm(Creature* _Creature)
+CreatureAI* GetAI_mob_frost_wyrm(Creature* pCreature)
 {
-    return new mob_frost_wyrmAI(_Creature);
+    return new mob_frost_wyrmAI(pCreature);
 }
 
 #define SPELL_GARGOYLE_STRIKE 31664
 
 struct mob_gargoyleAI : public hyjal_trashAI
 {
-    mob_gargoyleAI(Creature* c) : hyjal_trashAI(c)
+    mob_gargoyleAI(Creature* pCreature) : hyjal_trashAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         go = false;
         pos = 0;
         DummyTarget[0] = 0;DummyTarget[1] = 0;DummyTarget[2] = 0;
@@ -1511,16 +1511,16 @@ struct mob_gargoyleAI : public hyjal_trashAI
 };
 
 
-CreatureAI* GetAI_mob_gargoyle(Creature* _Creature)
+CreatureAI* GetAI_mob_gargoyle(Creature* pCreature)
 {
-    return new mob_gargoyleAI(_Creature);
+    return new mob_gargoyleAI(pCreature);
 }
 
 #define SPELL_EXPLODING_SHOT 7896
 
 struct MANGOS_DLL_DECL alliance_riflemanAI : public Scripted_NoMovementAI
 {
-    alliance_riflemanAI(Creature *c) : Scripted_NoMovementAI(c)
+    alliance_riflemanAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
     {
         Reset();
     }
@@ -1575,9 +1575,9 @@ struct MANGOS_DLL_DECL alliance_riflemanAI : public Scripted_NoMovementAI
     }
 };
 
-CreatureAI* GetAI_alliance_rifleman(Creature* _Creature)
+CreatureAI* GetAI_alliance_rifleman(Creature* pCreature)
 {
-    return new alliance_riflemanAI(_Creature);
+    return new alliance_riflemanAI(pCreature);
 }
 
 void AddSC_hyjal_trash()

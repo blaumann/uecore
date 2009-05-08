@@ -73,7 +73,7 @@ Unit* playerr;
 
 struct MANGOS_DLL_DECL frostcav_controlAI : public ScriptedAI
 {
-   frostcav_controlAI(Creature *c) : ScriptedAI(c) {Reset();}
+   frostcav_controlAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
    uint32 phase;
    uint32 phasetim;
@@ -232,9 +232,9 @@ struct MANGOS_DLL_DECL frostcav_controlAI : public ScriptedAI
    }
 };
 
-CreatureAI* GetAI_frostcav_control(Creature *_Creature)
+CreatureAI* GetAI_frostcav_control(Creature* pCreature)
 {
-    frostcav_controlAI* frostcavAI = new frostcav_controlAI(_Creature);
+    frostcav_controlAI* frostcavAI = new frostcav_controlAI(pCreature);
     return (CreatureAI*)frostcavAI;
 };
 
@@ -243,7 +243,7 @@ bool GossipHello_frostcav_control(Player *player, Creature *_Creature)
 	if(frostcav_event == 0)
       player->ADD_GOSSIP_ITEM(0, "I\'m ready to see Zelig\'s Vision", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
 
-    player->PlayerTalkClass->SendGossipMenu(907,_Creature->GetGUID());
+    player->PlayerTalkClass->SendGossipMenu(907, _Creature->GetGUID());
     return true;
 }
 

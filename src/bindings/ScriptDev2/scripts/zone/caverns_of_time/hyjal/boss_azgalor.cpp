@@ -29,9 +29,9 @@
 
 struct MANGOS_DLL_DECL boss_azgalorAI : public hyjal_trashAI
 {
-    boss_azgalorAI(Creature *c) : hyjal_trashAI(c)
+    boss_azgalorAI(Creature* pCreature) : hyjal_trashAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         go = false;    
         pos = 0;
         SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_HOWL_OF_AZGALOR);
@@ -173,9 +173,9 @@ struct MANGOS_DLL_DECL boss_azgalorAI : public hyjal_trashAI
     }
 };
 
-CreatureAI* GetAI_boss_azgalor(Creature *_Creature)
+CreatureAI* GetAI_boss_azgalor(Creature* pCreature)
 {
-    return new boss_azgalorAI (_Creature);
+    return new boss_azgalorAI(pCreature);
 }
 
 #define SPELL_THRASH 12787
@@ -184,9 +184,9 @@ CreatureAI* GetAI_boss_azgalor(Creature *_Creature)
 
 struct MANGOS_DLL_DECL mob_lesser_doomguardAI : public hyjal_trashAI
 {
-    mob_lesser_doomguardAI(Creature *c) : hyjal_trashAI(c)
+    mob_lesser_doomguardAI(Creature* pCreature) : hyjal_trashAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         if(pInstance)
             AzgalorGUID = pInstance->GetData64(DATA_AZGALOR);
     }
@@ -271,9 +271,9 @@ struct MANGOS_DLL_DECL mob_lesser_doomguardAI : public hyjal_trashAI
     }
 };
 
-CreatureAI* GetAI_mob_lesser_doomguard(Creature *_Creature)
+CreatureAI* GetAI_mob_lesser_doomguard(Creature* pCreature)
 {
-    return new mob_lesser_doomguardAI (_Creature);
+    return new mob_lesser_doomguardAI(pCreature);
 }
 
 void AddSC_boss_azgalor()

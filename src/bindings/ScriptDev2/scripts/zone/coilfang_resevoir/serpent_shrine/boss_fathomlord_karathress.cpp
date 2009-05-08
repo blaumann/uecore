@@ -69,9 +69,9 @@ const float afCoords_Olum[] = {446.78f, -542.76f, -7.54773f, 0.401581f};
 //Fathom-Lord Karathress AI
 struct MANGOS_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
 {
-    boss_fathomlord_karathressAI(Creature* c) : ScriptedAI(c)
+    boss_fathomlord_karathressAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         memset(&m_auiAdvisors, 0, sizeof(m_auiAdvisors));
 
         Reset();
@@ -259,9 +259,9 @@ struct MANGOS_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
 //Fathom-Guard Sharkkis AI
 struct MANGOS_DLL_DECL boss_fathomguard_sharkkisAI : public ScriptedAI
 {
-    boss_fathomguard_sharkkisAI(Creature* c) : ScriptedAI(c)
+    boss_fathomguard_sharkkisAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
@@ -342,9 +342,9 @@ struct MANGOS_DLL_DECL boss_fathomguard_sharkkisAI : public ScriptedAI
 //Fathom-Guard Tidalvess AI
 struct MANGOS_DLL_DECL boss_fathomguard_tidalvessAI : public ScriptedAI
 {
-    boss_fathomguard_tidalvessAI(Creature *c) : ScriptedAI(c)
+    boss_fathomguard_tidalvessAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
@@ -410,9 +410,9 @@ struct MANGOS_DLL_DECL boss_fathomguard_tidalvessAI : public ScriptedAI
 //Fathom-Guard Caribdis AI
 struct MANGOS_DLL_DECL boss_fathomguard_caribdisAI : public ScriptedAI
 {
-    boss_fathomguard_caribdisAI(Creature *c) : ScriptedAI(c)
+    boss_fathomguard_caribdisAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 

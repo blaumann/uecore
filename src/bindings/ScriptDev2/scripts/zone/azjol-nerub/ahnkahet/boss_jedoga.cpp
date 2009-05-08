@@ -32,7 +32,7 @@ update creature_template set scriptname = 'boss_jedoga' where entry = '';
 
 struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
 {
-    boss_jedogaAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_jedogaAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) 
@@ -69,9 +69,9 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_jedoga(Creature *_Creature)
+CreatureAI* GetAI_boss_jedoga(Creature* pCreature)
 {
-    return new boss_jedogaAI (_Creature);
+    return new boss_jedogaAI(pCreature);
 }
 
 void AddSC_boss_jedoga()

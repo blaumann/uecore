@@ -38,7 +38,7 @@ EndContentData */
 
 struct MANGOS_DLL_DECL mobs_spitelashesAI : public ScriptedAI
 {
-    mobs_spitelashesAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mobs_spitelashesAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     uint32 morphtimer;
     bool spellhit;
@@ -89,9 +89,9 @@ struct MANGOS_DLL_DECL mobs_spitelashesAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_mobs_spitelashes(Creature *_Creature)
+CreatureAI* GetAI_mobs_spitelashes(Creature* pCreature)
 {
-    return new mobs_spitelashesAI (_Creature);
+    return new mobs_spitelashesAI(pCreature);
 }
 
 /*######
@@ -231,10 +231,9 @@ float WPs[58][4] =
 {1873.57, -3695.32, 33.9118, 3.44}
 };
 
-
 struct MANGOS_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
 {
-    mob_rizzle_sprysprocketAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_rizzle_sprysprocketAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     uint32 spellEscape_Timer;
     uint32 Teleport_Timer;
@@ -421,9 +420,9 @@ bool GossipSelect_mob_rizzle_sprysprocket(Player *player, Creature *_Creature, u
     return true;
 }
 
-CreatureAI* GetAI_mob_rizzle_sprysprocket(Creature *_Creature)
+CreatureAI* GetAI_mob_rizzle_sprysprocket(Creature* pCreature)
 {
-    return new mob_rizzle_sprysprocketAI (_Creature);
+    return new mob_rizzle_sprysprocketAI(pCreature);
 }
 
 /*####
@@ -432,7 +431,7 @@ CreatureAI* GetAI_mob_rizzle_sprysprocket(Creature *_Creature)
 
 struct MANGOS_DLL_DECL mob_depth_chargeAI : public ScriptedAI
 {
-    mob_depth_chargeAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_depth_chargeAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     bool we_must_die;
     uint32 must_die_timer;
@@ -480,9 +479,9 @@ struct MANGOS_DLL_DECL mob_depth_chargeAI : public ScriptedAI
 	}
 };
 
-CreatureAI* GetAI_mob_depth_charge(Creature *_Creature)
+CreatureAI* GetAI_mob_depth_charge(Creature* pCreature)
 {
-    return new mob_depth_chargeAI (_Creature);
+    return new mob_depth_chargeAI(pCreature);
 }
 
 void AddSC_azshara()
@@ -509,6 +508,6 @@ void AddSC_azshara()
 
     newscript = new Script;
     newscript->Name = "mob_depth_charge";
-    newscript->GetAI = GetAI_mob_depth_charge;
+    newscript->GetAI = &GetAI_mob_depth_charge;
     newscript->RegisterSelf();
 }

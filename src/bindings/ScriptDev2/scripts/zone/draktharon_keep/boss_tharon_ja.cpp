@@ -39,7 +39,7 @@ update creature_template set scriptname = 'boss_tharon_ja' where entry = '';
 
 struct MANGOS_DLL_DECL boss_tharon_jaAI : public ScriptedAI
 {
-    boss_tharon_jaAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_tharon_jaAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) {}
@@ -56,9 +56,9 @@ struct MANGOS_DLL_DECL boss_tharon_jaAI : public ScriptedAI
     void JustDied(Unit* killer)  {}
 };
 
-CreatureAI* GetAI_boss_tharon_ja(Creature *_Creature)
+CreatureAI* GetAI_boss_tharon_ja(Creature* pCreature)
 {
-    return new boss_tharon_jaAI (_Creature);
+    return new boss_tharon_jaAI(pCreature);
 }
 
 void AddSC_boss_tharon_ja()

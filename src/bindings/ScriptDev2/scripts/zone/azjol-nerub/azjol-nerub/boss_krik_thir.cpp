@@ -36,7 +36,7 @@ update creature_template set scriptname = 'boss_krik_thir' where entry = '';
 
 struct MANGOS_DLL_DECL boss_krik_thirAI : public ScriptedAI
 {
-    boss_krik_thirAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_krik_thirAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     
@@ -71,9 +71,9 @@ struct MANGOS_DLL_DECL boss_krik_thirAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_krik_thir(Creature *_Creature)
+CreatureAI* GetAI_boss_krik_thir(Creature* pCreature)
 {
-    return new boss_krik_thirAI (_Creature);
+    return new boss_krik_thirAI(pCreature);
 }
 
 void AddSC_boss_krik_thir()

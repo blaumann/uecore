@@ -35,7 +35,7 @@ EndScriptData */
 
 struct MANGOS_DLL_DECL boss_meathookAI : public ScriptedAI
 {
-	boss_meathookAI(Creature *c) : ScriptedAI(c) {Reset();}
+	boss_meathookAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
 	uint32 Chains_Timer;
 	uint32 Explusion_Timer;
@@ -96,9 +96,9 @@ struct MANGOS_DLL_DECL boss_meathookAI : public ScriptedAI
 	}
 };
 
-CreatureAI* GetAI_boss_meathook(Creature *_Creature)
+CreatureAI* GetAI_boss_meathook(Creature* pCreature)
 {
-    return new boss_meathookAI (_Creature);
+    return new boss_meathookAI(pCreature);
 }
 
 void AddSC_boss_meathook()

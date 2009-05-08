@@ -30,7 +30,7 @@ update creature_template set scriptname = 'boss_trollgore' where entry = '';
 
 struct MANGOS_DLL_DECL boss_trollgoreAI : public ScriptedAI
 {
-    boss_trollgoreAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_trollgoreAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
     void Aggro(Unit* who) 
@@ -59,9 +59,9 @@ struct MANGOS_DLL_DECL boss_trollgoreAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_trollgore(Creature *_Creature)
+CreatureAI* GetAI_boss_trollgore(Creature* pCreature)
 {
-    return new boss_trollgoreAI (_Creature);
+    return new boss_trollgoreAI(pCreature);
 }
 
 void AddSC_boss_trollgore()

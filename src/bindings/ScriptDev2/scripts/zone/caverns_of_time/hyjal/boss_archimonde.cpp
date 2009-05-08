@@ -74,9 +74,9 @@ EndScriptData */
 
 struct mob_ancient_wispAI : public ScriptedAI
 {
-    mob_ancient_wispAI(Creature* c) : ScriptedAI(c)
+    mob_ancient_wispAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
     }
 
     ScriptedInstance* pInstance;
@@ -123,7 +123,7 @@ struct mob_ancient_wispAI : public ScriptedAI
    MoveChase the Doomfire Spirit always, until despawn (AttackStart is called upon it's spawn) */
 struct MANGOS_DLL_DECL mob_doomfireAI : public ScriptedAI
 {
-    mob_doomfireAI(Creature* c) : ScriptedAI(c) {}
+    mob_doomfireAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
     void Reset() { }
 
@@ -135,7 +135,7 @@ struct MANGOS_DLL_DECL mob_doomfireAI : public ScriptedAI
    travels in random directions if target cannot be found. */
 struct MANGOS_DLL_DECL mob_doomfire_targettingAI : public ScriptedAI
 {
-    mob_doomfire_targettingAI(Creature* c) : ScriptedAI(c) {}
+    mob_doomfire_targettingAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
     uint64 TargetGUID;
     uint32 ChangeTargetTimer;
@@ -199,9 +199,9 @@ struct TargetDistanceOrder : public std::binary_function<const Unit, const Unit,
 
 struct MANGOS_DLL_DECL boss_archimondeAI : public hyjal_trashAI
 {
-    boss_archimondeAI(Creature *c) : hyjal_trashAI(c)
+    boss_archimondeAI(Creature* pCreature) : hyjal_trashAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
     }
 
     ScriptedInstance* pInstance;
@@ -609,24 +609,24 @@ struct MANGOS_DLL_DECL boss_archimondeAI : public hyjal_trashAI
     void WaypointReached(uint32 i){}
 };
 
-CreatureAI* GetAI_boss_archimonde(Creature *_Creature)
+CreatureAI* GetAI_boss_archimonde(Creature* pCreature)
 {
-    return new boss_archimondeAI (_Creature);
+    return new boss_archimondeAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_doomfire(Creature* _Creature)
+CreatureAI* GetAI_mob_doomfire(Creature* pCreature)
 {
-    return new mob_doomfireAI(_Creature);
+    return new mob_doomfireAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_doomfire_targetting(Creature* _Creature)
+CreatureAI* GetAI_mob_doomfire_targetting(Creature* pCreature)
 {
-    return new mob_doomfire_targettingAI(_Creature);
+    return new mob_doomfire_targettingAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_ancient_wisp(Creature* _Creature)
+CreatureAI* GetAI_mob_ancient_wisp(Creature* pCreature)
 {
-    return new mob_ancient_wispAI(_Creature);
+    return new mob_ancient_wispAI(pCreature);
 }
 
 void AddSC_boss_archimonde()

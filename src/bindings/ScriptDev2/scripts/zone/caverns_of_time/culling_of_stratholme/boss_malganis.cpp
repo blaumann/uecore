@@ -38,7 +38,7 @@ EndScriptData */
 
 struct MANGOS_DLL_DECL boss_malganisAI : public ScriptedAI
 {
-	boss_malganisAI(Creature *c) : ScriptedAI(c) {Reset();}
+	boss_malganisAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
 	uint32 Attackable_Timer;
 	uint32 Swarm_Timer;
@@ -130,9 +130,9 @@ struct MANGOS_DLL_DECL boss_malganisAI : public ScriptedAI
 	}
 };
 
-CreatureAI* GetAI_boss_malganis(Creature *_Creature)
+CreatureAI* GetAI_boss_malganis(Creature* pCreature)
 {
-    return new boss_malganisAI (_Creature);
+    return new boss_malganisAI(pCreature);
 }
 
 void AddSC_boss_malganis()

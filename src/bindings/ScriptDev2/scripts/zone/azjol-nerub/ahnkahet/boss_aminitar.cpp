@@ -18,7 +18,7 @@ update creature_template set scriptname = 'boss_amanitar' where entry = '';
 
 struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
 {
-    boss_amanitarAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_amanitarAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
     
     void Reset() {}
     
@@ -43,9 +43,9 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_amanitar(Creature *_Creature)
+CreatureAI* GetAI_boss_amanitar(Creature* pCreature)
 {
-    return new boss_amanitarAI (_Creature);
+    return new boss_amanitarAI(pCreature);
 }
 
 void AddSC_boss_amanitar()

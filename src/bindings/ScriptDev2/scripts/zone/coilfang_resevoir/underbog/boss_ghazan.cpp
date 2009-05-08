@@ -32,9 +32,9 @@ EndScriptData */
 *Acid Breath - 34268; timer: 5sec
 */
 
-CreatureAI* GetAI_boss_ghazan(Creature *_Creature)
+CreatureAI* GetAI_boss_ghazan(Creature* pCreature)
 {
-    SimpleAI* ai = new SimpleAI (_Creature);
+    SimpleAI* ai = new SimpleAI(pCreature);
 
     // Acid Spit - 34290; timer: 8sec
     ai->Spell[0].Enabled = true;

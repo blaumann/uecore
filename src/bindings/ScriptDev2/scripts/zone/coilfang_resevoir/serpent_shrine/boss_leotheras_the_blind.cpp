@@ -91,7 +91,7 @@ public:
 
 struct MANGOS_DLL_DECL mob_inner_demonAI : public ScriptedAI
 {
-    mob_inner_demonAI (Creature *c) : ScriptedAI(c)
+    mob_inner_demonAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
 		victimGUID = 0;
         Reset();
@@ -163,9 +163,9 @@ struct MANGOS_DLL_DECL mob_inner_demonAI : public ScriptedAI
 //Original Leotheras the Blind AI
 struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 {
-    boss_leotheras_the_blindAI(Creature *c) : ScriptedAI(c)
+    boss_leotheras_the_blindAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
+        m_pInstance = (pCreature->GetInstanceData()) ? ((ScriptedInstance*)pCreature->GetInstanceData()) : NULL;
         Demon = 0;
 
 		channelers = 0;
@@ -663,7 +663,7 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 //Leotheras the Blind Demon Form AI
 struct MANGOS_DLL_DECL boss_leotheras_the_blind_demonformAI : public ScriptedAI
 {
-    boss_leotheras_the_blind_demonformAI(Creature *c) : ScriptedAI(c)
+    boss_leotheras_the_blind_demonformAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         Reset();
     }
@@ -744,9 +744,9 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blind_demonformAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
 {
-	mob_greyheart_spellbinderAI(Creature *c) : ScriptedAI(c)
+	mob_greyheart_spellbinderAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-		m_pInstance = ((ScriptedInstance *)c->GetInstanceData());;
+		m_pInstance = ((ScriptedInstance *)pCreature->GetInstanceData());
 		leotherasGUID = 0;
 		AddedBanish = false;
 		Reset();
@@ -873,24 +873,24 @@ struct MANGOS_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
 	}
 };
 
-CreatureAI* GetAI_boss_leotheras_the_blind(Creature *_Creature)
+CreatureAI* GetAI_boss_leotheras_the_blind(Creature* pCreature)
 {
-    return new boss_leotheras_the_blindAI (_Creature);
+    return new boss_leotheras_the_blindAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_leotheras_the_blind_demonform(Creature *_Creature)
+CreatureAI* GetAI_boss_leotheras_the_blind_demonform(Creature* pCreature)
 {
-    return new boss_leotheras_the_blind_demonformAI (_Creature);
+    return new boss_leotheras_the_blind_demonformAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_greyheart_spellbinder(Creature *_Creature)
+CreatureAI* GetAI_mob_greyheart_spellbinder(Creature* pCreature)
 {
-	return new mob_greyheart_spellbinderAI (_Creature);
+	return new mob_greyheart_spellbinderAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_inner_demon(Creature *_Creature)
+CreatureAI* GetAI_mob_inner_demon(Creature* pCreature)
 {
-	return new mob_inner_demonAI (_Creature);
+	return new mob_inner_demonAI(pCreature);
 }
 
 void AddSC_boss_leotheras_the_blind()
