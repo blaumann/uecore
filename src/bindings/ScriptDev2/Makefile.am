@@ -67,6 +67,7 @@ scripts/npc/npc_escortAI.h \
 scripts/npc/npc_innkeeper.cpp \
 scripts/npc/npc_professions.cpp \
 scripts/npc/npcs_special.cpp \
+scripts/servers/guildmaster.cpp \
 scripts/zone/alterac_mountains/alterac_mountains.cpp \
 scripts/zone/arathi_highlands/arathi_highlands.cpp \
 scripts/zone/ashenvale_forest/ashenvale.cpp \

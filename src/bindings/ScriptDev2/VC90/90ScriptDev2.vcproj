@@ -460,6 +460,10 @@
 			<Filter
 				Name="servers"
 				>
+				<File
+					RelativePath="..\scripts\servers\guildmaster.cpp"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="custom"
@@ -474,10 +478,6 @@
 				</File>
 				<File
 					RelativePath="..\scripts\custom\npc_wyrmresttempel_taxi.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\custom\paradox.cpp"
 					>
 				</File>
 				<File

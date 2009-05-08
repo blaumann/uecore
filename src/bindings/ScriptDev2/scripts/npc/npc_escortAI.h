@@ -37,7 +37,7 @@ struct MANGOS_DLL_DECL npc_escortAI : public ScriptedAI
         virtual void Reset() = 0;
 
         // CreatureAI functions
-        npc_escortAI(Creature *c) : ScriptedAI(c), IsBeingEscorted(false), PlayerTimer(1000) {}
+        npc_escortAI(Creature* pCreature) : ScriptedAI(pCreature), IsBeingEscorted(false), PlayerTimer(1000) {}
 
         bool IsVisible(Unit*) const;
 
@@ -63,8 +63,6 @@ struct MANGOS_DLL_DECL npc_escortAI : public ScriptedAI
         void Start(bool bAttack, bool bDefend, bool bRun, uint64 pGUID = 0);
 
         void SetRun(bool bRun = true);
-
-        bool GetAttack() { return Attack; }//used in EnterEvadeMode override
 
     // EscortAI variables
     protected:
