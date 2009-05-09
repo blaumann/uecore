@@ -1787,7 +1787,7 @@ void ObjectMgr::LoadItemPrototypes()
 
         if(proto->Flags & ITEM_FLAGS_BOA && proto->Bonding != BIND_TO_ACCOUNT)
         {
-            sLog.outError("Item (Entry: %u) has ITEM_FLAGS_BOA but is not bind to account (current bind: %u)", i, proto->Bonding);
+            sLog.outErrorDb("Item (Entry: %u) has ITEM_FLAGS_BOA but is not bind to account (current bind: %u)", i, proto->Bonding);
         }
     }
 }

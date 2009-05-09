@@ -16,11 +16,11 @@ INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equ
 DELETE FROM `gameobject` WHERE `id`=180403;
 INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
 (100391, 180403, 0, 1, 1, -14439.3, 475.42, 15.2791, 3.68503, 0, 0, 0.963311, -0.268388, 25, 0, 1);
-
+ 
 -- new event - Fishing Extravaganza Questgivers
 DELETE FROM `game_event_creature` WHERE `guid` IN (54687,54688,3849539);
 DELETE FROM `game_event_gameobject`WHERE `guid`=100391;
-
+ 
 DELETE FROM `game_event` WHERE `entry`=35;
 INSERT INTO `game_event` (`entry`, `start_time`, `end_time`, `occurence`, `length`, `holiday`, `description`) VALUES (35, '2009-03-29 12:00:00', '2020-12-31 00:00:00', 10080, 300, 0, 'Fishing Extravaganza Questgivers');
 DELETE FROM `game_event_creature` WHERE abs(`event`) = 35;

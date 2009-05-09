@@ -97,6 +97,10 @@ void SimpleAI::Aggro(Unit *who)
 
             uint32 random_text = rand()%3;
 
+            /*//Random text
+            if (Aggro_TextId[random_text])
+                DoScriptScreen(Aggro_ScreenId[random_text], m_creature, who);*/
+
             //Random text
             if (Aggro_TextId[random_text])
                 DoScriptText(Aggro_TextId[random_text], m_creature, who);
