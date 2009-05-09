@@ -187,7 +187,7 @@ void UpdateAI(const uint32 diff)
         return;
 
     //Buff timer (only buff when we are alive and not in combat
-    if (!InCombat)
+    /*if (!InCombat)
     {
        temp1 = m_creature->GetPower(POWER_RAGE);
        temp2 = temp1;
@@ -196,7 +196,7 @@ void UpdateAI(const uint32 diff)
           m_creature->SetPower(POWER_RAGE,temp1);
        else
           m_creature->SetPower(POWER_RAGE,0);
-    }
+    }*/
 
     //Return since we have no target
     if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())

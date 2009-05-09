@@ -187,7 +187,7 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data )
 
             mailItem.item = pl->GetItemByGuid(MAKE_NEW_GUID(mailItem.item_guidlow, 0, HIGHGUID_ITEM));
             // prevent sending bag with items (cheat: can be placed in bag after adding equipped empty bag to mail)
-            if(!mailItem.item || !mailItem.item->CanBeTraded(false))
+            if(!mailItem.item || !mailItem.item->CanBeTraded())
             {
                 pl->SendMailResult(0, 0, MAIL_ERR_INTERNAL_ERROR);
                 return;
@@ -279,7 +279,7 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data )
 }
 
 //called when mail is read
-void WorldSession::HandleMarkAsRead(WorldPacket & recv_data )
+void WorldSession::HandleMailMarkAsRead(WorldPacket & recv_data )
 {
     CHECK_PACKET_SIZE(recv_data,8+4);
 
@@ -325,7 +325,7 @@ void WorldSession::HandleMailDelete(WorldPacket & recv_data )
     pl->SendMailResult(mailId, MAIL_DELETED, 0);
 }
 
-void WorldSession::HandleReturnToSender(WorldPacket & recv_data )
+void WorldSession::HandleMailReturnToSender(WorldPacket & recv_data )
 {
     CHECK_PACKET_SIZE(recv_data,8+4);
 
@@ -379,7 +379,6 @@ void WorldSession::HandleReturnToSender(WorldPacket & recv_data )
     {
         SendReturnToSender(MAIL_NORMAL, GetAccountId(), m->receiver, m->sender, m->subject, m->itemTextId, &mi, m->money, m->mailTemplateId);
     }
-
     delete m;                                               //we can deallocate old mail
     pl->SendMailResult(mailId, MAIL_RETURNED_TO_SENDER, 0);
 }
@@ -432,7 +431,7 @@ void WorldSession::SendReturnToSender(uint8 messageType, uint32 sender_acc, uint
 }
 
 //called when player takes item attached in mail
-void WorldSession::HandleTakeItem(WorldPacket & recv_data )
+void WorldSession::HandleMailTakeItem(WorldPacket & recv_data )
 {
     CHECK_PACKET_SIZE(recv_data,8+4+4);
 
@@ -527,7 +526,7 @@ void WorldSession::HandleTakeItem(WorldPacket & recv_data )
         pl->SendMailResult(mailId, MAIL_ITEM_TAKEN, MAIL_ERR_BAG_FULL, msg);
 }
 
-void WorldSession::HandleTakeMoney(WorldPacket & recv_data )
+void WorldSession::HandleMailTakeMoney(WorldPacket & recv_data )
 {
     CHECK_PACKET_SIZE(recv_data,8+4);
 
@@ -563,7 +562,7 @@ void WorldSession::HandleTakeMoney(WorldPacket & recv_data )
 }
 
 //called when player lists his received mails
-void WorldSession::HandleGetMail(WorldPacket & recv_data )
+void WorldSession::HandleGetMailList(WorldPacket & recv_data )
 {
     CHECK_PACKET_SIZE(recv_data,8);
 
@@ -751,7 +750,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket & recv_data )
 }
 
 //TODO Fix me! ... this void has probably bad condition, but good data are sent
-void WorldSession::HandleMsgQueryNextMailtime(WorldPacket & /*recv_data*/ )
+void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recv_data*/ )
 {
     WorldPacket data(MSG_QUERY_NEXT_MAIL_TIME, 8);
 

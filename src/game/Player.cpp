@@ -610,6 +610,7 @@ bool Player::Create( uint32 guidlow, const std::string& name, uint8 race, uint8 
 
     SetUInt64Value( PLAYER__FIELD_KNOWN_TITLES, 0 );        // 0=disabled
     SetUInt64Value( PLAYER__FIELD_KNOWN_TITLES1, 0 );       // 0=disabled
+    SetUInt64Value( PLAYER__FIELD_KNOWN_TITLES2, 0 );       // 0=disabled
     SetUInt32Value( PLAYER_CHOSEN_TITLE, 0 );
     SetUInt32Value( PLAYER_FIELD_KILLS, 0 );
     SetUInt32Value( PLAYER_FIELD_LIFETIME_HONORBALE_KILLS, 0 );
@@ -3254,6 +3255,20 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool update_action_bar_
         WorldPacket data(SMSG_REMOVED_SPELL, 4);
         data << uint32(spell_id);
         GetSession()->SendPacket(&data);
+    }
+}
+
+
+void Player::RemoveSpellCooldown( uint32 spell_id, bool update /* = false */ )
+{
+    m_spellCooldowns.erase(spell_id);
+
+    if(update)
+    {
+        WorldPacket data(SMSG_CLEAR_COOLDOWN, (4+8));
+        data << uint32(spell_id);
+        data << uint64(GetGUID());
+        SendDirectMessage(&data);
     }
 }
 
@@ -9772,14 +9787,17 @@ uint8 Player::CanEquipItem( uint8 slot, uint16 &dest, Item *pItem, bool swap, bo
                 {
                     if( Item* pBag = GetItemByPos( INVENTORY_SLOT_BAG_0, i ) )
                     {
-                        if( ItemPrototype const* pBagProto = pBag->GetProto() )
+                        if( pBag != pItem )
                         {
-                            if( pBagProto->Class==pProto->Class && (!swap || pBag->GetSlot() != eslot ) )
+                            if( ItemPrototype const* pBagProto = pBag->GetProto() )
                             {
-                                if(pBagProto->SubClass == ITEM_SUBCLASS_AMMO_POUCH)
-                                    return EQUIP_ERR_CAN_EQUIP_ONLY1_AMMOPOUCH;
-                                else
-                                    return EQUIP_ERR_CAN_EQUIP_ONLY1_QUIVER;
+                                if( pBagProto->Class==pProto->Class && (!swap || pBag->GetSlot() != eslot ) )
+                                {
+                                    if(pBagProto->SubClass == ITEM_SUBCLASS_AMMO_POUCH)
+                                        return EQUIP_ERR_CAN_EQUIP_ONLY1_AMMOPOUCH;
+                                    else
+                                        return EQUIP_ERR_CAN_EQUIP_ONLY1_QUIVER;
+                                }
                             }
                         }
                     }
@@ -14421,7 +14439,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     if(uint32 curTitle = GetUInt32Value(PLAYER_CHOSEN_TITLE))
     {
         if(!HasTitle(curTitle))
-            SetUInt32Value(PLAYER_CHOSEN_TITLE,0);
+            SetUInt32Value(PLAYER_CHOSEN_TITLE, 0);
     }
 
     // Not finish taxi flight path
@@ -19583,7 +19601,7 @@ void Player::EnterVehicle(Vehicle *vehicle)
     vehicle->setFaction(getFaction());
 
     SetCharm(vehicle);                                      // charm
-    SetFarSightGUID(vehicle->GetGUID());                        // set view
+    SetFarSightGUID(vehicle->GetGUID());                    // set view
 
     SetClientControl(vehicle, 1);                           // redirect controls to vehicle
 
@@ -19683,19 +19701,19 @@ bool Player::isTotalImmune()
 
 bool Player::HasTitle(uint32 bitIndex)
 {
-    if (bitIndex > 128)
+    if (bitIndex > 192)
         return false;
 
-    uint32 fieldIndexOffset = bitIndex/32;
-    uint32 flag = 1 << (bitIndex%32);
-    return HasFlag(PLAYER__FIELD_KNOWN_TITLES+fieldIndexOffset, flag);
+    uint32 fieldIndexOffset = bitIndex / 32;
+    uint32 flag = 1 << (bitIndex % 32);
+    return HasFlag(PLAYER__FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
 }
 
 void Player::SetTitle(CharTitlesEntry const* title)
 {
-    uint32 fieldIndexOffset = title->bit_index/32;
-    uint32 flag = 1 << (title->bit_index%32);
-    SetFlag(PLAYER__FIELD_KNOWN_TITLES+fieldIndexOffset, flag);
+    uint32 fieldIndexOffset = title->bit_index / 32;
+    uint32 flag = 1 << (title->bit_index % 32);
+    SetFlag(PLAYER__FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
 }
 
 void Player::ConvertRune(uint8 index, uint8 newType)
@@ -20329,60 +20347,64 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket *data)
 {
     *data << uint32(GetFreeTalentPoints());                 // unspentTalentPoints
     uint8 talentGroupCount = 1;
-    *data << uint8(talentGroupCount);                       // talent group count (1 or 2)
+    *data << uint8(talentGroupCount);                       // talent group count (0, 1 or 2)
     *data << uint8(0);                                      // talent group index (0 or 1)
 
     if(talentGroupCount)
     {
-        uint8 talentIdCount = 0;
-        size_t pos = data->wpos();
-        *data << uint8(talentIdCount);                      // [PH], talentIdCount
-
-        // find class talent tabs (all players have 3 talent tabs)
-        uint32 const* talentTabIds = GetTalentTabPages(getClass());
-
-        for(uint32 i = 0; i < 3; ++i)
+        // loop through all specs (only 1 for now)
+        for(uint32 groups = 0; groups < talentGroupCount; ++groups)
         {
-            uint32 talentTabId = talentTabIds[i];
+            uint8 talentIdCount = 0;
+            size_t pos = data->wpos();
+            *data << uint8(talentIdCount);                  // [PH], talentIdCount
 
-            for(uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
+            // find class talent tabs (all players have 3 talent tabs)
+            uint32 const* talentTabIds = GetTalentTabPages(getClass());
+
+            for(uint32 i = 0; i < 3; ++i)
             {
-                TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-                if(!talentInfo)
-                    continue;
+                uint32 talentTabId = talentTabIds[i];
 
-                // skip another tab talents
-                if(talentInfo->TalentTab != talentTabId)
-                    continue;
-
-                // find max talent rank
-                int32 curtalent_maxrank = -1;
-                for(int32 k = 4; k > -1; --k)
+                for(uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
                 {
-                    if(talentInfo->RankID[k] && HasSpell(talentInfo->RankID[k]))
+                    TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
+                    if(!talentInfo)
+                        continue;
+
+                    // skip another tab talents
+                    if(talentInfo->TalentTab != talentTabId)
+                        continue;
+
+                    // find max talent rank
+                    int32 curtalent_maxrank = -1;
+                    for(int32 k = 4; k > -1; --k)
                     {
-                        curtalent_maxrank = k;
-                        break;
+                        if(talentInfo->RankID[k] && HasSpell(talentInfo->RankID[k]))
+                        {
+                            curtalent_maxrank = k;
+                            break;
+                        }
                     }
+
+                    // not learned talent
+                    if(curtalent_maxrank < 0)
+                        continue;
+
+                    *data << uint32(talentInfo->TalentID);  // Talent.dbc
+                    *data << uint8(curtalent_maxrank);      // talentMaxRank (0-4)
+
+                    ++talentIdCount;
                 }
-
-                // not learned talent
-                if(curtalent_maxrank < 0)
-                    continue;
-
-                *data << uint32(talentInfo->TalentID);      // Talent.dbc
-                *data << uint8(curtalent_maxrank);          // talentMaxRank (0-4)
-
-                ++talentIdCount;
             }
+
+            data->put<uint8>(pos, talentIdCount);           // put real count
+
+            *data << uint8(MAX_GLYPH_SLOT_INDEX);           // glyphs count
+
+            for(uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
+                *data << uint16(GetGlyph(i));               // GlyphProperties.dbc
         }
-
-        data->put<uint8>(pos, talentIdCount);               // put real count
-
-        *data << uint8(MAX_GLYPH_SLOT_INDEX);               // glyphs count
-
-        for(uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
-            *data << uint16(GetGlyph(i));                   // GlyphProperties.dbc
     }
 }
 
@@ -20460,9 +20482,6 @@ void Player::BuildPetTalentsInfoData(WorldPacket *data)
 
 void Player::SendTalentsInfoData(bool pet)
 {
-    if(GetSession()->PlayerLoading())
-        return;
-
     WorldPacket data(SMSG_TALENTS_INFO, 50);
     data << uint8(pet ? 1 : 0);
     if(pet)
@@ -20601,7 +20620,7 @@ void Player::_SaveEquipmentSets()
                 CharacterDatabase.PExecute("INSERT INTO character_equipmentsets VALUES ('%u', '"I64FMTD"', '%u', '%s', '%s', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u')",
                     GetGUIDLow(), eqset.Guid, index, eqset.Name.c_str(), eqset.IconName.c_str(), eqset.Items[0], eqset.Items[1], eqset.Items[2], eqset.Items[3], eqset.Items[4], eqset.Items[5], eqset.Items[6], eqset.Items[7],
                     eqset.Items[8], eqset.Items[9], eqset.Items[10], eqset.Items[11], eqset.Items[12], eqset.Items[13], eqset.Items[14], eqset.Items[15], eqset.Items[16], eqset.Items[17], eqset.Items[18]);
-               eqset.state = EQUIPMENT_SET_UNCHANGED;
+                eqset.state = EQUIPMENT_SET_UNCHANGED;
                 ++itr;
                 break;
             case EQUIPMENT_SET_DELETED:

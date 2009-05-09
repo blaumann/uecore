@@ -46,7 +46,7 @@ void Reset()
     m_creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISARM, true);
     m_creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
     m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
-    m_creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CONFUSED, true);
+    //m_creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CONFUSED, true);
     m_creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM , true);
     m_creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR , true);
     m_creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
@@ -125,7 +125,7 @@ void UpdateAI(const uint32 diff)
     if(!m_creature->isAlive())
         return;
 
-    //Buff timer (only buff when we are alive and not in combat
+    /*//Buff timer (only buff when we are alive and not in combat
     if (!InCombat)
     {
        temp1 = m_creature->GetPower(POWER_RAGE);
@@ -135,7 +135,7 @@ void UpdateAI(const uint32 diff)
           m_creature->SetPower(POWER_RAGE,temp1);
        else
           m_creature->SetPower(POWER_RAGE,0);
-    }
+    }*/
 
     //Return since we have no target
     if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())

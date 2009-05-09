@@ -800,6 +800,7 @@ UPDATE creature_template SET ScriptName='npc_lady_katrana_prestor' WHERE entry=1
 
 /* STRANGLETHORN VALE */
 UPDATE creature_template SET ScriptName='mob_yenniku' WHERE entry=2530;
+UPDATE creature_template SET ScriptName='npc_riggle_bassbait' WHERE entry=15077;
 
 /* STRATHOLME */
 UPDATE instance_template SET script='instance_stratholme' WHERE map=329;
@@ -837,7 +838,7 @@ UPDATE creature_template SET ScriptName='npc_steward_of_time' WHERE entry=20142;
 UPDATE creature_template SET ScriptName='npc_stone_watcher_of_norgannon' WHERE entry=7918;
 
 /* TELDRASSIL */
-
+UPDATE creature_template SET ScriptName='npc_mist' WHERE entry=3568;
 
 /*  */
 /* TEMPEST KEEP */

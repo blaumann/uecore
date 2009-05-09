@@ -457,9 +457,9 @@ void hyjal_trashAI::JustDied(Unit *victim)
 
     if(IsOverrun)
     {
-        float x,y,z,o;
-        m_creature->GetCombatStartPosition(x,y,z);
-        Creature* pUnit = m_creature->SummonCreature(m_creature->GetEntry(),x,y,z,o, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
+        float x,y,z;
+        m_creature->GetCombatStartPosition(x, y, z);
+		Creature* pUnit = m_creature->SummonCreature(m_creature->GetEntry(), m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
         if(pUnit)
         {
             ((hyjal_trashAI*)pUnit->AI())->faction = faction;                    

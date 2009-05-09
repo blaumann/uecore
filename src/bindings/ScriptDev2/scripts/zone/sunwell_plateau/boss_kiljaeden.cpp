@@ -771,7 +771,6 @@ struct MANGOS_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
             if (Phase == PHASE_DECEIVERS)
             {
                 bool DeciverDead;
-                bool DecivernoVictim;
                 FindHandDeceivers();
                 DeciverDead = false;
                 for(std::list<uint64>::iterator itr = HandDeceivers.begin(); itr != HandDeceivers.end(); ++itr)
