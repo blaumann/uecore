@@ -40,6 +40,9 @@ inline uint32 secsToTimeBitFields(time_t secs)
     return (lt->tm_year - 100) << 24 | lt->tm_mon  << 20 | (lt->tm_mday - 1) << 14 | lt->tm_wday << 11 | lt->tm_hour << 6 | lt->tm_min;
 }
 
+/* Set float sign "+"=0 "-"=1 */
+#define SET_SIGN_FLOAT(to, sign) {*((DWORD *)&(to)) = ((*((DWORD *)&(to)))&0x7FFFFFFF) | ((DWORD(sign)) << 31); }
+
 /* Return a random number in the range min..max; (max-min) must be smaller than 32768. */
 MANGOS_DLL_SPEC int32 irand(int32 min, int32 max);
 

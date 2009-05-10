@@ -169,7 +169,7 @@ void WorldSession::HandleCharEnumOpcode( WorldPacket & /*recv_data*/ )
     //          0                1                2                3                      4                      5               6                     7                     8
         "SELECT characters.guid, characters.data, characters.name, characters.position_x, characters.position_y, characters.position_z, characters.map, characters.totaltime, characters.leveltime, "
     //   9                    10                   11                     12                   13                    14
-        "characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, guild_member.guildid, genitive "
+        "characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, guild_member.guildid, character_declinedname.genitive "
         "FROM characters LEFT JOIN character_pet ON characters.guid = character_pet.owner AND character_pet.slot='%u' "
         "LEFT JOIN character_declinedname ON characters.guid = character_declinedname.guid "
         "LEFT JOIN guild_member ON characters.guid = guild_member.guid "
@@ -885,9 +885,7 @@ void WorldSession::HandleMeetingStoneInfo( WorldPacket & /*recv_data*/ )
 {
     DEBUG_LOG( "WORLD: Received CMSG_MEETING_STONE_INFO" );
 
-    WorldPacket data(SMSG_MEETINGSTONE_SETQUEUE, 5);
-    data << uint32(0) << uint8(6);
-    SendPacket(&data);
+    SendLfgUpdate(0, 0, 0);
 }
 
 void WorldSession::HandleTutorialFlag( WorldPacket & recv_data )

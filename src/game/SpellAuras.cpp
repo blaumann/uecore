@@ -5867,7 +5867,18 @@ void Aura::CleanupTriggeredSpells()
         m_target->RemoveAurasDueToSpell(30070);
         return;
     }
-
+	// Master Shapeshifter remove
+	if (m_spellProto->SpellFamilyName == SPELLFAMILY_DRUID)
+	{
+		switch(m_spellProto->Id)
+		{
+			case 5487:
+			case 9634: m_target->RemoveAurasDueToSpell(48418); break;
+			case 768: m_target->RemoveAurasDueToSpell(48420); break;
+			case 24858: m_target->RemoveAurasDueToSpell(48421); break;
+			case 33891: m_target->RemoveAurasDueToSpell(48422); break;
+		}
+	}
     uint32 tSpellId = m_spellProto->EffectTriggerSpell[GetEffIndex()];
     if(!tSpellId)
         return;

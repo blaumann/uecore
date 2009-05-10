@@ -15,7 +15,7 @@
  */
 
 /* Script Data Start
-SDName: Boss sartharion
+SDName: Boss Sartharion
 SDAuthor: ckegg
 SD%Complete: 90%
 SDComment: Flame wave need to be implemented
@@ -103,10 +103,10 @@ Script Data End */
 struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
 {
     boss_sartharionAI(Creature* pCreature) : ScriptedAI(pCreature)
-	{
-    	pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
-    	Heroic = pCreature->GetMap()->IsHeroic();
-    	Reset();
+    {
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+        Heroic = pCreature->GetMap()->IsHeroic();
+        Reset();
     }
 
     ScriptedInstance *pInstance;
@@ -146,25 +146,19 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
         		pInstance->SetData(DATA_SARTHARION_EVENT, NOT_STARTED);
 
             Unit* Temp1 =  Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_TENEBRON));
-            if (Temp1) {
+            if (Temp1)
                 if (Temp1->isDead())
                     ((Creature*)Temp1)->Respawn();
-           		Temp1->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            }
 
             Unit* Temp2 =  Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SHADRON));
-            if (Temp2) {
+            if (Temp2)
                 if (Temp2->isDead())
                     ((Creature*)Temp2)->Respawn();
-           		Temp2->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-           	}
 
             Unit* Temp3 =  Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_VESPERON));
-            if (Temp3) {
+            if (Temp3)
                 if (Temp3->isDead())
                     ((Creature*)Temp3)->Respawn();
-           		Temp3->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-           	}
 
             if (GameObject* TwilightPortal = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GO_TWILIGHT_PORTAL)))
                 if (TwilightPortal->GetPhaseMask())
@@ -191,8 +185,6 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
         if (!who)
             return;
 
-        bool bInCombat = m_creature->isInCombat();
-
         if (who == m_creature || who->GetTypeId() != TYPEID_PLAYER)
             return;
 
@@ -201,12 +193,6 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
             m_creature->AddThreat(who, 0.0f);
             m_creature->SetInCombatWith(who);
             who->SetInCombatWith(m_creature);
-
-            if (!bInCombat)
-            {
-                Aggro(who);
-            }
-
             DoStartMovement(who);
         }
     }
@@ -302,7 +288,6 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
 					}
 
                     ((Creature*)Temp)->AI()->AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
-				    Temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 				}
 	        }
 	        tenebron_timer = 1000;
@@ -322,7 +307,6 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
 					}
 
                     ((Creature*)Temp)->AI()->AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
-				    Temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 				}
 	        }
 	        shadron_timer = 1000;
@@ -342,7 +326,6 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
 					}
 
                     ((Creature*)Temp)->AI()->AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
-				    Temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 				}
 	        }
 	        vesperon_timer = 1000;
@@ -393,9 +376,9 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
 struct MANGOS_DLL_DECL mob_tenebronAI : public ScriptedAI
 {
     mob_tenebronAI(Creature* pCreature) : ScriptedAI(pCreature)
-	{
-    	pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
-    	Heroic = pCreature->GetMap()->IsHeroic();
+    {
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+        Heroic = pCreature->GetMap()->IsHeroic();
     	Reset();
     }
 
@@ -473,7 +456,8 @@ struct MANGOS_DLL_DECL mob_tenebronAI : public ScriptedAI
             float x, y, z;
             m_creature->GetPosition(x,y,z);
 
-            for(uint8 i = 0; i<6; i++)
+            // 6 eggs. now spawn only 3
+            for(uint8 i = 0; i<3; i++)
                 m_creature->SummonCreature(30882, x+rand()%10, y+rand()%10, z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000);
 
 			hatch_egg_timer = 60000 + rand()%10000;
@@ -540,10 +524,10 @@ struct MANGOS_DLL_DECL mob_tenebronAI : public ScriptedAI
 struct MANGOS_DLL_DECL mob_shadronAI : public ScriptedAI
 {
     mob_shadronAI(Creature* pCreature) : ScriptedAI(pCreature)
-	{
-    	pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+    {
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Heroic = pCreature->GetMap()->IsHeroic();
-    	Reset();
+        Reset();
     }
 
     ScriptedInstance *pInstance;
@@ -685,10 +669,10 @@ struct MANGOS_DLL_DECL mob_shadronAI : public ScriptedAI
 struct MANGOS_DLL_DECL mob_vesperonAI : public ScriptedAI
 {
     mob_vesperonAI(Creature* pCreature) : ScriptedAI(pCreature)
-	{
-    	pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+    {
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Heroic = pCreature->GetMap()->IsHeroic();
-    	Reset();
+        Reset();
     }
 
     ScriptedInstance *pInstance;
@@ -819,9 +803,9 @@ struct MANGOS_DLL_DECL mob_vesperonAI : public ScriptedAI
 struct MANGOS_DLL_DECL mob_acolyte_of_shadronAI : public ScriptedAI
 {
     mob_acolyte_of_shadronAI(Creature* pCreature) : ScriptedAI(pCreature)
-	{
-    	pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
-    	Reset();
+    {
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+        Reset();
     }
 
     ScriptedInstance *pInstance;
@@ -839,7 +823,7 @@ struct MANGOS_DLL_DECL mob_acolyte_of_shadronAI : public ScriptedAI
                     TwilightPortal->SetPhaseMask(1, true);
         }
     }
-    void Aggro(Unit* who) {}
+
     void UpdateAI(const uint32 diff)
     {
     	// twilight torment
@@ -875,7 +859,7 @@ struct MANGOS_DLL_DECL mob_acolyte_of_shadronAI : public ScriptedAI
                      pSartharion->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_2);
 
 /* don't close for now
-            if (GameObject* TwilightPortal = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GO_TWILIGHT_PORTAL)))
+            if (GameObject* TwilightPortal = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GO_TWILIGHT_PORTAL)))
                 if (TwilightPortal->GetPhaseMask())
                     TwilightPortal->SetPhaseMask(0, true);
 */
@@ -905,8 +889,8 @@ struct MANGOS_DLL_DECL mob_acolyte_of_shadronAI : public ScriptedAI
 struct MANGOS_DLL_DECL mob_acolyte_of_vesperonAI : public ScriptedAI
 {
     mob_acolyte_of_vesperonAI(Creature* pCreature) : ScriptedAI(pCreature)
-	{
-    	pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+    {
+        pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
     	Reset();
     }
 
@@ -924,7 +908,6 @@ struct MANGOS_DLL_DECL mob_acolyte_of_vesperonAI : public ScriptedAI
                     TwilightPortal->SetPhaseMask(1, true);
         }
     }
-    void Aggro(Unit* who) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -940,7 +923,7 @@ struct MANGOS_DLL_DECL mob_acolyte_of_vesperonAI : public ScriptedAI
                 if (pVesperon && pVesperon->isAlive() && pVesperon->HasAura(SPELL_TWILIGHT_TORMENT_1,0))
                     pVesperon->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_1);
 /* don't close for now
-            if (GameObject* TwilightPortal = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GO_TWILIGHT_PORTAL)))
+            if (GameObject* TwilightPortal = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GO_TWILIGHT_PORTAL)))
                 if (TwilightPortal->GetPhaseMask())
                     TwilightPortal->SetPhaseMask(0, true);
 */
@@ -969,7 +952,7 @@ struct MANGOS_DLL_DECL mob_acolyte_of_vesperonAI : public ScriptedAI
 ######*/
 struct MANGOS_DLL_DECL mob_twilight_eggsAI : public Scripted_NoMovementAI
 {
-    mob_twilight_eggsAI(Creature *c) : Scripted_NoMovementAI(c) { Reset(); }
+    mob_twilight_eggsAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) {Reset();}
 
     uint32 hatch_Timer;
 
@@ -977,7 +960,6 @@ struct MANGOS_DLL_DECL mob_twilight_eggsAI : public Scripted_NoMovementAI
     	hatch_Timer = 20000;
     	//DoCast(m_creature, SPELL_TWILIGHT_PHASE);
     }
-    void Aggro(Unit* who) { }
     void AttackStart(Unit* who) { }
     void MoveInLineOfSight(Unit* who) { }
     void UpdateAI(const uint32 diff)
@@ -1007,7 +989,7 @@ struct MANGOS_DLL_DECL mob_twilight_eggsAI : public Scripted_NoMovementAI
 ######*/
 struct MANGOS_DLL_DECL mob_twilight_whelpAI : public ScriptedAI
 {
-    mob_twilight_whelpAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+    mob_twilight_whelpAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
 
     uint32 fade_armor_timer;
 
@@ -1015,7 +997,7 @@ struct MANGOS_DLL_DECL mob_twilight_whelpAI : public ScriptedAI
         fade_armor_timer = 1000;
         //DoCast(m_creature, SPELL_TWILIGHT_RESIDUE);
     }
-    void Aggro(Unit* who) {}
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target

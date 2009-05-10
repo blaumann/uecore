@@ -398,6 +398,17 @@ void Spell::EffectSchoolDMG(uint32 effect_idx)
                     case 38441:
                         damage = unitTarget->GetMaxHealth() / 2;
                         break;
+                    // Explode
+                    case 47496:
+                    {
+                        // Special Effect only for caster (ghoul in this case)
+                        if (unitTarget->GetEntry() == 26125 && (unitTarget->GetGUID() == m_caster->GetGUID()))
+                        {
+                            // After explode the gloul must be killed
+                            unitTarget->DealDamage(unitTarget, unitTarget->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        }
+                        break;
+                    }
                 }
                 break;
             }
@@ -1785,6 +1796,27 @@ void Spell::EffectDummy(uint32 i)
                     m_damage+=int32(0.2f*m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
                     return;
                 }
+            // Corpse Explosion
+            if(m_spellInfo->SpellIconID == 1737)
+            {
+                // Dummy effect is called 2 times for 1 spell. I don't think that it is needed.
+                if (i!=1)
+                    return;
+                // Living ghoul as a target
+                if (unitTarget->GetEntry() == 26125 && unitTarget->isAlive())
+                {
+                    int32 bp = unitTarget->GetMaxHealth()*0.25f;
+                    unitTarget->CastCustomSpell(unitTarget,47496,&bp,NULL,NULL,true);
+                }
+                // Some corpse
+                else
+                {
+                    // In this case only (m_currentBasePoints[0]+1) can guarantee real damage amount.
+                    int32 bp = m_currentBasePoints[0]+1;
+                    m_caster->CastCustomSpell(unitTarget,50444,&bp,NULL,NULL,true);
+                }
+                unitTarget->SetDisplayId(2028);
+            }
                 case 31789:                                 // Righteous Defense (step 1)
                 {
                     // 31989 -> dummy effect (step 1) + dummy effect (step 2) -> 31709 (taunt like spell for each target)

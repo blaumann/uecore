@@ -62,7 +62,7 @@ static const uint32 MAX_CRYPT_GUARDS = 8;
 //Anub'Rekhan AI
 struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
 {
-    boss_anubrekhanAI(Creature* pCreature) : ScriptedAI(pCreature) 
+    boss_anubrekhanAI(Creature* pCreature) : ScriptedAI(pCreature)  
     {
         pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         
@@ -239,7 +239,7 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
             if (players.isEmpty())
                 return;
 
-            for(Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+            for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                 if (Player* pPlayer = i->getSource())
                 {
                     if (pPlayer->isGameMaster())

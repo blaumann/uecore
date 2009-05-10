@@ -1466,7 +1466,11 @@ void Player::BuildEnumData( QueryResult * result, WorldPacket * p_data )
         char_flags |= CHARACTER_FLAG_GHOST;
     if(HasAtLoginFlag(AT_LOGIN_RENAME))
         char_flags |= CHARACTER_FLAG_RENAME;
-    if(sWorld.getConfig(CONFIG_DECLINED_NAMES_USED) && (fields[14].GetCppString() != ""))
+    if(sWorld.getConfig(CONFIG_DECLINED_NAMES_USED))
+    {
+        if(!fields[14].GetCppString().empty())
+            char_flags |= CHARACTER_FLAG_DECLINED;
+    } else
         char_flags |= CHARACTER_FLAG_DECLINED;
 
     *p_data << uint32(char_flags);                          // character flags
@@ -4428,6 +4432,7 @@ void Player::RepopAtGraveyard()
             GetSession()->SendPacket(&data);
         }
     }
+    SetDisplayId(GetNativeDisplayId());
 }
 
 void Player::JoinedChannel(Channel *c)
@@ -20651,7 +20656,7 @@ bool Player::canSeeSpellClickOn(Creature const *c) const
     SpellClickInfoMap const& map = objmgr.mSpellClickInfoMap;
     for(SpellClickInfoMap::const_iterator itr = map.lower_bound(c->GetEntry()); itr != map.upper_bound(c->GetEntry()); ++itr)
     {
-        if(itr->second.questId == 0 || GetQuestStatus(itr->second.questId) == QUEST_STATUS_INCOMPLETE)
+        if(itr->second.questId == 0 || GetQuestStatus(itr->second.questId) == itr->second.quest_status)
             return true;
     }
     return false;

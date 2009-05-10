@@ -453,6 +453,24 @@ WorldObject* Spell::FindCorpseUsing()
     return result;
 }
 
+void Spell::FillCustomTargetMap(uint32 i, UnitList& TagUnitMap)
+{
+    float radius;
+    if (m_spellInfo->EffectRadiusIndex[i])
+        radius = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+    else
+        radius = GetSpellMaxRange(sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex));
+    // Resulting effect depends on spell that we want to cast
+    switch (m_spellInfo->Id)
+    {
+        case 47496: // Ghoul's explode
+        {
+            FillAreaTargets(TagUnitMap,m_targets.m_destX, m_targets.m_destY,radius,PUSH_DEST_CENTER,SPELL_TARGETS_AOE_DAMAGE);
+            break;
+        }
+    }
+}
+
 void Spell::FillTargetMap()
 {
     // TODO: ADD the correct target FILLS!!!!!!
@@ -537,6 +555,11 @@ void Spell::FillTargetMap()
                     break;
                 }
                 break;
+            case TARGET_EFFECT_SELECT:
+            {
+                FillCustomTargetMap(i,tmpUnitMap);
+                break;
+            }
             default:
                 switch(m_spellInfo->EffectImplicitTargetB[i])
                 {
@@ -1390,11 +1413,75 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,UnitList& TagUnitMap)
         case TARGET_SELF:
         case TARGET_SELF2:
         case TARGET_DYNAMIC_OBJECT:
-        case TARGET_AREAEFFECT_CUSTOM:
         case TARGET_AREAEFFECT_CUSTOM_2:
         case TARGET_SUMMON:
         {
             TagUnitMap.push_back(m_caster);
+            break;
+        }
+        case TARGET_AREAEFFECT_CUSTOM:
+        {
+            switch (m_spellInfo->SpellFamilyName)
+            {
+                case SPELLFAMILY_DEATHKNIGHT:
+                {
+                    switch (m_spellInfo->SpellIconID)
+                    {
+                        case 1737: // Corpse Explosion
+                        {	
+                            // If ( ( (not our ghoul) AND not corpse) OR (already explosed) )
+                            if ((!(m_targets.getUnitTarget()->GetEntry() == 26125 && m_targets.getUnitTarget()->GetOwnerGUID() == m_caster->GetGUID()) &&
+                                !(m_targets.getUnitTarget()->getDeathState()==CORPSE)) ||
+                                (m_targets.getUnitTarget()->GetDisplayId() != m_targets.getUnitTarget()->GetNativeDisplayId()) )
+                            {
+                                TagUnitMap.clear();
+                                CleanupTargetList();
+
+                                WorldObject* result = FindCorpseUsing<MaNGOS::ExplodeCorpseObjectCheck> ();
+
+                                if(result)
+                                {
+                                    switch(result->GetTypeId())
+                                    {
+                                        case TYPEID_UNIT:
+                                        case TYPEID_PLAYER:
+                                            TagUnitMap.push_back((Unit*)result);
+                                            break;
+                                    }
+                                }
+                                else
+                                {
+                                    // clear cooldown at fail
+                                    if(m_caster->GetTypeId()==TYPEID_PLAYER)
+                                    {
+                                        ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id);
+
+                                        WorldPacket data(SMSG_CLEAR_COOLDOWN, (4+8));
+                                        data << uint32(m_spellInfo->Id);
+                                        data << uint64(m_caster->GetGUID());
+                                        ((Player*)m_caster)->GetSession()->SendPacket(&data);
+                                    }
+
+                                    SendCastResult(SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
+                                    finish(false);
+                                }
+                            }
+                            break;
+                        }
+                        default:
+                        {
+                            TagUnitMap.push_back(m_caster);
+                            break;
+                        }
+                    }
+                    break;
+                }
+                default:
+                {
+                    TagUnitMap.push_back(m_caster);
+                    break;
+                }
+            }
             break;
         }
         case TARGET_RANDOM_ENEMY_CHAIN_IN_AREA:
@@ -2502,8 +2589,6 @@ void Spell::cast(bool skipCheck)
     // CAST SPELL
     SendSpellCooldown();
 
-    TakePower();
-    TakeReagents();                                         // we must remove reagents before HandleEffects to allow place crafted item in same slot
     FillTargetMap();
 
     if(m_spellState == SPELL_STATE_FINISHED)                // stop cast if spell marked as finish somewhere in Take*/FillTargetMap
@@ -2511,6 +2596,9 @@ void Spell::cast(bool skipCheck)
         SetExecutedCurrently(false);
         return;
     }
+
+    TakePower();
+    TakeReagents();                                         // we must remove reagents before HandleEffects to allow place crafted item in same slot
 
     SendCastResult(castResult);
     SendSpellGo();                                          // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...

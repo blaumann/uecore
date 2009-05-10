@@ -4595,6 +4595,27 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
     {
         case SPELLFAMILY_GENERIC:
         {
+			//Master Shapeshifter
+			if (dummySpell->SpellIconID == 2851)
+			{
+				if (!procSpell)
+					return false;
+
+                Unit *caster = triggeredByAura->GetCaster();
+				if (caster)
+				{
+					switch(caster->m_form)
+					{
+					case FORM_BEAR:
+					case FORM_DIREBEAR: triggered_spell_id = 48418; break;
+					case FORM_CAT: triggered_spell_id = 48420; break;
+					case FORM_MOONKIN: triggered_spell_id = 48421; break;
+					case FORM_TREE: triggered_spell_id = 48422; break;
+					}
+				basepoints0 = triggerAmount;
+				break;
+				}
+			}
             switch (dummySpell->Id)
             {
                 // Eye for an Eye
@@ -4919,6 +4940,28 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     }
                     return false;
                 }
+            // King of Jungles 
+            if (dummySpell->SpellIconID == 2850) 
+            { 
+                if (!procSpell) 
+                    return false; 
+ 
+                if (effIndex!=0) 
+                    return true; 
+ 
+                if (procSpell->SpellFamilyFlags & 0x0000000000080000LL) 
+                { 
+                    triggered_spell_id = 51185; 
+                    basepoints0 = triggerAmount; 
+                    break; 
+                } 
+                if (procSpell->SpellFamilyFlags2 & 0x00000800LL) 
+                { 
+                    triggered_spell_id = 51178; 
+                    basepoints0 = 4*triggerAmount; 
+                    break; 
+                } 
+            }
                 // Living Seed
                 case 48504:
                 {
@@ -7051,6 +7094,57 @@ bool Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, uint32 damage, Aura 
             int32 basepoints0 = cost * triggeredByAura->GetModifier()->m_amount/100;
             CastCustomSpell(this, 47762, &basepoints0, 0, 0, true, 0, triggeredByAura);
             return true;
+        }
+        case 7282: // Crypt Fever and Ebon Plaguebringer
+        {
+            if (!procSpell || pVictim == this) // Here we prevent selfcasting C.F. and E.P.
+                return false;    
+            switch (triggeredByAura->GetSpellProto()->Id)
+            {
+                case 49032: // C.F. Rank 1
+                {
+                    // C.F. rank 2-3 or E.P. any rank is already on victim -> do not allow cast
+                    if ( !(pVictim->HasAura(50509,0) || pVictim->HasAura(50510,0) || 
+                        pVictim->GetAura(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT,SPELLFAMILY_DEATHKNIGHT,0x80000000000LL)) )
+                        triggered_spell_id = 50508;
+                    break;
+                }
+                case 49631: // C.F. Rank 2
+                {
+                    // C.F. rank 3 or E.P. any rank is already on victim -> do not allow cast
+                    if ( !(pVictim->HasAura(50510,0) || 
+                        pVictim->GetAura(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT,SPELLFAMILY_DEATHKNIGHT,0x80000000000LL)) )
+                        triggered_spell_id = 50509;
+                    break;
+                }
+                case 49632: // C.F. Rank 3
+                {
+                    // E.P. any rank is already on victim -> do not allow cast
+                    if ( !(pVictim->GetAura(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT,SPELLFAMILY_DEATHKNIGHT,0x80000000000LL)) )
+                        triggered_spell_id = 50510;
+                    break;
+                }
+                case 51099: // E.P. Rank 1
+                {
+                    // E.P. rank 2-3 is already on victim -> do not allow cast
+                    if ( !(pVictim->HasAura(51734,0) || pVictim->HasAura(51735,0)) )
+                        triggered_spell_id = 51726;
+                    break;
+                }
+                case 51160: // E.P. Rank 2
+                {
+                    // E.P. rank 3 is already on victim -> do not allow cast
+                    if ( !(pVictim->HasAura(51735,0)) )
+                        triggered_spell_id = 51734;
+                    break;
+                }
+                case 51161: // E.P. Rank 3
+                {
+                    triggered_spell_id = 51735;
+                    break;
+                }
+            }
+            break;
         }
     }
 
@@ -9606,7 +9700,7 @@ void Unit::setDeathState(DeathState s)
 {
     if (m_deathState != ALIVE && s == ALIVE)
     {
-        //_ApplyAllAuraMods();
+        SetDisplayId(GetNativeDisplayId());
     }
     
     m_deathState = s;

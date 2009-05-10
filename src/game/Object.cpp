@@ -1137,7 +1137,17 @@ float WorldObject::GetDistance2d(float x, float y) const
     float dx = GetPositionX() - x;
     float dy = GetPositionY() - y;
     float sizefactor = GetObjectSize();
-    float dist = sqrt((dx*dx) + (dy*dy)) - sizefactor;
+
+    SET_SIGN_FLOAT(dx,0);
+    SET_SIGN_FLOAT(dy,0);
+
+    float dist;
+
+    if ( dx < dy )
+        dist = 0.961f*dy+0.398f*dx - sizefactor;
+    else
+        dist = 0.961f*dx+0.398f*dy - sizefactor;
+
     return ( dist > 0 ? dist : 0);
 }
 
@@ -1165,7 +1175,17 @@ float WorldObject::GetDistance2d(const WorldObject* obj) const
     float dx = GetPositionX() - obj->GetPositionX();
     float dy = GetPositionY() - obj->GetPositionY();
     float sizefactor = GetObjectSize() + obj->GetObjectSize();
-    float dist = sqrt((dx*dx) + (dy*dy)) - sizefactor;
+
+    SET_SIGN_FLOAT(dx,0);
+    SET_SIGN_FLOAT(dy,0);
+
+    float dist;
+
+    if ( dx < dy )  
+        dist = 0.961f*dy+0.398f*dx - sizefactor;
+    else
+        dist = 0.961f*dx+0.398f*dy - sizefactor;
+
     return ( dist > 0 ? dist : 0);
 }
 

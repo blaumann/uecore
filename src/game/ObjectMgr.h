@@ -99,6 +99,7 @@ struct SpellClickInfo
 {
     uint32 spellId;
     uint32 questId;
+    uint8 quest_status;
     uint8 castFlags;
 };
 

@@ -1578,7 +1578,13 @@ float Map::GetHeight(float x, float y, float z, bool pUseVmaps) const
         if(vmgr->isHeightCalcEnabled())
         {
             // look from a bit higher pos to find the floor
-            vmapHeight = vmgr->getHeight(GetId(), x, y, z + 2.0f);
+            if(mapHeight > VMAP_INVALID_HEIGHT_VALUE)
+            {
+                float Ray = z + 2.0f - mapHeight;
+                vmapHeight = vmgr->getHeight(GetId(), x, y, z + 2.0f,Ray > 10.0f ? 10.0f : Ray);
+            }
+            else
+                vmapHeight = vmgr->getHeight(GetId(), x, y, z + 2.0f);
         }
         else
             vmapHeight = VMAP_INVALID_HEIGHT_VALUE;
