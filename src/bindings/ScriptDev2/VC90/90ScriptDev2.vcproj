@@ -584,11 +584,11 @@
 					Name="Blackfathom Deeps"
 					>
 					<File
-						RelativePath="..\scripts\zone\blackfathom_deeps\def_blackfathom_depths.h"
+						RelativePath="..\scripts\zone\blackfathom_deeps\def_blackfathom_deeps.h"
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\zone\blackfathom_deeps\instance_blackfathom_depths.cpp"
+						RelativePath="..\scripts\zone\blackfathom_deeps\instance_blackfathom_deeps.cpp"
 						>
 					</File>
 				</Filter>
