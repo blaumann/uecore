@@ -166,7 +166,7 @@ struct MANGOS_DLL_DECL boss_zuljinAI : public ScriptedAI
     void Reset()
     {
         if(pInstance)
-            pInstance->SetData(DATA_ZULJINEVENT, NOT_STARTED);
+            pInstance->SetData(DATA_ZULJIN, NOT_STARTED);
 
         Phase = 0;
 
@@ -207,7 +207,7 @@ struct MANGOS_DLL_DECL boss_zuljinAI : public ScriptedAI
     void Aggro(Unit *who)
     {
         if(pInstance)
-            pInstance->SetData(DATA_ZULJINEVENT, IN_PROGRESS);
+            pInstance->SetData(DATA_ZULJIN, IN_PROGRESS);
 
         DoZoneInCombat();
         
@@ -231,7 +231,7 @@ struct MANGOS_DLL_DECL boss_zuljinAI : public ScriptedAI
     void JustDied(Unit* Killer)    
     {
         if(pInstance)
-            pInstance->SetData(DATA_ZULJINEVENT, DONE);
+            pInstance->SetData(DATA_ZULJIN, DONE);
 
         DoScriptText(SAY_DEATH, m_creature);
         DespawnSummons(CREATURE_COLUMN_OF_FIRE);

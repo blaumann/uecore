@@ -82,7 +82,7 @@ struct MANGOS_DLL_DECL boss_akilzonAI : public ScriptedAI
     void Reset()
     {
         if(pInstance)
-            pInstance->SetData(DATA_AKILZONEVENT, NOT_STARTED);
+            pInstance->SetData(DATA_AKILZON, NOT_STARTED);
 
         StaticDisruption_Timer = (10+rand()%10)*1000; //10 to 20 seconds (bosskillers)
         GustOfWind_Timer = (20+rand()%10)*1000; //20 to 30 seconds(bosskillers)
@@ -111,7 +111,7 @@ struct MANGOS_DLL_DECL boss_akilzonAI : public ScriptedAI
         DoZoneInCombat();
         
         if(pInstance)
-            pInstance->SetData(DATA_AKILZONEVENT, IN_PROGRESS);
+            pInstance->SetData(DATA_AKILZON, IN_PROGRESS);
     }
 
     void JustDied(Unit* Killer)
@@ -119,7 +119,7 @@ struct MANGOS_DLL_DECL boss_akilzonAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
         
         if(pInstance)
-            pInstance->SetData(DATA_AKILZONEVENT, DONE);
+            pInstance->SetData(DATA_AKILZON, DONE);
         DespawnSummons(MOB_SOARING_EAGLE);
     }
 

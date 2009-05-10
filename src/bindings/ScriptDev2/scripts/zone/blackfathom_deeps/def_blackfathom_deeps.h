@@ -15,7 +15,9 @@ enum
     DATA_SHRINE_OF_GELIHAST     = 6,
     DATA_ALTAR_OF_THE_DEEPS     = 7,
     DATA_MAINDOOR               = 8,
-    TYPE_SHRINE_ENCOUNTER       = 9
+
+    TYPE_KELRIS                 = 10,
+    TYPE_SHRINE                 = 11
 };
 
 #endif

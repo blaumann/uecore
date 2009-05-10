@@ -212,7 +212,7 @@ struct MANGOS_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
     void Reset()
     {
         if(pInstance)
-            pInstance->SetData(DATA_HEXLORDEVENT, NOT_STARTED);
+            pInstance->SetData(DATA_HEXLORD, NOT_STARTED);
 
         SpiritBolts_Timer = 20000;
         bDrainPower = false;
@@ -230,7 +230,7 @@ struct MANGOS_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
     void Aggro(Unit* who)
     {
         if(pInstance)
-            pInstance->SetData(DATA_HEXLORDEVENT, IN_PROGRESS);
+            pInstance->SetData(DATA_HEXLORD, IN_PROGRESS);
 
         DoScriptText(SAY_AGGRO, m_creature);
 
@@ -259,7 +259,7 @@ struct MANGOS_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
     void JustDied(Unit* victim)
     {
         if(pInstance)
-            pInstance->SetData(DATA_HEXLORDEVENT, DONE);
+            pInstance->SetData(DATA_HEXLORD, DONE);
 
         switch(rand()%2)
         {
@@ -480,7 +480,7 @@ struct MANGOS_DLL_DECL boss_hexlord_addAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(pInstance && pInstance->GetData(DATA_HEXLORDEVENT) != IN_PROGRESS)
+        if(pInstance && pInstance->GetData(DATA_HEXLORD) != IN_PROGRESS)
             EnterEvadeMode();
 
         DoMeleeAttackIfReady();

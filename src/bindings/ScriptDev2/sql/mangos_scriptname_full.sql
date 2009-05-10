@@ -154,6 +154,9 @@ UPDATE creature_template SET ScriptName='boss_ambassador_hellmaw' WHERE entry=18
 
 
 /* AZSHARA */
+UPDATE creature_template SET ScriptName='npc_rizzle_sprysprocket' WHERE entry=23002;
+UPDATE creature_template SET ScriptName='npc_depth_charge' WHERE entry=23025;
+UPDATE gameobject_template SET ScriptName='go_southfury_moonstone' WHERE entry=185566;
 UPDATE creature_template SET ScriptName='mobs_spitelashes' WHERE entry IN (6190,6193,6194,6195,6196,7885,7886,12204,12205);
 UPDATE creature_template SET ScriptName='npc_loramus_thalipedes' WHERE entry=7783;
 
@@ -217,7 +220,7 @@ UPDATE creature_template SET ScriptName='npc_spirit_of_olum' WHERE entry=23411;
 -- UPDATE creature_template SET ScriptName='mob_shadowy_construct' WHERE entry=23111; -- Shadowy Construct in Teron Gorefiend's encounter. Commented until Mind Control is implemented.
 
 /* BLACKFATHOM DEPTHS */
-
+UPDATE instance_template SET script='instance_blackfathom_deeps' WHERE map=48;
 
 /* BLACKROCK DEPTHS */
 DELETE FROM areatrigger_scripts WHERE entry=1526;
@@ -1000,6 +1003,14 @@ UPDATE creature_template SET ScriptName='boss_akilzon' WHERE entry=23574;
 UPDATE creature_template SET ScriptName='boss_halazzi' WHERE entry=23577;
 UPDATE creature_template SET ScriptName='boss_janalai' WHERE entry=23578;
 UPDATE creature_template SET ScriptName='boss_malacrass' WHERE entry=24239;
+UPDATE creature_template SET ScriptName='mob_alyson_antille' WHERE entry=24240;
+UPDATE creature_template SET ScriptName='mob_thurg' WHERE entry=24241;
+UPDATE creature_template SET ScriptName='mob_slither' WHERE entry=24242;
+UPDATE creature_template SET ScriptName='mob_lord_raadan' WHERE entry=24243;
+UPDATE creature_template SET ScriptName='mob_gazakroth' WHERE entry=24244;
+UPDATE creature_template SET ScriptName='mob_fenstalker' WHERE entry=24245;
+UPDATE creature_template SET ScriptName='mob_darkheart' WHERE entry=24246;
+UPDATE creature_template SET ScriptName='mob_koragg' WHERE entry=24247;
 UPDATE creature_template SET ScriptName='boss_nalorakk' WHERE entry=23576;
 UPDATE creature_template SET ScriptName='boss_zuljin' WHERE entry=23863;
 UPDATE creature_template SET ScriptName='mob_jandalai_firebomb' WHERE entry=23920;

@@ -135,4 +135,8 @@ pkgdata_DATA = \
 	r1056_scriptdev2.sql \
 	r1058_mangos.sql \
 	r1058_scriptdev2.sql \
-	r1062_mangos.sql
+	r1062_mangos.sql \
+	r1067_mangos.sql \
+	r1068_mangos.sql \
+	r1068_scriptdev2.sql \
+	r1069_mangos.sql

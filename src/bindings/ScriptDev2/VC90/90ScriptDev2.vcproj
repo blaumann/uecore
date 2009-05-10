@@ -581,14 +581,14 @@
 					</File>
 				</Filter>
 				<Filter
-					Name="Blackfathom Depths"
+					Name="Blackfathom Deeps"
 					>
 					<File
-						RelativePath="..\scripts\zone\blackfathom_depths\def_blackfathom_depths.h"
+						RelativePath="..\scripts\zone\blackfathom_deeps\def_blackfathom_depths.h"
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\zone\blackfathom_depths\instance_blackfathom_depths.cpp"
+						RelativePath="..\scripts\zone\blackfathom_deeps\instance_blackfathom_depths.cpp"
 						>
 					</File>
 				</Filter>

@@ -207,7 +207,7 @@ struct MANGOS_DLL_DECL instance_zulaman : public ScriptedInstance
     {
         switch(type)
         {
-        case DATA_NALORAKKEVENT:
+        case DATA_NALORAKK:
             Encounters[0] = data;
             if(data == DONE)
             {
@@ -219,7 +219,7 @@ struct MANGOS_DLL_DECL instance_zulaman : public ScriptedInstance
                 SummonHostage(0);
             }
             break;
-        case DATA_AKILZONEVENT:
+        case DATA_AKILZON:
             Encounters[1] = data;
             OpenDoor(AkilzonDoorGUID, data != IN_PROGRESS);
             if(data == DONE)
@@ -232,23 +232,23 @@ struct MANGOS_DLL_DECL instance_zulaman : public ScriptedInstance
                 SummonHostage(1);
             }
             break;
-        case DATA_JANALAIEVENT:
+        case DATA_JANALAI:
             Encounters[2] = data;
             if(data == DONE) SummonHostage(2);
             break;
-        case DATA_HALAZZIEVENT:
+        case DATA_HALAZZI:
             Encounters[3] = data;
             OpenDoor(HalazziDoorGUID, data != IN_PROGRESS);
             if(data == DONE) SummonHostage(3);
             break;
-        case DATA_HEXLORDEVENT:
+        case DATA_HEXLORD:
             Encounters[4] = data;
             if(data == IN_PROGRESS)
                 OpenDoor(HexLordGateGUID, false);
             else if(data == NOT_STARTED)
                 CheckInstanceStatus();
             break;
-        case DATA_ZULJINEVENT:
+        case DATA_ZULJIN:
             Encounters[5] = data;
             OpenDoor(ZulJinDoorGUID, data != IN_PROGRESS);
             break;
@@ -281,12 +281,12 @@ struct MANGOS_DLL_DECL instance_zulaman : public ScriptedInstance
     {
         switch(type)
         {
-        case DATA_NALORAKKEVENT: return Encounters[0];
-        case DATA_AKILZONEVENT:  return Encounters[1];
-        case DATA_JANALAIEVENT:  return Encounters[2];
-        case DATA_HALAZZIEVENT:  return Encounters[3];
-        case DATA_HEXLORDEVENT:  return Encounters[4];
-        case DATA_ZULJINEVENT:   return Encounters[5];
+        case DATA_NALORAKK: return Encounters[0];
+        case DATA_AKILZON:  return Encounters[1];
+        case DATA_JANALAI:  return Encounters[2];
+        case DATA_HALAZZI:  return Encounters[3];
+        case DATA_HEXLORD:  return Encounters[4];
+        case DATA_ZULJIN:   return Encounters[5];
         case DATA_CHESTLOOTED:   return ChestLooted;
         case TYPE_RAND_VENDOR_1: return RandVendor[0];
         case TYPE_RAND_VENDOR_2: return RandVendor[1];                

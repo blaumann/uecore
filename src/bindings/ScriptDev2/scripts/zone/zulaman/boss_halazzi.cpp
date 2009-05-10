@@ -98,7 +98,7 @@ struct MANGOS_DLL_DECL boss_halazziAI : public ScriptedAI
     void Reset()
     {
 		if(pInstance)
-            pInstance->SetData(DATA_HALAZZIEVENT, NOT_STARTED);
+            pInstance->SetData(DATA_HALAZZI, NOT_STARTED);
 
         TransformCount = 0;
         BerserkTimer = 600000;
@@ -113,7 +113,7 @@ struct MANGOS_DLL_DECL boss_halazziAI : public ScriptedAI
     void Aggro(Unit *who)
     {
 		if(pInstance)
-            pInstance->SetData(DATA_HALAZZIEVENT, IN_PROGRESS);
+            pInstance->SetData(DATA_HALAZZI, IN_PROGRESS);
 
         DoScriptText(SAY_AGGRO, m_creature);
         EnterPhase(PHASE_LYNX);
@@ -311,7 +311,7 @@ struct MANGOS_DLL_DECL boss_halazziAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
 		if(pInstance)
-            pInstance->SetData(DATA_HALAZZIEVENT, DONE);
+            pInstance->SetData(DATA_HALAZZI, DONE);
 
         DoScriptText(SAY_DEATH, m_creature);
     }

@@ -125,7 +125,7 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
     void Reset()
     {
         if (pInstance)
-            pInstance->SetData(DATA_JANALAIEVENT, NOT_STARTED);
+            pInstance->SetData(DATA_JANALAI, NOT_STARTED);
 
         FireBreathTimer = 8000;
         BombTimer = 30000;
@@ -153,7 +153,7 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
 
         if (pInstance)
-            pInstance->SetData(DATA_JANALAIEVENT, DONE);
+            pInstance->SetData(DATA_JANALAI, DONE);
     }
 
     void KilledUnit(Unit* victim)
@@ -170,7 +170,7 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
         DoScriptText(SAY_AGGRO, m_creature);
 
         if (pInstance)
-            pInstance->SetData(DATA_JANALAIEVENT, IN_PROGRESS);
+            pInstance->SetData(DATA_JANALAI, IN_PROGRESS);
         DoZoneInCombat();
     }
 
@@ -554,7 +554,7 @@ struct MANGOS_DLL_DECL mob_janalai_hatcherAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!pInstance || !(pInstance->GetData(DATA_JANALAIEVENT) == IN_PROGRESS))
+        if(!pInstance || !(pInstance->GetData(DATA_JANALAI) == IN_PROGRESS))
         {
             m_creature->SetVisibility(VISIBILITY_OFF);
             m_creature->setDeathState(JUST_DIED);
@@ -629,7 +629,7 @@ struct MANGOS_DLL_DECL mob_hatchlingAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!pInstance || !(pInstance->GetData(DATA_JANALAIEVENT) == IN_PROGRESS))
+        if(!pInstance || !(pInstance->GetData(DATA_JANALAI) == IN_PROGRESS))
         {
             m_creature->SetVisibility(VISIBILITY_OFF);
             m_creature->setDeathState(JUST_DIED);
