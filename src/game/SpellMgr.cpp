@@ -1492,6 +1492,14 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 return false;
             break;
         case SPELLFAMILY_DEATHKNIGHT:
+            if (spellInfo_2->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT)
+            {
+                //Frost Presence -> +10% max. health or +10% max. health -> Frost Presence
+                if ((spellInfo_2->Id == 48263 && spellInfo_1->Id == 61261) ||
+                    (spellInfo_2->Id == 61261 && spellInfo_1->Id == 48263))
+                    return false;
+            }
+            break;
             if ( spellInfo_2->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT )
             {
                 // Ebon Plague must replace Crypt Fever.

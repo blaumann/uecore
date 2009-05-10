@@ -4684,8 +4684,10 @@ void Aura::HandlePeriodicHealthFunnel(bool apply, bool /*Real*/)
 
 void Aura::HandleAuraModResistanceExclusive(bool apply, bool /*Real*/)
 {
-    for(int8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL;x++)
-    {
+        if (GetId() == 48263 && apply)
+            m_target->CastSpell(m_target,61261,true,NULL,this);
+        for(int8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL;x++)
+        {
         if(m_modifier.m_miscvalue & int32(1<<x))
         {
             m_target->HandleStatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + x), BASE_VALUE, float(m_modifier.m_amount), apply);
@@ -5879,6 +5881,13 @@ void Aura::CleanupTriggeredSpells()
 			case 33891: m_target->RemoveAurasDueToSpell(48422); break;
 		}
 	}
+    if (m_spellProto->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellProto->SpellFamilyFlags & 0x00008000LL && (m_spellProto->AttributesEx2 & 0x10) )
+    {
+        // Frost Presence +10% max. health remove
+        m_target->RemoveAurasDueToSpell(61261);
+        return;
+    }
+
     uint32 tSpellId = m_spellProto->EffectTriggerSpell[GetEffIndex()];
     if(!tSpellId)
         return;
