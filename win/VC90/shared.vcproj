@@ -81,6 +81,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile=".\shared__$(PlatformName)_$(ConfigurationName)\shared.lib"
+				AdditionalLibraryDirectories="dep\lib\$(PlatformName)_$(ConfigurationName)"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -160,6 +161,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile=".\shared__$(PlatformName)_$(ConfigurationName)\shared.lib"
+				AdditionalLibraryDirectories="dep\lib\$(PlatformName)_$(ConfigurationName)"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -239,6 +241,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile=".\shared__$(PlatformName)_$(ConfigurationName)\shared.lib"
+				AdditionalLibraryDirectories="dep\lib\$(PlatformName)_debug"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -321,6 +324,7 @@
 				Name="VCLibrarianTool"
 				AdditionalDependencies=".\g3dlite__$(PlatformName)_$(ConfigurationName)\g3dlite.lib"
 				OutputFile=".\shared__$(PlatformName)_$(ConfigurationName)\shared.lib"
+				AdditionalLibraryDirectories="dep\lib\$(PlatformName)_$(ConfigurationName)"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -402,6 +406,7 @@
 				Name="VCLibrarianTool"
 				AdditionalDependencies=".\g3dlite__$(PlatformName)_$(ConfigurationName)\g3dlite.lib"
 				OutputFile=".\shared__$(PlatformName)_$(ConfigurationName)\shared.lib"
+				AdditionalLibraryDirectories="dep\lib\$(PlatformName)_$(ConfigurationName)"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -483,6 +488,7 @@
 				Name="VCLibrarianTool"
 				AdditionalDependencies=".\g3dlite__$(PlatformName)_$(ConfigurationName)\g3dlite.lib"
 				OutputFile=".\shared__$(PlatformName)_$(ConfigurationName)\shared.lib"
+				AdditionalLibraryDirectories="dep\lib\$(PlatformName)_debug"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -874,6 +880,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\src\shared\LockedQueue.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\src\shared\revision.h"
 			>
 			<FileConfiguration
@@ -1018,6 +1028,14 @@
 					Outputs="..\..\src\shared\SystemConfig.h"
 				/>
 			</FileConfiguration>
+		</File>
+		<File
+			RelativePath="..\..\src\shared\Threading.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\shared\Threading.h"
+			>
 		</File>
 	</Files>
 	<Globals>
