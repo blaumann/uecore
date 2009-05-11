@@ -567,6 +567,12 @@ LogColors = "10 2 1 9"
 #        Default: 1 (true)
 #                 0 (false)
 #
+#    ShowKickInWorld
+#        determines wether a message is broadcasted to the entire server when a player gets kicked
+#        Default: 0
+#        1 = Enable
+#        0 = Disable
+#
 #    Motd
 #        Message of the Day. Displayed at worldlogin for every user ('@' for a newline).
 #
@@ -615,6 +621,7 @@ SkillChance.Milling = 0
 OffhandCheckAtTalentsReset = 0
 Event.Announce = 0
 BeepAtStart = 1
+ShowKickInWorld = 1
 Motd = "Willkommen auf dem CWDB Core Test Server"
 DeathknightCreationCheck = 1
 MaxDeathknights = 1

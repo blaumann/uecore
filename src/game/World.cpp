@@ -542,11 +542,7 @@ void World::LoadConfigSettings(bool reload)
         rate_values[RATE_DURABILITY_LOSS_BLOCK] = 0.0f;
     }
     ///- Read other configuration items from the config file
-
-    ///- Do we allow flying mounts in Azeroth/Outland and others (others being instances, BGs, arenas)?
-    m_configs[CONFIG_FLYING_MOUNTS_AZEROTH] = sConfig.GetBoolDefault("FlyingMounts.Azeroth", false);
-    m_configs[CONFIG_FLYING_MOUNTS_OUTLAND] = sConfig.GetBoolDefault("FlyingMounts.Outland", true);
-    m_configs[CONFIG_FLYING_MOUNTS_OTHERS] = sConfig.GetBoolDefault("FlyingMounts.Others", false);
+    m_configs[CONFIG_SHOW_KICK_IN_WORLD] = sConfig.GetBoolDefault("ShowKickInWorld", false);
 
     // movement anticheat
     m_MvAnticheatEnable                     = sConfig.GetBoolDefault("Anticheat.Movement.Enable",false);
