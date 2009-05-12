@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: boss_alar
-SD%Complete: 95 (missing proper enrage spell and only partial support of Dive bomb in core)
-SDComment:
+SD%Complete: 95
+SDComment: Missing proper enrage spell, feature when Al'ar evades when his victim runs out the room and only partial support of Dive bomb in core
 SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
@@ -149,16 +149,16 @@ struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
             {
                 if (!who) return;
 
-	            if ( m_creature->Attack(who, true) )
-	            {
-					if (Phase1)
-						m_creature->AddThreat(who, 0.0f);
-					else
-	                {
-	                    m_creature->GetMotionMaster()->MoveChase(who);
-	                    m_creature->AddThreat(who, 0.0f);
-	                }
-	            }
+                if ( m_creature->Attack(who, true) )
+                {
+                    if (Phase1)
+                        m_creature->AddThreat(who, 0.0f);
+                    else
+                    {
+                        m_creature->GetMotionMaster()->MoveChase(who);
+                        m_creature->AddThreat(who, 0.0f);
+                    }
+                }
                 
                 who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
             }
@@ -175,9 +175,9 @@ struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
             //Begin attack
             if ( m_creature->Attack(who, true) )
             {
-				if (Phase1)
-					m_creature->AddThreat(who, 0.0f);
-				else
+                if (Phase1)
+                    m_creature->AddThreat(who, 0.0f);
+                else
                 {
                     m_creature->GetMotionMaster()->MoveChase(who);
                     m_creature->AddThreat(who, 0.0f);
@@ -457,7 +457,7 @@ struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
                 m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
                 m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, 11686);
+                m_creature->SetDisplayId(11686);
                 Unit* target = NULL;
                 target = SelectUnit(SELECT_TARGET_RANDOM, 0);
                 DoCast(target, SPELL_DIVE_BOMB);
@@ -495,7 +495,7 @@ struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
                         Summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         Summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         Summoned->SetFloatValue(OBJECT_FIELD_SCALE_X, Summoned->GetFloatValue(OBJECT_FIELD_SCALE_X)*2.9f);
-                        Summoned->SetUInt32Value(UNIT_FIELD_DISPLAYID, 11686);
+                        Summoned->SetDisplayId(11686);
                         Summoned->setFaction(m_creature->getFaction());
                         Summoned->SetLevel(m_creature->getLevel());
                         Summoned->CastSpell(Summoned, SPELL_FLAME_PATCH, false);
