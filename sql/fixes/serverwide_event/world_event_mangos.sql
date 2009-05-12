@@ -17,7 +17,22 @@ CREATE TABLE `game_event_npc_vendor` (
   PRIMARY KEY  (`guid`,`item`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-ALTER TABLE game_event ADD COLUMN world_event tinyint(3) unsigned not null default 0 comment '0 if normal event, 1 if world event';
+
+DROP PROCEDURE IF EXISTS tmp_add_column;
+delimiter //
+CREATE PROCEDURE tmp_add_column()
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM `INFORMATION_SCHEMA`.COLUMNS
+                WHERE TABLE_NAME = 'game_event' AND COLUMN_NAME = 'world_event')
+  THEN
+	ALTER IGNORE TABLE game_event ADD COLUMN world_event tinyint(3) unsigned not null default 0 comment '0 if normal event, 1 if world event';
+  END IF;
+end//
+delimiter ;
+CALL tmp_add_column();
+DROP PROCEDURE tmp_add_column;
+
+
 
 DROP TABLE IF EXISTS `game_event_quest_condition`;
 CREATE TABLE `game_event_quest_condition` (

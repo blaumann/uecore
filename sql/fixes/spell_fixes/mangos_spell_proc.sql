@@ -94,7 +94,7 @@ INSERT INTO spell_proc_event VALUES(51099,0,15,0,2048,2,82192,0,0,0,0);
 INSERT INTO spell_proc_event VALUES(51160,0,15,0,2048,2,82192,0,0,0,0);
 INSERT INTO spell_proc_event VALUES(51161,0,15,0,2048,2,82192,0,0,0,0);
 
-INSERT INTO spell_proc_event VALUES (60442,0,0,0,0,0,0,0x0000001,1.5,0,45);
+REPLACE INTO spell_proc_event VALUES (60442,0,0,0,0,0,0,0x0000001,1.5,0,45);
 
 -- 20166 Seal of wisdom () 
 DELETE FROM `spell_proc_event` WHERE `entry` IN (20166); 
@@ -129,7 +129,7 @@ DELETE FROM `spell_proc_event` WHERE `entry` IN (55198);
 INSERT INTO `spell_proc_event` VALUES (55198, 0x00, 11, 0x000001C0, 0x00000000, 0x00000000, 0x00004000, 0x00000002, 0.000000, 0.000000, 0);
 
 -- Improved Divine Spirit ()
-delete from `spell_proc_event` where `entry` =`33182`;
+delete from `spell_proc_event` where `entry` ='33182';
 insert into `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) values('33182','2','6','32','1024','0','16384','0','0','0','0');
-delete from `spell_proc_event` where `entry` =`33174`;
+delete from `spell_proc_event` where `entry` ='33174';
 insert into `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) values('33174','2','6','32','1024','0','16384','0','0','0','0');

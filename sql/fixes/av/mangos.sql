@@ -1,4 +1,4 @@
-REPLACE INTO gameobject_template VALUES (178925,1,5651,"Alliance Banner","","",83,0,1,0,1479,196608,180421,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"");
+﻿REPLACE INTO gameobject_template VALUES (178925,1,5651,"Alliance Banner","","",83,0,1,0,1479,196608,180421,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"");
 REPLACE INTO gameobject_template VALUES (178943,1,5652,"Horde Banner","","",84,0,1,0,1479,196608,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"");
 REPLACE INTO gameobject_template VALUES (178940,1,5653,"Contested Banner","","",83,0,1,0,1479,196608,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"");
 REPLACE INTO gameobject_template VALUES (179435,1,5654,"Contested Banner","","",84,0,1,0,1479,196608,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"");
@@ -371,7 +371,7 @@ VALUES(14777,30,-1358.02, -228.998, 98.868, 3.87768);
 
 
 -- hack for herald, if no alliance has joined:
-INSERT INTO creature VALUES (143817,11997,30,1,1,0,0,-1539.03,-763.518,-0.000621079,1.17101,25,0,0,3000,0,0,0);
+REPLACE INTO creature VALUES (143817,11997,30,1,1,0,0,-1539.03,-763.518,-0.000621079,1.17101,25,0,0,3000,0,0,0);
 -- on official server i think they use another (invisible) creature for yelling
 -- but at the place where i spawned this creature it's the same like invisible
 -- (i only hope that the creature will now be loaded after horde enters

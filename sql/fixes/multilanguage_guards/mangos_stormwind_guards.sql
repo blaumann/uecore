@@ -19,5 +19,5 @@ UPDATE npc_text SET text0_0 = "What? I don't know of any warlock trainers in Sto
 REPLACE INTO npc_text (ID, text0_0) VALUES
 (70001, "Trying to reach Auberdine or Valiance Keep? You can find Stormwind Harbor if you head through the Canals, between the Cathedral District and the Park."),
 (70002, "You\'ll be after Benik Boltshear, then. He\'s located in the heart of the Dwarven District by the blacksmiths."),
-(70003, "Jelenik\'s Barber Shop is in the northern section of the Trade District.")'
+(70003, "Jelenik\'s Barber Shop is in the northern section of the Trade District."),
 (70004, "Necessary for imbuing your spells and abilities with Glyphs, the Lexicon of Power is an invaluable resource for everyone. These ancient tomes are always found near inscription trainers.");

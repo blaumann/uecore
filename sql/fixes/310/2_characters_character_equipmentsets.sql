@@ -1,4 +1,4 @@
-CREATE TABLE `character_equipmentsets` (
+CREATE TABLE IF NOT EXISTS `character_equipmentsets` (
   `guid` int(11) NOT NULL default '0',
   `setguid` bigint(20) NOT NULL auto_increment,
   `setindex` tinyint(4) NOT NULL default '0',
