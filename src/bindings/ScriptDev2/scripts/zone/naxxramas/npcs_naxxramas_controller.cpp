@@ -22,7 +22,7 @@ bool GossipHello_npc_naxx_wyrm(Player *player, Creature *_Creature)
 {
     ScriptedInstance* pInstance = ((ScriptedInstance*)_Creature->GetInstanceData());
 
-    player->ADD_GOSSIP_ITEM(0,"Bringe mich zurueck zum Eingang",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+2);
+    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Bringe mich zurueck zum Eingang",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+2);
     if(pInstance)
     {
         Unit* tadd = Unit::GetUnit((*_Creature),pInstance->GetData64(GUID_THADDIUS));
@@ -36,19 +36,19 @@ bool GossipHello_npc_naxx_wyrm(Player *player, Creature *_Creature)
 
         if(tadd && tadd->isDead())
         {
-            player->ADD_GOSSIP_ITEM(0,"Bringe mich in die Frostwyrmhoehle",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Bringe mich in die Frostwyrmhoehle",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
         }else        
         if(maexx && maexx->isDead())
         {              
-            player->ADD_GOSSIP_ITEM(0,"Bringe mich in die Frostwyrmhoehle",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);   
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Bringe mich in die Frostwyrmhoehle",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);   
         }else        
         if(loath && loath->isDead())
         {
-            player->ADD_GOSSIP_ITEM(0,"Bringe mich in die Frostwyrmhoehle",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);   
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Bringe mich in die Frostwyrmhoehle",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);   
         }else        
         if(horse1 && horse2 && horse3 && horse4 && horse1->isDead() && horse2->isDead() && horse3->isDead() && horse4->isDead())
         {
-            player->ADD_GOSSIP_ITEM(0,"Bringe mich in die Frostwyrmhoehle",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);  
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Bringe mich in die Frostwyrmhoehle",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);  
         }
     }
     player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(),_Creature->GetGUID());

@@ -416,7 +416,7 @@ bool GossipHello_boss_gloomrel(Player* pPlayer, Creature* pCreature)
     if (pPlayer->GetQuestRewardStatus(QUEST_SPECTRAL_CHALICE) == 1 && 
         pPlayer->GetSkillValue(SKILL_MINING) >= 230 && 
         !pPlayer->HasSpell(SPELL_SMELT_DARK_IRON)) {
-        pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_TEACH_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TEACH_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
         pPlayer->SEND_GOSSIP_MENU(1, pCreature->GetGUID());
         return true;
     }
@@ -436,7 +436,7 @@ bool GossipHello_boss_gloomrel(Player* pPlayer, Creature* pCreature)
             }
         }
         if (addGossip) {
-            pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_TRIBUTE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TRIBUTE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
             pPlayer->SEND_GOSSIP_MENU(1, pCreature->GetGUID());
             return true;
         }
@@ -451,7 +451,7 @@ bool GossipSelect_boss_gloomrel(Player* pPlayer, Creature* pCreature, uint32 sen
     switch (action)
     {
         case GOSSIP_ACTION_INFO_DEF + 1:
-            pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_TEACH_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TEACH_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
             pPlayer->SEND_GOSSIP_MENU(2606, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF + 11:
@@ -459,7 +459,7 @@ bool GossipSelect_boss_gloomrel(Player* pPlayer, Creature* pCreature, uint32 sen
             pCreature->CastSpell(pPlayer, SPELL_TEACH_SMELT_DARK_IRON, false);
             break;
         case GOSSIP_ACTION_INFO_DEF + 2:
-            pPlayer->ADD_GOSSIP_ITEM(0, "[PH] Continue...", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[PH] Continue...", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);
             pPlayer->SEND_GOSSIP_MENU(2604, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF + 22:
@@ -582,7 +582,7 @@ CreatureAI* GetAI_boss_doomrel(Creature* pCreature)
 
 bool GossipHello_boss_doomrel(Player* pPlayer, Creature* pCreature)
 {
-    pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_CHALLENGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_CHALLENGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
     pPlayer->SEND_GOSSIP_MENU(2601, pCreature->GetGUID());
 
     return true;
@@ -593,7 +593,7 @@ bool GossipSelect_boss_doomrel(Player* pPlayer, Creature* pCreature, uint32 send
     switch (action)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
-            pPlayer->ADD_GOSSIP_ITEM(0, "[PH] Continue...", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[PH] Continue...", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
             pPlayer->SEND_GOSSIP_MENU(2605, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:

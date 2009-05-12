@@ -195,7 +195,7 @@ bool GossipHello_npc_tyrande_whisperwind(Player* player, Creature* _Creature)
 
     // Only let them get item if Azgalor is dead.
     if (AzgalorEvent == DONE && !player->HasItemCount(ITEM_TEAR_OF_GODDESS,1))
-        player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_TYRANDE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TYRANDE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
     player->SEND_GOSSIP_MENU(907, _Creature->GetGUID());
     return true;
 }

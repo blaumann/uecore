@@ -338,7 +338,7 @@ CreatureAI* GetAI_boss_majordomo(Creature* pCreature)
 
 bool GossipHello_boss_majordomo(Player *pPlayer, Creature *pCreature)
 {
-    pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_DOMO , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_DOMO , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
     pPlayer->SEND_GOSSIP_MENU(68,pCreature->GetGUID());
     return true;
 }
