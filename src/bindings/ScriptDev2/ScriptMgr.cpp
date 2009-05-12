@@ -283,6 +283,7 @@ extern void AddSC_instance_steam_vault();
 extern void AddSC_boss_ghazan();
 extern void AddSC_boss_hungarfen();
 extern void AddSC_boss_the_black_stalker();
+extern void AddSC_boss_swamplord_muselek();
 
 //Crystalsong Forest
 /*Not implement*/
@@ -1353,7 +1354,10 @@ void ScriptsInit()
     AddSC_instance_steam_vault();
 
     //--Underbog
+    AddSC_boss_ghazan();
     AddSC_boss_hungarfen();
+    AddSC_boss_the_black_stalker();
+    AddSC_boss_swamplord_muselek();
 
     //Crystalwong Forest
     /* Not implemented */

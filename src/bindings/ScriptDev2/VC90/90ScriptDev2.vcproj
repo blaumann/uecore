@@ -2579,6 +2579,10 @@
 							>
 						</File>
 						<File
+							RelativePath="..\scripts\zone\coilfang_resevoir\underbog\boss_swamplord_muselek.cpp"
+							>
+						</File>
+						<File
 							RelativePath="..\scripts\zone\coilfang_resevoir\underbog\boss_the_black_stalker.cpp"
 							>
 						</File>
@@ -3091,7 +3095,7 @@
 				<Tool
 					Name="VCCustomBuildTool"
 					Description="Extracting Revision"
-					CommandLine="echo on&#x0D;&#x0A;cd &quot;$(SolutionDir)&quot;&#x0D;&#x0A;&quot;..\win\VC90\genrevision__Win32_$(ConfigurationName)\genrevision.exe&quot;"
+					CommandLine="echo on&#x0D;&#x0A;cd &quot;$(SolutionDir)&quot;&#x0D;&#x0A;&quot;..\win\VC90\genrevision__Win32_$(ConfigurationName)\genrevision.exe&quot;&#x0D;&#x0A;"
 					AdditionalDependencies=".svn/entries"
 					Outputs="revision.h"
 				/>
@@ -3102,7 +3106,7 @@
 				<Tool
 					Name="VCCustomBuildTool"
 					Description="Extracting Revision"
-					CommandLine="echo on&#x0D;&#x0A;cd &quot;$(SolutionDir)&quot;&#x0D;&#x0A;&quot;..\win\VC90\genrevision__Win32_$(ConfigurationName)\genrevision.exe&quot;"
+					CommandLine="echo on&#x0D;&#x0A;cd &quot;$(SolutionDir)&quot;&#x0D;&#x0A;&quot;..\win\VC90\genrevision__Win32_$(ConfigurationName)\genrevision.exe&quot;&#x0D;&#x0A;"
 					AdditionalDependencies=".svn/entries"
 					Outputs="revision.h"
 				/>

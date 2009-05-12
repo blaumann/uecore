@@ -213,6 +213,8 @@ scripts/zone/coilfang_resevoir/steam_vault/def_steam_vault.h \
 scripts/zone/coilfang_resevoir/steam_vault/instance_steam_vault.cpp \
 scripts/zone/coilfang_resevoir/underbog/boss_ghazan.cpp \
 scripts/zone/coilfang_resevoir/underbog/boss_hungarfen.cpp \
+scripts/zone/coilfang_resevoir/underbog/boss_swamplord_muselek.cpp \
+scripts/zone/coilfang_resevoir/underbog/boss_the_black_stalker.cpp \
 scripts/zone/darkshore/darkshore.cpp \
 scripts/zone/deadmines/deadmines.cpp \
 scripts/zone/deadmines/def_deadmines.h \
