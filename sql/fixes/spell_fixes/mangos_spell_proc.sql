@@ -119,3 +119,17 @@ INSERT INTO `spell_proc_event` VALUES (32393, 0x00, 5, 0x00000001, 0x00040000, 0
 -- 32394 Shadow embrace (Rank 5) 
 DELETE FROM `spell_proc_event` WHERE `entry` IN (32394); 
 INSERT INTO `spell_proc_event` VALUES (32394, 0x00, 5, 0x00000001, 0x00040000, 0x00000000, 0x00000000, 0x00000000, 0.000000, 0.000000, 0);
+
+-- Darkmoon Card: Death ()
+DELETE FROM spell_proc_event WHERE entry=57352;
+INSERT INTO spell_proc_event VALUES (57352,0,0,0,0,0,0,0,0,35,45);
+
+-- 55198 Tidial Force ()
+DELETE FROM `spell_proc_event` WHERE `entry` IN (55198);
+INSERT INTO `spell_proc_event` VALUES (55198, 0x00, 11, 0x000001C0, 0x00000000, 0x00000000, 0x00004000, 0x00000002, 0.000000, 0.000000, 0);
+
+-- Improved Divine Spirit ()
+delete from `spell_proc_event` where `entry` =`33182`;
+insert into `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) values('33182','2','6','32','1024','0','16384','0','0','0','0');
+delete from `spell_proc_event` where `entry` =`33174`;
+insert into `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) values('33174','2','6','32','1024','0','16384','0','0','0','0');

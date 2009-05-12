@@ -706,7 +706,7 @@ class ObjectMgr
         static bool IsValidCharterName( const std::string& name );
         static bool IsValidPetName( const std::string& name );
 
-        static bool CheckDeclinedNames(std::wstring mainpart, DeclinedName const& names);
+        static bool CheckDeclinedNames(std::wstring w_ownname, DeclinedName const& names);
 
         void LoadSpellDisabledEntrys();
 		uint8 IsSpellDisabled(uint32 spellid)

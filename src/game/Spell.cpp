@@ -463,6 +463,59 @@ void Spell::FillCustomTargetMap(uint32 i, UnitList& TagUnitMap)
     // Resulting effect depends on spell that we want to cast
     switch (m_spellInfo->Id)
     {
+        case 48743: // Death Pact
+        {
+            Unit* unit_to_add = NULL;
+            if (Player* modOwner = m_caster->GetSpellModOwner())
+            {
+                // If we have regular pet
+                Pet* pet = modOwner->GetPet();
+                if (pet && pet->GetCreatureInfo()->type == CREATURE_TYPE_UNDEAD)
+                    unit_to_add = pet;
+                else
+                {
+                    // Maybe we have a summoned guardian?
+                    GuardianPetList const& guardians = modOwner->GetGuardians();
+                    for (GuardianPetList::const_iterator itr = guardians.begin(); itr != guardians.end(); ++itr)
+                    {
+                        Pet* temp_pet = ObjectAccessor::GetPet(*itr);
+                        if(temp_pet && temp_pet->isAlive())
+                            if (temp_pet->GetEntry() == 26125 || temp_pet->GetEntry() == 27829)
+                            {
+                                unit_to_add = temp_pet;
+                               break;
+                            }
+                    }
+                }
+                if (unit_to_add)
+                    TagUnitMap.push_back(unit_to_add);
+               else
+                {
+                    if (modOwner->GetTypeId()==TYPEID_PLAYER)
+                        modOwner->RemoveSpellCooldown(m_spellInfo->Id,true);
+                    SendCastResult(SPELL_FAILED_NO_PET);
+                    finish(false);
+                }
+            }
+            break;
+        }
+        case 46584: // Raise Dead
+        {
+            WorldObject* result = FindCorpseUsing <MaNGOS::RaiseDeadObjectCheck>  ();
+
+            if(result)
+            {
+                switch(result->GetTypeId())
+                {
+                    case TYPEID_UNIT:
+                        TagUnitMap.push_back((Unit*)result);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            break;
+        }
         case 47496: // Ghoul's explode
         {
             FillAreaTargets(TagUnitMap,m_targets.m_destX, m_targets.m_destY,radius,PUSH_DEST_CENTER,SPELL_TARGETS_AOE_DAMAGE);
@@ -568,6 +621,9 @@ void Spell::FillTargetMap()
                         break;
                     case TARGET_SCRIPT_COORDINATES:         // B case filled in CheckCast but we need fill unit list base at A case
                         SetTargetMap(i,m_spellInfo->EffectImplicitTargetA[i],tmpUnitMap);
+                        break;
+                    case TARGET_EFFECT_SELECT:
+                        FillCustomTargetMap(i,tmpUnitMap);
                         break;
                     default:
                         SetTargetMap(i,m_spellInfo->EffectImplicitTargetA[i],tmpUnitMap);
@@ -1415,6 +1471,19 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,UnitList& TagUnitMap)
         case TARGET_DYNAMIC_OBJECT:
         case TARGET_AREAEFFECT_CUSTOM_2:
         case TARGET_SUMMON:
+        {
+            TagUnitMap.push_back(m_caster);
+            break;
+        }
+        case TARGET_UNK_1:
+        {
+            float dest_x = m_caster->GetPositionX()+irand(-radius,radius);
+            float dest_y = m_caster->GetPositionY()+irand(-radius,radius);
+            float dest_z = m_caster->GetMap()->GetHeight(dest_x,dest_y,MAX_HEIGHT);
+            m_targets.setDestination(dest_x,dest_y,dest_z);
+            break;
+        }
+        case TARGET_UNK_2:
         {
             TagUnitMap.push_back(m_caster);
             break;
@@ -2925,6 +2994,12 @@ void Spell::finish(bool ok)
     //remove spell mods
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_caster)->RemoveSpellMods(this);
+
+    //Avenging Wrath cannot be used within 30 sec. of being the target of Divine Shield, Divine Protection, or Hand of Protection.
+    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN && m_spellInfo->SpellFamilyFlags&0x0000000000400080LL)
+    {
+     m_caster->CastSpell(m_caster, 61987, false);
+    }
 
     //holy nova heal
     if(m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST && m_spellInfo->SpellIconID == 1874)

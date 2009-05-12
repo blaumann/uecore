@@ -2489,6 +2489,29 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             }
             break;
         }
+        case SPELLFAMILY_DEATHKNIGHT: 
+        { 
+            // Improved Icy Touch 
+            if( GetSpellProto()->SpellIconID == 2721 && m_target->GetTypeId()==TYPEID_PLAYER ) 
+            { 
+                if(apply) 
+                { 
+                    SpellModifier *mod = new SpellModifier; 
+                    mod->op = SPELLMOD_EFFECT1; 
+                    mod->value = m_modifier.m_amount; 
+                    mod->type = SPELLMOD_PCT; 
+                    mod->spellId = GetId(); 
+                    mod->mask = 0x0002LL; 
+                    mod->mask2= 0LL; 
+ 
+                    m_spellmod = mod; 
+                } 
+ 
+                ((Player*)m_target)->AddSpellMod(m_spellmod, apply); 
+                return; 
+            } 
+            break; 
+        }
     }
 
     // pet auras
@@ -6034,6 +6057,10 @@ void Aura::PeriodicTick()
                 }
 
                 pdamage = pCaster->SpellDamageBonus(m_target, GetSpellProto(), pdamage, DOT, GetStackAmount());
+
+                // Death Knight Diseases AP Bonus
+                if (GetSpellProto()->Id == 55095 || GetSpellProto()->Id == 55078)
+                    pdamage+=pCaster->GetTotalAttackPowerValue(BASE_ATTACK)*0.055;
 
                 // Curse of Agony damage-per-tick calculation
                 if (GetSpellProto()->SpellFamilyName==SPELLFAMILY_WARLOCK && (GetSpellProto()->SpellFamilyFlags & 0x0000000000000400LL) && GetSpellProto()->SpellIconID==544)

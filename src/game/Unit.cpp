@@ -5013,6 +5013,35 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     }
                     return true;
                 }
+                //Improved Divine Spirit
+                case 33174:
+                case 33182:
+                {
+                    Aura *original_spirit = GetAura(procSpell->Id, 0);
+                    Aura *original_damage = GetAura(procSpell->Id, 1);
+                    Aura *original_healing = GetAura(procSpell->Id, 2);
+
+                    if (!original_damage || !original_healing || !original_spirit)
+                        return false;
+                    
+                    Modifier *original_spirit_mod = original_spirit->GetModifier();
+
+                    //Get original spell damage and healing modifiers
+                    Modifier *spell_damage_mod = original_damage->GetModifier();
+                    Modifier *spell_healing_mod = original_healing->GetModifier();
+
+                    //don't apply amount again(in case talent itself proc)
+                    if(spell_damage_mod->m_amount == 0 && spell_healing_mod->m_amount == 0)
+                    {
+                        int32 amount = triggerAmount * original_spirit_mod->m_amount / 100;
+
+                        spell_damage_mod->m_amount = amount;
+                        spell_healing_mod->m_amount = amount;
+                        
+                        original_damage->ApplyModifier(true,true);
+                        original_healing->ApplyModifier(true,true);
+                    }
+                }
             }
             break;
         }
