@@ -17,7 +17,7 @@
 #include "precompiled.h"
 #include "WorldPacket.h"
 
-#define GOSSIP_FLIGHT "I need a ride"
+#define GOSSIP_FLIGHT "I need a ride" 
 
 bool GossipHello_npc_acherus_taxi(Player *player, Creature *_Creature)
 {
@@ -44,6 +44,7 @@ bool GossipSelect_npc_acherus_taxi(Player *player, Creature *_Creature, uint32 s
 void AddSC_npc_acherus_taxi()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "npc_acherus_taxi";
     newscript->pGossipHello = &GossipHello_npc_acherus_taxi;

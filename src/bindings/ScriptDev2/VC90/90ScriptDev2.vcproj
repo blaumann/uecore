@@ -21,7 +21,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="..\..\..\..\bin\win32_debug"
 			IntermediateDirectory=".\ScriptDev2__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2"
@@ -45,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers\"
 				PreprocessorDefinitions="WIN32;_DEBUG;MANGOS_DEBUG;_WINDOWS;_USRDLL;SCRIPT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -67,10 +67,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mangosd.lib"
+				AdditionalDependencies="mangosd.lib ACEd.lib"
 				OutputFile="$(OutDir)/MaNGOSScript.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\..\..\win\VC90\mangosd__$(PlatformName)_$(ConfigurationName)"
+				AdditionalLibraryDirectories="..\..\..\..\win\VC90\mangosd__Win32_Debug;..\..\..\..\dep\lib\win32_debug\"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/MaNGOSScript.pdb"
 				SubSystem="2"
@@ -103,7 +103,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="..\..\..\..\bin\win32_release"
 			IntermediateDirectory=".\ScriptDev2__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2"
@@ -127,7 +127,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
-				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SCRIPT"
 				MinimalRebuild="false"
 				RuntimeLibrary="2"
@@ -150,10 +150,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mangosd.lib"
+				AdditionalDependencies="mangosd.lib ACE.lib"
 				OutputFile="$(OutDir)/MaNGOSScript.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\..\..\win\VC90\mangosd__$(PlatformName)_$(ConfigurationName)"
+				AdditionalLibraryDirectories="..\..\..\..\win\VC90\mangosd__Win32_Release;..\..\..\..\dep\lib\win32_release\"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -188,7 +188,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="..\..\..\..\bin\x64_debug"
 			IntermediateDirectory=".\ScriptDev2__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2"
@@ -213,7 +213,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers\"
 				PreprocessorDefinitions="WIN32;_DEBUG;MANGOS_DEBUG;_WINDOWS;_USRDLL;SCRIPT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -235,10 +235,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mangosd.lib"
+				AdditionalDependencies="mangosd.lib ACEd.lib"
 				OutputFile="$(OutDir)/MaNGOSScript.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\..\..\win\VC90\mangosd__$(PlatformName)_$(ConfigurationName)"
+				AdditionalLibraryDirectories="..\..\..\..\win\VC90\mangosd__x64_Debug;..\..\..\..\dep\lib\x64_Debug\"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/MaNGOSScript.pdb"
 				SubSystem="2"
@@ -268,7 +268,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="..\..\..\..\bin\x64_release"
 			IntermediateDirectory=".\ScriptDev2__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2"
@@ -293,7 +293,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
-				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SCRIPT"
 				MinimalRebuild="false"
 				RuntimeLibrary="2"
@@ -314,10 +314,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mangosd.lib"
+				AdditionalDependencies="mangosd.lib ACE.lib"
 				OutputFile="$(OutDir)/MaNGOSScript.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\..\..\win\VC90\mangosd__$(PlatformName)_$(ConfigurationName)"
+				AdditionalLibraryDirectories="..\..\..\..\win\VC90\mangosd__x64_Release;..\..\..\..\dep\lib\x64_release\"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -3085,6 +3085,50 @@
 		<File
 			RelativePath="..\revision.h"
 			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="Extracting Revision"
+					CommandLine="echo on&#x0D;&#x0A;cd &quot;$(SolutionDir)&quot;&#x0D;&#x0A;&quot;..\win\VC90\genrevision__Win32_$(ConfigurationName)\genrevision.exe&quot;"
+					AdditionalDependencies=".svn/entries"
+					Outputs="revision.h"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="Extracting Revision"
+					CommandLine="echo on&#x0D;&#x0A;cd &quot;$(SolutionDir)&quot;&#x0D;&#x0A;&quot;..\win\VC90\genrevision__Win32_$(ConfigurationName)\genrevision.exe&quot;"
+					AdditionalDependencies=".svn/entries"
+					Outputs="revision.h"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Debug|x64"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="Extracting Revision"
+					CommandLine="echo on&#x0D;&#x0A;cd &quot;$(SolutionDir)&quot;&#x0D;&#x0A;&quot;..\win\VC90\genrevision__Win32_$(ConfigurationName)\genrevision.exe&quot;"
+					AdditionalDependencies=".svn/entries"
+					Outputs="revision.h"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|x64"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="Extracting Revision"
+					CommandLine="echo on&#x0D;&#x0A;cd &quot;$(SolutionDir)&quot;&#x0D;&#x0A;&quot;..\win\VC90\genrevision__Win32_$(ConfigurationName)\genrevision.exe&quot;"
+					AdditionalDependencies=".svn/entries"
+					Outputs="revision.h"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\ScriptMgr.cpp"
