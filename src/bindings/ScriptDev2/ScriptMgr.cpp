@@ -1980,9 +1980,9 @@ void Script::RegisterSelf()
         m_scripts[id] = this;
         ++num_sc_scripts;
     }
-    else if(Name.find("example") == std::string::npos)
+    else if(Name.find("example") == std::string::npos) //This is for ignore Scriptnames with example_yourname
     {
-        debug_log("SD2: RegisterSelf, but script named %s does not have ScriptName assigned in database.",(this)->Name.c_str());
+        error_db_log("SD2: but script named %s does not have ScriptName assigned in Database.",(this)->Name.c_str());
         delete this;
     }
 }
