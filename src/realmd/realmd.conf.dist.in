@@ -97,7 +97,7 @@ ConfVersion=2007062001
 ###################################################################################################################
 
 LoginDatabaseInfo = "127.0.0.1;3306;root;mangos;realmd"
-LogsDir = ""
+LogsDir = "Logs"
 MaxPingTime = 30
 RealmServerPort = 3724
 BindIP = "0.0.0.0"
@@ -114,3 +114,5 @@ RealmsStateUpdateDelay = 20
 WrongPass.MaxCount = 0
 WrongPass.BanTime = 600
 WrongPass.BanType = 0
+AccountCaching = 1
+AccountReloadingDelay = 120

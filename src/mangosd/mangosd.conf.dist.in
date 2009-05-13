@@ -48,7 +48,7 @@ ConfVersion=2009042601
 
 RealmID = 1
 DataDir = "Data"
-LogsDir = "Protokolle"
+LogsDir = "Logs"
 LoginDatabaseInfo     = "127.0.0.1;3306;root;mangos;realmd"
 WorldDatabaseInfo     = "127.0.0.1;3306;root;mangos;mangos"
 CharacterDatabaseInfo = "127.0.0.1;3306;root;mangos;characters"
