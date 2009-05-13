@@ -21,18 +21,32 @@
 /// \file
 
 #include "Common.h"
+
+#include <ace/Signal.h>
+#include <ace/Proactor.h>
+#include "AccountHandler.h"
+#if defined (ACE_WIN32)
+
+#  include <ace/WIN32_Proactor.h>
+
+#elif defined (ACE_HAS_AIO_CALLS)
+
+#  include <ace/POSIX_Proactor.h>
+#  include <ace/POSIX_CB_Proactor.h>
+#  include <ace/SUN_Proactor.h>
+
+#endif /* ACE_WIN32 */
+
 #include "Database/DatabaseEnv.h"
 #include "RealmList.h"
 
 #include "Config/ConfigEnv.h"
 #include "Log.h"
-#include "sockets/ListenSocket.h"
 #include "AuthSocket.h"
 #include "SystemConfig.h"
 #include "revision.h"
 #include "revision_nr.h"
 #include "Util.h"
-#include "AccountHandler.h"
 
 #ifdef WIN32
 #include "ServiceWin32.h"
@@ -52,10 +66,11 @@ bool StartDB(std::string &dbstring);
 void UnhookSignals();
 void HookSignals();
 
-bool stopEvent = false;                                     ///< Setting it to true stops the server
-RealmList m_realmList;                                      ///< Holds the list of realms for this server
+/// Holds the list of realms for this server
+RealmList m_realmList;                                     
 
-DatabaseType dbRealmServer;                                 ///< Accessor to the realm server database
+/// Accessor to the realm server database
+DatabaseType dbRealmServer;                                 
 
 /// Print out the usage string for this program on the console.
 void usage(const char *prog)
@@ -188,7 +203,6 @@ extern int main(int argc, char **argv)
         sLog.outError("No valid realms specified.");
         return 1;
     }
-
     // Activate or not account caching system, precache them before launching connection port
     if(sConfig.GetIntDefault("AccountCaching", 0) == 1)
     {
@@ -197,23 +211,36 @@ extern int main(int argc, char **argv)
         sLog.outString();
         sLog.outString("Accounts will be reloaded in %u seconds", sConfig.GetIntDefault("AccountReloadingDelay", 300));
     }
-
-    ///- Launch the listening network socket
-    port_t rmport = sConfig.GetIntDefault( "RealmServerPort", DEFAULT_REALMSERVER_PORT );
-    std::string bind_ip = sConfig.GetStringDefault("BindIP", "0.0.0.0");
-
-    SocketHandler h;
-    ListenSocket<AuthSocket> authListenSocket(h);
-    if ( authListenSocket.Bind(bind_ip.c_str(),rmport))
-    {
-        sLog.outError( "MaNGOS realmd can not bind to %s:%d",bind_ip.c_str(), rmport );
-        return 1;
-    }
-
-    h.Add(&authListenSocket);
-
+    
     ///- Catch termination signals
     HookSignals();
+
+    // Setup apropriate proactor, if needed.
+    ACE_Proactor_Impl* proactor_impl = 0;
+    ACE_Proactor* proactor = 0;
+
+#ifdef __FreeBSD__
+
+    ACE_NEW_RETURN(proactor_impl, ACE_POSIX_AIOCB_Proactor(), -1);
+    ACE_NEW_RETURN(proactor, ACE_Proactor (proactor_impl, 1 ), -1);
+
+#warning "Please ensure aio module is loaded into kernel when starting this program"
+#endif // __FreeBSD__
+
+    if(proactor)
+        ACE_Proactor::instance (proactor, 1);
+
+    ///- Launch the listening network socket
+    u_short rmport = sConfig.GetIntDefault( "RealmServerPort", DEFAULT_REALMSERVER_PORT );
+    std::string bind_ip = sConfig.GetStringDefault("BindIP", "0.0.0.0");
+    
+    ACE_INET_Addr listen_addr (rmport, bind_ip.c_str ());
+    AuthSocketAcceptor acc;
+    
+    PatchCache::instance ();
+
+    if (acc.open (listen_addr, 0, 1, 1, 1) == -1)
+      return 1;
 
     ///- Handle affinity for multiple processors and process priority on Windows
     #ifdef WIN32
@@ -257,28 +284,10 @@ extern int main(int argc, char **argv)
         }
     }
     #endif
+    sLog.outBasic ("Server is running.");
 
-    // maximum counter for next ping
-    uint32 numLoops = (sConfig.GetIntDefault( "MaxPingTime", 30 ) * (MINUTE * 1000000 / 100000));
-    uint32 loopCounter = 0;
-
-    ///- Wait for termination signal
-    while (!stopEvent)
-    {
-
-        h.Select(0, 100000);
-
-        if( (++loopCounter) == numLoops )
-        {
-            loopCounter = 0;
-            sLog.outDetail("Ping MySQL to keep connection alive");
-            delete dbRealmServer.Query("SELECT 1 FROM realmlist LIMIT 1");
-        }
-#ifdef WIN32
-        if (m_ServiceStatus == 0) stopEvent = true;
-        while (m_ServiceStatus == 2) Sleep(1000);
-#endif
-    }
+    // TODO Database PING
+    ACE_Proactor::instance ()->run_event_loop ();
 
     ///- Wait for the delay thread to exit
     dbRealmServer.HaltDelayThread();
@@ -286,25 +295,26 @@ extern int main(int argc, char **argv)
     ///- Remove signal handling before leaving
     UnhookSignals();
 
+    ACE_Proactor::close_singleton();
+
     sLog.outString( "Halting process..." );
     return 0;
 }
 
 /// Handle termination signals
-/** Put the global variable stopEvent to 'true' if a termination signal is caught **/
 void OnSignal(int s)
 {
     switch (s)
     {
         case SIGINT:
         case SIGTERM:
-            stopEvent = true;
-            break;
         #ifdef _WIN32
         case SIGBREAK:
-            stopEvent = true;
-            break;
         #endif
+        {
+          ACE_Proactor::instance ()->end_event_loop ();
+        }
+        break;
     }
 
     signal(s, OnSignal);

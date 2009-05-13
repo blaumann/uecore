@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,11 +46,6 @@ void AcctContainer::FillAccount(Account* account,uint32 id, uint8 security, uint
     account->I = I;
     account->lastip = lastip;
 }
-void AcctContainer::FillCharacter(RealmCharacter* rch, uint32 realmid, uint8 numchars)
-{
-    rch->realmid = realmid;
-    rch->numchars = numchars;
-}
 
 void AcctContainer::ReloadEverythingIfNeed()
 {
@@ -59,10 +54,16 @@ void AcctContainer::ReloadEverythingIfNeed()
 
     m_NextUpdateTime = time(NULL) + m_UpdateInterval;
 
-    // Clear maps
     m_realmcharacters.clear();
-    m_banips.clear();
+
+    for(AccountList::iterator i = m_accounts.begin(); i != m_accounts.end(); ++i )
+    {
+        delete i->second;
+    }
+
     m_accounts.clear();
+
+    m_banips.clear();
 
     LoadAll();
 }
@@ -82,16 +83,16 @@ void AcctContainer::LoadAll()
     QueryResult* banresult = dbRealmServer.PQuery("SELECT id FROM account_banned WHERE active = 1");
     if(banresult)
     {
-		do
-		{
-			Field *fields = banresult->Fetch();
+        do
+        {
+            Field *fields = banresult->Fetch();
 
-			//check exist if exist skip;
-		    if (BannedAcc.find(fields[0].GetUInt32()) != BannedAcc.end())
-			    continue;
-			BannedAcc.insert(fields[0].GetUInt32());
+            //check exist if exist skip;
+            if (BannedAcc.find(fields[0].GetUInt32()) != BannedAcc.end())
+                continue;
+            BannedAcc.insert(fields[0].GetUInt32());
 
-		} while (banresult->NextRow());
+        } while (banresult->NextRow());
 
         delete banresult;
     }
@@ -112,12 +113,12 @@ void AcctContainer::LoadAll()
 
         // Create the account by id
         acc = new Account();
-		bool banned = false;
-		if (BannedAcc.find(fields[0].GetUInt32()) != BannedAcc.end())
-			banned = true;
+        bool banned = false;
+        if (BannedAcc.find(fields[0].GetUInt32()) != BannedAcc.end())
+            banned = true;
 
         FillAccount(acc, fields[0].GetUInt32(), fields[3].GetUInt8(), fields[7].GetUInt8(), fields[6].GetUInt8(), banned, fields[5].GetUInt8(), fields[2].GetCppString(), fields[4].GetCppString());
-		m_accounts[fields[1].GetCppString()] = acc;
+        m_accounts[fields[1].GetCppString()] = acc;
         count++;
 
     } while (result->NextRow());
@@ -125,8 +126,8 @@ void AcctContainer::LoadAll()
     sLog.outString();
     sLog.outString(">> Loaded %u accounts", count);
 
-	//clean up set
-	BannedAcc.clear();
+    //clean up set
+    BannedAcc.clear();
 
     delete result;
 
@@ -149,7 +150,7 @@ void AcctContainer::LoadAll()
             Field *fields = result->Fetch();
             bar.step();
 
-			m_banips.insert(fields[0].GetCppString());
+            m_banips.insert(fields[0].GetCppString());
             count++;
 
         }while (result->NextRow());
@@ -165,8 +166,6 @@ void AcctContainer::LoadAll()
     // Now load Realm Characters
 
     result = dbRealmServer.PQuery("SELECT acctid, realmid, numchars FROM realmcharacters ORDER BY acctid");
-
-    RealmCharacter *realmch;
 
     // If there is no ban don't load
     if(result)
@@ -185,11 +184,7 @@ void AcctContainer::LoadAll()
 
             bar.step();
 
-            realmch = new RealmCharacter();
-
-            FillCharacter(realmch, fields[1].GetUInt32(), fields[2].GetUInt8());
-
-            m_realmcharacters[fields[0].GetUInt32()] = realmch;
+            m_realmcharacters[MAKE_PAIR64(fields[0].GetUInt32(),fields[1].GetUInt32())] = fields[2].GetUInt8();
             count++;
 
         }while (result->NextRow());
@@ -203,15 +198,6 @@ void AcctContainer::LoadAll()
 
 }
 
-Account* AcctContainer::FindAccountById(uint32 accid)
-{
-    for(AccountList::const_iterator itr = m_accounts.begin(); itr != m_accounts.end(); ++itr)
-    {
-        if(itr->second->id == accid)
-            return itr->second;
-    }
-    return NULL;
-}
 
 Account* AcctContainer::FindAccountByName(std::string name)
 {
@@ -235,9 +221,9 @@ bool AcctContainer::IpBan(std::string ip)
 
 uint8 AcctContainer::GetNumChar(uint32 realmid, uint32 accid)
 {
-    CharactersList::const_iterator itr = m_realmcharacters.find(accid);
+    CharactersList::const_iterator itr = m_realmcharacters.find(MAKE_PAIR64(accid,realmid));
+    if(itr != m_realmcharacters.end())
+        return itr->second;
 
-	if(itr != m_realmcharacters.end() && itr->second->realmid == realmid)
-		return itr->second->numchars;
     return 0;
 }

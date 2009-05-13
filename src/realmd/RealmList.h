@@ -24,6 +24,7 @@
 #define _REALMLIST_H
 
 #include "Common.h"
+#include <openssl/md5.h>
 
 /// Storage object for a realm
 struct Realm
@@ -60,6 +61,41 @@ class RealmList
         RealmMap m_realms;                                  ///< Internal map of realms
         uint32   m_UpdateInterval;
         time_t   m_NextUpdateTime;
+};
+
+/// Caches MD5 hash of client patches present on the server
+class PatchCache
+{
+public:
+  ~PatchCache ();
+  PatchCache ();
+
+  static PatchCache* instance ();
+
+  struct PATCH_INFO
+  {
+    uint8 md5[MD5_DIGEST_LENGTH];
+  };
+
+  typedef std::map<std::string, PATCH_INFO*> Patches;
+
+  Patches::const_iterator
+  begin () const
+  {
+    return _patches.begin ();
+  }
+
+  Patches::const_iterator
+  end () const
+  {
+    return _patches.end ();
+  }
+  void LoadPatchMD5 (const char*);
+  bool GetHash (const char * pat, uint8 mymd5[MD5_DIGEST_LENGTH]);
+
+private:
+  void LoadPatchesInfo ();
+  Patches _patches;
 };
 #endif
 /// @}

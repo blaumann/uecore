@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,9 +18,13 @@
 
 #include "Common.h"
 
+#define MAKE_PAIR64(l, h)  uint64( uint32(l) | ( uint64(h) << 32 ) )
+#define PAIR64_HIPART(x)   (uint32)((uint64(x) >> 32) & 0x00000000FFFFFFFFLL)
+#define PAIR64_LOPART(x)   (uint32)(uint64(x)         & 0x00000000FFFFFFFFLL)
+
 struct Account
 {
-	uint32 id;
+    uint32 id;
     uint8 security;
     uint8 locale;
     uint8 expansion;
@@ -28,12 +32,6 @@ struct Account
     bool locked;
     std::string I;
     std::string lastip;
-};
-
-struct RealmCharacter
-{
-    uint32 realmid;
-    uint8 numchars;
 };
 
 class AcctContainer
@@ -48,20 +46,19 @@ class AcctContainer
         void Initialize(uint32 updateInterval);
 
         void FillAccount(Account* account,uint32 id, uint8 security, uint8 locale, uint8 expansion, bool banned, uint8 locked, std::string I, std::string lastip);
-		void FillCharacter(RealmCharacter* rch, uint32 realmid, uint8 numchars);
 
         uint8 GetNumChar(uint32 realmid, uint32 accid);
         Account* FindAccountByName(std::string name);
-		Account* FindAccountById(uint32 accid);
-    private:
-		// key acc name
-		typedef std::map<std::string, Account*> AccountList;
-		// key banned ip
-		typedef std::set<std::string> IpBanList;
-		// key accid
-        typedef UNORDERED_MAP<uint32, RealmCharacter*> CharactersList;
 
-		AccountList m_accounts;
+    private:
+        // key acc name
+        typedef std::map<std::string, Account*> AccountList;
+        // key banned ip
+        typedef std::set<std::string> IpBanList;
+        // key accid
+        typedef UNORDERED_MAP<uint64, uint8> CharactersList;
+
+        AccountList m_accounts;
         IpBanList m_banips;
         CharactersList m_realmcharacters;
 

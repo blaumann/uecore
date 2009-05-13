@@ -1,7 +1,7 @@
 ############################################
 # MaNGOS realmd configuration file         #
 ############################################
-ConfVersion=2009042601
+ConfVersion=2007062001
 
 ###################################################################################################################
 # REALMD SETTINGS
@@ -97,23 +97,20 @@ ConfVersion=2009042601
 ###################################################################################################################
 
 LoginDatabaseInfo = "127.0.0.1;3306;root;mangos;realmd"
-LogsDir = "Protokolle"
+LogsDir = ""
 MaxPingTime = 30
 RealmServerPort = 3724
 BindIP = "0.0.0.0"
 PidFile = ""
-LogLevel = 1
+LogLevel = 0
 LogTime = 0
 LogFile = "Realmd.log"
 LogTimestamp = 0
 LogFileLevel = 0
-LogColors = "10 2 1 9"
+LogColors = ""
 UseProcessors = 0
 ProcessPriority = 1
 RealmsStateUpdateDelay = 20
 WrongPass.MaxCount = 0
 WrongPass.BanTime = 600
 WrongPass.BanType = 0
-AccountCaching = 1
-AccountReloadingDelay = 120
-
