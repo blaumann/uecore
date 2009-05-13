@@ -1235,7 +1235,8 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
                 return;
             }
 
-            unit->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+                               if(m_spellInfo->Id != 1725 && m_spellInfo->Id != 32375) 
+                                       unit->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
 
             if( !(m_spellInfo->AttributesEx & SPELL_ATTR_EX_NO_INITIAL_AGGRO) )
             {
@@ -3575,6 +3576,9 @@ void Spell::SendPlaySpellVisual(uint32 SpellID)
 {
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
+
+       if(SpellID == 1725 && m_caster->GetTypeId() == TYPEID_PLAYER)
+               return;
 
     WorldPacket data(SMSG_PLAY_SPELL_VISUAL, 12);
     data << uint64(m_caster->GetGUID());

@@ -354,7 +354,7 @@ void WorldSession::SendLfgResult(uint32 type, uint32 entry, uint8 lfg_type)
             data << plr->m_lookingForGroup.comment;         // comment
 
         if(flags & 0x4)
-            data << uint8(0);                               // unk
+            data << uint8(0);                               // LFG/LFM flag?
 
         if(flags & 0x8)
             data << uint64(0);                              // guid from count2 block, not player guid
