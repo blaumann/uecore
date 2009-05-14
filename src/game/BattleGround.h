@@ -485,9 +485,9 @@ class BattleGround
         virtual void OnObjectDBLoad(Creature* /*creature*/) {}
         virtual void OnObjectDBLoad(GameObject* /*gameobject*/) {}
         virtual void OnCreatureRespawn(Creature* /*creature*/) {}
-        void SetHoliday(bool is_holiday);
 
         void HandleTriggerBuff(uint64 const& go_guid);
+        void SetHoliday(bool is_holiday);
 
         // TODO: make this protected:
         typedef std::vector<uint64> BGObjects;

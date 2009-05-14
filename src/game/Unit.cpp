@@ -10693,10 +10693,11 @@ void CharmInfo::InitPossessCreateSpells()
 
     for(uint32 x = 0; x < CREATURE_MAX_SPELLS; ++x)
     {
-        if (IsPassiveSpell(((Creature*)m_unit)->m_spells[x]))
-            m_unit->CastSpell(m_unit, ((Creature*)m_unit)->m_spells[x], true);
+            uint32 spellid = ((Creature*)m_unit)->m_spells[x];
+        if(IsPassiveSpell(spellid))
+            m_unit->CastSpell(m_unit, spellid, true);
         else
-            AddSpellToAB(0, ((Creature*)m_unit)->m_spells[x], ACT_PASSIVE);
+			AddSpellToAB(0, spellid, ACT_DISABLED);
     }
 }
 

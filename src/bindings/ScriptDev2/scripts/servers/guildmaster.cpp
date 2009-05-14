@@ -321,7 +321,6 @@ bool GossipSelectWithCode_guildmaster( Player *player, Creature *_creature,
 				//right code
 				sellGuildhouse(player, _creature);
 			}
-			
 			player->CLOSE_GOSSIP_MENU();
 			return true;
 		}

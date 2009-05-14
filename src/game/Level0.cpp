@@ -193,7 +193,7 @@ bool ChatHandler::HandleAccountPasswordCommand(const char* args)
     std::string password_new = new_pass;
     std::string password_new_c = new_pass_c;
 
-    if (password_new != password_new_c)
+    if (strcmp(new_pass, new_pass_c) != 0)
     {
         SendSysMessage (LANG_NEW_PASSWORDS_NOT_MATCH);
         SetSentErrorMessage (true);

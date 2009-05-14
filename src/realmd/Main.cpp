@@ -239,7 +239,7 @@ extern int main(int argc, char **argv)
     
     PatchCache::instance ();
 
-    if (acc.open (listen_addr, 0, 1, 1, 1) == -1)
+    if (acc.open (listen_addr, 0, 1, 64, 1) == -1)
       return 1;
 
     ///- Handle affinity for multiple processors and process priority on Windows

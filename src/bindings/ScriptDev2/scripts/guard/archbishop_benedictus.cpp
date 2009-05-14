@@ -338,7 +338,7 @@ void AddSC_archbishop_benedictus()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name = "cathedral_of_light";
+    newscript->Name = "example_cathedral_of_light";
     newscript->GetAI = &GetAI_cathedral_of_light;
     newscript->RegisterSelf();
 }

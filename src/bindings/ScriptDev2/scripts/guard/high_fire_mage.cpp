@@ -201,7 +201,7 @@ void AddSC_high_fire_mage()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name = "high_fire_mage";
+    newscript->Name = "example_high_fire_mage";
     newscript->GetAI = &GetAI_high_fire_mage;
     newscript->RegisterSelf();
 }

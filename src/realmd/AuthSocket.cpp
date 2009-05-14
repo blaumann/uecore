@@ -742,7 +742,7 @@ AuthSocket::SetVSFields (const std::string& rI)
   v_hex = v.AsHexStr ();
   s_hex = s.AsHexStr ();
 
-  dbRealmServer.PExecute ("UPDATE account "
+  dbRealmServer.DirectPExecute ("UPDATE account "
                           "SET v = '%s', "
                           "s = '%s' "
                           "WHERE username = '%s'",
@@ -845,7 +845,7 @@ AuthSocket::handle_logon_proof ()
   // Update the sessionkey, last_ip, last login time and 
   // reset number of failed logins in the account table for this account
   const char* K_hex = K.AsHexStr ();
-  dbRealmServer.PExecute ("UPDATE account "
+  dbRealmServer.DirectPExecute ("UPDATE account "
                           "SET sessionkey = '%s', "
                           "last_ip = '%s', "
                           "last_login = NOW(), "

@@ -505,19 +505,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\scripts\custom\npc_sickness.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\scripts\custom\npc_wyrmresttempel_taxi.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\custom\paymaster.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\custom\telefratz.cpp"
 					>
 				</File>
 			</Filter>

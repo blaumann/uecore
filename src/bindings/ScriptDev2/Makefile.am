@@ -53,9 +53,6 @@ scripts/examples/example_gossip_codebox.cpp \
 scripts/examples/example_misc.cpp \
 scripts/custom/npc_wyrmresttempel_taxi.cpp \
 scripts/custom/npc_acherus_taxi.cpp \
-scripts/custom/npc_sickness.cpp \
-scripts/custom/paymaster.cpp \
-scripts/custom/telefratz.cpp \
 scripts/go/go_scripts.cpp \
 scripts/guard/ancient_of_war.cpp \
 scripts/guard/archbishop_benedictus.cpp \
