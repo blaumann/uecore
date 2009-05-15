@@ -686,9 +686,9 @@ void Spell::EffectSchoolDMG(uint32 effect_idx)
                 else if(m_spellInfo->SpellFamilyFlags&0x0004000000000000LL)
                 {
                     // Add main hand dps * effect[2] amount
-                    float averange = (m_caster->GetFloatValue(UNIT_FIELD_MINDAMAGE) + m_caster->GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2;
+                    float average = (m_caster->GetFloatValue(UNIT_FIELD_MINDAMAGE) + m_caster->GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2;
                     int32 count = m_caster->CalculateSpellDamage(m_spellInfo, 2, m_spellInfo->EffectBasePoints[2], unitTarget);
-                    damage += count * int32(averange * IN_MILISECONDS) / m_caster->GetAttackTime(BASE_ATTACK);
+                    damage += count * int32(average * IN_MILISECONDS) / m_caster->GetAttackTime(BASE_ATTACK);
                 }
                 // Shield of Righteousness
                 else if(m_spellInfo->SpellFamilyFlags&0x0010000000000000LL)
@@ -1296,19 +1296,6 @@ void Spell::EffectDummy(uint32 i)
 						}
 						if( found )	((Player*)GetCaster())->KilledMonster( 25086, 0 ); // Increment quest count
 					}
-					return;
-				}
-				case 33655:
-				{
-					if( m_caster->GetTypeId() != TYPEID_PLAYER )
-						return;
-					if( !m_caster->isInFlight() )
-						return;
-
-					if( m_caster->GetDistance( m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, -145.554, 1511.28, 34.3641) < 25 )
-						((Player*)m_caster)->KilledMonster( 19291, 0 );
-					if( m_caster->GetDistance( m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, -304.408, 1524.45, 37.9685 ) < 25 )
-						((Player*)m_caster)->KilledMonster( 19292, 0 );
 					return;
 				}
             }
@@ -4679,14 +4666,7 @@ void Spell::EffectSummonPet(uint32 i)
     if(m_caster->GetTypeId() == TYPEID_PLAYER)
         NewSummon->SetUInt32Value(UNIT_FIELD_FLAGS,UNIT_FLAG_PVP_ATTACKABLE);
 
-    if(m_caster->getClass() == CLASS_WARLOCK) {
-        // when player get a pet first at high level, pet auto level up. (only warlock)
-        // skip learnLevelupSpellsWarlock routine in InitStatsForLevel - by set levelupspells_mode 1
-        NewSummon->InitStatsForLevel(petlevel, 1);
-    }
-    else {
-        NewSummon->InitStatsForLevel(petlevel);
-    }
+    NewSummon->InitStatsForLevel(petlevel);
     NewSummon->InitPetCreateSpells();
     NewSummon->InitTalentForLevel();
 
@@ -4704,11 +4684,6 @@ void Spell::EffectSummonPet(uint32 i)
             else
                 ++itr;
         }
-
-        // Summoned creature is ghoul.
-        if ( NewSummon->GetEntry() == 26125 )
-            // He must have energy bar instead of mana
-            NewSummon->setPowerType(POWER_ENERGY);
 
         // generate new name for summon pet
         std::string new_name=objmgr.GeneratePetName(petentry);
@@ -4731,11 +4706,6 @@ void Spell::EffectSummonPet(uint32 i)
     {
         NewSummon->SavePetToDB(PET_SAVE_AS_CURRENT);
         ((Player*)m_caster)->PetSpellInitialize();
-    }
-
-    if(m_caster->getClass() == CLASS_WARLOCK) {
-        // when player get a pet first at high level, pet auto level up. (only warlock)
-        NewSummon->learnWarlockLevelupSpells();
     }
 }
 
