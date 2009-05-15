@@ -64,16 +64,7 @@ extern void AddSC_example_misc();
 extern void AddSC_go_scripts();
 
 // -- Guard --
-extern void AddSC_ancient_of_war();
-extern void AddSC_archbishop_benedictus();
-extern void AddSC_g_marcus_jonathan();
 extern void AddSC_guards();
-extern void AddSC_high_fire_mage();
-extern void AddSC_high_sorcerer_andromath();
-extern void AddSC_highlord_bolvar_fordragon();
-extern void AddSC_city_officer();
-extern void AddSC_overlord_saurfang();
-extern void AddSC_thrall();
 
 // -- Honor --
 
@@ -1149,16 +1140,7 @@ void ScriptsInit()
     AddSC_go_scripts();
 
     // -- Guard --
-    AddSC_ancient_of_war();
-    AddSC_archbishop_benedictus();
-    AddSC_g_marcus_jonathan();
     AddSC_guards();
-    AddSC_high_fire_mage();
-    AddSC_high_sorcerer_andromath();
-    AddSC_highlord_bolvar_fordragon();
-    AddSC_city_officer();
-    AddSC_overlord_saurfang();
-    AddSC_thrall();
 
     // -- Honor --
 

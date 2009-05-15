@@ -28,6 +28,7 @@ enum {
     DATA_SPELLBINDER_2              = 20,
     DATA_SPELLBINDER_3              = 21,
     DATA_LEOTHERAS_EVENT_STARTER    = 22,
-    DATA_LEOTHERAS                  = 23
+    DATA_LEOTHERAS                  = 23,
+    TYPE_HYDROSS_EVENT              = 24
 };
 #endif

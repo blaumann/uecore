@@ -112,7 +112,7 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
         m_creature->SetDisplayId(MODEL_CLEAN);
 
         if (m_pInstance)
-            m_pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, NOT_STARTED);
+            m_pInstance->SetData(TYPE_HYDROSS_EVENT, NOT_STARTED);
     }
 
     void Aggro(Unit* pWho)
@@ -120,7 +120,7 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
         DoScriptText(SAY_AGGRO, m_creature);
 
         if (m_pInstance)
-            m_pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, IN_PROGRESS);
+            m_pInstance->SetData(TYPE_HYDROSS_EVENT, IN_PROGRESS);
     }
 
     void KilledUnit(Unit* pVictim)
@@ -146,7 +146,7 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
         DoScriptText(m_bCorruptedForm ? SAY_CORRUPT_DEATH : SAY_CLEAN_DEATH, m_creature);
 
         if (m_pInstance)
-            m_pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, NOT_STARTED);
+            m_pInstance->SetData(TYPE_HYDROSS_EVENT, DONE);
     }
 
     void SpawnAdds()
@@ -206,7 +206,7 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
                 float fPosX, fPosY, fPosZ;
                 m_creature->GetCombatStartPosition(fPosX, fPosY, fPosZ);
 
-                if (m_creature->GetDistance2d(fPosX, fPosY) < SWITCH_RADIUS)
+                if (m_creature->IsWithinDist2d(fPosX, fPosY, SWITCH_RADIUS))
                 {
                     DoScriptText(SAY_SWITCH_TO_CLEAN, m_creature);
 
@@ -272,7 +272,7 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
                 float fPosX, fPosY, fPosZ;
                 m_creature->GetCombatStartPosition(fPosX, fPosY, fPosZ);
 
-                if (m_creature->GetDistance2d(fPosX, fPosY) >= SWITCH_RADIUS)
+                if (!m_creature->IsWithinDist2d(fPosX, fPosY, SWITCH_RADIUS))
                 {
                     DoScriptText(SAY_SWITCH_TO_CORRUPT, m_creature);
 

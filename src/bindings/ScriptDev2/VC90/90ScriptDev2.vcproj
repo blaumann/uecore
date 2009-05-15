@@ -413,18 +413,6 @@
 				Name="guard"
 				>
 				<File
-					RelativePath="..\scripts\guard\ancient_of_war.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\guard\archbishop_benedictus.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\guard\g_marcus_jonathan.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\scripts\guard\guard_ai.cpp"
 					>
 				</File>
@@ -434,30 +422,6 @@
 				</File>
 				<File
 					RelativePath="..\scripts\guard\guards.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\guard\high_fire_mage.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\guard\high_sorcerer_andromath.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\guard\highlord_bolvar_fordragon.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\guard\officers.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\guard\overlord_saurfang.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\guard\thrall.cpp"
 					>
 				</File>
 			</Filter>

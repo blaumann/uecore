@@ -1,6 +1,4 @@
-/*
- * Copyright (C) 2009 Trinity <http://www.trinitycore.org/>
- *
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -8,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "precompiled.h"
@@ -122,9 +120,9 @@ float modelid_dk_unworthy[20] =
     25365  // troll male
 };
 
-struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
+struct MANGOS_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
 {
-    npc_unworthy_initiateAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_unworthy_initiateAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     bool event_startet;
     uint64 event_starter;
@@ -211,14 +209,14 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
     void UpdateAI(const uint32 diff);
 };
 
-CreatureAI* GetAI_npc_unworthy_initiate(Creature *_Creature)
+CreatureAI* GetAI_npc_unworthy_initiate(Creature* pCreature)
 {
-    return new npc_unworthy_initiateAI(_Creature);
+    return new npc_unworthy_initiateAI(pCreature);
 }
 
-struct TRINITY_DLL_DECL npc_unworthy_initiate_anchorAI : public ScriptedAI
+struct MANGOS_DLL_DECL npc_unworthy_initiate_anchorAI : public ScriptedAI
 {
-    npc_unworthy_initiate_anchorAI(Creature *c) : ScriptedAI(c) { guid_target = 0; }
+    npc_unworthy_initiate_anchorAI(Creature* pCreature) : ScriptedAI(pCreature) { guid_target = 0; }
 
     uint64 guid_target;
 
@@ -335,9 +333,9 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
     }
 }
 
-CreatureAI* GetAI_npc_unworthy_initiate_anchor(Creature *_Creature)
+CreatureAI* GetAI_npc_unworthy_initiate_anchor(Creature* pCreature)
 {
-    return new npc_unworthy_initiate_anchorAI(_Creature);
+    return new npc_unworthy_initiate_anchorAI(pCreature);
 }
 
 bool GOHello_go_acherus_soul_prison(Player *player, GameObject* _GO)
@@ -366,17 +364,17 @@ void AddSC_the_scarlet_enclave()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npc_unworthy_initiate";
+    newscript->Name = "npc_unworthy_initiate";
     newscript->GetAI = &GetAI_npc_unworthy_initiate;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_unworthy_initiate_anchor";
+    newscript->Name = "npc_unworthy_initiate_anchor";
     newscript->GetAI = &GetAI_npc_unworthy_initiate_anchor;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="go_acherus_soul_prison";
+    newscript->Name = "go_acherus_soul_prison";
     newscript->pGOHello = &GOHello_go_acherus_soul_prison;
     newscript->RegisterSelf();
 }
