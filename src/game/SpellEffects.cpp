@@ -1966,6 +1966,15 @@ void Spell::EffectDummy(uint32 i)
             }
             break;
         case SPELLFAMILY_DEATHKNIGHT:
+            // Desecration
+            if (m_spellInfo->SpellFamilyFlags & 0x8000000000000LL)
+            {
+                // +5% damage bonus for death knight
+                m_caster->CastSpell(unitTarget,55710,true);
+                // "Desecrated land" visual effect
+                m_caster->CastSpell(unitTarget,55741,true);
+                return;
+            }
             // Death Coil
             if(m_spellInfo->SpellFamilyFlags & 0x002000LL)
             {
@@ -3615,6 +3624,7 @@ void Spell::EffectSummonType(uint32 i)
         case SUMMON_TYPE_TOTEM_SLOT3:
         case SUMMON_TYPE_TOTEM_SLOT4:
         case SUMMON_TYPE_TOTEM:
+        case SUMMON_TYPE_TOTEM2:
             EffectSummonTotem(i);
             break;
         case SUMMON_TYPE_UNKNOWN1:
@@ -3707,6 +3717,7 @@ void Spell::EffectSummon(uint32 i)
 
     spawnCreature->AIM_Initialize();
     spawnCreature->InitPetCreateSpells();
+    spawnCreature->InitLevelupSpellsForLevel();
     spawnCreature->SetHealth(spawnCreature->GetMaxHealth());
     spawnCreature->SetPower(POWER_MANA, spawnCreature->GetMaxPower(POWER_MANA));
 
@@ -4139,7 +4150,57 @@ void Spell::EffectSummonGuardian(uint32 i)
 
         map->Add((Creature*)spawnCreature);
     }
-}
+
+	if (pet_entry == 28511 )
+	{
+					int32 apply;
+			        Pet* guardian = NULL;
+                    GuardianPetList const& guardians = ((Player*)m_caster)->GetGuardians();
+                    for (GuardianPetList::const_iterator itr = guardians.begin(); itr != guardians.end(); ++itr)
+                    {
+                        if ((guardian = ObjectAccessor::GetPet(*itr)) && guardian->GetEntry() == pet_entry)
+                        {
+							
+                            ((Player*)unitTarget)->SetFarSightGUID(apply ? guardian->GetGUID() : 0);
+                            ((Player*)unitTarget)->SetCharm(apply ? guardian : NULL);
+                            ((Player*)unitTarget)->SetClientControl(guardian, apply ? 1 : 0);
+							
+
+                            if (apply)
+                            {
+                                guardian->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
+                                //guardian->SetSpeed(MOVE_WALK, guardian->GetCreatureInfo()->speed, true);  
+                                //guardian->SetSpeed(MOVE_RUN, guardian->GetCreatureInfo()->speed, true); 
+                                //guardian->SetSpeed(MOVE_SWIM, guardian->GetCreatureInfo()->speed, true); 
+								  guardian->GetMotionMaster()->MovementExpired();
+                                  guardian->GetMotionMaster()->MoveFollow(unitTarget, 0, 0);
+				                  guardian->CastSpell(m_caster,51890,true) ;        
+							}
+                            else
+                            {
+                                guardian->GetMotionMaster()->MovementExpired();
+                                guardian->GetMotionMaster()->MoveIdle();
+				                guardian->CastSpell(m_caster,51890,true) ; 
+
+                                ((Player*)m_caster)->RemovePet(guardian, PET_SAVE_AS_DELETED);    // safe remove
+                            }
+
+                            return;
+                        }
+                    }
+
+                    if (!apply)    // in case guardian was killed or lost
+                    {
+                        ((Player*)unitTarget)->SetFarSightGUID(0);
+                        ((Player*)unitTarget)->SetCharm(NULL);
+                        ((Player*)unitTarget)->SetClientControl(m_caster, 1);
+                         WorldPacket data(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE, 0);
+                        ((Player*)unitTarget)->GetSession()->SendPacket(&data);
+                    }
+
+                    return;
+                }
+	}
 
 void Spell::EffectTeleUnitsFaceCaster(uint32 i)
 {
@@ -4668,6 +4729,7 @@ void Spell::EffectSummonPet(uint32 i)
 
     NewSummon->InitStatsForLevel(petlevel);
     NewSummon->InitPetCreateSpells();
+    NewSummon->InitLevelupSpellsForLevel();
     NewSummon->InitTalentForLevel();
 
     if(NewSummon->getPetType()==SUMMON_PET)
@@ -6124,6 +6186,7 @@ void Spell::EffectSummonTotem(uint32 i)
         case SUMMON_TYPE_TOTEM_SLOT3: slot = 2; break;
         case SUMMON_TYPE_TOTEM_SLOT4: slot = 3; break;
         // Battle standard case
+        case SUMMON_TYPE_TOTEM2:
         case SUMMON_TYPE_TOTEM:       slot = 254; break;
         // jewelery statue case, like totem without slot
         case SUMMON_TYPE_GUARDIAN:    slot = 255; break;
@@ -6686,6 +6749,7 @@ void Spell::EffectSummonCritter(uint32 i)
 
     critter->AIM_Initialize();
     critter->InitPetCreateSpells();                         // e.g. disgusting oozeling has a create spell as critter...
+    //critter->InitLevelupSpellsForLevel();                 // none?
     critter->SelectLevel(critter->GetCreatureInfo());       // some summoned creaters have different from 1 DB data for level/hp
     critter->SetUInt32Value(UNIT_NPC_FLAGS, critter->GetCreatureInfo()->npcflag);
                                                             // some mini-pets have quests

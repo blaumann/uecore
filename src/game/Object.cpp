@@ -625,7 +625,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                 if( index == UNIT_NPC_FLAGS )
                 {
                     // remove custom flag before sending
-                    uint32 appendValue = m_uint32Values[ index ] & ~UNIT_NPC_FLAG_GUARD + UNIT_NPC_FLAG_OUTDOORPVP + UNIT_NPC_FLAG_WORLDEVENT;
+                    uint32 appendValue = m_uint32Values[ index ] & ~(UNIT_NPC_FLAG_GUARD + UNIT_NPC_FLAG_OUTDOORPVP);
 
                     if (GetTypeId() == TYPEID_UNIT && !target->canSeeSpellClickOn((Creature*)this))
                         appendValue &= ~UNIT_NPC_FLAG_SPELLCLICK;
@@ -1281,9 +1281,13 @@ bool WorldObject::IsInRange(WorldObject const* obj, float minRange, float maxRan
 
     float sizefactor = GetObjectSize() + obj->GetObjectSize();
 
-    float mindist = minRange + sizefactor;
-    if(distsq < mindist * mindist)
-        return false;
+    // check only for real range
+    if(minRange > 0.0f)
+    {
+        float mindist = minRange + sizefactor;
+        if(distsq < mindist * mindist)
+            return false;
+    }
 
     float maxdist = maxRange + sizefactor;
     return distsq < maxdist * maxdist;
@@ -1297,9 +1301,13 @@ bool WorldObject::IsInRange2d(float x, float y, float minRange, float maxRange) 
 
     float sizefactor = GetObjectSize();
 
-    float mindist = minRange + sizefactor;
-    if(distsq < mindist * mindist)
-        return false;
+    // check only for real range
+    if(minRange > 0.0f)
+    {
+        float mindist = minRange + sizefactor;
+        if(distsq < mindist * mindist)
+            return false;
+    }
 
     float maxdist = maxRange + sizefactor;
     return distsq < maxdist * maxdist;
@@ -1314,9 +1322,13 @@ bool WorldObject::IsInRange3d(float x, float y, float z, float minRange, float m
 
     float sizefactor = GetObjectSize();
 
-    float mindist = minRange + sizefactor;
-    if(distsq < mindist * mindist)
-        return false;
+    // check only for real range
+    if(minRange > 0.0f)
+    {
+        float mindist = minRange + sizefactor;
+        if(distsq < mindist * mindist)
+            return false;
+    }
 
     float maxdist = maxRange + sizefactor;
     return distsq < maxdist * maxdist;
