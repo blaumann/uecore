@@ -1491,24 +1491,16 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             if( spellInfo_1->Id == 2825 && spellInfo_2->SpellIconID == 38 && spellInfo_2->SpellVisual[0] == 0 )
                 return false;
             break;
-        case SPELLFAMILY_DEATHKNIGHT:
             if (spellInfo_2->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT)
             {
                 // Desecration (speed reduction aura) and Desecration (owner's damage bonus aura)
                 if (spellInfo_1->SpellIconID==2296 && spellInfo_2->SpellIconID==2296 &&
                     spellInfo_1->SpellFamilyFlags == spellInfo_2->SpellFamilyFlags)
                     return false;
-            }
-            if (spellInfo_2->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT)
-            {
                 //Frost Presence -> +10% max. health or +10% max. health -> Frost Presence
                 if ((spellInfo_2->Id == 48263 && spellInfo_1->Id == 61261) ||
                     (spellInfo_2->Id == 61261 && spellInfo_1->Id == 48263))
                     return false;
-            }
-            break;
-            if ( spellInfo_2->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT )
-            {
                 // Ebon Plague must replace Crypt Fever.
                 if ( (spellInfo_1->Attributes & 0x40000) && (spellInfo_1->AttributesEx & 0x8) &&
                      (spellInfo_2->Attributes & 0x10) && (spellInfo_2->AttributesEx3 & 0x40000000) )

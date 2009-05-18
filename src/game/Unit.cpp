@@ -9737,7 +9737,7 @@ void Unit::setDeathState(DeathState s)
         CombatStop();
         DeleteThreatList();
         ClearComboPointHolders();                           // any combo points pointed to unit lost at it death
-        StopMoving();
+        GetMotionMaster()->MovementExpired(true);
 
         if(IsNonMeleeSpellCasted(false))
             InterruptNonMeleeSpells(false);

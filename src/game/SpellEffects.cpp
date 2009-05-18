@@ -4153,7 +4153,7 @@ void Spell::EffectSummonGuardian(uint32 i)
 
 	if (pet_entry == 28511 )
 	{
-					int32 apply;
+					bool apply;
 			        Pet* guardian = NULL;
                     GuardianPetList const& guardians = ((Player*)m_caster)->GetGuardians();
                     for (GuardianPetList::const_iterator itr = guardians.begin(); itr != guardians.end(); ++itr)

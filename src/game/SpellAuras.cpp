@@ -764,7 +764,7 @@ void AreaAura::Update(uint32 diff)
                 case AREA_AURA_OWNER:
                 case AREA_AURA_PET:
                 {
-                    if(owner != caster)
+                    if(owner != caster && caster->IsWithinDistInMap(owner, m_radius))
                         targets.push_back(owner);
                     break;
                 }
@@ -1083,6 +1083,7 @@ void Aura::_RemoveAura()
             m_target->ModifyAuraState(AURA_STATE_ENRAGE, false);
 
         uint32 removeState = 0;
+        uint64 removeFamilyFlag = m_spellProto->SpellFamilyFlags;
         switch(m_spellProto->SpellFamilyName)
         {
             case SPELLFAMILY_PALADIN:
@@ -1097,7 +1098,10 @@ void Aura::_RemoveAura()
                 if(m_spellProto->SpellFamilyFlags & 0x0000000000000400LL)
                     removeState = AURA_STATE_FAERIE_FIRE;   // Faerie Fire (druid versions)
                 else if(m_spellProto->SpellFamilyFlags & 0x50)
+                {
+                    removeFamilyFlag = 0x50;
                     removeState = AURA_STATE_SWIFTMEND;     // Swiftmend aura state
+                }
                 break;
             case SPELLFAMILY_WARRIOR:
                 if(m_spellProto->SpellFamilyFlags & 0x0004000000000000LL)
@@ -1121,7 +1125,7 @@ void Aura::_RemoveAura()
             {
                 SpellEntry const *auraSpellInfo = (*i).second->GetSpellProto();
                 if(auraSpellInfo->SpellFamilyName  == m_spellProto->SpellFamilyName &&
-                   auraSpellInfo->SpellFamilyFlags == m_spellProto->SpellFamilyFlags )
+                   auraSpellInfo->SpellFamilyFlags & removeFamilyFlag)
                 {
                     found = true;
                     break;
@@ -5904,6 +5908,7 @@ void Aura::CleanupTriggeredSpells()
 			case 33891: m_target->RemoveAurasDueToSpell(48422); break;
 		}
 	}
+
     if (m_spellProto->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellProto->SpellFamilyFlags & 0x00008000LL && (m_spellProto->AttributesEx2 & 0x10) )
     {
         // Frost Presence +10% max. health remove
