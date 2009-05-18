@@ -164,7 +164,7 @@ struct MANGOS_DLL_DECL mob_kalecgosAI : public ScriptedAI
         for(uint8 i = 0; i < 4; ++i)
             Orb[i] = 0;
 
-        FindOrbs();
+        //FindOrbs();
 
         m_creature->SetVisibility(VISIBILITY_OFF);
         m_creature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
@@ -194,7 +194,7 @@ struct MANGOS_DLL_DECL mob_kalecgosAI : public ScriptedAI
             }else EmpowerTimer -= diff;
     }
 
-    void FindOrbs()
+    /*void FindOrbs()
     {
         CellPair pair(MaNGOS::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
         Cell cell(pair);
@@ -219,7 +219,7 @@ struct MANGOS_DLL_DECL mob_kalecgosAI : public ScriptedAI
             (*itr)->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
             (*itr)->Refresh();
         }
-    }
+    }*/
 
     void EmpowerOrb()
     {
