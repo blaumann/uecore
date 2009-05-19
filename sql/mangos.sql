@@ -24,7 +24,7 @@ DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
   `creature_ai_version` varchar(120) default NULL,
-  `required_7850_01_mangos_command` bit(1) default NULL
+  `required_7855_01_mangos_pools` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -4050,10 +4050,11 @@ DROP TABLE IF EXISTS `pool_creature`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `pool_creature` (
-  `guid` int(10) unsigned NOT NULL DEFAULT '0',
-  `pool_entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `chance` float unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`pool_entry`,`guid`)
+  `guid` int(10) unsigned NOT NULL default '0',
+  `pool_entry` mediumint(8) unsigned NOT NULL default '0',
+  `chance` float unsigned NOT NULL default '0',
+  `description` varchar(255) NOT NULL,
+  PRIMARY KEY  (`pool_entry`,`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
@@ -4074,10 +4075,11 @@ DROP TABLE IF EXISTS `pool_gameobject`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `pool_gameobject` (
-  `guid` int(10) unsigned NOT NULL DEFAULT '0',
-  `pool_entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `chance` float unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`pool_entry`)
+  `guid` int(10) unsigned NOT NULL default '0',
+  `pool_entry` mediumint(8) unsigned NOT NULL default '0',
+  `chance` float unsigned NOT NULL default '0',
+  `description` varchar(255) NOT NULL,
+  PRIMARY KEY  (`guid`,`pool_entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
@@ -4098,10 +4100,11 @@ DROP TABLE IF EXISTS `pool_pool`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `pool_pool` (
-  `pool_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `mother_pool` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `chance` float NOT NULL DEFAULT '0',
-  PRIMARY KEY (`pool_id`,`mother_pool`)
+  `pool_id` mediumint(8) unsigned NOT NULL default '0',
+  `mother_pool` mediumint(8) unsigned NOT NULL default '0',
+  `chance` float NOT NULL default '0',
+  `description` varchar(255) NOT NULL,
+  PRIMARY KEY  (`pool_id`,`mother_pool`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
@@ -4122,9 +4125,10 @@ DROP TABLE IF EXISTS `pool_template`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `pool_template` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Pool entry',
-  `max_limit` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Max number of objects (0) is no limit',
-  PRIMARY KEY (`entry`)
+  `entry` mediumint(8) unsigned NOT NULL default '0' COMMENT 'Pool entry',
+  `max_limit` int(10) unsigned NOT NULL default '0' COMMENT 'Max number of objects (0) is no limit',
+  `description` varchar(255) NOT NULL,
+  PRIMARY KEY  (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 

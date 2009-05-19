@@ -2662,16 +2662,16 @@ void Spell::cast(bool skipCheck)
         ((Player*)m_caster)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, m_spellInfo->Id);
     }
 
-    // CAST SPELL
-    SendSpellCooldown();
-
     FillTargetMap();
 
-    if(m_spellState == SPELL_STATE_FINISHED)                // stop cast if spell marked as finish somewhere in Take*/FillTargetMap
+    if(m_spellState == SPELL_STATE_FINISHED)                // stop cast if spell marked as finish somewhere in FillTargetMap
     {
         SetExecutedCurrently(false);
         return;
     }
+
+    // CAST SPELL
+    SendSpellCooldown();
 
     TakePower();
     TakeReagents();                                         // we must remove reagents before HandleEffects to allow place crafted item in same slot

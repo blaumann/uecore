@@ -81,9 +81,9 @@ enum eAuthCmd
 
 // we need to stick to 1 version or half of the stuff will work for someone
 // others will not and opposite
-// will only support WoW, WoW:TBC and WoW:WotLK 3.1.1a client build 9835 / 3.1.2 client build 9901...
+// will only support WoW, WoW:TBC and WoW:WotLK 3.1.2 client build 9901...
 
-#define EXPECTED_MANGOS_CLIENT_BUILD        {9835, 9901, 0}
+#define EXPECTED_MANGOS_CLIENT_BUILD        {9901, 0}
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some paltform
 #if defined( __GNUC__ )
