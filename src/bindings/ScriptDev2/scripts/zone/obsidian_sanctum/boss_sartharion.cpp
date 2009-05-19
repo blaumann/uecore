@@ -143,7 +143,7 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
 		if(pInstance)
         {
         	if(m_creature->isAlive())
-        		pInstance->SetData(DATA_SARTHARION_EVENT, NOT_STARTED);
+        		pInstance->SetData(DATA_SARTHARION, NOT_STARTED);
 
             Unit* Temp1 =  Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_TENEBRON));
             if (Temp1)
@@ -177,7 +177,7 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
 		DoScriptText(SAY_SARTHARION_AGGRO,m_creature);
 		DoZoneInCombat();
         if(pInstance)
-            pInstance->SetData(DATA_SARTHARION_EVENT, IN_PROGRESS);
+            pInstance->SetData(DATA_SARTHARION, IN_PROGRESS);
 	}
 
     void AttackStart(Unit* who)
@@ -342,7 +342,7 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
 	{
 		DoScriptText(SAY_SARTHARION_DEATH,m_creature);
         if(pInstance)
-            pInstance->SetData(DATA_SARTHARION_EVENT, DONE);
+            pInstance->SetData(DATA_SARTHARION, DONE);
 	}
 
     void KilledUnit(Unit *victim)
