@@ -74,4 +74,5 @@ class MANGOS_DLL_SPEC TimedFleeingMovementGenerator
     private:
         TimeTracker i_totalFleeTime;
 };
+
 #endif

@@ -4236,7 +4236,7 @@ DynamicObject * Unit::GetDynObject(uint32 spellId)
 
 GameObject* Unit::GetGameObject(uint32 spellId) const
 {
-    for (GameObjectList::const_iterator i = m_gameObj.begin(); i != m_gameObj.end();)
+    for (GameObjectList::const_iterator i = m_gameObj.begin(); i != m_gameObj.end(); ++i)
         if ((*i)->GetSpellId() == spellId)
             return *i;
 
@@ -6192,7 +6192,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                             default:
                                 return false;
                         }
-                        CastSpell(this, spell, true, castItem, triggeredByAura);
+                        CastSpell(target, spell, true, castItem, triggeredByAura);
                         if ((*itr)->DropAuraCharge())
                             RemoveAurasDueToSpell((*itr)->GetId());
                         return true;

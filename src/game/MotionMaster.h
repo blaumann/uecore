@@ -44,9 +44,9 @@ enum MovementGeneratorType
     POINT_MOTION_TYPE     = 8,                              // PointMovementGenerator.h
     FLEEING_MOTION_TYPE   = 9,                              // FleeingMovementGenerator.h
     DISTRACT_MOTION_TYPE  = 10,                             // IdleMovementGenerator.h
-    ASSISTANCE_MOTION_TYPE= 11,                             // PointMovementGenerator.h  
-    ASSISTANCE_DISTRACT_MOTION_TYPE = 12,                   // IdleMovementGenerator.h
-    TIMED_FLEEING_MOTION_TYPE = 13,                         // FleeingMovementGenerator.h
+    ASSISTANCE_MOTION_TYPE= 11,                             // PointMovementGenerator.h (first part of flee for assistance)
+    ASSISTANCE_DISTRACT_MOTION_TYPE = 12,                   // IdleMovementGenerator.h (second part of flee for assistance)
+    TIMED_FLEEING_MOTION_TYPE = 13,                         // FleeingMovementGenerator.h (alt.second part of flee for assistance)
 };
 
 enum MMCleanFlag

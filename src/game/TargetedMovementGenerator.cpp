@@ -119,7 +119,7 @@ void
 TargetedMovementGenerator<T>::Initialize(T &owner)
 {
     if (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)&owner)->HasSearchedAssistance())
-        owner.AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        owner.AddUnitMovementFlag(MONSTER_MOVE_WALK);
     else
         owner.RemoveUnitMovementFlag(MONSTER_MOVE_WALK);
 

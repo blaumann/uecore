@@ -445,6 +445,25 @@ namespace MaNGOS
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
     };
 
+    template<class Do>
+    struct MANGOS_DLL_DECL CreatureWorker
+    {
+        uint32 i_phaseMask;
+        Do& i_do;
+
+        CreatureWorker(WorldObject const* searcher, Do& _do)
+            : i_phaseMask(searcher->GetPhaseMask()), i_do(_do) {}
+
+        void Visit(CreatureMapType &m)
+        {
+            for(CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+                if(itr->getSource()->InSamePhase(i_phaseMask))
+                    i_do(itr->getSource());
+        }
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
+    };
+
     // Player searchers
 
     template<class Check>
@@ -903,12 +922,19 @@ namespace MaNGOS
 
             bool operator()(Creature* u)
             {
-                if(u->getFaction() == i_obj->getFaction() && !u->isInCombat() && !u->GetCharmerOrOwnerGUID() && u->IsHostileTo(i_enemy) && u->isAlive()&& i_obj->IsWithinDistInMap(u, i_range) && i_obj->IsWithinLOSInMap(u))
-                {
-                    i_range = i_obj->GetDistance(u);         // use found unit range as new range limit for next check
-                    return true;
-                }
-                return false;
+                if(u == i_obj)
+                    return false;
+                if(!u->CanAssistTo(i_obj,i_enemy))
+                    return false;
+                    
+                if(!i_obj->IsWithinDistInMap(u, i_range))
+                    return false;
+                
+                if(!i_obj->IsWithinLOSInMap(u))
+                    return false;
+
+                i_range = i_obj->GetDistance(u);            // use found unit range as new range limit for next check
+                return true;
             }
             float GetLastRange() const { return i_range; }
         private:

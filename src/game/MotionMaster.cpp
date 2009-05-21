@@ -378,8 +378,8 @@ MotionMaster::MoveFleeing(Unit* enemy, uint32 time)
         DEBUG_LOG("Creature (Entry: %u GUID: %u) flee from %s (GUID: %u)%s",
             i_owner->GetEntry(), i_owner->GetGUIDLow(),
             enemy->GetTypeId()==TYPEID_PLAYER ? "player" : "creature",
-            enemy->GetTypeId()==TYPEID_PLAYER ? enemy->GetGUIDLow() : ((Creature*)enemy)->GetDBTableGUIDLow() ),
-            time ? " for a limited time" : "";
+            enemy->GetTypeId()==TYPEID_PLAYER ? enemy->GetGUIDLow() : ((Creature*)enemy)->GetDBTableGUIDLow(),
+            time ? " for a limited time" : "");
         if (time)
             Mutate(new TimedFleeingMovementGenerator(enemy->GetGUID(), time));
         else

@@ -3107,7 +3107,25 @@ void Spell::DoCreateItem(uint32 i, uint32 itemtype)
 
 void Spell::EffectCreateItem(uint32 i)
 {
-    DoCreateItem(i,m_spellInfo->EffectItemType[i]);
+    // Add support for spells that create random loot items
+    switch(m_spellInfo->Id)
+    {
+        case 59502:             // Inscription - Darkmoon Card
+        case 59503:             // Inscription - Greater Darkmoon Card
+        case 59504:             // Inscription - Darkmoon Card of the North
+                {
+                    if(m_caster->GetTypeId()!=TYPEID_PLAYER)
+                        return;
+                    Player* player = (Player*)m_caster;
+
+                    // create some random items
+                    player->AutoStoreLoot(m_spellInfo->Id,LootTemplates_Spell);
+                    return;
+                }
+        default:
+            DoCreateItem(i,m_spellInfo->EffectItemType[i]);
+            return;
+    }
 }
 
 void Spell::EffectCreateItem2(uint32 i)
@@ -4151,7 +4169,7 @@ void Spell::EffectSummonGuardian(uint32 i)
         map->Add((Creature*)spawnCreature);
     }
 
-	if (pet_entry == 28511 )
+	if (pet_entry == 28511)
 	{
 					bool apply;
 			        Pet* guardian = NULL;
