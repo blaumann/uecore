@@ -98,6 +98,30 @@ bool IsPassiveSpell(uint32 spellId)
     return (spellInfo->Attributes & SPELL_ATTR_PASSIVE) != 0;
 }
 
+bool IsPetAutoCastableSpell(uint32 spellId)
+{
+    // obtain spell info
+    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
+    if (!spellInfo)
+        return false;
+
+    // class-based check
+    if (spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK)
+    {
+        // family-based check
+        if ((spellInfo->SpellFamilyFlags & SPELLFAMILYFLAG_WARLOCK_PET_SPELLS) ||
+            (spellInfo->SpellFamilyFlags2 & SPELLFAMILYFLAG_WARLOCK_PET_SPELLS2))
+        {
+            // this is pet spell, verify autocastability
+            if (spellInfo->AttributesEx & SPELL_ATTR_EX_PET_NOT_AUTOCASTABLE)
+                return false;
+        }
+    }
+
+    // default is autocastable
+    return true;
+}
+
 bool IsNoStackAuraDueToAura(uint32 spellId_1, uint32 effIndex_1, uint32 spellId_2, uint32 effIndex_2)
 {
     SpellEntry const *spellInfo_1 = sSpellStore.LookupEntry(spellId_1);

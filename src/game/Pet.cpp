@@ -1348,10 +1348,16 @@ bool Pet::addSpell(uint32 spell_id,ActiveStates active /*= ACT_DECIDE*/, PetSpel
         if(IsPassiveSpell(spell_id))
             newspell.active = ACT_PASSIVE;
         else
-            newspell.active = ACT_DISABLED;
+            newspell.active = IsPetAutoCastableSpell(spell_id) ? ACT_DISABLED : ACT_PASSIVE;
     }
     else
-        newspell.active = active;
+    {
+        if (((active != ACT_DISABLED) && (active != ACT_ENABLED)) ||
+             IsPetAutoCastableSpell(spell_id))
+            newspell.active = active;
+        else
+            newspell.active = ACT_PASSIVE;
+    }
 
     // talent: unlearn all other talent ranks (high and low)
     if(TalentSpellPos const* talentPos = GetTalentSpellPos(spell_id))
@@ -1739,6 +1745,9 @@ uint8 Pet::GetMaxTalentPointsForLevel(uint32 level)
 void Pet::ToggleAutocast(uint32 spellid, bool apply)
 {
     if(IsPassiveSpell(spellid))
+        return;
+
+    if (!IsPetAutoCastableSpell(spellid))
         return;
 
     // Sacrifice is not autocastable

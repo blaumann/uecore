@@ -2051,6 +2051,11 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
     {
         switch(GetId())
         {
+            case 7057:                                      // Haunting Spirits
+                m_isPeriodic = true;
+                m_modifier.periodictime = irand (0, 60) + 30;
+                m_modifier.periodictime *= IN_MILISECONDS;
+                return;
             case 1515:                                      // Tame beast
                 // FIX_ME: this is 2.0.12 threat effect replaced in 2.1.x by dummy aura, must be checked for correctness
                 if( caster && m_target->CanHaveThreatList())
@@ -4047,7 +4052,7 @@ void Aura::HandleModThreat(bool apply, bool Real)
         if(m_modifier.m_miscvalue & int32(1<<x))
         {
             if(m_target->GetTypeId() == TYPEID_PLAYER)
-                ApplyPercentModFloatVar(m_target->m_threatModifier[x], m_positive ? m_modifier.m_amount : -m_modifier.m_amount, apply);
+                ApplyPercentModFloatVar(m_target->m_threatModifier[x], m_modifier.m_amount, apply);
         }
     }
 }
@@ -5707,9 +5712,6 @@ void Aura::HandleAuraUntrackable(bool apply, bool /*Real*/)
 
 void Aura::HandleAuraModPacify(bool apply, bool /*Real*/)
 {
-    if(m_target->GetTypeId() != TYPEID_PLAYER)
-        return;
-
     if(apply)
         m_target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
     else
@@ -5983,6 +5985,23 @@ void Aura::HandleSchoolAbsorb(bool apply, bool Real)
             m_modifier.m_amount += (int32)DoneActualBenefit;
         }
     }
+    else
+        // Shattered Barrier
+        if (m_spellProto->SpellIconID == 32 && m_spellProto->SpellFamilyName == SPELLFAMILY_MAGE)
+        {
+            Unit* caster = GetCaster();
+            if (!caster || m_removeMode == AURA_REMOVE_BY_CANCEL  || m_removeMode == AURA_REMOVE_BY_DISPEL)
+                return;
+
+            if (caster->HasAura(44745) && roll_chance_i(50))
+            {
+                caster->CastSpell(caster, 55080, true);
+            }
+            if (caster->HasAura(54787))
+            {
+                caster->CastSpell(caster, 55080, true);
+            }
+        }
 }
 
 void Aura::PeriodicTick()
@@ -6527,6 +6546,18 @@ void Aura::PeriodicTick()
             // so 17 is rounded amount for 5 sec tick grow ~ 1 range grow in 3 sec
             if(pt == POWER_RAGE)
                 m_target->ModifyPower(pt, m_modifier.m_amount*3/5);
+            break;
+        }
+		case SPELL_AURA_DUMMY:
+		{
+            //Haunting Spirits
+            if (GetId() == 7057)
+            {
+                m_target->CastSpell((Unit*)NULL , m_modifier.m_amount , true);
+                m_modifier.periodictime = irand (0 , 60 ) + 30;
+                m_modifier.periodictime *= IN_MILISECONDS;
+                break;
+            }
             break;
         }
         // Here tick dummy auras

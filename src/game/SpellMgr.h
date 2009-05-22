@@ -76,6 +76,9 @@ enum SpellFamilyNames
 #define SPELLFAMILYFLAG_ROGUE__FINISHING_MOVE   0x9003E0000LL
 
 #define SPELLFAMILYFLAG_PALADIN_SEALS           0x26000C000A000000LL
+
+#define SPELLFAMILYFLAG_WARLOCK_PET_SPELLS      0x0350000042803000LL
+#define SPELLFAMILYFLAG_WARLOCK_PET_SPELLS2     0x00000400LL
 // Spell clasification
 enum SpellSpecific
 {
@@ -148,6 +151,7 @@ int32 CompareAuraRanks(uint32 spellId_1, uint32 effIndex_1, uint32 spellId_2, ui
 bool IsSingleFromSpellSpecificPerCaster(SpellSpecific spellSpec1,SpellSpecific spellSpec2);
 bool IsSingleFromSpellSpecificRanksPerTarget(SpellSpecific spellId_spec, SpellSpecific i_spellId_spec);
 bool IsPassiveSpell(uint32 spellId);
+bool IsPetAutoCastableSpell(uint32 spellId);
 
 inline bool IsPassiveSpellStackableWithRanks(SpellEntry const* spellProto)
 {
