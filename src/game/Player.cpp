@@ -439,6 +439,9 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
 
     m_lastPotionId = 0;
 
+    m_activeSpec = 0;
+    m_speakCount = 0;
+
     for (int i = 0; i < BASEMOD_END; ++i)
     {
         m_auraBaseMod[i][FLAT_MOD] = 0.0f;
@@ -2785,7 +2788,7 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
                 if(next_active_spell_id)
                 {
                     // update spell ranks in spellbook and action bar
-                    WorldPacket data(SMSG_SUPERCEDED_SPELL, (4));
+                    WorldPacket data(SMSG_SUPERCEDED_SPELL, 4 + 4);
                     data << uint32(spell_id);
                     data << uint32(next_active_spell_id);
                     GetSession()->SendPacket( &data );
@@ -2884,7 +2887,7 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
                         {
                             if(IsInWorld())                 // not send spell (re-/over-)learn packets at loading
                             {
-                                WorldPacket data(SMSG_SUPERCEDED_SPELL, (4));
+                                WorldPacket data(SMSG_SUPERCEDED_SPELL, 4 + 4);
                                 data << uint32(itr2->first);
                                 data << uint32(spell_id);
                                 GetSession()->SendPacket( &data );
@@ -2900,7 +2903,7 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
                         {
                             if(IsInWorld())                 // not send spell (re-/over-)learn packets at loading
                             {
-                                WorldPacket data(SMSG_SUPERCEDED_SPELL, (4));
+                                WorldPacket data(SMSG_SUPERCEDED_SPELL, 4 + 4);
                                 data << uint32(spell_id);
                                 data << uint32(itr2->first);
                                 GetSession()->SendPacket( &data );
@@ -3048,7 +3051,7 @@ bool Player::IsNeedCastPassiveSpellAtLearn(SpellEntry const* spellInfo) const
 
     switch(spellInfo->Id)
     {
-        // some spells not have stance data expacted cast at form change or present
+        // some spells not have stance data expected cast at form change or present
         case  5420: need_cast = (m_form == FORM_TREE);            break;
         case  5419: need_cast = (m_form == FORM_TRAVEL);          break;
         case  7376: need_cast = (m_form == FORM_DEFENSIVESTANCE); break;
@@ -3258,7 +3261,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool update_action_bar_
                         if(update_action_bar_for_low_rank)
                         {
                             // downgrade spell ranks in spellbook and action bar
-                            WorldPacket data(SMSG_SUPERCEDED_SPELL, (4));
+                            WorldPacket data(SMSG_SUPERCEDED_SPELL, 4 + 4);
                             data << uint32(spell_id);
                             data << uint32(prev_id);
                             GetSession()->SendPacket( &data );
@@ -3286,7 +3289,7 @@ void Player::RemoveSpellCooldown( uint32 spell_id, bool update /* = false */ )
 
     if(update)
     {
-        WorldPacket data(SMSG_CLEAR_COOLDOWN, (4+8));
+        WorldPacket data(SMSG_CLEAR_COOLDOWN, 4 + 8);
         data << uint32(spell_id);
         data << uint64(GetGUID());
         SendDirectMessage(&data);
@@ -3309,7 +3312,7 @@ void Player::RemoveArenaSpellCooldowns()
             entry->CategoryRecoveryTime <= 15 * MINUTE * IN_MILISECONDS )
         {
             // notify player
-            WorldPacket data(SMSG_CLEAR_COOLDOWN, (4+8));
+            WorldPacket data(SMSG_CLEAR_COOLDOWN, 4 + 8);
             data << uint32(itr->first);
             data << uint64(GetGUID());
             GetSession()->SendPacket(&data);
@@ -3325,7 +3328,7 @@ void Player::RemoveAllSpellCooldown()
     {
         for(SpellCooldowns::const_iterator itr = m_spellCooldowns.begin();itr != m_spellCooldowns.end(); ++itr)
         {
-            WorldPacket data(SMSG_CLEAR_COOLDOWN, (4+8));
+            WorldPacket data(SMSG_CLEAR_COOLDOWN, 4 + 8);
             data << uint32(itr->first);
             data << uint64(GetGUID());
             GetSession()->SendPacket(&data);
@@ -15151,18 +15154,18 @@ void Player::_LoadQuestStatus(QueryResult *result)
 
                 // add to quest log
                 if( slot < MAX_QUEST_LOG_SIZE &&
-                    ( questStatusData.m_status==QUEST_STATUS_INCOMPLETE ||
-                    questStatusData.m_status==QUEST_STATUS_COMPLETE &&
+                    ( questStatusData.m_status == QUEST_STATUS_INCOMPLETE ||
+                    questStatusData.m_status == QUEST_STATUS_COMPLETE &&
                     (!questStatusData.m_rewarded || pQuest->IsDaily()) ) )
                 {
-                    SetQuestSlot(slot,quest_id,quest_time);
+                    SetQuestSlot(slot, quest_id, quest_time);
 
                     if(questStatusData.m_status == QUEST_STATUS_COMPLETE)
-                        SetQuestSlotState(slot,QUEST_STATE_COMPLETE);
+                        SetQuestSlotState(slot, QUEST_STATE_COMPLETE);
 
                     for(uint8 idx = 0; idx < QUEST_OBJECTIVES_COUNT; ++idx)
                         if(questStatusData.m_creatureOrGOcount[idx])
-                            SetQuestSlotCounter(slot,idx,questStatusData.m_creatureOrGOcount[idx]);
+                            SetQuestSlotCounter(slot, idx, questStatusData.m_creatureOrGOcount[idx]);
 
                     ++slot;
                 }
@@ -15180,7 +15183,7 @@ void Player::_LoadQuestStatus(QueryResult *result)
                     }
 
                     if(pQuest->GetBonusTalents())
-                        m_questRewardTalentCount+=pQuest->GetBonusTalents();
+                        m_questRewardTalentCount += pQuest->GetBonusTalents();
                 }
 
                 sLog.outDebug("Quest status is {%u} for quest {%u} for player (GUID: %u)", questStatusData.m_status, quest_id, GetGUIDLow());
@@ -15193,7 +15196,7 @@ void Player::_LoadQuestStatus(QueryResult *result)
 
     // clear quest log tail
     for ( uint16 i = slot; i < MAX_QUEST_LOG_SIZE; ++i )
-        SetQuestSlot(i,0);
+        SetQuestSlot(i, 0);
 }
 
 void Player::_LoadDailyQuestStatus(QueryResult *result)
@@ -15407,7 +15410,7 @@ void Player::SendRaidInfo()
             }
         }
     }
-    data.put<uint32>(p_counter,counter);
+    data.put<uint32>(p_counter, counter);
     GetSession()->SendPacket(&data);
 }
 
@@ -17242,8 +17245,8 @@ void Player::ProhibitSpellScholl(SpellSchoolMask idSchoolMask, uint32 unTimeMs )
 
         if((idSchoolMask & GetSpellSchoolMask(spellInfo)) && GetSpellCooldownDelay(unSpellId) < unTimeMs )
         {
-            data << unSpellId;
-            data << unTimeMs;                               // in m.secs
+            data << uint32(unSpellId);
+            data << uint32(unTimeMs);                       // in m.secs
             AddSpellCooldown(unSpellId, 0, curTime + unTimeMs/IN_MILISECONDS);
         }
     }
@@ -18247,7 +18250,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     SendEquipmentSetList();
 
-    data.Initialize(SMSG_LOGIN_SETTIMESPEED, 8);
+    data.Initialize(SMSG_LOGIN_SETTIMESPEED, 4 + 4 + 4);
     data << uint32(secsToTimeBitFields(sWorld.GetGameTime()));
     data << (float)0.01666667f;                             // game speed
     data << uint32(0);                                      // added in 3.1.2
@@ -20714,4 +20717,12 @@ bool Player::canSeeSpellClickOn(Creature const *c) const
             return true;
     }
     return false;
+}
+
+void Player::ActivateSpec(uint32 specNum)
+{
+    if(GetActiveSpec() == specNum)
+        return;
+
+    resetTalents(true);
 }
