@@ -2964,6 +2964,18 @@
 						>
 					</File>
 				</Filter>
+				<Filter
+					Name="Northend"
+					>
+					<File
+						RelativePath="..\scripts\zone\northend\def_northrend.h"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\northend\instance_northrend.cpp"
+						>
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter

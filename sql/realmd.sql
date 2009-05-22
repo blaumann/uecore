@@ -16,6 +16,26 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `realmd_db_version`
+--
+
+DROP TABLE IF EXISTS `realmd_db_version`;
+CREATE TABLE `realmd_db_version` (
+  `required_7867_01_realmd_account` bit(1) default NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Last applied sql update to DB';
+
+--
+-- Dumping data for table `realmd_db_version`
+--
+
+LOCK TABLES `realmd_db_version` WRITE;
+/*!40000 ALTER TABLE `realmd_db_version` DISABLE KEYS */;
+INSERT INTO `realmd_db_version` VALUES
+(NULL);
+/*!40000 ALTER TABLE `realmd_db_version` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `account`
 --
 
@@ -31,16 +51,16 @@ CREATE TABLE `account` (
   `v` longtext,
   `s` longtext,
   `email` text,
-  `joindate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `last_ip` varchar(30) NOT NULL DEFAULT '127.0.0.1',
-  `failed_logins` int(11) unsigned NOT NULL DEFAULT '0',
-  `locked` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `last_login` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `online` tinyint(4) NOT NULL DEFAULT '0',
-  `expansion` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `mutetime` bigint(40) unsigned NOT NULL DEFAULT '0',
-  `locale` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
+  `joindate` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  `last_ip` varchar(30) NOT NULL default '0.0.0.0',
+  `failed_logins` int(11) unsigned NOT NULL default '0',
+  `locked` tinyint(3) unsigned NOT NULL default '0',
+  `last_login` timestamp NOT NULL default '0000-00-00 00:00:00',
+  `online` tinyint(4) NOT NULL default '0',
+  `expansion` tinyint(3) unsigned NOT NULL default '0',
+  `mutetime` bigint(40) unsigned NOT NULL default '0',
+  `locale` tinyint(3) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`id`),
   UNIQUE KEY `idx_username` (`username`),
   KEY `idx_gmlevel` (`gmlevel`)
 ) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Account System';
@@ -115,7 +135,7 @@ DROP TABLE IF EXISTS `ip_banned`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `ip_banned` (
-  `ip` varchar(32) NOT NULL DEFAULT '127.0.0.1',
+  `ip` varchar(32) NOT NULL default '0.0.0.0',
   `bandate` bigint(40) NOT NULL,
   `unbandate` bigint(40) NOT NULL,
   `bannedby` varchar(50) NOT NULL DEFAULT '[Console]',

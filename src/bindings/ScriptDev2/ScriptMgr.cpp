@@ -486,6 +486,9 @@ extern void AddSC_npc_naxxramas_controler();
 //Netherstorm
 extern void AddSC_netherstorm();
 
+//Northend
+extern void AddSC_instance_northrend();
+
 //Nexus
 //--Eye of Eternity
 extern void AddSC_boss_malygos();
@@ -1547,6 +1550,9 @@ void ScriptsInit()
 
     //Netherstorm
     AddSC_netherstorm();
+
+    //Northend
+    AddSC_instance_northrend();
 
     //Nexus
     //--Eye of Eternity

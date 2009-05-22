@@ -133,3 +133,16 @@ delete from `spell_proc_event` where `entry` ='33182';
 insert into `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) values('33182','2','6','32','1024','0','16384','0','0','0','0');
 delete from `spell_proc_event` where `entry` ='33174';
 insert into `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) values('33174','2','6','32','1024','0','16384','0','0','0','0');
+
+-- Glyph of Ice Block ()
+DELETE FROM `spell_proc_event` WHERE `entry` = 56372;
+INSERT INTO `spell_proc_event` VALUES
+(56372, 0x00, 3, 0x00000000, 0x00000080, 0x00000000, 0x00004000, 0x00000000, 0.000000, 0.000000, 0);
+
+-- 47569 Improved Shadowform (Rank 1)
+DELETE FROM `spell_proc_event` WHERE `entry` IN (47569); 
+INSERT INTO `spell_proc_event` VALUES (47569, 0x00, 6, 0x00004000, 0x00000000, 0x00000000, 0x00004000, 0x00000000, 0.000000, 50.000000, 0);
+
+-- 47570 Improved Shadowform (Rank 2)
+DELETE FROM `spell_proc_event` WHERE `entry` IN (47570); 
+INSERT INTO `spell_proc_event` VALUES (47570, 0x00, 6, 0x00004000, 0x00000000, 0x00000000, 0x00004000, 0x00000000, 0.000000, 100.000000, 0);
