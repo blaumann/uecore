@@ -470,7 +470,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (GetPlayer()->hasUnitState(UNIT_STAT_STUNNED))
+    if (GetPlayer()->hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ON_VEHICLE))
     {
         SendTradeStatus(TRADE_STATUS_YOU_STUNNED);
         return;
@@ -516,7 +516,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (pOther->hasUnitState(UNIT_STAT_STUNNED))
+    if (pOther->hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ON_VEHICLE))
     {
         SendTradeStatus(TRADE_STATUS_TARGET_STUNNED);
         return;

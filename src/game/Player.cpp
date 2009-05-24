@@ -9797,7 +9797,7 @@ uint8 Player::CanEquipItem( uint8 slot, uint16 &dest, Item *pItem, bool swap, bo
             {
                 // May be here should be more stronger checks; STUNNED checked
                 // ROOT, CONFUSED, DISTRACTED, FLEEING this needs to be checked.
-                if (hasUnitState(UNIT_STAT_STUNNED))
+                if (hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ON_VEHICLE))
                     return EQUIP_ERR_YOU_ARE_STUNNED;
 
                 // do not allow equipping gear except weapons, offhands, projectiles, relics in
@@ -16493,15 +16493,6 @@ void Player::Uncharm()
     if(!charm)
         return;
 
-    if(charm->GetTypeId() == TYPEID_UNIT)
-    {
-        if(((Creature*)charm)->isPet() && ((Pet*)charm)->getPetType() == SUMMON_TYPE_POSESSED)
-            ((Pet*)charm)->Remove(PET_SAVE_AS_DELETED);
-        else if(((Creature*)charm)->isVehicle())
-            ExitVehicle((Vehicle*)charm);
-    }
-    if(GetCharmGUID())
-
     charm->RemoveSpellsCausingAura(SPELL_AURA_MOD_CHARM);
     charm->RemoveSpellsCausingAura(SPELL_AURA_MOD_POSSESS);
 }
@@ -18296,6 +18287,14 @@ void Player::SendInitialPacketsAfterAddToMap()
         SendMessageToSet(&data2,true);
     }
 
+    if(GetVehicle())
+    {
+        WorldPacket data3(SMSG_FORCE_MOVE_ROOT, 10);
+        data3.append(GetPackGUID());
+        data3 << (uint32)((m_SeatData.s_flags & SF_CAN_CAST) ? 2 : 0);
+        SendMessageToSet(&data3,true);
+    }
+
     SendAutoRepeatCancel();
     SendAurasForTarget(this);
     SendEnchantmentDurations();                             // must be after add to map
@@ -19656,31 +19655,16 @@ void Player::InitGlyphsForLevel()
 
 #define DEFAULT_SPELL_STATE 0x8100
 
-void Player::EnterVehicle(Vehicle *vehicle, int8 seat_id)
+void Player::SendEnterVehicle(Vehicle *vehicle)
 {
     if(m_transport)               // if we were on a transport, leave
     {
         m_transport->RemovePassenger(this);
         m_transport = NULL;
     }
-    // vehicle is our transport from now, if i get to zeppelin or boat
+    // vehicle is our transport from now, if we get to zeppelin or boat
     // with vehicle, ONLY my vehicle will be passenger on that transport
     // player ----> vehicle ----> zeppelin
-    // TODO : rewrite sometime whole transport thing to allow npc passenger
-
-    vehicle->SetCharmerGUID(GetGUID());
-    vehicle->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);    //TODO : remove only when no seats left
-    vehicle->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);   //TODO : add only at first player enter and remove at last player leave
-    vehicle->setFaction(getFaction());                      //TODO : not always
-
-    SetCharm(vehicle);                                      // charm
-    SetFarSightGUID(vehicle->GetGUID());                    // set view
-
-    SetClientControl(vehicle, 1);                           // redirect controls to vehicle
-    //TODO : there are 
-    //1 - self controled vehicles (its going on defined WPs)
-    //2 - vehicles controled by player/creature seating in main seat
-    //3 - vehicle with passengers inside, but no-one is seating in main seat
 
     WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
     GetSession()->SendPacket(&data);
@@ -19708,56 +19692,41 @@ void Player::EnterVehicle(Vehicle *vehicle, int8 seat_id)
     data << uint32(0);                                      // fall time
     GetSession()->SendPacket(&data);
 
+    VehicleDataStructure const* VehicleDS = objmgr.GetVehicleData(vehicle->GetEntry());
+    // this cant happen, but..
+    if(!VehicleDS)
+        return;
+
     data.Initialize(SMSG_PET_SPELLS, 8 + 4 + 4 + 4 + 4*10 + 1 + 1);
     data << uint64(vehicle->GetGUID());
-    data << uint32(0x00000000);// creature family, not used in vehicles
-    data << uint32(0x00000000);// flags probably related to different ACTION BARS
+    data << uint32(0x00000000);                     // creature family, not used in vehicles
+    data << uint32(VehicleDS->v_spell_flag);        // flags probably related to different ACTION BARS
     data << uint32(0x00000101);
 
-    for(uint32 i = 0; i < 10; ++i)
-        data << uint16(0) << uint8(0) << uint8(i+8);
+    for(uint32 i = 0; i < MAX_VEHICLE_SPELLS; ++i)
+        data << uint16(VehicleDS->v_spells[i]) << uint8(0) << uint8(i+8);
 
-    data << uint8(0);    //aditional spells in spellbook, not used in vehicles
-    data << uint8(0);    //cooldowns remaining, TODO : handle this sometime, uint8 count, uint32 spell, uint32 time, uint32 time
+    data << uint8(0);                               //aditional spells in spellbook, not used in vehicles
+    data << uint8(0);                               //cooldowns remaining, TODO : handle this sometime, uint8 count, uint32 spell, uint32 time, uint32 time
     GetSession()->SendPacket(&data);
 }
 
-void Player::ExitVehicle(Vehicle *vehicle)
+void Player::SendExitVehicle()
 {
-    vehicle->SetCharmerGUID(0);
-    vehicle->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-    vehicle->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
-    vehicle->setFaction((GetTeam() == ALLIANCE) ? vehicle->GetCreatureInfo()->faction_A : vehicle->GetCreatureInfo()->faction_H);
-
-    SetCharm(NULL);
-    SetFarSightGUID(0);
-
-    SetClientControl(vehicle, 0);
-
     WorldPacket data(MSG_MOVE_TELEPORT_ACK, 30);
     data.append(GetPackGUID());
     data << uint32(0);                                      // counter?
     data << uint32(MOVEMENTFLAG_FLY_UNK1);                  // fly unk
     data << uint16(0x40);                                   // special flags
     data << uint32(getMSTime());                            // time
-    data << vehicle->GetPositionX();                        // x
-    data << vehicle->GetPositionY();                        // y
-    data << vehicle->GetPositionZ();                        // z
-    data << vehicle->GetOrientation();                      // o
+    data << GetPositionX();                                 // x
+    data << GetPositionY();                                 // y
+    data << GetPositionZ()+20.0f;                           // z
+    data << GetOrientation();                               // o
     data << uint32(0);                                      // fall time
     GetSession()->SendPacket(&data);
 
-    data.Initialize(SMSG_PET_SPELLS, 8 + 4);
-    data << uint64(0);
-    data << uint32(0);
-    GetSession()->SendPacket(&data);
-
-    // TODO : implement DB handling of these dummy auras remove,
-    // most of them just cast another spell
-    // maybe called at dummy aura remove?
-    // CastSpell(this, 45472, true);                           // Parachute
-
-    // NOTE : we should resummon pet here?
+    ResummonPetTemporaryUnSummonedIfAny();
 }
 
 bool Player::isTotalImmune()

@@ -1981,8 +1981,8 @@ class MANGOS_DLL_SPEC Player : public Unit
         void SetClientControl(Unit* target, uint8 allowMove);
 
         // vehicle system
-        void EnterVehicle(Vehicle *vehicle, int8 seat_id);
-        void ExitVehicle(Vehicle *vehicle);
+        void SendEnterVehicle(Vehicle *vehicle);
+        void SendExitVehicle();
 
         uint64 GetFarSight() const { return GetUInt64Value(PLAYER_FARSIGHT); }
         void SetFarSightGUID(uint64 guid) { SetUInt64Value(PLAYER_FARSIGHT, guid); }

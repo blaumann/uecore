@@ -31,6 +31,7 @@ struct VehicleSeat
     VehicleSeatEntry const *seatInfo;
     Unit* passenger;
     uint8 flags;
+    uint32 vs_flags;
 };
 
 enum VehicleSeatFlags
@@ -55,7 +56,7 @@ class Vehicle : public Creature
         void AddToWorld();
         void RemoveFromWorld();
 
-        bool Create (uint32 guidlow, Map *map, uint32 Entry, uint32 vehicleId, uint32 team);
+        bool Create (uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 vehicleId, uint32 team);
 
         void setDeathState(DeathState s);                   // overwrite virtual Creature::setDeathState and Unit::setDeathState
         void Update(uint32 diff);                           // overwrite virtual Creature::Update and Unit::Update
@@ -65,21 +66,42 @@ class Vehicle : public Creature
 
         void InitSeats();
 
-        bool FindFreeSeat(int8 *seatid);
-        bool GetNextEmptySeat(int8 *seatId, bool next = true);
-        bool GetFirstEmptySeat(int8 *seatId);
-        int8 GetEmptySeatsCount();
+        void ChangeSeatFlag(uint8 seat, uint8 flag);
+        bool FindFreeSeat(int8 *seatid, bool force = true);
+        bool GetNextEmptySeat(int8 *seatId, bool next = true, bool force = true);
+        bool GetFirstEmptySeat(int8 *seatId, bool force = true);
+        int8 GetEmptySeatsCount(bool force = true);
+        void EmptySeatsCountChanged();
+        int8 GetTotalSeatsCount()
+        {
+            return m_Seats.size();
+        }
 
         void Dismiss();
 
-        void EnterVehicle(Vehicle *vehicle, int8 seat_id);
-        void ExitVehicle(Vehicle *vehicle);
         SeatMap m_Seats;
 
         void RellocatePassengers(Map *map);
+        void AddPassenger(Unit *unit, int8 seatId, bool force = true);
+        void RemovePassenger(Unit *unit);
+        void RemoveAllPassengers();
+
+        bool HasSpell(uint32 spell) const;
+        void SetSpawnDuration(int32 duration)
+        {
+            duration < 1 ? despawn = false : despawn = true;
+            m_spawnduration = duration;
+        }
+        uint32 GetVehicleFlags()
+        {
+            return m_vehicleflags;
+        }
     protected:
         uint32 m_vehicleId;
+        uint32 m_vehicleflags;
         VehicleEntry const *m_vehicleInfo;
+        int32 m_spawnduration;
+        bool despawn;
 
     private:
         void SaveToDB(uint32, uint8)                        // overwrited of Creature::SaveToDB     - don't must be called

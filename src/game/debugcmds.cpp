@@ -620,7 +620,7 @@ bool ChatHandler::HandleDebugSpawnVehicle(const char* args)
 
     Vehicle *v = new Vehicle;
     Map *map = m_session->GetPlayer()->GetMap();
-    if(!v->Create(objmgr.GenerateLowGuid(HIGHGUID_VEHICLE), map, entry, id, m_session->GetPlayer()->GetTeam()))
+    if(!v->Create(objmgr.GenerateLowGuid(HIGHGUID_VEHICLE), map, m_session->GetPlayer()->GetPhaseMask(), entry, id, m_session->GetPlayer()->GetTeam()))
     {
         delete v;
         return false;

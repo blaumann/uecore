@@ -807,8 +807,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
 
     if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
     {
-        // Aura::HandleAuraControlVehicle will call Player::ExitVehicle
-        vehicle->RemoveSpellsCausingAura(SPELL_AURA_CONTROL_VEHICLE);
+        vehicle->Dismiss();
     }
 }
 
@@ -824,7 +823,7 @@ void WorldSession::HandleRequestVehicleExit(WorldPacket &recv_data)
 
     if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
     {
-        _player->ExitVehicle(vehicle);
+        _player->ExitVehicle();
     }
 }
 
@@ -840,7 +839,11 @@ void WorldSession::HandleRequestVehiclePrevSeat(WorldPacket &recv_data)
 
     if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
     {
-        // todo
+        int8 prv_seat = _player->m_SeatData.seat;
+        if(!vehicle->GetNextEmptySeat(&prv_seat, false, false))
+            return;
+        vehicle->RemovePassenger(_player);
+        _player->EnterVehicle(vehicle, prv_seat, false);
     }
 }
 
@@ -856,7 +859,11 @@ void WorldSession::HandleRequestVehicleNextSeat(WorldPacket &recv_data)
 
     if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
     {
-        // todo
+        int8 nxt_seat = _player->m_SeatData.seat;
+        if(!vehicle->GetNextEmptySeat(&nxt_seat, true, false))
+            return;
+        vehicle->RemovePassenger(_player);
+        _player->EnterVehicle(vehicle, nxt_seat, false);
     }
 }
 
@@ -872,7 +879,11 @@ void WorldSession::HandleRequestVehicleSwitchSeat(WorldPacket &recv_data)
 
     if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
     {
-        // todo
+        int8 nxt_seat = _player->m_SeatData.seat;
+        if(!vehicle->GetNextEmptySeat(&nxt_seat, true, false))
+            return;
+        vehicle->RemovePassenger(_player);
+        _player->EnterVehicle(vehicle, nxt_seat, false);
     }
 }
 
@@ -898,18 +909,28 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
             return;
 
         CHECK_PACKET_SIZE(recv_data, recv_data.rpos()+1);
-        int8 seatId;
+        int8 seatId = 0;
         recv_data >> seatId;
         
         if(guid)
         {
             if(vehicleGUID != guid)
             {
-                // this can happen when are 2 united vehicles
+                if(Vehicle *veh = ObjectAccessor::GetVehicle(guid))
+                {
+                    if(veh->FindFreeSeat(&seatId, false))
+                    {
+                        vehicle->RemovePassenger(_player);
+                        _player->EnterVehicle(veh, seatId, false);
+                    }
+                }
                 return;
             }
-            // TODO
         }
+        if(!vehicle->FindFreeSeat(&seatId, false))
+            return;
+        vehicle->RemovePassenger(_player);
+        _player->EnterVehicle(vehicle, seatId, false);
     }
 }
 

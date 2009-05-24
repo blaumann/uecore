@@ -7686,7 +7686,7 @@ void ObjectMgr::LoadVehicleData()
         VDS.entry           = fields[1].GetUInt32();
         VDS.v_flags         = fields[2].GetUInt32();
         VDS.v_spell_flag    = fields[3].GetUInt32();
-        for(uint8 j = 0; j < 10; j++)
+        for(uint8 j = 0; j < MAX_VEHICLE_SPELLS; j++)
         {
             VDS.v_spells[j] = fields[j+4].GetUInt32();
         }
@@ -7707,7 +7707,7 @@ void ObjectMgr::LoadVehicleData()
                 continue;
             }
         }
-        for(uint8 j = 0; j < 10; j++)
+        for(uint8 j = 0; j < MAX_VEHICLE_SPELLS; j++)
         {
             if(VDS.v_spells[j])
             {

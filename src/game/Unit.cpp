@@ -9726,6 +9726,7 @@ void Unit::setDeathState(DeathState s)
 
     if (s == JUST_DIED)
     {
+        ExitVehicle();
         RemoveAllAurasOnDeath();
         UnsummonAllTotems();
 
@@ -10905,7 +10906,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
     if (procFlag & MELEE_BASED_TRIGGER_MASK)
     {
         // Update skills here for players
-        if (GetTypeId() == TYPEID_PLAYER)
+        if (GetTypeId() == TYPEID_PLAYER && !GetVehicle())
         {
             // On melee based hit/miss/resist need update skill (for victim and attacker)
             if (procExtra&(PROC_EX_NORMAL_HIT|PROC_EX_MISS|PROC_EX_RESIST))
@@ -11334,7 +11335,7 @@ void Unit::SetConfused(bool apply, uint64 casterGUID, uint32 spellID)
         }
     }
 
-    if(GetTypeId() == TYPEID_PLAYER)
+    if(GetTypeId() == TYPEID_PLAYER && !GetVehicle())
         ((Player*)this)->SetClientControl(this, !apply);
 }
 
@@ -11973,68 +11974,57 @@ void Unit::SetPvP( bool state )
                 totem->SetPvP(state);
 }
 
-void Unit::EnterVehicle(Vehicle *vehicle, int8 seat_id)
+void Unit::EnterVehicle(Vehicle *vehicle, int8 seat_id, bool force)
 {
     VehicleEntry const *ve = sVehicleStore.LookupEntry(vehicle->GetVehicleId());
     if(!ve)
         return;
 
-    VehicleSeatEntry const *veSeat = sVehicleSeatStore.LookupEntry(ve->m_seatID[0]);
-    if(!veSeat)
+    if(!vehicle->FindFreeSeat(&seat_id, force))
         return;
 
-    if(!vehicle->FindFreeSeat(&seat_id))
+    VehicleSeatEntry const *veSeat = sVehicleSeatStore.LookupEntry(ve->m_seatID[seat_id]);
+    if(!veSeat)
         return;
+    InterruptNonMeleeSpells(true);
 
     m_SeatData.OffsetX = veSeat->m_attachmentOffsetX;                                                           // transport offsetX
     m_SeatData.OffsetY = veSeat->m_attachmentOffsetY;                                                           // transport offsetY
     m_SeatData.OffsetZ = veSeat->m_attachmentOffsetZ;                                                           // transport offsetZ
     m_SeatData.Orientation = veSeat->m_passengerYaw;                                                            // NOTE : needs confirmation
     m_SeatData.seat = seat_id;
+    m_SeatData.s_flags = objmgr.GetSeatFlags(veSeat->m_ID);
 
-    // what about united vehicles?
-    SetVehicle(vehicle->GetGUID());
+    addUnitState(UNIT_STAT_ON_VEHICLE);
     AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+    // interupt autorepeat spells here
 
-    // NOTE : we can have a player or creature passenger,
-    // but there is also special case : vehicle passenger,
-    // eg. http://www.wowhead.com/?npc=28312, where on top
-    // of first vehicle is another one - Turret
+    if(Pet *pet = GetPet())
+        pet->Remove(PET_SAVE_AS_CURRENT);
+
+    vehicle->AddPassenger(this, seat_id, force);
+
     if(GetTypeId() == TYPEID_PLAYER)
     {
-        ((Player*)this)->EnterVehicle(vehicle, seat_id);
+        ((Player*)this)->SendEnterVehicle(vehicle);
         return;
     }
-    else if(GetTypeId() == TYPEID_UNIT)
-    {
-        if(((Creature*)this)->isVehicle())
-        {
-            ((Vehicle*)this)->EnterVehicle(vehicle, seat_id);
-            return;
-        }
-    }
-    //TODO : finish this
 }
-void Unit::ExitVehicle(Vehicle *vehicle)
+void Unit::ExitVehicle()
 {
-    SetVehicle(NULL);
-    RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
-    // NOTE : we can have a player or creature passenger,
-    // but there is also special case : vehicle passenger,
-    // eg. http://www.wowhead.com/?npc=28312, where on top
-    // of first vehicle is another one - Turret
-    if(GetTypeId() == TYPEID_PLAYER)
+    if(uint64 vehicleGUID = GetVehicle())
     {
-        ((Player*)this)->ExitVehicle(vehicle);
-        return;
-    }
-    else if(GetTypeId() == TYPEID_UNIT)
-    {
-        if(((Creature*)this)->isVehicle())
+        if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
         {
-            ((Vehicle*)this)->ExitVehicle(vehicle);
+            vehicle->RemovePassenger(this);
+        }
+        clearUnitState(UNIT_STAT_ON_VEHICLE);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+
+        if(GetTypeId() == TYPEID_PLAYER)
+        {
+            ((Player*)this)->SendExitVehicle();
             return;
         }
     }
-    //TODO : finish this
 }

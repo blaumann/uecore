@@ -407,6 +407,7 @@ enum UnitState
     UNIT_STAT_DISTRACTED      = 0x1000,
     UNIT_STAT_ISOLATED        = 0x2000,                     // area auras do not affect other players
     UNIT_STAT_ATTACK_PLAYER   = 0x4000,
+    UNIT_STAT_ON_VEHICLE      = 0x8000,
     UNIT_STAT_ALL_STATE       = 0xffff                      //(UNIT_STAT_STOPPED | UNIT_STAT_MOVING | UNIT_STAT_IN_COMBAT | UNIT_STAT_IN_FLIGHT)
 };
 
@@ -919,7 +920,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool CanFreeMove() const
         {
             return !hasUnitState(UNIT_STAT_CONFUSED | UNIT_STAT_FLEEING | UNIT_STAT_IN_FLIGHT |
-                UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED ) && GetOwnerGUID()==0;
+                UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED | UNIT_STAT_ON_VEHICLE) && GetOwnerGUID()==0;
         }
 
         uint32 getLevel() const { return GetUInt32Value(UNIT_FIELD_LEVEL); }
@@ -1494,8 +1495,8 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         void RemovePetAura(PetAura const* petSpell);
 
         // vehicle system
-        virtual void EnterVehicle(Vehicle *vehicle, int8 seat_id);
-        virtual void ExitVehicle(Vehicle *vehicle);
+        void EnterVehicle(Vehicle *vehicle, int8 seat_id, bool force = false);
+        void ExitVehicle();
         uint64 GetVehicle() { return m_vehicle; }
         void SetVehicle(uint64 guid) { m_vehicle = guid; }
         // using extra variables to avoid problems with transports

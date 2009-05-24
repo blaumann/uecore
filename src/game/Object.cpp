@@ -274,6 +274,8 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags, uint32 flags2
             case TYPEID_UNIT:
             {
                 flags2 = ((Unit*)this)->isInFlight() ? (MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_LEVITATING) : MOVEMENTFLAG_NONE;
+                if(((Unit*)this)->GetVehicle())
+                    flags2 |= MOVEMENTFLAG_ONTRANSPORT;
             }
             break;
             case TYPEID_PLAYER:
@@ -281,7 +283,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags, uint32 flags2
                 flags2 = ((Player*)this)->m_movementInfo.GetMovementFlags();
 
                 // NOTE : player on vehicle without this will crash client
-                if(((Player*)this)->GetTransport() || ((Player*)this)->GetVehicle())
+                if(((Player*)this)->GetTransport())
 
                     flags2 |= MOVEMENTFLAG_ONTRANSPORT;
                 else
@@ -295,6 +297,9 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags, uint32 flags2
                     WPAssert(((Player*)this)->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE);
                     flags2 = (MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_SPLINE2);
                 }
+                // this have to be set manuealy here, because movementflags can change
+                if(((Unit*)this)->GetVehicle())
+                    flags2 |= MOVEMENTFLAG_ONTRANSPORT;
             }
             break;
         }
@@ -1726,38 +1731,44 @@ GameObject* WorldObject::SummonGameObject(uint32 id, float x, float y, float z, 
 	return pGameObj;
 }
 
-Vehicle* WorldObject::SummonVehicle(uint32 entry, uint32 vehicleId, float x, float y, float z, uint32 team)
+Vehicle* WorldObject::SummonVehicle(uint32 entry, float x, float y, float z, float ang)
 {
-	CreatureInfo const *ci = objmgr.GetCreatureTemplate(entry);
+    CreatureInfo const *ci = objmgr.GetCreatureTemplate(entry);
+    if(!ci)
+        return NULL;
 
-	if(!ci)
-		return NULL;
+    VehicleDataStructure const* VehicleDS = objmgr.GetVehicleData(entry);
+    if(!VehicleDS)
+        return NULL;
 
-	VehicleEntry const *ve = sVehicleStore.LookupEntry(vehicleId);
+    VehicleEntry const *ve = sVehicleStore.LookupEntry(VehicleDS->entry);
+    if(!ve)
+        return NULL;
 
-	if(!ve)
-		return NULL;
+    Vehicle *v = new Vehicle;
+    Map *map = GetMap();
+    uint32 team = ALLIANCE;
+    if (GetTypeId()==TYPEID_PLAYER)
+        team = ((Player*)this)->GetTeam();
 
-	Vehicle *v = new Vehicle;
-	if(!v->Create(objmgr.GenerateLowGuid(HIGHGUID_VEHICLE), GetMap(), entry, vehicleId, team) )
-	{
-		delete v;
-		return NULL;
-	}
+    if(!v->Create(objmgr.GenerateLowGuid(HIGHGUID_VEHICLE), map, GetPhaseMask(), entry, VehicleDS->entry, team))
+    {
+        delete v;
+        return NULL;
+    }
 
-	v->Relocate(x, y, z, GetOrientation());
+    v->Relocate(x, y, z, ang);
 
-	if(!v->IsPositionValid())
-	{
-		sLog.outError("Vehicle (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
-			v->GetGUIDLow(), v->GetEntry(), v->GetPositionX(), v->GetPositionY());
-		delete v;
-		return NULL;
-	}
+    if(!v->IsPositionValid())
+    {
+        sLog.outError("ERROR: Vehicle (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
+            v->GetGUIDLow(), v->GetEntry(), v->GetPositionX(), v->GetPositionY());
+        delete v;
+        return NULL;
+    }
 
-	GetMap()->Add((Creature*)v);
-
-	return v;
+    map->Add((Creature*)v);
+    return v;
 }
 
 namespace MaNGOS
@@ -1779,7 +1790,7 @@ namespace MaNGOS
 
                 float x,y,z;
 
-                if( !c->isAlive() || c->hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED) ||
+                if( !c->isAlive() || c->hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED | UNIT_STAT_ON_VEHICLE) ||
                     !c->GetMotionMaster()->GetDestination(x,y,z) )
                 {
                     x = c->GetPositionX();

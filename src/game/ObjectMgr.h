@@ -290,12 +290,14 @@ MANGOS_DLL_SPEC LanguageDesc const* GetLanguageDescByID(uint32 lang);
 class PlayerDumpReader;
 
 // vehicle system
+#define MAX_VEHICLE_SPELLS 10
+
 struct VehicleDataStructure
 {
     uint32 entry;                                           // vehicle entry
     uint32 v_flags;                                         // vehicle flags, see enum CustomVehicleFLags
     uint32 v_spell_flag;                                    // testing purpose, will be removed probably
-    uint32 v_spells[10];                                    // spells
+    uint32 v_spells[MAX_VEHICLE_SPELLS];                    // spells
     uint32 req_aura;                                        // requieres aura on player to enter (eg. in wintergrasp)
 };
 
