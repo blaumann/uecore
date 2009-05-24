@@ -81,7 +81,7 @@ void AddSC_boss_deconstructor()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name = "boss_deconstructor";
+    newscript->Name = "example_boss_deconstructor";
     newscript->GetAI = GetAI_boss_deconstructor;
     newscript->RegisterSelf();
 }

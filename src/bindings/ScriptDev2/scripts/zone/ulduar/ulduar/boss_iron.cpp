@@ -78,7 +78,7 @@ void AddSC_boss_iron()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name = "boss_iron";
+    newscript->Name = "example_boss_iron";
     newscript->GetAI = GetAI_boss_iron;
     newscript->RegisterSelf();
 }

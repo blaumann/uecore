@@ -78,7 +78,7 @@ void AddSC_boss_ignis()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name = "boss_ignis";
+    newscript->Name = "example_boss_ignis";
     newscript->GetAI = GetAI_boss_ignis;
     newscript->RegisterSelf();
 }

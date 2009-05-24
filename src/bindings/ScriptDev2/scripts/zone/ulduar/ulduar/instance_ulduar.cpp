@@ -23,7 +23,7 @@ void AddSC_instance_ulduar()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name = "instance_halls_of_lightning";
+    newscript->Name = "example_instance_ulduar";
     newscript->GetInstanceData = GetInstanceData_ulduar;
     newscript->RegisterSelf();
 }

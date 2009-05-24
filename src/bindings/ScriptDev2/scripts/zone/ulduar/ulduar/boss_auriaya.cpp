@@ -78,7 +78,7 @@ void AddSC_boss_auriaya()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name = "boss_auriaya";
+    newscript->Name = "example_boss_auriaya";
     newscript->GetAI = GetAI_boss_auriaya;
     newscript->RegisterSelf();
 }

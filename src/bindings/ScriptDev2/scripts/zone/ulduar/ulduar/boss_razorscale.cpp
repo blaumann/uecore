@@ -80,7 +80,7 @@ void AddSC_boss_razorscale()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_razorscale";
+    newscript->Name="example_boss_razorscale";
     newscript->GetAI = GetAI_boss_razorscale;
     newscript->RegisterSelf();
 }

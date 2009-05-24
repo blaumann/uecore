@@ -78,7 +78,7 @@ void AddSC_boss_mimiron()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_mimiron";
+    newscript->Name="example_boss_mimiron";
     newscript->GetAI = GetAI_boss_mimiron;
     newscript->RegisterSelf();
 }
