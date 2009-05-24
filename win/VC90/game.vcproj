@@ -885,6 +885,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\OutdoorPvPImpl.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\OutdoorPvPLA.cpp"
 				>
 			</File>
@@ -922,6 +926,14 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\OutdoorPvPTF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\OutdoorPvPWG.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\OutdoorPvPWG.h"
 				>
 			</File>
 			<File

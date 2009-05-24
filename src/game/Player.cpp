@@ -5578,6 +5578,13 @@ bool Player::SetPosition(float x, float y, float z, float orientation, bool tele
         }else
             m_safeposition.fall_time += m_movementInfo.fallTime;
 
+        if(!HasUnitMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_JUMPING))
+        {
+            m_safeposition.x = x;
+            m_safeposition.y = y;
+            m_safeposition.z = z;
+        }
+
         // group update
         if(GetGroup() && (old_x != x || old_y != y))
             SetGroupUpdateFlag(GROUP_UPDATE_FLAG_POSITION);
@@ -14165,7 +14172,10 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 
     // load home bind and check in same time class/race pair, it used later for restore broken positions
     if(!_LoadHomeBind(holder->GetResult(PLAYER_LOGIN_QUERY_LOADHOMEBIND)))
+    {
+        delete result;
         return false;
+    }
 
     InitPrimaryProffesions();                               // to max set before any spell loaded
 

@@ -27,23 +27,15 @@
 
 #define OPVP_TRIGGER_CREATURE_ENTRY 12999
 
-enum ObjectiveStates{
-    OBJECTIVESTATE_NEUTRAL = 0,
-    OBJECTIVESTATE_ALLIANCE = 1,
-    OBJECTIVESTATE_HORDE = 2,
-    OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE = 3,
-    OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE = 4,
-    OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE = 5,
-    OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE = 6
-};
-
-enum OutdoorPvPTypes{
+enum OutdoorPvPTypes
+{
     OUTDOOR_PVP_HP = 1,
     OUTDOOR_PVP_NA = 2,
     OUTDOOR_PVP_TF = 3,
     OUTDOOR_PVP_ZM = 4,
     OUTDOOR_PVP_SI = 5,
-    OUTDOOR_PVP_EP = 6
+    OUTDOOR_PVP_EP = 6,
+    OUTDOOR_PVP_WG = 7
 };
 
 // struct for go spawning
@@ -221,6 +213,8 @@ protected:
     // players in the zones of this outdoorpvp, 0 - alliance, 1 - horde
     std::set<uint64> m_PlayerGuids[2];
     uint32 m_TypeId;
+
+    void RegisterZone(uint32 zoneid);
 };
 
 #endif /*OUTDOOR_PVP_H_*/

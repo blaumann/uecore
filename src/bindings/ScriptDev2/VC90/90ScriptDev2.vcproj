@@ -2976,6 +2976,14 @@
 						>
 					</File>
 				</Filter>
+				<Filter
+					Name="Wintergrasp"
+					>
+					<File
+						RelativePath="..\scripts\zone\wintergrasp\wintergrasp.cpp"
+						>
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
