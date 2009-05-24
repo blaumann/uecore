@@ -7035,7 +7035,7 @@ void Aura::HandleAuraControlVehicle(bool apply, bool Real)
     {
         if(Pet *pet = caster->GetPet())
             pet->Remove(PET_SAVE_AS_CURRENT);
-        caster->EnterVehicle(vehicle);
+        caster->EnterVehicle(vehicle, -1);
     }
     else
     {

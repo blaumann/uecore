@@ -19656,16 +19656,8 @@ void Player::InitGlyphsForLevel()
 
 #define DEFAULT_SPELL_STATE 0x8100
 
-void Player::EnterVehicle(Vehicle *vehicle)
+void Player::EnterVehicle(Vehicle *vehicle, int8 seat_id)
 {
-    VehicleEntry const *ve = sVehicleStore.LookupEntry(vehicle->GetVehicleId());
-    if(!ve)
-        return;
-
-    VehicleSeatEntry const *veSeat = sVehicleSeatStore.LookupEntry(ve->m_seatID[0]);
-    if(!veSeat)
-        return;
-
     if(m_transport)               // if we were on a transport, leave
     {
         m_transport->RemovePassenger(this);
@@ -19706,12 +19698,12 @@ void Player::EnterVehicle(Vehicle *vehicle)
     // transport part, TODO: load/calculate seat offsets
     // TODO : save this values for later use
     data << uint64(vehicle->GetGUID());                     // transport guid
-    data << float(veSeat->m_attachmentOffsetX);             // transport offsetX
-    data << float(veSeat->m_attachmentOffsetY);             // transport offsetY
-    data << float(veSeat->m_attachmentOffsetZ);             // transport offsetZ
-    data << float(0);                                       // transport orientation
+    data << float(m_SeatData.OffsetX);                      // transport offsetX
+    data << float(m_SeatData.OffsetY);                      // transport offsetY
+    data << float(m_SeatData.OffsetZ);                      // transport offsetZ
+    data << float(m_SeatData.Orientation);                  // transport orientation
     data << uint32(getMSTime());                            // transport time
-    data << uint8(0);                                       // seat
+    data << uint8(m_SeatData.seat);                         // seat
     // end of transport part
     data << uint32(0);                                      // fall time
     GetSession()->SendPacket(&data);

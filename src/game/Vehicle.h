@@ -23,6 +23,29 @@
 #include "Creature.h"
 #include "Unit.h"
 
+struct VehicleEntry;
+struct VehicleSeatEntry;
+
+struct VehicleSeat
+{
+    VehicleSeatEntry const *seatInfo;
+    Unit* passenger;
+    uint8 flags;
+};
+
+enum VehicleSeatFlags
+{
+    SEAT_FREE           = 0x01,                             // free seat
+    SEAT_FULL           = 0x02,                             // seat occupied by player/creature
+    // special cases
+    SEAT_VEHICLE_FREE   = 0x04,                             // seat occupied by vehicle, but that vehicle is free
+    SEAT_VEHICLE_FULL   = 0x08                              // seat occupied by vehicle and that vehicle is full too
+};
+
+#define MAX_SEAT 8
+
+typedef std::map<int8, VehicleSeat> SeatMap;
+
 class Vehicle : public Creature
 {
     public:
@@ -38,14 +61,22 @@ class Vehicle : public Creature
         void Update(uint32 diff);                           // overwrite virtual Creature::Update and Unit::Update
 
         uint32 GetVehicleId() { return m_vehicleId; }
-        void SetVehicleId(uint32 vehicleid) { m_vehicleId = vehicleid; }
+        bool SetVehicleId(uint32 vehicleid);
+
+        void InitSeats();
+
+        bool FindFreeSeat(int8 *seatid);
+        bool GetNextEmptySeat(int8 *seatId, bool next = true);
+        bool GetFirstEmptySeat(int8 *seatId);
 
         void Dismiss();
 
-        void EnterVehicle(Vehicle *vehicle);
+        void EnterVehicle(Vehicle *vehicle, int8 seat_id);
         void ExitVehicle(Vehicle *vehicle);
+        SeatMap m_Seats;
     protected:
         uint32 m_vehicleId;
+        VehicleEntry const *m_vehicleInfo;
 
     private:
         void SaveToDB(uint32, uint8)                        // overwrited of Creature::SaveToDB     - don't must be called

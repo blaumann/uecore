@@ -11973,10 +11973,28 @@ void Unit::SetPvP( bool state )
                 totem->SetPvP(state);
 }
 
-void Unit::EnterVehicle(Vehicle *vehicle)
+void Unit::EnterVehicle(Vehicle *vehicle, int8 seat_id)
 {
+    VehicleEntry const *ve = sVehicleStore.LookupEntry(vehicle->GetVehicleId());
+    if(!ve)
+        return;
+
+    VehicleSeatEntry const *veSeat = sVehicleSeatStore.LookupEntry(ve->m_seatID[0]);
+    if(!veSeat)
+        return;
+
+    if(!vehicle->FindFreeSeat(&seat_id))
+        return;
+
+    m_SeatData.OffsetX = veSeat->m_attachmentOffsetX * vehicle->GetFloatValue(OBJECT_FIELD_SCALE_X);            // transport offsetX
+    m_SeatData.OffsetY = veSeat->m_attachmentOffsetY * vehicle->GetFloatValue(OBJECT_FIELD_SCALE_X);            // transport offsetY
+    m_SeatData.OffsetZ = veSeat->m_attachmentOffsetZ * vehicle->GetFloatValue(OBJECT_FIELD_SCALE_X);            // transport offsetZ
+    m_SeatData.Orientation = veSeat->m_passengerYaw;                                                            // NOTE : needs confirmation
+    m_SeatData.seat = seat_id;
+
     // what about united vehicles?
     SetVehicle(vehicle->GetGUID());
+    AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
 
     // NOTE : we can have a player or creature passenger,
     // but there is also special case : vehicle passenger,
@@ -11984,14 +12002,14 @@ void Unit::EnterVehicle(Vehicle *vehicle)
     // of first vehicle is another one - Turret
     if(GetTypeId() == TYPEID_PLAYER)
     {
-        ((Player*)this)->EnterVehicle(vehicle);
+        ((Player*)this)->EnterVehicle(vehicle, seat_id);
         return;
     }
     else if(GetTypeId() == TYPEID_UNIT)
     {
         if(((Creature*)this)->isVehicle())
         {
-            ((Vehicle*)this)->EnterVehicle(vehicle);
+            ((Vehicle*)this)->EnterVehicle(vehicle, seat_id);
             return;
         }
     }
@@ -12000,6 +12018,7 @@ void Unit::EnterVehicle(Vehicle *vehicle)
 void Unit::ExitVehicle(Vehicle *vehicle)
 {
     SetVehicle(NULL);
+    RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     // NOTE : we can have a player or creature passenger,
     // but there is also special case : vehicle passenger,
     // eg. http://www.wowhead.com/?npc=28312, where on top

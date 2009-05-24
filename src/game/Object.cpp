@@ -312,16 +312,15 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags, uint32 flags2
         // 0x00000200
         if(flags2 & MOVEMENTFLAG_ONTRANSPORT)
         {
-            if(((Unit*)this)->GetVehicle())
+            if((GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT) && ((Unit*)this)->GetVehicle())
             {
-                // TODO : find a fast way to do this
-                *data << (uint64)((Unit*)this)->GetVehicle();    // transport guid
-                *data << (float)0;                               // transport offsetX
-                *data << (float)0;                               // transport offsetY
-                *data << (float)0;                               // transport offsetZ
-                *data << (float)0;                               // transport orientation
-                *data << (uint32)getMSTime();                    // transport time
-                *data << (int8)0;                                // seat
+                *data << (uint64)((Unit*)this)->GetVehicle();                   // transport guid
+                *data << (float)((Unit*)this)->m_SeatData.OffsetX;              // transport offsetX
+                *data << (float)((Unit*)this)->m_SeatData.OffsetY;              // transport offsetY
+                *data << (float)((Unit*)this)->m_SeatData.OffsetZ;              // transport offsetZ
+                *data << (float)((Unit*)this)->m_SeatData.Orientation;          // transport orientation
+                *data << (uint32)getMSTime();                                   // transport time
+                *data << (int8)((Unit*)this)->m_SeatData.seat;                  // seat
             }
             else if(GetTypeId() == TYPEID_PLAYER)
             {

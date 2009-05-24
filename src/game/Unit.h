@@ -835,6 +835,18 @@ enum ReactiveType
 
 struct SpellProcEventEntry;                                 // used only privately
 
+// vehicle system
+struct SeatData
+{
+    float OffsetX;
+    float OffsetY;
+    float OffsetZ;
+    float Orientation;
+    uint8 seat;
+    //custom
+    uint32 s_flags;
+};
+
 class MANGOS_DLL_SPEC Unit : public WorldObject
 {
     public:
@@ -1482,10 +1494,12 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         void RemovePetAura(PetAura const* petSpell);
 
         // vehicle system
-        virtual void EnterVehicle(Vehicle *vehicle);
+        virtual void EnterVehicle(Vehicle *vehicle, int8 seat_id);
         virtual void ExitVehicle(Vehicle *vehicle);
         uint64 GetVehicle() { return m_vehicle; }
         void SetVehicle(uint64 guid) { m_vehicle = guid; }
+        // using extra variables to avoid problems with transports
+        SeatData m_SeatData;
 
     protected:
         explicit Unit ();

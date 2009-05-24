@@ -50,6 +50,95 @@ void Vehicle::RemoveFromWorld()
     Unit::RemoveFromWorld();
 }
 
+bool Vehicle::SetVehicleId(uint32 vehicleid)
+{
+    VehicleEntry const *vehicleInfo = sVehicleStore.LookupEntry(m_vehicleId);
+    if(!vehicleInfo)
+        return false;
+
+    m_vehicleId = vehicleid;
+    m_vehicleInfo = vehicleInfo;
+
+    InitSeats();
+    return true;
+}
+
+void Vehicle::InitSeats()
+{
+    m_Seats.clear();
+
+    for(uint32 i = 0; i < MAX_SEAT; ++i)
+    {
+        uint32 seatId = m_vehicleInfo->m_seatID[i];
+        if(seatId)
+        {
+            if(VehicleSeatEntry const *veSeat = sVehicleSeatStore.LookupEntry(seatId))
+            {
+                VehicleSeat newseat;
+                newseat.passenger = NULL;
+                newseat.seatInfo = veSeat;
+                newseat.flags = SEAT_FREE;
+                m_Seats[i] = newseat;
+            }
+        }
+    }
+    // NOTE : there can be vehicles without seats (eg. 180) - probably some TEST vehicles
+}
+
+bool Vehicle::FindFreeSeat(int8 *seatid)
+{
+    SeatMap::const_iterator i_seat = m_Seats.find(*seatid);
+    if(i_seat == m_Seats.end()) return GetFirstEmptySeat(seatid);
+    if(i_seat->second.flags & (SEAT_FULL | SEAT_VEHICLE_FULL)) return GetNextEmptySeat(seatid, true);
+
+    return true;
+}
+
+bool Vehicle::GetFirstEmptySeat(int8 *seatId)
+{
+    for(SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+    {
+        if(itr->second.flags & SEAT_FREE)
+        {
+            *seatId = itr->first;
+            return true;
+        }
+        else if(itr->second.flags & SEAT_VEHICLE_FREE)
+        {
+            // TODO : handle this
+            continue;
+        }
+    }
+
+    return false;
+}
+
+bool Vehicle::GetNextEmptySeat(int8 *seatId, bool next)
+{
+    SeatMap::const_iterator i_seat = m_Seats.find(*seatId);
+    if(i_seat == m_Seats.end()) return GetFirstEmptySeat(seatId);
+
+    while(i_seat->second.flags & (SEAT_FULL | SEAT_VEHICLE_FULL))
+    {
+        if(next)
+        {
+            ++i_seat;
+            if(i_seat == m_Seats.end())
+                i_seat = m_Seats.begin();
+        }
+        else
+        {
+            if(i_seat == m_Seats.begin())
+                i_seat = m_Seats.end();
+            --i_seat;
+        }
+        if(i_seat->first == *seatId)
+            return false;
+    }
+    *seatId = i_seat->first;
+    return true;
+}
+
 void Vehicle::setDeathState(DeathState s)                       // overwrite virtual Creature::setDeathState and Unit::setDeathState
 {
     Creature::setDeathState(s);
@@ -70,11 +159,12 @@ bool Vehicle::Create(uint32 guidlow, Map *map, uint32 Entry, uint32 vehicleId, u
     if(!InitEntry(Entry, team))
         return false;
 
+    if(!SetVehicleId(vehicleId))
+        return false;
+
     m_defaultMovementType = IDLE_MOTION_TYPE;
 
     AIM_Initialize();
-
-    SetVehicleId(vehicleId);
 
     SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     SetFloatValue(UNIT_FIELD_HOVERHEIGHT, 1.0f);
@@ -100,7 +190,7 @@ void Vehicle::Dismiss()
     AddObjectToRemoveList();
 }
 
-void Vehicle::EnterVehicle(Vehicle *vehicle)
+void Vehicle::EnterVehicle(Vehicle *vehicle, int8 seat_id)
 {
     // TODO : implement this
 }
