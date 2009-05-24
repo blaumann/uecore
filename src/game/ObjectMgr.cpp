@@ -7704,7 +7704,7 @@ void ObjectMgr::LoadVehicleData()
             if(!i_spell)
             {
                 sLog.outErrorDb("Spell %u listed in `vehicle_data` does not exist",VDS.req_aura);
-                continue;
+                VDS.req_aura = 0;
             }
         }
         for(uint8 j = 0; j < MAX_VEHICLE_SPELLS; j++)
@@ -7715,7 +7715,7 @@ void ObjectMgr::LoadVehicleData()
                 if(!j_spell)
                 {
                     sLog.outErrorDb("Spell %u listed in `vehicle_data` does not exist",VDS.v_spells[j]);
-                    continue;
+                    VDS.v_spells[j] = 0;
                 }
             }
         }

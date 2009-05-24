@@ -9934,7 +9934,8 @@ bool Unit::SelectHostilTarget()
     }
 
     // enter in evade mode in other case
-    ((Creature*)this)->AI()->EnterEvadeMode();
+    if(!((Creature*)this)->isVehicle())
+        ((Creature*)this)->AI()->EnterEvadeMode();
 
     return false;
 }

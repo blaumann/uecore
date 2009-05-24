@@ -54,7 +54,7 @@ void Vehicle::RemoveFromWorld()
 
 bool Vehicle::SetVehicleId(uint32 vehicleid)
 {
-    VehicleEntry const *vehicleInfo = sVehicleStore.LookupEntry(m_vehicleId);
+    VehicleEntry const *vehicleInfo = sVehicleStore.LookupEntry(vehicleid);
     if(!vehicleInfo)
         return false;
 
@@ -347,7 +347,7 @@ void Vehicle::AddPassenger(Unit *unit, int8 seatId, bool force)
     {
         if(seat->second.vs_flags & SF_CAN_CAST)
         {
-            ((Player*)unit)->SetClientControl(unit, 1);
+            //((Player*)unit)->SetClientControl(unit, 1);
             WorldPacket data0(SMSG_FORCE_MOVE_ROOT, 10);
             data0.append(unit->GetPackGUID());
             data0 << (uint32)(2);                        // can rotate
@@ -355,7 +355,7 @@ void Vehicle::AddPassenger(Unit *unit, int8 seatId, bool force)
         }
         else
         {
-            ((Player*)unit)->SetClientControl(unit, 0);
+            //((Player*)unit)->SetClientControl(unit, 0);
             WorldPacket data1(SMSG_FORCE_MOVE_ROOT, 10);
             data1.append(unit->GetPackGUID());
             data1 << (uint32)(0);                        // cannot rotate
@@ -409,11 +409,11 @@ void Vehicle::RemovePassenger(Unit *unit)
     {
         if((seat->second.flags & (SEAT_FULL | SEAT_VEHICLE_FREE | SEAT_VEHICLE_FULL)) && seat->second.passenger == unit)
         {
+            unit->SetVehicle(NULL);
             // when rider was removed, other passengers arent so important
             if(seat->second.vs_flags & SF_MAIN_RIDER)
             {
                 RemoveSpellsCausingAura(SPELL_AURA_CONTROL_VEHICLE);
-                unit->SetVehicle(NULL);
                 unit->SetCharm(NULL);
                 if(unit->GetTypeId() == TYPEID_PLAYER)
                 {

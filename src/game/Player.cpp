@@ -19721,7 +19721,7 @@ void Player::SendExitVehicle()
     data << uint32(getMSTime());                            // time
     data << GetPositionX();                                 // x
     data << GetPositionY();                                 // y
-    data << GetPositionZ()+20.0f;                           // z
+    data << GetPositionZ()+10.0f;                           // z
     data << GetOrientation();                               // o
     data << uint32(0);                                      // fall time
     GetSession()->SendPacket(&data);
