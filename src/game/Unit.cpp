@@ -5305,8 +5305,9 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 if(triggeredByAura->GetCasterGUID() != pVictim->GetGUID())
                     return false;
 
+                // Energize 0.25% of max. mana
                 pVictim->CastSpell(pVictim,57669,true,castItem,triggeredByAura);
-                    return true;                                // no hidden cooldown
+                return true;                                // no hidden cooldown
             }
             // Divine Aegis
             if (dummySpell->SpellIconID == 2820)

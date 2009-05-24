@@ -568,13 +568,14 @@ typedef std::multimap<uint32, SkillLineAbilityEntry const*> SkillLineAbilityMap;
 typedef std::multimap<uint32, uint32> PetLevelupSpellSet;
 typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
 
-struct WarlockPetLevelupSpellSet
+struct PetDefaultSpellsEntry
 {
-    uint32 level;
-    uint32 spell;
+    uint32 spellid[MAX_CREATURE_SPELL_DATA_SLOT];
 };
 
-typedef std::multimap<uint32, WarlockPetLevelupSpellSet> WarlockPetLevelupSpellMap;
+// < 0 for petspelldata id, > 0 for creature_id
+typedef std::map<int32, PetDefaultSpellsEntry> PetDefaultSpellsMap;
+
 
 inline bool IsPrimaryProfessionSkill(uint32 skill)
 {
@@ -825,15 +826,14 @@ class SpellMgr
             else
                 return NULL;
         }
-        
-        WarlockPetLevelupSpellMap::const_iterator GetWarlockBeginLevelupSpellList(uint32 petFamily) const
-        {
-            return mWarlockPetLevelupSpellMap.lower_bound(petFamily);
-        }
 
-        WarlockPetLevelupSpellMap::const_iterator GetWarlockEndLevelupSpellList(uint32 petFamily) const
+        // < 0 for petspelldata id, > 0 for creature_id
+        PetDefaultSpellsEntry const* GetPetDefaultSpellsEntry(int32 id) const
         {
-            return mWarlockPetLevelupSpellMap.upper_bound(petFamily);
+            PetDefaultSpellsMap::const_iterator itr = mPetDefaultSpellsMap.find(id);
+            if(itr != mPetDefaultSpellsMap.end())
+                return &itr->second;
+            return NULL;
         }
 
         SpellCastResult GetSpellAllowedInLocationError(SpellEntry const *spellInfo, uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player = NULL);
@@ -883,8 +883,8 @@ class SpellMgr
         void LoadSpellThreats();
         void LoadSkillLineAbilityMap();
         void LoadSpellPetAuras();
-        void LoadWarlockPetLevelupSpellMap();
         void LoadPetLevelupSpellMap();
+        void LoadPetDefaultSpells();
         void LoadSpellAreas();
 
     private:
@@ -901,7 +901,7 @@ class SpellMgr
         SkillLineAbilityMap mSkillLineAbilityMap;
         SpellPetAuraMap     mSpellPetAuraMap;
         PetLevelupSpellMap  mPetLevelupSpellMap;
-        WarlockPetLevelupSpellMap  mWarlockPetLevelupSpellMap;
+        PetDefaultSpellsMap mPetDefaultSpellsMap;           // only spells not listed in related mPetLevelupSpellMap entry
         SpellAreaMap         mSpellAreaMap;
         SpellAreaForQuestMap mSpellAreaForQuestMap;
         SpellAreaForQuestMap mSpellAreaForActiveQuestMap;
@@ -912,4 +912,3 @@ class SpellMgr
 
 #define spellmgr SpellMgr::Instance()
 #endif
-
