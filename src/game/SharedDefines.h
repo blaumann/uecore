@@ -2563,4 +2563,24 @@ enum BattleGroundTypeId
 };
 #define MAX_BATTLEGROUND_TYPE_ID 12
 
+/* NOTE : vehicles and seats has their own flags in DBC,
+but for now, they are too unknown for us, to use them */
+enum CustomVehicleFLags
+{
+    SV_CANT_MOVE                    = 0x0001,                   // maybe handle by some auras?
+    SV_FACTION                      = 0x0002,                   // vehicle retain its own faction
+    SV_HAS_AI                       = 0x0004,                   // vehicle when not controlled will move/fight on its own
+    SV_CAN_BE_HEALED                = 0x0008,                   // vehicle can be healed
+    SV_HAS_FUEL                     = 0x0010,                    // TODO : find out what energy type is fuel and implement this
+    SV_DESPAWN_At_LEAVE             = 0x0020                    // vehicle will be deleted when rider leaves
+};
+
+enum CustomVehicleSeatFLags
+{
+    SF_MAIN_RIDER                   = 0x0001,                   // the one who controlls vehicle, can also cast spells
+    SF_UNATTACKABLE                 = 0x0002,                   // hided inside, and unatackable until vehicle is destroyed
+    SF_CAN_CAST                     = 0x0004,                   // player/npc can rotate, and cast OWN spells
+    SF_UNACCESSIBLE                 = 0x0008                    // player cant enter this seat by normal way (only by script)
+};
+
 #endif

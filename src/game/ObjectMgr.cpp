@@ -7654,3 +7654,132 @@ Quest const* GetQuestTemplateStore(uint32 entry)
 {
     return objmgr.GetQuestTemplate(entry);
 }
+
+void ObjectMgr::LoadVehicleData()
+{
+    mVehicleData.clear();
+
+    QueryResult *result = WorldDatabase.Query("SELECT creature_entry, vehicle_id, flags, spell_flags, Spell1, Spell2, Spell3, Spell4, Spell5, Spell6, Spell7, Spell8, Spell9, Spell10, req_aura FROM vehicle_data");
+    if(!result)
+    {
+        barGoLink bar( 1 );
+        bar.step();
+
+        sLog.outString();
+        sLog.outString( ">> Loaded 0 vehicle data" );
+        sLog.outErrorDb("`vehicle_data` table is empty!");
+        return;
+    }
+
+    uint32 count = 0;
+
+    barGoLink bar( result->GetRowCount() );
+    do
+    {
+        bar.step();
+
+        Field* fields = result->Fetch();
+
+        VehicleDataStructure VDS;
+        // NOTE : we can use spellid or creature id
+        uint32 creature_id  = fields[0].GetUInt32();
+        VDS.entry           = fields[1].GetUInt32();
+        VDS.v_flags         = fields[2].GetUInt32();
+        VDS.v_spell_flag    = fields[3].GetUInt32();
+        for(uint8 j = 0; j < 10; j++)
+        {
+            VDS.v_spells[j] = fields[j+4].GetUInt32();
+        }
+        VDS.req_aura        = fields[14].GetUInt32();
+
+        VehicleEntry const *vehicleInfo = sVehicleStore.LookupEntry(VDS.entry);
+        if(!vehicleInfo)
+        {
+            sLog.outErrorDb("Vehicle id %u listed in `vehicle_data` does not exist",VDS.entry);
+            continue;
+        }
+        if(VDS.req_aura)
+        {
+            SpellEntry const* i_spell = sSpellStore.LookupEntry(VDS.req_aura);
+            if(!i_spell)
+            {
+                sLog.outErrorDb("Spell %u listed in `vehicle_data` does not exist",VDS.req_aura);
+                continue;
+            }
+        }
+        for(uint8 j = 0; j < 10; j++)
+        {
+            if(VDS.v_spells[j])
+            {
+                SpellEntry const* j_spell = sSpellStore.LookupEntry(VDS.v_spells[j]);
+                if(!j_spell)
+                {
+                    sLog.outErrorDb("Spell %u listed in `vehicle_data` does not exist",VDS.v_spells[j]);
+                    continue;
+                }
+            }
+        }
+
+        mVehicleData[creature_id] = VDS;
+        ++count;
+    }
+    while (result->NextRow());
+
+    delete result;
+
+    sLog.outString();
+    sLog.outString( ">> Loaded %u vehicle data", count );
+}
+
+void ObjectMgr::LoadVehicleSeatData()
+{
+    mVehicleSeatData.clear();
+
+    QueryResult *result = WorldDatabase.Query("SELECT seat,flags FROM vehicle_seat_data");
+
+    if( !result )
+    {
+        barGoLink bar( 1 );
+
+        bar.step();
+
+        sLog.outString();
+        sLog.outString( ">> Loaded 0 vehicle seat data" );
+        sLog.outErrorDb("`vehicle_seat_data` table is empty!");
+        return;
+    }
+    uint32 count = 0;
+
+    barGoLink bar( result->GetRowCount() );
+    do
+    {
+        bar.step();
+
+        Field *fields = result->Fetch();
+        uint32 entry  = fields[0].GetUInt32();
+        uint32 flag   = fields[1].GetUInt32();
+
+        VehicleSeatEntry const *vsInfo = sVehicleSeatStore.LookupEntry(entry);
+        if(!vsInfo)
+        {
+            sLog.outErrorDb("Vehicle seat %u listed in `vehicle_seat_data` does not exist",entry);
+            continue;
+        }
+
+        mVehicleSeatData[entry] = flag;
+        ++count;
+    }
+    while (result->NextRow());
+
+    delete result;
+
+    sLog.outString();
+    sLog.outString( ">> Loaded %u vehicle seat data", count );
+}
+
+void ObjectMgr::LoadCreatureVehicles()
+{
+    // TODO : this need a lot of attention, any mistake = crash or loop
+    sLog.outString( ">> Loaded 0 creature vehicles, not yet implemented" );
+    sLog.outString();
+}

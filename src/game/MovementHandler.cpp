@@ -664,8 +664,12 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     else                                                    // creature charmed
     {
         if(Map *map = mover->GetMap())
+        {
             map->CreatureRelocation((Creature*)mover, movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
-        //mover->SetUnitMovementFlags(movementInfo.flags);
+            if(((Creature*)mover)->isVehicle())
+                ((Vehicle*)mover)->RellocatePassengers(map);
+        }
+            //mover->SetUnitMovementFlags(movementInfo.flags);
     }
 }
 

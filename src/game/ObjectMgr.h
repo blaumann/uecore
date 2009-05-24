@@ -289,6 +289,20 @@ MANGOS_DLL_SPEC LanguageDesc const* GetLanguageDescByID(uint32 lang);
 
 class PlayerDumpReader;
 
+// vehicle system
+struct VehicleDataStructure
+{
+    uint32 entry;                                           // vehicle entry
+    uint32 v_flags;                                         // vehicle flags, see enum CustomVehicleFLags
+    uint32 v_spell_flag;                                    // testing purpose, will be removed probably
+    uint32 v_spells[10];                                    // spells
+    uint32 req_aura;                                        // requieres aura on player to enter (eg. in wintergrasp)
+};
+
+typedef UNORDERED_MAP<uint32, VehicleDataStructure> VehicleDataMap;
+typedef std::map<uint32,uint32> VehicleSeatDataMap;
+typedef std::map<uint64,uint64> CreatureVehiclesMap;        // TODO : needs implementation
+
 class ObjectMgr
 {
     friend class PlayerDumpReader;
@@ -495,6 +509,7 @@ class ObjectMgr
         void LoadCreatureRespawnTimes();
         void LoadCreatureAddons();
         void LoadCreatureModelInfo();
+        void LoadCreatureVehicles();
         void LoadEquipmentTemplates();
         void LoadGameObjectLocales();
         void LoadGameobjects();
@@ -505,7 +520,6 @@ class ObjectMgr
         void LoadNpcTextLocales();
         void LoadPageTextLocales();
         void LoadNpcOptionLocales();
-        /*void LoadGossipSelectLocales();*/
         void LoadPointOfInterestLocales();
         void LoadInstanceTemplate();
 
@@ -541,6 +555,9 @@ class ObjectMgr
         void LoadNpcTextId();
         void LoadVendors();
         void LoadTrainerSpell();
+
+        void LoadVehicleData();
+        void LoadVehicleSeatData();
 
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint32 level);
@@ -769,6 +786,24 @@ class ObjectMgr
         uint32 GetScriptId(const char *name);
 
         int GetOrNewIndexForLocale(LocaleConstant loc);
+
+        VehicleDataMap mVehicleData;
+        VehicleSeatDataMap mVehicleSeatData;
+
+        uint32 GetSeatFlags(uint32 seatid)
+        {
+            VehicleSeatDataMap::iterator i = mVehicleSeatData.find(seatid);
+            if(i == mVehicleSeatData.end())
+                return 0;
+            else
+                return i->second;
+        }
+        VehicleDataStructure const* GetVehicleData(uint32 entry) const
+        {
+            VehicleDataMap::const_iterator itr = mVehicleData.find(entry);
+            if(itr==mVehicleData.end()) return NULL;
+            return &itr->second;
+        }
     protected:
 
         // first free id for selected id type

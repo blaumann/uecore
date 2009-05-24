@@ -314,10 +314,12 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags, uint32 flags2
         {
             if((GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT) && ((Unit*)this)->GetVehicle())
             {
+                // NOTE: use always actual scale
+                float scale = GetFloatValue(OBJECT_FIELD_SCALE_X);
                 *data << (uint64)((Unit*)this)->GetVehicle();                   // transport guid
-                *data << (float)((Unit*)this)->m_SeatData.OffsetX;              // transport offsetX
-                *data << (float)((Unit*)this)->m_SeatData.OffsetY;              // transport offsetY
-                *data << (float)((Unit*)this)->m_SeatData.OffsetZ;              // transport offsetZ
+                *data << (float)((Unit*)this)->m_SeatData.OffsetX * scale;      // transport offsetX
+                *data << (float)((Unit*)this)->m_SeatData.OffsetY * scale;      // transport offsetY
+                *data << (float)((Unit*)this)->m_SeatData.OffsetZ * scale;      // transport offsetZ
                 *data << (float)((Unit*)this)->m_SeatData.Orientation;          // transport orientation
                 *data << (uint32)getMSTime();                                   // transport time
                 *data << (int8)((Unit*)this)->m_SeatData.seat;                  // seat

@@ -1120,7 +1120,6 @@ void World::SetInitialWorldSettings()
     objmgr.LoadNpcTextLocales();
     objmgr.LoadPageTextLocales();
     objmgr.LoadNpcOptionLocales();
-    /*objmgr.LoadGossipSelectLocales();*/
     objmgr.LoadPointOfInterestLocales();
     objmgr.SetDBCLocaleIndex(GetDefaultDbcLocale());        // Get once for all the locale index of DBC language (console/broadcasts)
     sLog.outString( ">>> Localization strings loaded" );
@@ -1379,6 +1378,14 @@ void World::SetInitialWorldSettings()
 
     sLog.outString( "Loading Scripts text locales..." );    // must be after Load*Scripts calls
     objmgr.LoadDbScriptStrings();
+
+    sLog.outString( "Loading VehicleData..." );
+    objmgr.LoadVehicleData();
+    sLog.outString( "Loading VehicleSeatData..." );
+    objmgr.LoadVehicleSeatData();
+
+    sLog.outString( "Loading Creature vehicles..." );
+    objmgr.LoadCreatureVehicles();
 
     sLog.outString( "Loading CreatureEventAI Texts...");
     CreatureEAI_Mgr.LoadCreatureEventAI_Texts();

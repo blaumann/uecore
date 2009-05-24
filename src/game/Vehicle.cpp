@@ -98,19 +98,29 @@ bool Vehicle::GetFirstEmptySeat(int8 *seatId)
 {
     for(SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
     {
-        if(itr->second.flags & SEAT_FREE)
+        if(itr->second.flags & (SEAT_FREE | SEAT_VEHICLE_FREE))
         {
             *seatId = itr->first;
             return true;
         }
-        else if(itr->second.flags & SEAT_VEHICLE_FREE)
-        {
-            // TODO : handle this
-            continue;
-        }
     }
 
     return false;
+}
+
+int8 Vehicle::GetEmptySeatsCount()
+{
+    int8 count = 0;
+    for(SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+    {
+        if(itr->second.flags & (SEAT_FREE | SEAT_VEHICLE_FREE))
+
+        {
+            count++;
+        }
+    }
+
+    return count;
 }
 
 bool Vehicle::GetNextEmptySeat(int8 *seatId, bool next)
@@ -198,4 +208,43 @@ void Vehicle::EnterVehicle(Vehicle *vehicle, int8 seat_id)
 void Vehicle::ExitVehicle(Vehicle *vehicle)
 {
     // TODO : implement this
+}
+
+void Vehicle::RellocatePassengers(Map *map)
+{
+    for(SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+    {
+        if(itr->second.flags & SEAT_FULL)
+        {
+            // passenger cant be NULL here
+            Unit *passengers = itr->second.passenger;
+            assert(passengers);
+
+            float scale = GetFloatValue(OBJECT_FIELD_SCALE_X);
+            float xx = GetPositionX() + passengers->m_SeatData.OffsetX * scale;
+            float yy = GetPositionY() + passengers->m_SeatData.OffsetY * scale;
+            float zz = GetPositionZ() + passengers->m_SeatData.OffsetZ * scale;
+            float oo = m_SeatData.Orientation;
+
+            if(passengers->GetTypeId() == TYPEID_PLAYER)
+                ((Player*)passengers)->SetPosition(xx, yy, zz, oo);
+            else
+                map->CreatureRelocation((Creature*)passengers, xx, yy, zz, oo);
+        }
+        else if(itr->second.flags & (SEAT_VEHICLE_FULL | SEAT_VEHICLE_FREE))
+        {
+            // passenger cant be NULL here
+            Unit *passengers = itr->second.passenger;
+            assert(passengers);
+
+            float scale = GetFloatValue(OBJECT_FIELD_SCALE_X);
+            float xx = GetPositionX() + passengers->m_SeatData.OffsetX * scale;
+            float yy = GetPositionY() + passengers->m_SeatData.OffsetY * scale;
+            float zz = GetPositionZ() + passengers->m_SeatData.OffsetZ * scale;
+            float oo = m_SeatData.Orientation;
+
+            map->CreatureRelocation((Creature*)passengers, xx, yy, zz, oo);
+            ((Vehicle*)passengers)->RellocatePassengers(map);
+        }
+    }
 }

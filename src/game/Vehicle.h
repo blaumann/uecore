@@ -68,12 +68,15 @@ class Vehicle : public Creature
         bool FindFreeSeat(int8 *seatid);
         bool GetNextEmptySeat(int8 *seatId, bool next = true);
         bool GetFirstEmptySeat(int8 *seatId);
+        int8 GetEmptySeatsCount();
 
         void Dismiss();
 
         void EnterVehicle(Vehicle *vehicle, int8 seat_id);
         void ExitVehicle(Vehicle *vehicle);
         SeatMap m_Seats;
+
+        void RellocatePassengers(Map *map);
     protected:
         uint32 m_vehicleId;
         VehicleEntry const *m_vehicleInfo;
