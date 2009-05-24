@@ -3637,14 +3637,14 @@ void Spell::EffectSummonType(uint32 i)
         case SUMMON_TYPE_GHOUL_OF_THE_DEAD:
         case SUMMON_TYPE_FORCE_OF_NATURE:
             EffectSummonGuardian(i);
-            break;
+            return;
         case SUMMON_TYPE_POSESSED:
         case SUMMON_TYPE_POSESSED2:
             EffectSummonPosessed(i);
-            break;
+            return;
         case SUMMON_TYPE_GHOUL:
             EffectSummonGuardian(i);
-            break;
+            return;
         case SUMMON_TYPE_WILD:
         case SUMMON_TYPE_UNKNOWN6:
         case SUMMON_TYPE_UNKNOWN7:
@@ -3655,18 +3655,18 @@ void Spell::EffectSummonType(uint32 i)
         case SUMMON_TYPE_UNKNOWN12:
         case SUMMON_TYPE_WILD2:
             EffectSummonWild(i);
-            break;
+            return;
         case SUMMON_TYPE_DEMON:
             EffectSummonDemon(i);
-            break;
+            return;
         case SUMMON_TYPE_SUMMON:
             EffectSummon(i);
-            break;
+            return;
         case SUMMON_TYPE_CRITTER:
         case SUMMON_TYPE_CRITTER2:
         case SUMMON_TYPE_CRITTER3:
             EffectSummonCritter(i);
-            break;
+            return;
         case SUMMON_TYPE_TOTEM_SLOT1:
         case SUMMON_TYPE_TOTEM_SLOT2:
         case SUMMON_TYPE_TOTEM_SLOT3:
@@ -3674,17 +3674,82 @@ void Spell::EffectSummonType(uint32 i)
         case SUMMON_TYPE_TOTEM:
         case SUMMON_TYPE_TOTEM2:
             EffectSummonTotem(i);
-            break;
+            return;
+        case SUMMON_TYPE_VEHICLE1:
+        case SUMMON_TYPE_VEHICLE2:
+        case SUMMON_TYPE_VEHICLE3:
+        case SUMMON_TYPE_VEHICLE4:
+        case SUMMON_TYPE_VEHICLE5:
+        case SUMMON_TYPE_VEHICLE6:
+        case SUMMON_TYPE_VEHICLE7:
+        case SUMMON_TYPE_VEHICLE8:
+        case SUMMON_TYPE_VEHICLE9:
+        case SUMMON_TYPE_VEHICLE10:
+        case SUMMON_TYPE_VEHICLE11:
+        case SUMMON_TYPE_VEHICLE12:
+        case SUMMON_TYPE_VEHICLE13:
+            EffectSummonVehicle(i);
+            return;
         case SUMMON_TYPE_UNKNOWN1:
         case SUMMON_TYPE_UNKNOWN2:
         case SUMMON_TYPE_UNKNOWN3:
         case SUMMON_TYPE_UNKNOWN4:
         case SUMMON_TYPE_UNKNOWN5:
-            break;
+            return;
         default:
             sLog.outError("EffectSummonType: Unhandled summon type %u", m_spellInfo->EffectMiscValueB[i]);
             break;
     }
+
+    SummonPropertiesEntry const *properties = sSummonPropertiesStore.LookupEntry(m_spellInfo->EffectMiscValueB[i]);
+    if(!properties)
+    {
+        sLog.outError("EffectSummonType: Unknown summon properties %u", m_spellInfo->EffectMiscValueB[i]);
+        return;
+    }
+
+    // more generic way, but incorrect in some cases
+    switch(properties->Group)
+    {
+        case SUMMON_CATEGORY_WILD:
+            EffectSummonWild(i);
+            break;
+        case SUMMON_CATEGORY_PET:
+            switch(properties->Type)
+            {
+                case SUMMON_MASK_SUMMON:
+                    EffectSummon(i);
+                    break;
+                default:
+                    EffectSummonGuardian(i);
+                    break;
+            }
+            break;
+        case SUMMON_CATEGORY_ALLY:
+        case SUMMON_CATEGORY_POSSESSED:
+            switch(properties->Type)
+            {
+                case SUMMON_MASK_NONE:
+                    EffectSummonWild(i);
+                    break;
+                case SUMMON_MASK_TOTEM:
+                    EffectSummonTotem(i);
+                    break;
+                case (SUMMON_MASK_SUMMON | SUMMON_MASK_TOTEM):
+                    EffectSummonCritter(i);
+                    break;
+                default:
+                    EffectSummonGuardian(i);
+                    break;
+            }
+            break;
+        case SUMMON_CATEGORY_VEHICLE:
+            // probably more types of vehicles here
+            EffectSummonVehicle(i);
+            break;
+        default:
+            break;
+   }
 }
 
 void Spell::EffectSummon(uint32 i)
@@ -7630,4 +7695,9 @@ void Spell::EffectRenamePet(uint32 /*eff_idx*/)
         return;
 
     unitTarget->SetByteValue(UNIT_FIELD_BYTES_2, 2, UNIT_RENAME_ALLOWED);
+}
+
+void Spell::EffectSummonVehicle(uint32 i)
+{
+    //TODO
 }

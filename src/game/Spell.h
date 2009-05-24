@@ -256,7 +256,6 @@ class Spell
         void EffectDualWield(uint32 i);
         void EffectPickPocket(uint32 i);
         void EffectAddFarsight(uint32 i);
-        void EffectSummonVehicle(uint32 i);
         void EffectSummonPosessed(uint32 i);
         void EffectSummonWild(uint32 i);
         void EffectSummonGuardian(uint32 i);
@@ -335,6 +334,7 @@ class Spell
         void EffectActivateRune(uint32 i);
         void EffectTitanGrip(uint32 i);
         void EffectEnchantItemPrismatic(uint32 i);
+        void EffectSummonVehicle(uint32 i);
 
         Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID = 0, Spell** triggeringContainer = NULL );
         ~Spell();
