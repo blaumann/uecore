@@ -423,7 +423,8 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
         return;
 
     /* handle special cases */
-    if (movementInfo.flags & MOVEMENTFLAG_ONTRANSPORT)
+    // if we are in vehicle, vehicle is our transport
+    if ((movementInfo.flags & MOVEMENTFLAG_ONTRANSPORT) && !mover->GetVehicle())
     {
         // transports size limited
         // (also received at zeppelin leave by some reason with t_* as absolute in continent coordinates, can be safely skipped)
@@ -791,7 +792,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
     sLog.outDebug("WORLD: Recvd CMSG_DISMISS_CONTROLLED_VEHICLE");
     recv_data.hexlike();
 
-    uint64 vehicleGUID = _player->GetCharmGUID();
+    uint64 vehicleGUID = _player->GetVehicle();
 
     if(!vehicleGUID)                                        // something wrong here...
         return;
@@ -800,13 +801,111 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
     ReadMovementInfo(recv_data, &mi);
     _player->m_movementInfo = mi;
 
-    // using charm guid, because we don't have vehicle guid...
     if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
     {
         // Aura::HandleAuraControlVehicle will call Player::ExitVehicle
-        // wrong, we should remove only one passenger, not all
-        // NOTE : what to do with vehicle when last player leaves?
         vehicle->RemoveSpellsCausingAura(SPELL_AURA_CONTROL_VEHICLE);
+    }
+}
+
+void WorldSession::HandleRequestVehicleExit(WorldPacket &recv_data)
+{
+    sLog.outDebug("WORLD: Recvd CMSG_REQUEST_VEHICLE_EXIT");
+    recv_data.hexlike();
+
+    uint64 vehicleGUID = _player->GetVehicle();
+
+    if(!vehicleGUID)                                        // something wrong here...
+        return;
+
+    if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
+    {
+        _player->ExitVehicle(vehicle);
+    }
+}
+
+void WorldSession::HandleRequestVehiclePrevSeat(WorldPacket &recv_data)
+{
+    sLog.outDebug("WORLD: Recvd CMSG_REQUEST_VEHICLE_PREV_SEAT");
+    recv_data.hexlike();
+
+    uint64 vehicleGUID = _player->GetVehicle();
+
+    if(!vehicleGUID)                                        // something wrong here...
+        return;
+
+    if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
+    {
+        // todo
+    }
+}
+
+void WorldSession::HandleRequestVehicleNextSeat(WorldPacket &recv_data)
+{
+    sLog.outDebug("WORLD: Recvd CMSG_REQUEST_VEHICLE_NEXT_SEAT");
+    recv_data.hexlike();
+
+    uint64 vehicleGUID = _player->GetVehicle();
+
+    if(!vehicleGUID)                                        // something wrong here...
+        return;
+
+    if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
+    {
+        // todo
+    }
+}
+
+void WorldSession::HandleRequestVehicleSwitchSeat(WorldPacket &recv_data)
+{
+    sLog.outDebug("WORLD: Recvd CMSG_REQUEST_VEHICLE_SWITCH_SEAT");
+    recv_data.hexlike();
+
+    uint64 vehicleGUID = _player->GetVehicle();
+
+    if(!vehicleGUID)                                        // something wrong here...
+        return;
+
+    if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
+    {
+        // todo
+    }
+}
+
+void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
+{
+    sLog.outDebug("WORLD: Recvd CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE");
+    recv_data.hexlike();
+
+    uint64 vehicleGUID = _player->GetVehicle();
+
+    if(!vehicleGUID)                                        // something wrong here...
+        return;
+
+    if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
+    {
+        MovementInfo mi;
+        ReadMovementInfo(recv_data, &mi);
+        //_player->m_movementInfo = mi;
+
+        CHECK_PACKET_SIZE(recv_data, recv_data.rpos()+1);
+        uint64 guid;
+        if(!recv_data.readPackGUID(guid))
+            return;
+
+        CHECK_PACKET_SIZE(recv_data, recv_data.rpos()+1);
+        int8 seatId;
+        recv_data >> seatId;
+        
+        if(guid)
+        {
+            if(vehicleGUID != guid)
+            {
+                // this can happen when are 2 united vehicles
+                return;
+            }
+            // TODO
+        }
     }
 }
 

@@ -280,7 +280,9 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags, uint32 flags2
             {
                 flags2 = ((Player*)this)->m_movementInfo.GetMovementFlags();
 
-                if(((Player*)this)->GetTransport())
+                // NOTE : player on vehicle without this will crash client
+                if(((Player*)this)->GetTransport() || ((Player*)this)->GetVehicle())
+
                     flags2 |= MOVEMENTFLAG_ONTRANSPORT;
                 else
                     flags2 &= ~MOVEMENTFLAG_ONTRANSPORT;
@@ -310,7 +312,18 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags, uint32 flags2
         // 0x00000200
         if(flags2 & MOVEMENTFLAG_ONTRANSPORT)
         {
-            if(GetTypeId() == TYPEID_PLAYER)
+            if(((Unit*)this)->GetVehicle())
+            {
+                // TODO : find a fast way to do this
+                *data << (uint64)((Unit*)this)->GetVehicle();    // transport guid
+                *data << (float)0;                               // transport offsetX
+                *data << (float)0;                               // transport offsetY
+                *data << (float)0;                               // transport offsetZ
+                *data << (float)0;                               // transport orientation
+                *data << (uint32)getMSTime();                    // transport time
+                *data << (int8)0;                                // seat
+            }
+            else if(GetTypeId() == TYPEID_PLAYER)
             {
                 data->append(((Player*)this)->GetTransport()->GetPackGUID());
                 *data << (float)((Player*)this)->GetTransOffsetX();

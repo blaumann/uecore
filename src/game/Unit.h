@@ -1484,6 +1484,8 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         // vehicle system
         virtual void EnterVehicle(Vehicle *vehicle);
         virtual void ExitVehicle(Vehicle *vehicle);
+        uint64 GetVehicle() { return m_vehicle; }
+        void SetVehicle(uint64 guid) { m_vehicle = guid; }
 
     protected:
         explicit Unit ();
@@ -1536,6 +1538,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         uint32 m_reactiveTimer[MAX_REACTIVE];
         uint32 m_regenTimer;
         uint32 m_lastRegenerate;                            // msecs
+        uint64 m_vehicle;
 
     private:
         void SendAttackStop(Unit* victim);                  // only from AttackStop(Unit*)

@@ -19666,6 +19666,16 @@ void Player::EnterVehicle(Vehicle *vehicle)
     if(!veSeat)
         return;
 
+    if(m_transport)               // if we were on a transport, leave
+    {
+        m_transport->RemovePassenger(this);
+        m_transport = NULL;
+    }
+    // vehicle is our transport from now, if i get to zeppelin or boat
+    // with vehicle, ONLY my vehicle will be passenger on that transport
+    // player ----> vehicle ----> zeppelin
+    // TODO : rewrite sometime whole transport thing to allow npc passenger
+
     vehicle->SetCharmerGUID(GetGUID());
     vehicle->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);    //TODO : remove only when no seats left
     vehicle->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);   //TODO : add only at first player enter and remove at last player leave
@@ -19694,6 +19704,7 @@ void Player::EnterVehicle(Vehicle *vehicle)
     data << vehicle->GetPositionZ();                        // z
     data << vehicle->GetOrientation();                      // o
     // transport part, TODO: load/calculate seat offsets
+    // TODO : save this values for later use
     data << uint64(vehicle->GetGUID());                     // transport guid
     data << float(veSeat->m_attachmentOffsetX);             // transport offsetX
     data << float(veSeat->m_attachmentOffsetY);             // transport offsetY
@@ -19714,8 +19725,8 @@ void Player::EnterVehicle(Vehicle *vehicle)
     for(uint32 i = 0; i < 10; ++i)
         data << uint16(0) << uint8(0) << uint8(i+8);
 
-    data << uint8(0);	//aditional spells in spellbook, not used in vehicles
-    data << uint8(0);	//cooldowns remaining, TODO : handle this sometime, uint8 count, uint32 spell, uint32 time, uint32 time
+    data << uint8(0);    //aditional spells in spellbook, not used in vehicles
+    data << uint8(0);    //cooldowns remaining, TODO : handle this sometime, uint8 count, uint32 spell, uint32 time, uint32 time
     GetSession()->SendPacket(&data);
 }
 
@@ -19749,8 +19760,12 @@ void Player::ExitVehicle(Vehicle *vehicle)
     data << uint32(0);
     GetSession()->SendPacket(&data);
 
+    // TODO : implement DB handling of these dummy auras remove,
+    // most of them just cast another spell
     // maybe called at dummy aura remove?
     // CastSpell(this, 45472, true);                           // Parachute
+
+    // NOTE : we should resummon pet here?
 }
 
 bool Player::isTotalImmune()

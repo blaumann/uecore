@@ -160,6 +160,7 @@ Unit::Unit()
     // remove aurastates allowing special moves
     for(int i=0; i < MAX_REACTIVE; ++i)
         m_reactiveTimer[i] = 0;
+    m_vehicle = 0;
 }
 
 Unit::~Unit()
@@ -11974,6 +11975,9 @@ void Unit::SetPvP( bool state )
 
 void Unit::EnterVehicle(Vehicle *vehicle)
 {
+    // what about united vehicles?
+    SetVehicle(vehicle->GetGUID());
+
     // NOTE : we can have a player or creature passenger,
     // but there is also special case : vehicle passenger,
     // eg. http://www.wowhead.com/?npc=28312, where on top
@@ -11995,6 +11999,7 @@ void Unit::EnterVehicle(Vehicle *vehicle)
 }
 void Unit::ExitVehicle(Vehicle *vehicle)
 {
+    SetVehicle(NULL);
     // NOTE : we can have a player or creature passenger,
     // but there is also special case : vehicle passenger,
     // eg. http://www.wowhead.com/?npc=28312, where on top
