@@ -275,7 +275,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags, uint32 flags2
             {
                 flags2 = ((Unit*)this)->isInFlight() ? (MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_LEVITATING) : MOVEMENTFLAG_NONE;
                 if(((Unit*)this)->GetVehicle())
-                    flags2 |= MOVEMENTFLAG_ONTRANSPORT;
+                    flags2 |= (MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1);
             }
             break;
             case TYPEID_PLAYER:
@@ -285,7 +285,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags, uint32 flags2
                 // NOTE : player on vehicle without this will crash client
                 if(((Player*)this)->GetTransport())
 
-                    flags2 |= MOVEMENTFLAG_ONTRANSPORT;
+                    flags2 |= (MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1);
                 else
                     flags2 &= ~MOVEMENTFLAG_ONTRANSPORT;
 
@@ -319,14 +319,14 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags, uint32 flags2
         {
             if((GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT) && ((Unit*)this)->GetVehicle())
             {
-                // NOTE: use always actual scale
                 float scale = GetFloatValue(OBJECT_FIELD_SCALE_X);
+                uint32 veh_time = getMSTimeDiff(((Unit*)this)->m_SeatData.c_time,getMSTime());
                 *data << (uint64)((Unit*)this)->GetVehicle();                   // transport guid
                 *data << (float)((Unit*)this)->m_SeatData.OffsetX * scale;      // transport offsetX
                 *data << (float)((Unit*)this)->m_SeatData.OffsetY * scale;      // transport offsetY
                 *data << (float)((Unit*)this)->m_SeatData.OffsetZ * scale;      // transport offsetZ
                 *data << (float)((Unit*)this)->m_SeatData.Orientation;          // transport orientation
-                *data << (uint32)getMSTime();                                   // transport time
+                *data << (uint32)veh_time;                                      // transport time
                 *data << (int8)((Unit*)this)->m_SeatData.seat;                  // seat
             }
             else if(GetTypeId() == TYPEID_PLAYER)

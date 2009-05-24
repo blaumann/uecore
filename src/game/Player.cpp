@@ -17009,7 +17009,10 @@ void Player::HandleStealthedUnitsDetection()
             // target aura duration for caster show only if target exist at caster client
             // send data at target visibility change (adding to client)
             if((*i)!=this && (*i)->isType(TYPEMASK_UNIT))
+            {
                 SendAurasForTarget(*i);
+                BuildVehicleInfo(*i);
+            }
 
             i = stealthedUnits.erase(i);
             continue;
@@ -18054,7 +18057,10 @@ void Player::UpdateVisibilityOf(WorldObject* target)
             // target aura duration for caster show only if target exist at caster client
             // send data at target visibility change (adding to client)
             if(target!=this && target->isType(TYPEMASK_UNIT))
+            {
                 SendAurasForTarget((Unit*)target);
+                BuildVehicleInfo((Unit*)target);
+            }
 
             if(target->GetTypeId()==TYPEID_UNIT && ((Creature*)target)->isAlive())
                 ((Creature*)target)->SendMonsterMoveWithSpeedToCurrentDestination(this);
@@ -18299,6 +18305,7 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     if(GetVehicle())
     {
+        BuildVehicleInfo();
         WorldPacket data3(SMSG_FORCE_MOVE_ROOT, 10);
         data3.append(GetPackGUID());
         data3 << (uint32)((m_SeatData.s_flags & SF_CAN_CAST) ? 2 : 0);
@@ -19676,8 +19683,8 @@ void Player::SendEnterVehicle(Vehicle *vehicle)
     // with vehicle, ONLY my vehicle will be passenger on that transport
     // player ----> vehicle ----> zeppelin
 
-    WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-    GetSession()->SendPacket(&data);
+    uint32 veh_time = getMSTimeDiff(m_SeatData.c_time,getMSTime());
+    WorldPacket data(MSG_MOVE_TELEPORT_ACK, 30);
 
     data.Initialize(MSG_MOVE_TELEPORT_ACK, 30);
     data.append(GetPackGUID());
@@ -19696,28 +19703,10 @@ void Player::SendEnterVehicle(Vehicle *vehicle)
     data << float(m_SeatData.OffsetY);                      // transport offsetY
     data << float(m_SeatData.OffsetZ);                      // transport offsetZ
     data << float(m_SeatData.Orientation);                  // transport orientation
-    data << uint32(getMSTime());                            // transport time
+    data << uint32(veh_time);                               // transport time
     data << uint8(m_SeatData.seat);                         // seat
     // end of transport part
     data << uint32(0);                                      // fall time
-    GetSession()->SendPacket(&data);
-
-    VehicleDataStructure const* VehicleDS = objmgr.GetVehicleData(vehicle->GetEntry());
-    // this cant happen, but..
-    if(!VehicleDS)
-        return;
-
-    data.Initialize(SMSG_PET_SPELLS, 8 + 4 + 4 + 4 + 4*10 + 1 + 1);
-    data << uint64(vehicle->GetGUID());
-    data << uint32(0x00000000);                     // creature family, not used in vehicles
-    data << uint32(VehicleDS->v_spell_flag);        // flags probably related to different ACTION BARS
-    data << uint32(0x00000101);
-
-    for(uint32 i = 0; i < MAX_VEHICLE_SPELLS; ++i)
-        data << uint16(VehicleDS->v_spells[i]) << uint8(0) << uint8(i+8);
-
-    data << uint8(0);                               //aditional spells in spellbook, not used in vehicles
-    data << uint8(0);                               //cooldowns remaining, TODO : handle this sometime, uint8 count, uint32 spell, uint32 time, uint32 time
     GetSession()->SendPacket(&data);
 }
 
@@ -19728,10 +19717,10 @@ void Player::SendExitVehicle()
     data << uint32(0);                                      // counter?
     data << uint32(MOVEMENTFLAG_FLY_UNK1);                  // fly unk
     data << uint16(0x40);                                   // special flags
-    data << uint32(getMSTime());                            // time
+    data << uint32(getMSTime()+1000);                       // time
     data << GetPositionX();                                 // x
     data << GetPositionY();                                 // y
-    data << GetPositionZ()+10.0f;                           // z
+    data << GetPositionZ()+5.0f;                            // z
     data << GetOrientation();                               // o
     data << uint32(0);                                      // fall time
     GetSession()->SendPacket(&data);

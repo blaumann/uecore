@@ -96,12 +96,18 @@ class Vehicle : public Creature
         {
             return m_vehicleflags;
         }
+
+        uint32 GetCreationTime()
+        {
+            return m_creation_time;
+        }
     protected:
         uint32 m_vehicleId;
         uint32 m_vehicleflags;
         VehicleEntry const *m_vehicleInfo;
         int32 m_spawnduration;
         bool despawn;
+        uint32 m_creation_time;
 
     private:
         void SaveToDB(uint32, uint8)                        // overwrited of Creature::SaveToDB     - don't must be called

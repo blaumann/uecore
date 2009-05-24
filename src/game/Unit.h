@@ -843,6 +843,7 @@ struct SeatData
     float OffsetY;
     float OffsetZ;
     float Orientation;
+    uint32 c_time;
     uint8 seat;
     //custom
     uint32 s_flags;
@@ -1501,6 +1502,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         void SetVehicle(uint64 guid) { m_vehicle = guid; }
         // using extra variables to avoid problems with transports
         SeatData m_SeatData;
+        void BuildVehicleInfo(Unit *target = NULL);
 
     protected:
         explicit Unit ();

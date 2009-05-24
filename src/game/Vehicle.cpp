@@ -28,6 +28,7 @@ Vehicle::Vehicle() : Creature(), m_vehicleId(0)
 {
     despawn = false;
     m_isVehicle = true;
+    m_creation_time = 0;
     m_updateFlag = (UPDATEFLAG_LIVING | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_VEHICLE);
 }
 
@@ -236,6 +237,7 @@ bool Vehicle::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, u
         return false;
 
     m_defaultMovementType = IDLE_MOTION_TYPE;
+    m_creation_time = getMSTime();
 
     AIM_Initialize();
 
@@ -380,6 +382,24 @@ void Vehicle::AddPassenger(Unit *unit, int8 seatId, bool force)
                 }
             }
             ((Player*)unit)->SetClientControl(this, 1);
+            ((Player*)unit)->SetFarSightGUID(GetGUID());
+
+            VehicleDataStructure const* VehicleDS = objmgr.GetVehicleData(GetEntry());
+            // this cant happen, but..
+            if(!VehicleDS)
+                return;
+            WorldPacket data(SMSG_PET_SPELLS, 8 + 4 + 4 + 4 + 4*10 + 1 + 1);
+            data << uint64(GetGUID());
+            data << uint32(0x00000000);                     // creature family, not used in vehicles
+            data << uint32(VehicleDS->v_spell_flag);        // todo : find out whats this
+            data << uint32(0x00000101);
+
+            for(uint32 i = 0; i < MAX_VEHICLE_SPELLS; ++i)
+                data << uint16(VehicleDS->v_spells[i]) << uint8(0) << uint8(i+8);
+
+            data << uint8(0);                               //aditional spells in spellbook, not used in vehicles
+            data << uint8(0);                               //cooldowns remaining, TODO : handle this sometime, uint8 count, uint32 spell, uint32 time, uint32 time
+            ((Player*)unit)->GetSession()->SendPacket(&data);
         }
         SetCharmerGUID(unit->GetGUID());
         unit->SetCharm(this);
@@ -417,35 +437,47 @@ void Vehicle::RemovePassenger(Unit *unit)
                 unit->SetCharm(NULL);
                 if(unit->GetTypeId() == TYPEID_PLAYER)
                 {
-                    ((Player*)unit)->SetFarSightGUID(NULL);
-                    WorldPacket data(SMSG_PET_SPELLS, 8+4);
+                    WorldPacket data(SMSG_PET_SPELLS, 8 + 4);
                     data << uint64(0);
                     data << uint32(0);
                     ((Player*)unit)->GetSession()->SendPacket(&data);
                 }
-                SetCharmerGUID(0);
+                SetCharmerGUID(NULL);
                 setFaction(GetCreatureInfo()->faction_A);
                 if(GetVehicleFlags() & SV_DESPAWN_AT_LEAVE)
                 {
                     // will be deleted at next update
                     SetSpawnDuration(1);
                 }
+                ((Player*)unit)->SetClientControl(unit, 1);
             }
             if(seat->second.vs_flags & SF_UNATTACKABLE)
                 unit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             // restore player control
             if(unit->GetTypeId() == TYPEID_PLAYER)
             {
-                WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 10);
-                data.append(unit->GetPackGUID());
-                data << (uint32)(0);
-                unit->SendMessageToSet(&data,true);
-                ((Player*)unit)->SetClientControl(unit, 1);
+                ((Player*)unit)->SetFarSightGUID(NULL);
+
+                if(seat->second.vs_flags & SF_CAN_CAST)
+                {
+                    WorldPacket data0(SMSG_FORCE_MOVE_UNROOT, 10);
+                    data0.append(unit->GetPackGUID());
+                    data0 << (uint32)(2);                        // can rotate
+                    unit->SendMessageToSet(&data0,true);
+                }
+                else
+                {
+                    WorldPacket data1(SMSG_FORCE_MOVE_UNROOT, 10);
+                    data1.append(unit->GetPackGUID());
+                    data1 << (uint32)(0);                        // cannot rotate
+                    unit->SendMessageToSet(&data1,true);
+                }
             }
             unit->m_SeatData.OffsetX = 0.0f;
             unit->m_SeatData.OffsetY = 0.0f;
             unit->m_SeatData.OffsetZ = 0.0f;
             unit->m_SeatData.Orientation = 0.0f;
+            unit->m_SeatData.c_time = 0;
             unit->m_SeatData.seat = 0;
             unit->m_SeatData.s_flags = 0;
 

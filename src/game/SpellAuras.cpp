@@ -7038,6 +7038,11 @@ void Aura::HandleAuraControlVehicle(bool apply, bool Real)
 
     if (apply)
     {
+        if(caster->GetTypeId() == TYPEID_PLAYER)
+        {
+            WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
+            ((Player*)caster)->GetSession()->SendPacket(&data);
+        }
         // if we leave and enter again, this will refresh
         int32 duration = GetSpellMaxDuration(GetSpellProto());
         if(duration > 0)

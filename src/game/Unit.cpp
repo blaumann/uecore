@@ -11993,11 +11993,12 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seat_id, bool force)
     m_SeatData.OffsetY = veSeat->m_attachmentOffsetY;                                                           // transport offsetY
     m_SeatData.OffsetZ = veSeat->m_attachmentOffsetZ;                                                           // transport offsetZ
     m_SeatData.Orientation = veSeat->m_passengerYaw;                                                            // NOTE : needs confirmation
+    m_SeatData.c_time = vehicle->GetCreationTime();                                                             // time pased from moment when it was created, confirmed
     m_SeatData.seat = seat_id;
     m_SeatData.s_flags = objmgr.GetSeatFlags(veSeat->m_ID);
 
     addUnitState(UNIT_STAT_ON_VEHICLE);
-    AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+    AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1);
     // interupt autorepeat spells here
 
     if(Pet *pet = GetPet())
@@ -12010,7 +12011,9 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seat_id, bool force)
         ((Player*)this)->SendEnterVehicle(vehicle);
         return;
     }
+    BuildVehicleInfo();
 }
+
 void Unit::ExitVehicle()
 {
     if(uint64 vehicleGUID = GetVehicle())
@@ -12020,7 +12023,7 @@ void Unit::ExitVehicle()
             vehicle->RemovePassenger(this);
         }
         clearUnitState(UNIT_STAT_ON_VEHICLE);
-        RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+        RemoveUnitMovementFlag((MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1));
 
         if(GetTypeId() == TYPEID_PLAYER)
         {
@@ -12028,4 +12031,52 @@ void Unit::ExitVehicle()
             return;
         }
     }
+}
+
+void Unit::BuildVehicleInfo(Unit *target)
+{
+    Unit *passenger = target;
+    if(!passenger)
+        passenger = this;
+
+    if(!passenger->GetVehicle())
+        return;
+
+    passenger->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1);
+    uint32 veh_time = getMSTimeDiff(passenger->m_SeatData.c_time,getMSTime());
+
+    WorldPacket data(MSG_MOVE_HEARTBEAT, 32);
+    data.append(passenger->GetPackGUID());
+    data << uint32(passenger->GetUnitMovementFlags());
+    data << uint16(0);
+    data << uint32(getMSTime());
+    data << float(passenger->GetPositionX());
+    data << float(passenger->GetPositionY());
+    data << float(passenger->GetPositionZ());
+    data << float(passenger->GetOrientation());
+    data << uint64(passenger->GetVehicle());
+    data << float(passenger->m_SeatData.OffsetX);
+    data << float(passenger->m_SeatData.OffsetY);
+    data << float(passenger->m_SeatData.OffsetZ);
+    data << float(passenger->m_SeatData.Orientation);
+    data << uint32(veh_time);
+    data << uint8 (passenger->m_SeatData.seat);
+    // required to avoid client crash
+    if(passenger->GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING2))
+        data << float(0);
+    data << uint32(0);
+    if(passenger->GetUnitMovementFlags() & MOVEMENTFLAG_JUMPING)
+    {
+        data << float(0);
+        data << float(0);
+        data << float(0);
+        data << float(0);
+    }
+    if(passenger->GetUnitMovementFlags() & MOVEMENTFLAG_SPLINE)
+        data << float(0);
+
+    if(!target)
+        SendMessageToSet(&data,false);
+    else if(GetTypeId() == TYPEID_PLAYER)
+        ((Player*)passenger)->GetSession()->SendPacket(&data);
 }
