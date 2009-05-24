@@ -16692,7 +16692,7 @@ void Player::VehicleSpellInitialize()
     WorldPacket data(SMSG_PET_SPELLS, 8+4+4+4+4*10+1+1);
     data << uint64(charm->GetGUID());
     data << uint32(0x00000000);
-    data << uint32(0x00000000);// depending on flags here, there will be diferent ACTION BARS
+    data << uint32(0x00000000);
     data << uint32(0x00000101);
 
     for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
@@ -19700,20 +19700,23 @@ void Player::EnterVehicle(Vehicle *vehicle)
     data << float(veSeat->m_attachmentOffsetZ);             // transport offsetZ
     data << float(0);                                       // transport orientation
     data << uint32(getMSTime());                            // transport time
-    data << uint8(0);                                       // TODO : seat
+    data << uint8(0);                                       // seat
     // end of transport part
     data << uint32(0);                                      // fall time
     GetSession()->SendPacket(&data);
 
-    VehicleSpellInitialize();
+    data.Initialize(SMSG_PET_SPELLS, 8 + 4 + 4 + 4 + 4*10 + 1 + 1);
+    data << uint64(vehicle->GetGUID());
+    data << uint32(0x00000000);// creature family, not used in vehicles
+    data << uint32(0x00000000);// flags probably related to different ACTION BARS
+    data << uint32(0x00000101);
 
-	CharmInfo *charmInfo = vehicle->InitCharmInfo(vehicle);
-	charmInfo->InitPossessCreateSpells();
+    for(uint32 i = 0; i < 10; ++i)
+        data << uint16(0) << uint8(0) << uint8(i+8);
 
-	PossessSpellInitialize();
-
-	vehicle->setPowerType( POWER_ENERGY ); // FEANOR TODO: Get Type from DB ?
-	vehicle->SetPower(POWER_ENERGY, 100); // FEANOR TODO: Get Type from DB ?
+    data << uint8(0);	//aditional spells in spellbook, not used in vehicles
+    data << uint8(0);	//cooldowns remaining, TODO : handle this sometime, uint8 count, uint32 spell, uint32 time, uint32 time
+    GetSession()->SendPacket(&data);
 }
 
 void Player::ExitVehicle(Vehicle *vehicle)
@@ -19741,8 +19744,9 @@ void Player::ExitVehicle(Vehicle *vehicle)
     data << uint32(0);                                      // fall time
     GetSession()->SendPacket(&data);
 
-    data.Initialize(SMSG_PET_SPELLS, 8);
+    data.Initialize(SMSG_PET_SPELLS, 8 + 4);
     data << uint64(0);
+    data << uint32(0);
     GetSession()->SendPacket(&data);
 
     // maybe called at dummy aura remove?

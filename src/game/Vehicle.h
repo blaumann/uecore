@@ -42,6 +42,8 @@ class Vehicle : public Creature
 
         void Dismiss();
 
+        void EnterVehicle(Vehicle *vehicle);
+        void ExitVehicle(Vehicle *vehicle);
     protected:
         uint32 m_vehicleId;
 

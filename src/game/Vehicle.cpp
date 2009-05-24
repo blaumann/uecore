@@ -99,3 +99,13 @@ void Vehicle::Dismiss()
     CleanupsBeforeDelete();
     AddObjectToRemoveList();
 }
+
+void Vehicle::EnterVehicle(Vehicle *vehicle)
+{
+    // TODO : implement this
+}
+
+void Vehicle::ExitVehicle(Vehicle *vehicle)
+{
+    // TODO : implement this
+}

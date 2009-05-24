@@ -804,6 +804,8 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
     if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
     {
         // Aura::HandleAuraControlVehicle will call Player::ExitVehicle
+        // wrong, we should remove only one passenger, not all
+        // NOTE : what to do with vehicle when last player leaves?
         vehicle->RemoveSpellsCausingAura(SPELL_AURA_CONTROL_VEHICLE);
     }
 }

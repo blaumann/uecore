@@ -38,6 +38,7 @@
 #include "Pet.h"
 #include "Util.h"
 #include "Totem.h"
+#include "Vehicle.h"
 #include "BattleGround.h"
 #include "InstanceSaveMgr.h"
 #include "GridNotifiersImpl.h"
@@ -11969,4 +11970,47 @@ void Unit::SetPvP( bool state )
         if(m_TotemSlot[i])
             if(Creature *totem = GetMap()->GetCreature(m_TotemSlot[i]))
                 totem->SetPvP(state);
+}
+
+void Unit::EnterVehicle(Vehicle *vehicle)
+{
+    // NOTE : we can have a player or creature passenger,
+    // but there is also special case : vehicle passenger,
+    // eg. http://www.wowhead.com/?npc=28312, where on top
+    // of first vehicle is another one - Turret
+    if(GetTypeId() == TYPEID_PLAYER)
+    {
+        ((Player*)this)->EnterVehicle(vehicle);
+        return;
+    }
+    else if(GetTypeId() == TYPEID_UNIT)
+    {
+        if(((Creature*)this)->isVehicle())
+        {
+            ((Vehicle*)this)->EnterVehicle(vehicle);
+            return;
+        }
+    }
+    //TODO : finish this
+}
+void Unit::ExitVehicle(Vehicle *vehicle)
+{
+    // NOTE : we can have a player or creature passenger,
+    // but there is also special case : vehicle passenger,
+    // eg. http://www.wowhead.com/?npc=28312, where on top
+    // of first vehicle is another one - Turret
+    if(GetTypeId() == TYPEID_PLAYER)
+    {
+        ((Player*)this)->ExitVehicle(vehicle);
+        return;
+    }
+    else if(GetTypeId() == TYPEID_UNIT)
+    {
+        if(((Creature*)this)->isVehicle())
+        {
+            ((Vehicle*)this)->ExitVehicle(vehicle);
+            return;
+        }
+    }
+    //TODO : finish this
 }

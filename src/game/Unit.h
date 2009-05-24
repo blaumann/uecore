@@ -283,6 +283,7 @@ class Item;
 class Pet;
 class Path;
 class PetAura;
+class Vehicle;
 
 struct SpellImmune
 {
@@ -1479,6 +1480,10 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         PetAuraSet m_petAuras;
         void AddPetAura(PetAura const* petSpell);
         void RemovePetAura(PetAura const* petSpell);
+
+        // vehicle system
+        virtual void EnterVehicle(Vehicle *vehicle);
+        virtual void ExitVehicle(Vehicle *vehicle);
 
     protected:
         explicit Unit ();
