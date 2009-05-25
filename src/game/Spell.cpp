@@ -179,7 +179,7 @@ void SpellCastTargets::Update(Unit* caster)
     }
 }
 
-bool SpellCastTargets::read ( WorldPacket * data, Unit *caster )
+bool SpellCastTargets::read ( WorldPacket * data, Unit *caster, SpellEntry const* spell )
 {
     if(data->rpos()+4 > data->size())
         return false;
@@ -191,8 +191,20 @@ bool SpellCastTargets::read ( WorldPacket * data, Unit *caster )
         m_destX = caster->GetPositionX();
         m_destY = caster->GetPositionY();
         m_destZ = caster->GetPositionZ();
-        m_unitTarget = caster;
-        m_unitTargetGUID = caster->GetGUID();
+        bool skiptarget = false;
+        if(spell)
+        {
+            for(int j = 0; j < 3; ++j)
+            {
+                // this is requiered, otherwise it will return SPELL_FAILED_BAD_TARGETS
+                skiptarget |= (spell->EffectImplicitTargetA[j] == TARGET_IN_FRONT_OF_CASTER);
+            }
+        }
+        if(!skiptarget)
+        {
+            m_unitTarget = caster;
+            m_unitTargetGUID = caster->GetGUID();
+        }
         return true;
     }
 
@@ -1470,7 +1482,6 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,UnitList& TagUnitMap)
         case TARGET_SELF:
         case TARGET_SELF2:
         case TARGET_DYNAMIC_OBJECT:
-        case TARGET_AREAEFFECT_CUSTOM_2:
         case TARGET_SUMMON:
         {
             TagUnitMap.push_back(m_caster);
@@ -1552,6 +1563,12 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,UnitList& TagUnitMap)
                     break;
                 }
             }
+            break;
+        }
+        case TARGET_AREAEFFECT_CUSTOM_2:
+        {
+            // used for targeting gameobjects
+            TagUnitMap.push_back(m_caster);
             break;
         }
         case TARGET_RANDOM_ENEMY_CHAIN_IN_AREA:
@@ -4915,7 +4932,7 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
                                                             //TARGET_DUELVSPLAYER is positive AND negative
                     duelvsplayertar |= (m_spellInfo->EffectImplicitTargetA[j] == TARGET_DUELVSPLAYER);
                 }
-                if(m_caster->IsFriendlyTo(target) && !duelvsplayertar)
+                if(m_caster->IsFriendlyTo(_target) && !duelvsplayertar)
                 {
                     return SPELL_FAILED_BAD_TARGETS;
                 }
@@ -4925,7 +4942,7 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
         if(((Creature*)m_caster)->HasSpellCooldown(m_spellInfo->Id))
             return SPELL_FAILED_NOT_READY;
     }
-
+    // NOTE : this is done twice, also in spell->prepare(&(spell->m_targets));
     return CheckCast(true);
 }
 
