@@ -106,8 +106,6 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
         m_bCorruptedForm = false;
 
         m_creature->SetMeleeDamageSchool(SPELL_SCHOOL_FROST);
-        m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
-        m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
 
         m_creature->SetDisplayId(MODEL_CLEAN);
 

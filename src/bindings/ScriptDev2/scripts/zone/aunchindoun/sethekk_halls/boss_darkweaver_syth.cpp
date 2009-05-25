@@ -211,7 +211,6 @@ struct MANGOS_DLL_DECL mob_syth_fireAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
         flameshock_timer = 2500;
         flamebuffet_timer = 5000;
     }
@@ -255,7 +254,6 @@ struct MANGOS_DLL_DECL mob_syth_arcaneAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, true);
         arcaneshock_timer = 2500;
         arcanebuffet_timer = 5000;
     }
@@ -299,7 +297,6 @@ struct MANGOS_DLL_DECL mob_syth_frostAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
         frostshock_timer = 2500;
         frostbuffet_timer = 5000;
     }
@@ -343,7 +340,6 @@ struct MANGOS_DLL_DECL mob_syth_shadowAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, true);
         shadowshock_timer = 2500;
         shadowbuffet_timer = 5000;
     }

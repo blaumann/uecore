@@ -12009,7 +12009,6 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seat_id, bool force)
     if(GetTypeId() == TYPEID_PLAYER)
     {
         ((Player*)this)->SendEnterVehicle(vehicle);
-        return;
     }
     BuildVehicleInfo();
 }
@@ -12042,10 +12041,19 @@ void Unit::BuildVehicleInfo(Unit *target)
     if(!passenger->GetVehicle())
         return;
 
-    passenger->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1);
+    passenger->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1 | MOVEMENTFLAG_FORWARD);
     uint32 veh_time = getMSTimeDiff(passenger->m_SeatData.c_time,getMSTime());
 
-    WorldPacket data(MSG_MOVE_HEARTBEAT, 32);
+    uint32 p_length = passenger->GetPackGUID().size()+4+2+4+4+4+4+4+8+4+4+4+4+4+1+4;
+
+    if(passenger->GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING2))
+        p_length +=4;
+    if(passenger->GetUnitMovementFlags() & MOVEMENTFLAG_JUMPING)
+        p_length +=16;
+    if(passenger->GetUnitMovementFlags() & MOVEMENTFLAG_SPLINE)
+        p_length +=4;
+
+    WorldPacket data(MSG_MOVE_HEARTBEAT, p_length);
     data.append(passenger->GetPackGUID());
     data << uint32(passenger->GetUnitMovementFlags());
     data << uint16(0);
@@ -12078,5 +12086,5 @@ void Unit::BuildVehicleInfo(Unit *target)
     if(!target)
         SendMessageToSet(&data,false);
     else if(GetTypeId() == TYPEID_PLAYER)
-        ((Player*)passenger)->GetSession()->SendPacket(&data);
+        ((Player*)this)->GetSession()->SendPacket(&data);
 }

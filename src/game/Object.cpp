@@ -641,15 +641,13 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
         {
             if( updateMask->GetBit( index ) )
             {
+                // remove custom flag before sending
                 if( index == UNIT_NPC_FLAGS )
                 {
-                    // remove custom flag before sending
-                    uint32 appendValue = m_uint32Values[ index ] & ~(UNIT_NPC_FLAG_GUARD + UNIT_NPC_FLAG_OUTDOORPVP);
-
-                    if (GetTypeId() == TYPEID_UNIT && !target->canSeeSpellClickOn((Creature*)this))
-                        appendValue &= ~UNIT_NPC_FLAG_SPELLCLICK;
-
-                    *data << uint32(appendValue);
+			if (GetTypeId() == TYPEID_UNIT && !target->canSeeSpellClickOn((Creature*)this))
+                    *data << uint32(m_uint32Values[ index ] & ~(UNIT_NPC_FLAG_GUARD + UNIT_NPC_FLAG_OUTDOORPVP + UNIT_NPC_FLAG_SPELLCLICK));
+                else
+                    *data << uint32(m_uint32Values[ index ] & ~(UNIT_NPC_FLAG_GUARD + UNIT_NPC_FLAG_OUTDOORPVP));
                 }
                 // FIXME: Some values at server stored in float format but must be sent to client in uint32 format
                 else if(index >= UNIT_FIELD_BASEATTACKTIME && index <= UNIT_FIELD_RANGEDATTACKTIME)
