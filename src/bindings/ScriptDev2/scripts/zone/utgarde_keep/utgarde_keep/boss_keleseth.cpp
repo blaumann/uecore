@@ -52,7 +52,6 @@ struct MANGOS_DLL_DECL mob_frost_tombAI : public ScriptedAI
     }
 
     void Reset(){ FrostTombGUID = 0; }
-    void Aggro(Unit* who) {}
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
 
@@ -192,7 +191,7 @@ struct MANGOS_DLL_DECL  boss_kelesethAI : public ScriptedAI
 
 struct MANGOS_DLL_DECL  mob_vrykul_skeletonAI : public ScriptedAI
 {
-    mob_vrykul_skeletonAI(Creature* pCreature) : ScriptedAI(pCreature)
+    mob_vrykul_skeletonAI(Creature* pCreature) : ScriptedAI(pCreature) 
     {
         pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
@@ -255,34 +254,37 @@ struct MANGOS_DLL_DECL  mob_vrykul_skeletonAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(pInstance->GetData(DATA_PRINCEKELESETH) == IN_PROGRESS)
-        {
-            if(isDead)
-            {
-                if(Respawn_Time < diff)
-                {
-                    Resurrect();
-                    Respawn_Time = 12000;
-                }else Respawn_Time -= diff;
-            }
-            else
-            {
-                if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
-                    return;
+        if (pInstance)
+		{
+			if (pInstance->GetData(DATA_PRINCEKELESETH) == IN_PROGRESS)
+			{
+				if(isDead)
+				{
+					if(Respawn_Time < diff)
+					{
+						Resurrect();
+						Respawn_Time = 12000;
+					}else Respawn_Time -= diff;
+				}
+				else
+				{
+					if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+						return;
 
-                if(Decrepify_Timer < diff)
-                {
-                    DoCast(m_creature->getVictim(),SPELL_DECREPIFY);
-                    Decrepify_Timer = 30000;
-                }else Decrepify_Timer -= diff;
+					if(Decrepify_Timer < diff)
+					{
+						DoCast(m_creature->getVictim(),SPELL_DECREPIFY);
+						Decrepify_Timer = 30000;
+					}else Decrepify_Timer -= diff;
 
-                DoMeleeAttackIfReady();
-            }
-        }else
-        {
-            if(m_creature->isAlive())
-                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-        }
+					DoMeleeAttackIfReady();
+				}
+			}else
+			{
+				if(m_creature->isAlive())
+					m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+			}
+		}
 
     }
 };
@@ -307,7 +309,7 @@ void AddSC_boss_keleseth()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_keleseth";
+    newscript->Name = "boss_keleseth";
     newscript->GetAI = &GetAI_boss_keleseth;
     newscript->RegisterSelf();
 
@@ -317,7 +319,7 @@ void AddSC_boss_keleseth()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_vrykul_skeleton";
+    newscript->Name = "mob_vrykul_skeleton";
     newscript->GetAI = &GetAI_mob_vrykul_skeleton;
     newscript->RegisterSelf();
 }

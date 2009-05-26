@@ -78,22 +78,8 @@ struct MANGOS_DLL_DECL  instance_utgarde_keep : public ScriptedInstance
             }
         }
 
-        debug_log("TSCR: Instance Utgarde Keep: GetPlayerInMap, but PlayerList is empty!");
+        debug_log("SD2: Instance Utgarde Keep: GetPlayerInMap, but PlayerList is empty!");
         return NULL;
-    }
-
-    void HandleGameObject(uint64 guid, GOState state)
-    {
-        Player *player = GetPlayerInMap();
-
-        if (!player || !guid)
-        {
-            debug_log("TSCR: Utgarde Keep: HandleGameObject fail");
-            return;
-        }
-
-        if (GameObject *go = instance->GetGameObject(guid))
-            go->SetGoState(state);
     }
 
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)
@@ -135,21 +121,21 @@ struct MANGOS_DLL_DECL  instance_utgarde_keep : public ScriptedInstance
         case DATA_PRINCEKELESETH:
             if(data == DONE)
             {
-                //HandleGameObject(doorname, 0);
+                //Open Door;
             }
             Encounters[0] = data;break;
         case DATA_SKARVALD_DALRONN_EVENT:
             if(data == DONE)
             {
-                //HandleGameObject(doorname, 0);
+                //Open Door;
             }
             Encounters[1] = data; break;
         case DATA_INGVAR:
             if(data == DONE)
             {
-                //HandleGameObject(doorname, 0);
+                //Open Door;
             }
-            Encounters[3] = data; break;
+            Encounters[2] = data; break;
         }
 
         if (data == DONE)
@@ -164,7 +150,7 @@ struct MANGOS_DLL_DECL  instance_utgarde_keep : public ScriptedInstance
         {
         case DATA_PRINCEKELESETH:            return Encounters[0];
         case DATA_SKARVALD_DALRONN_EVENT:    return Encounters[1];
-        case DATA_INGVAR:                    return Encounters[3];
+        case DATA_INGVAR:                    return Encounters[2];
         }
 
         return 0;

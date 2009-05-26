@@ -3,7 +3,7 @@ UPDATE creature_template SET maxhealth = 50000, minhealth = 50000 WHERE entry = 
 UPDATE creature_template SET maxhealth = 75000, minhealth = 75000 WHERE entry IN (28312,32627);
 UPDATE creature_template SET maxhealth = 50000, minhealth = 50000 WHERE entry IN (28319,32629);
 
-+UPDATE creature_template SET minlevel = 70, maxlevel = 80, npcflag = 16777216 WHERE entry IN (28312,32627,28319,32629,28094,28670);
+UPDATE creature_template SET minlevel = 70, maxlevel = 80, npcflag = 16777216 WHERE entry IN (28312,32627,28319,32629,28094,28670);
 
 DELETE FROM npc_spellclick_spells WHERE npc_entry in (28670, 28312, 32629, 28319, 32627, 28094);
 INSERT INTO npc_spellclick_spells VALUES (28670, 53112, 0, 0, 0);

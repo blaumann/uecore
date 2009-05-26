@@ -67,11 +67,14 @@ struct MANGOS_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
         ghost = (m_creature->GetEntry() == MOB_SKARVALD_GHOST);
         if(!ghost)
         {
-            pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT,NOT_STARTED);
+            if (pInstance)
+			{
+				pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT,NOT_STARTED);
 
-            Unit* dalronn = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_DALRONN));
-            if(dalronn && dalronn->isDead())
-                ((Creature*)dalronn)->Respawn();
+				Unit* dalronn = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_DALRONN));
+				if(dalronn && dalronn->isDead() && m_creature->isAlive())
+					((Creature*)dalronn)->Respawn();
+			}
         }
     }
 
@@ -81,10 +84,13 @@ struct MANGOS_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
         {
             DoScriptText(SAY_SKARVALD_AGGRO,m_creature);
 
-            pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT,IN_PROGRESS);
-            Unit* dalronn = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_DALRONN));
-            if(dalronn && dalronn->isAlive() && !dalronn->getVictim())
-                dalronn->getThreatManager().addThreat(who,0.0f);
+            if (pInstance)
+			{
+				pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT,IN_PROGRESS);
+				Unit* dalronn = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_DALRONN));
+				if(dalronn && dalronn->isAlive() && !dalronn->getVictim())
+					dalronn->getThreatManager().addThreat(who,0.0f);
+			}
         }
     }
 
@@ -92,25 +98,28 @@ struct MANGOS_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
     {
         if(!ghost)
         {
-            Unit* dalronn = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_DALRONN));
-            if(dalronn)
-            {
-                if(dalronn->isDead())
-                {
-                    DoScriptText(SAY_SKARVALD_DAL_DIED,m_creature);
+            if (pInstance)
+			{
+				Unit* dalronn = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_DALRONN));
+				if(dalronn)
+				{
+					if(dalronn->isDead())
+					{
+						DoScriptText(SAY_SKARVALD_DAL_DIED,m_creature);
 
-                    pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT,DONE);
-                }
-                else
-                {
-                    DoScriptText(SAY_SKARVALD_SKA_DIEDFIRST,m_creature);
+						pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT,DONE);
+					}
+					else
+					{
+						DoScriptText(SAY_SKARVALD_SKA_DIEDFIRST,m_creature);
 
-                    m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                    //DoCast(m_creature,SPELL_SUMMON_SKARVALD_GHOST,true);
-                    Creature* temp = m_creature->SummonCreature(MOB_SKARVALD_GHOST,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),0,TEMPSUMMON_CORPSE_DESPAWN,5000);
-                    temp->AI()->AttackStart(Killer);
-                }
-            }
+						m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+						//DoCast(m_creature,SPELL_SUMMON_SKARVALD_GHOST,true);
+						Creature* temp = m_creature->SummonCreature(MOB_SKARVALD_GHOST,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),0,TEMPSUMMON_CORPSE_DESPAWN,5000);
+						temp->AI()->AttackStart(Killer);
+					}
+				}
+			}
         }
     }
 
@@ -126,10 +135,11 @@ struct MANGOS_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
     {
         if(ghost)
         {
-            if(pInstance->GetData(DATA_SKARVALD_DALRONN_EVENT) != IN_PROGRESS)
-            {
-                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            }
+            if (pInstance)
+				if(pInstance->GetData(DATA_SKARVALD_DALRONN_EVENT) != IN_PROGRESS)
+				{
+					m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+				}
         }
 
        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
@@ -141,13 +151,16 @@ struct MANGOS_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
                 if(Check_Timer < diff)
                 {
                     Check_Timer = 5000;
-                    Unit* dalronn = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_DALRONN));
-                    if(dalronn && dalronn->isDead())
-                    {
-                        Dalronn_isDead = true;
-                        Response_Timer = 2000;
-                        Check_Timer = 0;
-                    }
+                    if (pInstance)
+					{
+						Unit* dalronn = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_DALRONN));
+						if(dalronn && dalronn->isDead())
+						{
+							Dalronn_isDead = true;
+							Response_Timer = 2000;
+							Check_Timer = 0;
+						}
+					}
                 }else Check_Timer -= diff;
 
             if(Response_Timer) 
@@ -216,21 +229,27 @@ struct MANGOS_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
         ghost = m_creature->GetEntry() == MOB_DALRONN_GHOST;
         if(!ghost)
         {
-            pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT,NOT_STARTED);
+            if (pInstance)
+			{
+			    pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT,NOT_STARTED);
 
-            Unit* skarvald = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SKARVALD));
-            if(skarvald && skarvald->isDead())
-                ((Creature*)skarvald)->Respawn();
+				Unit* skarvald = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SKARVALD));
+				if(skarvald && skarvald->isDead() && m_creature->isAlive())
+					((Creature*)skarvald)->Respawn();
+			}
         }
     }
     void Aggro(Unit *who)
     {
         if(!ghost)
         {
-            pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT,IN_PROGRESS);
-            Unit* skarvald = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SKARVALD));
-            if(skarvald && skarvald->isAlive() && !skarvald->getVictim())
-                skarvald->getThreatManager().addThreat(who,0.0f);
+            if (pInstance)
+			{
+				pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT,IN_PROGRESS);
+				Unit* skarvald = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SKARVALD));
+				if(skarvald && skarvald->isAlive() && !skarvald->getVictim())
+					skarvald->getThreatManager().addThreat(who,0.0f);
+			}
 
             AggroYell_Timer = 5000;
         }
@@ -240,23 +259,26 @@ struct MANGOS_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
     {
         if(!ghost)
         {
-            Unit* skarvald = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SKARVALD));
-            if(skarvald)
-                if(skarvald->isDead())
-                {
-                    DoScriptText(SAY_DALRONN_SKA_DIED,m_creature);
+            if (pInstance)
+			{
+				Unit* skarvald = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SKARVALD));
+				if(skarvald)
+					if(skarvald->isDead())
+					{
+						DoScriptText(SAY_DALRONN_SKA_DIED,m_creature);
 
-                    pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT,DONE);
-                }
-                else
-                {
-                    DoScriptText(SAY_DALRONN_DAL_DIEDFIRST,m_creature);
+						pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT,DONE);
+					}
+					else
+					{
+						DoScriptText(SAY_DALRONN_DAL_DIEDFIRST,m_creature);
 
-                    m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                    //DoCast(m_creature,SPELL_SUMMON_DALRONN_GHOST,true);
-                    Creature* temp = m_creature->SummonCreature(MOB_DALRONN_GHOST,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),0,TEMPSUMMON_CORPSE_DESPAWN,5000);
-                    temp->AI()->AttackStart(Killer);
-                }
+						m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+						//DoCast(m_creature,SPELL_SUMMON_DALRONN_GHOST,true);
+						Creature* temp = m_creature->SummonCreature(MOB_DALRONN_GHOST,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),0,TEMPSUMMON_CORPSE_DESPAWN,5000);
+						temp->AI()->AttackStart(Killer);
+					}
+			}
         }
     }
 
@@ -272,10 +294,11 @@ struct MANGOS_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
     {
         if(ghost)
         {
-            if(pInstance->GetData(DATA_SKARVALD_DALRONN_EVENT) != IN_PROGRESS)
-            {
-                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);  
-            }
+            if (pInstance)
+				if(pInstance->GetData(DATA_SKARVALD_DALRONN_EVENT) != IN_PROGRESS)
+				{
+					m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);  
+				}
         }
 
         if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
@@ -295,13 +318,16 @@ struct MANGOS_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
                 if(Check_Timer < diff)
                 {
                     Check_Timer = 5000;
-                    Unit* skarvald = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SKARVALD));
-                    if(skarvald && skarvald->isDead())
-                    {
-                        Skarvald_isDead = true;
-                        Response_Timer = 2000;
-                        Check_Timer = 0;
-                    }
+                    if (pInstance)
+					{
+						Unit* skarvald = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SKARVALD));
+						if(skarvald && skarvald->isDead())
+						{
+							Skarvald_isDead = true;
+							Response_Timer = 2000;
+							Check_Timer = 0;
+						}
+					}
                 }else Check_Timer -= diff;
 
             if(Response_Timer)

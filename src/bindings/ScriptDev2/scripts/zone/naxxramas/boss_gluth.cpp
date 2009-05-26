@@ -22,6 +22,7 @@ SDCategory: Naxxramas
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_naxxramas.h"
 
 #define SPELL_MORTALWOUND       25646
 #define SPELL_DECIMATE          28374
@@ -67,7 +68,12 @@ EndScriptData */
 
 struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
 {
-    boss_gluthAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+    boss_gluthAI(Creature* pCreature) : ScriptedAI(pCreature)
+	{
+		pInstance = (pCreature->GetInstanceData()) ? ((ScriptedInstance*)pCreature->GetInstanceData()) : NULL;
+		Reset();
+	}
+    ScriptedInstance *pInstance;
 
     uint32 MortalWound_Timer;
     uint32 Decimate_Timer;
@@ -84,6 +90,22 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
         Frenzy_Timer = 15000;
         Enrage_Timer = 304000;
         Summon_Timer = 10000;
+    }
+
+    void AttackStart(Unit *who)
+    {
+        if (!who)
+            return;
+
+        if (who->isTargetableForAttack() && who!= m_creature)
+        {
+            if (!InCombat)
+            {
+                AttackStart(who);
+                Aggro(who);
+                InCombat = true;
+            }
+        }
     }
 
     void UpdateAI(const uint32 diff)

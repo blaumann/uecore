@@ -9,48 +9,56 @@ EndScriptData */
 #include "sc_creature.h"
 #include "def_utgarde_keep.h"
 
-//Yells Ingvar
-#define SAY_AGGRO_1                         -1999670
-#define SAY_AGGRO_2                         -1999663
+enum Speech
+{
+    //Yells Ingvar
+    SAY_AGGRO_1                       = -1999670,
+    SAY_AGGRO_2                       = -1999663,
 
-#define SAY_DEAD_1                          -1999668
-#define SAY_DEAD_2                          -1999661
+    SAY_DEAD_1                        = -1999668,
+    SAY_DEAD_2                        = -1999661,
 
-#define SAY_KILL_1                          -1999662
-#define SAY_KILL_2                          -1999669
+    SAY_KILL_1                        = -1999662,
+    SAY_KILL_2                        = -1999669
+};
 
-//Ingvar Spells human form
-#define MOB_INGVAR_HUMAN                            23954
-#define SPELL_CLEAVE                                42724
-#define SPELL_SMASH                                 42669
-#define H_SPELL_SMASH                               59706
-#define SPELL_STAGGERING_ROAR                       42708
-#define H_SPELL_STAGGERING_ROAR                     59708
-#define SPELL_ENRAGE                                42705
-#define H_SPELL_ENRAGE                              59707
+enum Spells
+{
+    //Ingvar Spells human form
+    MOB_INGVAR_HUMAN                          = 23954,
+    SPELL_CLEAVE                              = 42724,
+    SPELL_SMASH                               = 42669,
+    H_SPELL_SMASH                             = 59706,
+    SPELL_STAGGERING_ROAR                     = 42708,
+    H_SPELL_STAGGERING_ROAR                   = 59708,
+    SPELL_ENRAGE                              = 42705,
+    H_SPELL_ENRAGE                            = 59707,
 
-#define MOB_ANNHYLDE_THE_CALLER                     24068
-#define SPELL_INGVAR_FEIGN_DEATH                    42795
-#define SPELL_SUMMON_BANSHEE                        42912
-#define SPELL_SCOURG_RESURRECTION_EFFEKTSPAWN       42863 //Spawn resurrecteffekt around Ingvar
+    MOB_ANNHYLDE_THE_CALLER                   = 24068,
+    SPELL_INGVAR_FEIGN_DEATH                  = 42795,
+    SPELL_SUMMON_BANSHEE                      = 42912,
+    SPELL_SCOURG_RESURRECTION_EFFEKTSPAWN     = 42863, //Spawn resurrecteffekt around Ingvar
 
-#define MODEL_INGVAR_UNDEAD                         26351
-#define MODEL_INGVAR_HUMAN                          21953
+    //Ingvar Spells undead form
+    MOB_INGVAR_UNDEAD                         = 23980,
+    SPELL_DARK_SMASH                          = 42723,
+    SPELL_DREADFUL_ROAR                       = 42729,
+    H_SPELL_DREADFUL_ROAR                     = 59734,
+    SPELL_WOE_STRIKE                          = 42730,
+    H_SPELL_WOE_STRIKE                        = 59735,
+    MODEL_INGVAR_UNDEAD                       = 26351,
+    MODEL_INGVAR_HUMAN                        = 21953
+};
 
-//Ingvar Spells undead form
-#define MOB_INGVAR_UNDEAD                           23980
-#define SPELL_DARK_SMASH                            42723
-#define SPELL_DREADFUL_ROAR                         42729
-#define H_SPELL_DREADFUL_ROAR                       59734
-#define SPELL_WOE_STRIKE                            42730
-#define H_SPELL_WOE_STRIKE                          59735
-
-#define ENTRY_THROW_TARGET                          23996
-#define SPELL_SHADOW_AXE_SUMMON                     42749
+enum
+{
+    ENTRY_THROW_TARGET                        = 23996,
+    SPELL_SHADOW_AXE_SUMMON                   = 42749
+};
 
 struct MANGOS_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
 {
-    boss_ingvar_the_plundererAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_ingvar_the_plundererAI(Creature* pCreature) : ScriptedAI(pCreature) 
     {
         pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         HeroicMode = pCreature->GetMap()->IsHeroic();
@@ -265,13 +273,19 @@ CreatureAI* GetAI_boss_ingvar_the_plunderer(Creature* pCreature)
     return new boss_ingvar_the_plundererAI(pCreature);
 }
 
-#define SAY_RESSURECT                       -1999524
+enum Say
+{
+    SAY_RESSURECT                      = -1999524
+};
 
-//Spells for Annhylde
-#define SPELL_SCOURG_RESURRECTION_HEAL              42704 //Heal Max + DummyAura
-#define SPELL_SCOURG_RESURRECTION_BEAM              42857 //Channeling Beam of Annhylde
-#define SPELL_SCOURG_RESURRECTION_DUMMY             42862 //Some Emote Dummy?
-#define SPELL_INGVAR_TRANSFORM                      42796
+enum Spells_Ingvar
+{
+    //Spells for Annhylde
+    SPELL_SCOURG_RESURRECTION_HEAL     = 42704, //Heal Max + DummyAura
+    SPELL_SCOURG_RESURRECTION_BEAM     = 42857, //Channeling Beam of Annhylde
+    SPELL_SCOURG_RESURRECTION_DUMMY    = 42862, //Some Emote Dummy?
+    SPELL_INGVAR_TRANSFORM             = 42796
+};
 
 struct MANGOS_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
 {
@@ -296,37 +310,42 @@ struct MANGOS_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
 
         m_creature->GetPosition(x,y,z);
         DoTeleportPlayer(m_creature, x+1, y, z+30, m_creature->GetOrientation());
-        Unit* ingvar = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_INGVAR));
-        if(ingvar)
-        {
-            m_creature->GetMotionMaster()->MovePoint(1,x,y,z+15);
-
-            DoScriptText(SAY_RESSURECT,m_creature);
-        }
+        if (pInstance)
+		{
+		    Unit* ingvar = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_INGVAR));
+            if(ingvar)
+            {
+                m_creature->GetMotionMaster()->MovePoint(1,x,y,z+15);
+                DoScriptText(SAY_RESSURECT,m_creature);
+            }
+		}
     }
 
     void MovementInform(uint32 type, uint32 id)
     {
         if(type != POINT_MOTION_TYPE)
             return;
-        Unit* ingvar = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_INGVAR));
-        if(ingvar)
-        {
-            switch (id)
-            {
-            case 1:
-                ingvar->RemoveAura(SPELL_SUMMON_BANSHEE,1);
-                ingvar->CastSpell(ingvar,SPELL_SCOURG_RESURRECTION_DUMMY,true);
-                DoCast(ingvar,SPELL_SCOURG_RESURRECTION_BEAM);
-                Resurect_Timer = 8000;
-                Resurect_Phase = 1;
-                break;
-            case 2:
-                m_creature->DealDamage(m_creature,m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                m_creature->RemoveCorpse();
-                break;
-            }
-        }
+        if (pInstance)
+		{
+			Unit* ingvar = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_INGVAR));
+			if(ingvar)
+			{
+				switch (id)
+				{
+				case 1:
+					ingvar->RemoveAura(SPELL_SUMMON_BANSHEE,1);
+					ingvar->CastSpell(ingvar,SPELL_SCOURG_RESURRECTION_DUMMY,true);
+					DoCast(ingvar,SPELL_SCOURG_RESURRECTION_BEAM);
+					Resurect_Timer = 8000;
+					Resurect_Phase = 1;
+					break;
+				case 2:
+					m_creature->DealDamage(m_creature,m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+					m_creature->RemoveCorpse();
+					break;
+				}
+			}
+		}
     }
 
     void AttackStart(Unit* who) {}
@@ -338,29 +357,34 @@ struct MANGOS_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
             {
                 if(Resurect_Phase == 1)
                 {
-                    Unit* ingvar = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_INGVAR));
-                    if(ingvar)
-                    {
-                        ingvar->SetStandState(UNIT_STAND_STATE_STAND);
-                        ingvar->CastSpell(ingvar,SPELL_SCOURG_RESURRECTION_HEAL,false);
-                    }
-                    Resurect_Timer = 3000;
-                    Resurect_Phase = 2;
+                    if (pInstance)
+					{
+						Unit* ingvar = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_INGVAR));
+						if(ingvar)
+						{
+							ingvar->SetStandState(UNIT_STAND_STATE_STAND);
+							ingvar->CastSpell(ingvar,SPELL_SCOURG_RESURRECTION_HEAL,false);
+						}
+					}
+					Resurect_Timer = 3000;
+					Resurect_Phase = 2;
                 }else if (Resurect_Phase == 2)
                 {
-                    Unit* ingvar = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_INGVAR));
-                    if(ingvar)
-                    {
-                        ingvar->RemoveAurasDueToSpell(SPELL_SCOURG_RESURRECTION_DUMMY);
-                        //ingvar->CastSpell(ingvar,SPELL_INGVAR_TRANSFORM,false);
-                        ingvar->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_INGVAR_UNDEAD); // Visual Hack - when he dies he becomes human model -> wrong
-                        Creature* c_ingvar = (Creature*)ingvar;
+                    if (pInstance)
+					{
+						Unit* ingvar = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_INGVAR));
+						if(ingvar)
+						{
+							ingvar->RemoveAurasDueToSpell(SPELL_SCOURG_RESURRECTION_DUMMY);
+							//ingvar->CastSpell(ingvar,SPELL_INGVAR_TRANSFORM,false);
+							ingvar->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_INGVAR_UNDEAD); // Visual Hack - when he dies he becomes human model -> wrong
+							Creature* c_ingvar = (Creature*)ingvar;
 
-                        ((boss_ingvar_the_plundererAI*)(c_ingvar->AI()))->StartZombiePhase();
-
-                        m_creature->GetMotionMaster()->MovePoint(2,x+1,y,z+30);
-                        Resurect_Phase++;
-                    }
+							((boss_ingvar_the_plundererAI*)(c_ingvar->AI()))->StartZombiePhase();
+							m_creature->GetMotionMaster()->MovePoint(2,x+1,y,z+30);
+							Resurect_Phase++;
+						}
+					}
                 }
                 
             }else Resurect_Timer -= diff;
@@ -372,8 +396,11 @@ CreatureAI* GetAI_mob_annhylde_the_caller(Creature* pCreature)
     return new mob_annhylde_the_callerAI(pCreature);
 }
 
-#define SPELL_SHADOW_AXE_DAMAGE                     42750
-#define H_SPELL_SHADOW_AXE_DAMAGE                   59719
+enum
+{
+    SPELL_SHADOW_AXE_DAMAGE                   = 42750,
+    H_SPELL_SHADOW_AXE_DAMAGE                 = 59719
+};
 
 struct MANGOS_DLL_DECL mob_ingvar_throw_dummyAI : public ScriptedAI
 {
@@ -403,7 +430,6 @@ struct MANGOS_DLL_DECL mob_ingvar_throw_dummyAI : public ScriptedAI
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void Aggro(Unit* who) { }
 
     Creature* SelectCreatureInGrid(uint32 entry, float range)
     {
@@ -447,17 +473,17 @@ void AddSC_boss_ingvar_the_plunderer()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_ingvar_the_plunderer";
+    newscript->Name = "boss_ingvar_the_plunderer";
     newscript->GetAI = &GetAI_boss_ingvar_the_plunderer;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_annhylde_the_caller";
+    newscript->Name = "mob_annhylde_the_caller";
     newscript->GetAI = &GetAI_mob_annhylde_the_caller;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_ingvar_throw_dummy";
+    newscript->Name = "mob_ingvar_throw_dummy";
     newscript->GetAI = &GetAI_mob_ingvar_throw_dummy;
     newscript->RegisterSelf();
 }
