@@ -92,19 +92,15 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
         Summon_Timer = 10000;
     }
 
-    void AttackStart(Unit *who)
+	void AttackStart(Unit *who)
     {
         if (!who)
             return;
 
         if (who->isTargetableForAttack() && who!= m_creature)
         {
-            if (!InCombat)
-            {
-                AttackStart(who);
+                ScriptedAI::AttackStart(who);
                 Aggro(who);
-                InCombat = true;
-            }
         }
     }
 
