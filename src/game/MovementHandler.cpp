@@ -424,7 +424,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
 
     /* handle special cases */
     // if we are in vehicle, vehicle is our transport
-    if ((movementInfo.flags & MOVEMENTFLAG_ONTRANSPORT) && !mover->GetVehicle())
+    if ((movementInfo.flags & MOVEMENTFLAG_ONTRANSPORT) && !mover->GetVehicleGUID())
     {
         // transports size limited
         // (also received at zeppelin leave by some reason with t_* as absolute in continent coordinates, can be safely skipped)
@@ -475,6 +475,16 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     {
         // now client not include swimming flag in case jumping under water
         plMover->SetInWater( !plMover->IsInWater() || plMover->GetBaseMap()->IsUnderWater(movementInfo.x, movementInfo.y, movementInfo.z) );
+    if (movementInfo.flags & MOVEMENTFLAG_SWIMMING)
+    {
+        if(mover->GetTypeId() == TYPEID_UNIT)
+        {
+            if(((Creature*)mover)->isVehicle() && !(((Vehicle*)mover)->GetVehicleFlags() & VF_CAN_SWIM))
+            {
+                ((Vehicle*)mover)->SetSpawnDuration(1);
+            }
+        }
+    }
         if(plMover->GetBaseMap()->IsUnderWater(movementInfo.x, movementInfo.y, movementInfo.z-7.0f))
         {
             plMover->m_anti_BeginFallZ=INVALID_HEIGHT;
@@ -797,7 +807,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
     sLog.outDebug("WORLD: Recvd CMSG_DISMISS_CONTROLLED_VEHICLE");
     recv_data.hexlike();
 
-    uint64 vehicleGUID = _player->GetVehicle();
+    uint64 vehicleGUID = _player->GetVehicleGUID();
 
     if(!vehicleGUID)                                        // something wrong here...
         return;
@@ -817,7 +827,7 @@ void WorldSession::HandleRequestVehicleExit(WorldPacket &recv_data)
     sLog.outDebug("WORLD: Recvd CMSG_REQUEST_VEHICLE_EXIT");
     recv_data.hexlike();
 
-    uint64 vehicleGUID = _player->GetVehicle();
+    uint64 vehicleGUID = _player->GetVehicleGUID();
 
     if(!vehicleGUID)                                        // something wrong here...
         return;
@@ -833,7 +843,7 @@ void WorldSession::HandleRequestVehiclePrevSeat(WorldPacket &recv_data)
     sLog.outDebug("WORLD: Recvd CMSG_REQUEST_VEHICLE_PREV_SEAT");
     recv_data.hexlike();
 
-    uint64 vehicleGUID = _player->GetVehicle();
+    uint64 vehicleGUID = _player->GetVehicleGUID();
 
     if(!vehicleGUID)                                        // something wrong here...
         return;
@@ -853,7 +863,7 @@ void WorldSession::HandleRequestVehicleNextSeat(WorldPacket &recv_data)
     sLog.outDebug("WORLD: Recvd CMSG_REQUEST_VEHICLE_NEXT_SEAT");
     recv_data.hexlike();
 
-    uint64 vehicleGUID = _player->GetVehicle();
+    uint64 vehicleGUID = _player->GetVehicleGUID();
 
     if(!vehicleGUID)                                        // something wrong here...
         return;
@@ -896,7 +906,7 @@ void WorldSession::HandleRequestVehicleSwitchSeat(WorldPacket &recv_data)
     sLog.outDebug("WORLD: Recvd CMSG_REQUEST_VEHICLE_SWITCH_SEAT");
     recv_data.hexlike();
 
-    uint64 vehicleGUID = _player->GetVehicle();
+    uint64 vehicleGUID = _player->GetVehicleGUID();
 
     if(!vehicleGUID)                                        // something wrong here...
         return;
@@ -916,7 +926,7 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
     sLog.outDebug("WORLD: Recvd CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE");
     recv_data.hexlike();
 
-    uint64 vehicleGUID = _player->GetVehicle();
+    uint64 vehicleGUID = _player->GetVehicleGUID();
 
     if(!vehicleGUID)                                        // something wrong here...
         return;

@@ -88,7 +88,6 @@ void Vehicle::InitSeats()
     }
     // NOTE : there can be vehicles without seats (eg. 180) - probably some TEST vehicles
 }
-
 void Vehicle::ChangeSeatFlag(uint8 seat, uint8 flag)
 {
     SeatMap::iterator i_seat = m_Seats.find(seat);
@@ -192,7 +191,7 @@ void Vehicle::EmptySeatsCountChanged()
     else
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
 
-    if(uint64 vehicleGUID = GetVehicle())
+    if(uint64 vehicleGUID = GetVehicleGUID())
     {
         if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
         {
@@ -256,9 +255,9 @@ bool Vehicle::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, u
         return false;
     m_vehicleflags = VehicleDS->v_flags;
 
-	for( int i = 0; i < 4; ++i )
-		this->m_spells[i] = this->GetCreatureInfo()->spells[i]; // So our vehicles can have spells on bar
-	GetMotionMaster()->MovePoint(0, GetPositionX(), GetPositionY(), GetPositionZ()+2 ); // So we can fly with Dragon Vehicles
+    for (int i = 0; i < 4; ++i )
+         this->m_spells[i] = this->GetCreatureInfo()->spells[i]; // So our vehicles can have spells on bar
+    GetMotionMaster()->MovePoint(0, GetPositionX(), GetPositionY(), GetPositionZ()+2 ); // So we can fly with Dragon Vehicles
 
     return true;
 }
@@ -331,7 +330,8 @@ void Vehicle::AddPassenger(Unit *unit, int8 seatId, bool force)
         }
         return;
     }
-    unit->SetVehicle(GetGUID());
+    unit->SetVehicleGUID(GetGUID());
+
     seat->second.passenger = unit;
     if(unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->isVehicle())
     {
@@ -368,6 +368,16 @@ void Vehicle::AddPassenger(Unit *unit, int8 seatId, bool force)
 
     if(seat->second.vs_flags & SF_MAIN_RIDER)
     {
+        if(!(GetVehicleFlags() & VF_MOVEMENT))
+        {
+            GetMotionMaster()->Clear(false);
+            GetMotionMaster()->MoveIdle();
+            StopMoving();
+            SetCharmerGUID(unit->GetGUID());
+            unit->SetCharm(this);
+            if(unit->GetTypeId() == TYPEID_PLAYER)
+                ((Player*)unit)->SetClientControl(this, 1);
+        }
         if(unit->GetTypeId() == TYPEID_PLAYER)
         {
             SpellClickInfoMap const& map = objmgr.mSpellClickInfoMap;
@@ -381,14 +391,13 @@ void Vehicle::AddPassenger(Unit *unit, int8 seatId, bool force)
                     caster->CastSpell(target, itr->second.spellId, true);
                 }
             }
-            ((Player*)unit)->SetClientControl(this, 1);
             ((Player*)unit)->SetFarSightGUID(GetGUID());
 
             VehicleDataStructure const* VehicleDS = objmgr.GetVehicleData(GetEntry());
             // this cant happen, but..
             if(!VehicleDS)
                 return;
-            WorldPacket data(SMSG_PET_SPELLS, 8 + 4 + 4 + 4 + 4*10 + 1 + 1);
+            WorldPacket data(SMSG_PET_SPELLS, 8+4+4+4+4*10+1+1);
             data << uint64(GetGUID());
             data << uint32(0x00000000);                     // creature family, not used in vehicles
             data << uint32(VehicleDS->v_spell_flag);        // todo : find out whats this
@@ -401,13 +410,11 @@ void Vehicle::AddPassenger(Unit *unit, int8 seatId, bool force)
             data << uint8(0);                               //cooldowns remaining, TODO : handle this sometime, uint8 count, uint32 spell, uint32 time, uint32 time
             ((Player*)unit)->GetSession()->SendPacket(&data);
         }
-        SetCharmerGUID(unit->GetGUID());
-        unit->SetCharm(this);
 
-        if(!(GetVehicleFlags() & SV_FACTION))
+        if(!(GetVehicleFlags() & VF_FACTION))
             setFaction(unit->getFaction());
 
-        if(GetVehicleFlags() & SV_CANT_MOVE)
+        if(GetVehicleFlags() & VF_CANT_MOVE)
         {
             WorldPacket data2(SMSG_FORCE_MOVE_ROOT, 10);
             data2.append(GetPackGUID());
@@ -429,27 +436,27 @@ void Vehicle::RemovePassenger(Unit *unit)
     {
         if((seat->second.flags & (SEAT_FULL | SEAT_VEHICLE_FREE | SEAT_VEHICLE_FULL)) && seat->second.passenger == unit)
         {
-            unit->SetVehicle(NULL);
+            unit->SetVehicleGUID(0);
             // when rider was removed, other passengers arent so important
             if(seat->second.vs_flags & SF_MAIN_RIDER)
             {
                 RemoveSpellsCausingAura(SPELL_AURA_CONTROL_VEHICLE);
-                unit->SetCharm(NULL);
                 if(unit->GetTypeId() == TYPEID_PLAYER)
                 {
-                    WorldPacket data(SMSG_PET_SPELLS, 8 + 4);
+                    WorldPacket data(SMSG_PET_SPELLS, 8+4);
                     data << uint64(0);
                     data << uint32(0);
                     ((Player*)unit)->GetSession()->SendPacket(&data);
+                    ((Player*)unit)->SetClientControl(unit, 1);
                 }
+                unit->SetCharm(NULL);
                 SetCharmerGUID(NULL);
                 setFaction(GetCreatureInfo()->faction_A);
-                if(GetVehicleFlags() & SV_DESPAWN_AT_LEAVE)
+                if(GetVehicleFlags() & VF_DESPAWN_AT_LEAVE)
                 {
                     // will be deleted at next update
                     SetSpawnDuration(1);
                 }
-                ((Player*)unit)->SetClientControl(unit, 1);
             }
             if(seat->second.vs_flags & SF_UNATTACKABLE)
                 unit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -480,6 +487,7 @@ void Vehicle::RemovePassenger(Unit *unit)
             unit->m_SeatData.c_time = 0;
             unit->m_SeatData.seat = 0;
             unit->m_SeatData.s_flags = 0;
+            unit->m_SeatData.v_flags = 0;
 
             seat->second.passenger = NULL;
             seat->second.flags = SEAT_FREE;

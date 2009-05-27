@@ -488,6 +488,21 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                         //Melee current victim if flag not set
                         if (!(action.cast.castFlags & CAST_NO_MELEE_IF_OOM))
                         {
+                            if(m_creature->GetCharmGUID() && m_creature->GetCharmGUID() == m_creature->GetVehicleGUID())
+                            {
+                                if(Unit *veh = m_creature->GetCharm())
+                                {
+                                    if (veh->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
+                                    {
+                                        AttackDistance = 0;
+                                        AttackAngle = 0;
+
+                                        veh->GetMotionMaster()->Clear(false);
+                                        veh->GetMotionMaster()->MoveChase(m_creature->getVictim(), AttackDistance, AttackAngle);
+                                    }
+                                    break;
+                                }
+                            }
                             if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
                             {
                                 AttackDistance = 0;
@@ -583,6 +598,18 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             //Allow movement (create new targeted movement gen only if idle)
             if (CombatMovementEnabled)
             {
+                if(m_creature->GetCharmGUID() && m_creature->GetCharmGUID() == m_creature->GetVehicleGUID())
+                {
+                    if(Unit *veh = m_creature->GetCharm())
+                    {
+                        if (veh->GetMotionMaster()->GetCurrentMovementGeneratorType() == IDLE_MOTION_TYPE)
+                        {
+                            veh->GetMotionMaster()->Clear(false);
+                            veh->GetMotionMaster()->MoveChase(m_creature->getVictim(), AttackDistance, AttackAngle);
+                        }
+                        break;
+                    }
+                }
                 if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == IDLE_MOTION_TYPE)
                 {
                     m_creature->GetMotionMaster()->Clear(false);
@@ -590,11 +617,26 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                 }
             }
             else
-            if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
             {
-                m_creature->GetMotionMaster()->Clear(false);
-                m_creature->GetMotionMaster()->MoveIdle();
-                m_creature->StopMoving();
+                if(m_creature->GetCharmGUID() && m_creature->GetCharmGUID() == m_creature->GetVehicleGUID())
+                {
+                    if(Unit *veh = m_creature->GetCharm())
+                    {
+                        if (veh->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
+                        {
+                            veh->GetMotionMaster()->Clear(false);
+                            veh->GetMotionMaster()->MoveIdle();
+                            veh->StopMoving();
+                        }
+                        break;
+                    }
+                }
+                if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
+                {
+                    m_creature->GetMotionMaster()->Clear(false);
+                    m_creature->GetMotionMaster()->MoveIdle();
+                    m_creature->StopMoving();
+                }
             }
             break;
         case ACTION_T_SET_PHASE:
@@ -651,6 +693,19 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
 
             if (CombatMovementEnabled)
             {
+                if(m_creature->GetCharmGUID() && m_creature->GetCharmGUID() == m_creature->GetVehicleGUID())
+                {
+                    if(Unit *veh = m_creature->GetCharm())
+                    {
+                        if (veh->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
+                        {
+                            //Drop current movement gen
+                            veh->GetMotionMaster()->Clear(false);
+                            veh->GetMotionMaster()->MoveChase(m_creature->getVictim(), AttackDistance, AttackAngle);
+                        }
+                        break;
+                    }
+                }
                 if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
                 {
                     //Drop current movement gen
@@ -952,10 +1007,27 @@ void CreatureEventAI::AttackStart(Unit *who)
 
         if (CombatMovementEnabled)
         {
+            if(m_creature->GetCharmGUID() && m_creature->GetCharmGUID() == m_creature->GetVehicleGUID())
+            {
+                if(Unit *veh = m_creature->GetCharm())
+                {
+                    veh->GetMotionMaster()->MoveChase(who, AttackDistance, AttackAngle);
+                    return;
+                }
+            }
             m_creature->GetMotionMaster()->MoveChase(who, AttackDistance, AttackAngle);
         }
         else
         {
+            if(m_creature->GetCharmGUID() && m_creature->GetCharmGUID() == m_creature->GetVehicleGUID())
+            {
+                if(Unit *veh = m_creature->GetCharm())
+                {
+                    veh->GetMotionMaster()->MoveIdle();
+                    veh->StopMoving();
+                    return;
+                }
+            }
             m_creature->GetMotionMaster()->MoveIdle();
             m_creature->StopMoving();
         }

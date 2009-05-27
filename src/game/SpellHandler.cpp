@@ -518,7 +518,7 @@ void WorldSession::HandleSpellClick( WorldPacket & recv_data )
         if(!v)
             return;
 
-        if(v->GetVehicleFlags() & SV_DESPAWN_NPC)
+        if(v->GetVehicleFlags() & VF_DESPAWN_NPC)
         {
             v->SetSpawnDuration(unit->GetRespawnDelay()*IN_MILISECONDS);
             unit->setDeathState(JUST_DIED);

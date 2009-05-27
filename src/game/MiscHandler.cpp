@@ -276,7 +276,7 @@ void WorldSession::HandleLogoutRequestOpcode( WorldPacket & /*recv_data*/ )
 
     //Can not logout if...
     if( GetPlayer()->isInCombat() ||                        //...is in combat
-        GetPlayer()->GetVehicle() ||                        //...is in vehicle
+        GetPlayer()->GetVehicleGUID() ||                    //...is in vehicle
         GetPlayer()->duel         ||                        //...is in Duel
                                                             //...is jumping ...is falling
         GetPlayer()->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_JUMPING | MOVEMENTFLAG_FALLING))

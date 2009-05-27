@@ -53,7 +53,14 @@ ReactorAI::AttackStart(Unit *p)
 
         m_creature->SetInCombatWith(p);
         p->SetInCombatWith(m_creature);
-
+        if(m_creature->GetCharmGUID() && m_creature->GetCharmGUID() == m_creature->GetVehicleGUID())
+        {
+            if(Unit *veh = m_creature->GetCharm())
+            {
+                veh->GetMotionMaster()->MoveChase(p);
+                return;
+            }
+        }
         m_creature->GetMotionMaster()->MoveChase(p);
     }
 }

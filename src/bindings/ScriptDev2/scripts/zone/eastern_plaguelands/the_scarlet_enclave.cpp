@@ -22,54 +22,26 @@
 ##Quest 12848
 ######*/
 
-#define SAY_EVENT_START                 "I will dismantle this festering hellhole!"
-#define SAY_EVENT_ATTACK                "It ends here!"
-
-#define SPELL_SOUL_PRISON_CHAIN_SELF    54612
-#define SPELL_SOUL_PRISON_CHAIN         54613
-
+#define SPELL_CHAIN_ANCHOR              54612
 #define SPELL_ICY_TOUCH                 52372
 #define SPELL_PLAGUE_STRIKE             52373
 #define SPELL_BLOOD_STRIKE              52374
 #define SPELL_DEATH_COIL                52375
 
-#define EVENT_ICY_TOUCH                 1
-#define EVENT_PLAGUE_STRIKE             2
-#define EVENT_BLOOD_STRIKE              3
-#define EVENT_DEATH_COIL                4
+#define SAY_EVENT_START                 -1000099
+#define SAY_EVENT_ATTACK                -1000098
+#define SAY_EVENT_START2                 "? ?????? ??????? ? ?????? ??? ????????? ?????!"
+#define SAY_EVENT_ATTACK2               "???????????? ????????? – ??????!"
+#define SAY_EVENT_START3                 "?? ?????????? ????????, $c."
+#define SAY_EVENT_ATTACK3                "??! ?? ?? ??????-?? ??? ???????! ???? ???? ?????? ??????."
 
-uint32 acherus_soul_prison[12] =
+const uint32 AnchorId[5] =
 {
-    191577,
-    191580,
-    191581,
-    191582,
-    191583,
-    191584,
-    191585,
-    191586,
-    191587,
-    191588,
-    191589,
-    191590
-};
-
-uint32 acherus_unworthy_initiate[5] =
-{
-    29519,
-    29520,
-    29565,
-    29566,
-    29567
-};
-
-enum initiate_phase
-{
-    Chained,
-    ToEquipping,
-    Equipping,
-    ToAttacking,
-    Attacking
+	29519,
+	29520,
+	29565,
+	29566,
+	29567
 };
 
 float modelid_dk_armor[20] =
@@ -120,43 +92,205 @@ float modelid_dk_unworthy[20] =
     25365  // troll male
 };
 
-struct MANGOS_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
+uint32 acherus_soul_prison[12] =
 {
-    npc_unworthy_initiateAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+    191577,
+    191580,
+    191581,
+    191582,
+    191583,
+    191584,
+    191585,
+    191586,
+    191587,
+    191588,
+    191589,
+    191590
+};
 
-    bool event_startet;
-    uint64 event_starter;
-    initiate_phase phase;
-    uint32 wait_timer;
-    float targ_x,targ_y,targ_z;
+struct MANGOS_DLL_DECL npc_unworthy_initiate_anchorAI : public ScriptedAI
+{
+    npc_unworthy_initiate_anchorAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
-    EventMap events;
-
+	uint32 CheckTimer;
+	bool Channel;
+	
     void Reset()
     {
-        phase = Chained;
-        events.Reset();
-        m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
-        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID  , 0);
-        event_startet = false;
-    }
-
-    void EnterCombat(Unit *who)
+		Channel = false;
+		CheckTimer = 2000;
+	}
+		
+	void UpdateAI(const uint32 diff)
     {
-        events.ScheduleEvent(EVENT_ICY_TOUCH, 1000, GCD_CAST);
-        events.ScheduleEvent(EVENT_PLAGUE_STRIKE, 3000, GCD_CAST);
-        events.ScheduleEvent(EVENT_BLOOD_STRIKE, 2000, GCD_CAST);
-        events.ScheduleEvent(EVENT_DEATH_COIL, 5000, GCD_CAST);
+		if (Channel)
+			return;
+		if (CheckTimer < diff)
+		{
+			SetChannel();
+			Channel = true;
+			CheckTimer = 2000;
+
+		}else CheckTimer -= diff;
+	}
+
+	void SetChannel()
+	{
+		for (int x = 0; x < 5; x++)
+		{ 
+			Creature* Initiate = GetClosestCreatureWithEntry(m_creature, AnchorId[x], 7.0f);
+			
+			if (!Initiate)
+				continue;
+		
+			if (Initiate->isAlive() && m_creature->isAlive() && !Initiate->isInCombat())
+			{
+				if (!Initiate->HasAura(SPELL_CHAIN_ANCHOR,0))
+					DoCast(Initiate,SPELL_CHAIN_ANCHOR);
+			break;
+			}
+		}
+	}
+};
+
+CreatureAI* GetAI_npc_unworthy_initiate_anchor(Creature* pCreature)
+{
+    return new npc_unworthy_initiate_anchorAI(pCreature);
+}
+
+struct MANGOS_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
+{
+    npc_unworthy_initiateAI(Creature* pCreature) : ScriptedAI(pCreature) 
+	{
+		m_uiNormFaction = pCreature->getFaction();
+		m_uiNormModel = pCreature->GetUInt32Value(UNIT_FIELD_DISPLAYID);
+		Reset();
+	}
+	
+	uint32 m_uiNormFaction;
+	uint32 m_uiNormModel;
+	uint64 event_starter;
+	uint32 CheckTimer;
+    uint32 IcyTouch_Timer;
+	uint32 PlagueStrike_Timer;
+	uint32 BloodStrike_Timer;
+	uint32 DeathCoil_Timer;
+	bool EventStart;
+	bool Atack;
+	
+    void Reset()
+    {
+		m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, m_uiNormModel);
+		m_creature->setFaction(m_uiNormFaction);
+		m_creature->SetFlag(UNIT_FIELD_FLAGS, 33024);
+		m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
+        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID  , 0);
+		EventStart = false;
+		Atack = false;
+		CheckTimer = 6000;
+		IcyTouch_Timer = 2000;
+		PlagueStrike_Timer = 5000;
+		BloodStrike_Timer = 4000;
+		DeathCoil_Timer = 6000;		
+	}
+	void Aggro(Unit *who)
+    {
+		if (!EventStart)        
+            EnterEvadeMode();
+	}
+		
+	void UpdateAI(const uint32 diff)
+    {
+		if (!m_creature->HasAura(SPELL_CHAIN_ANCHOR,0) && !EventStart)
+		{
+			Creature* Anchor = GetClosestCreatureWithEntry(m_creature, 29521, 7.0f);
+			if (Anchor)
+				((npc_unworthy_initiate_anchorAI*)Anchor->AI())->SetChannel();
+			ResetGO();
+		}
+
+		if (!EventStart)
+			return;
+		if (CheckTimer < diff && !Atack)
+		{
+			m_creature->setFaction(14);
+			m_creature->RemoveFlag(UNIT_FIELD_FLAGS, 33024);
+			if(Unit* target = Unit::GetUnit((*m_creature),event_starter))
+			{
+			if (target->isAlive())
+					m_creature->AI()->AttackStart(target);
+			}
+			else EnterEvadeMode();
+			CheckTimer = 30000;
+			Atack = true;
+		}else CheckTimer -= diff;
+
+		if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+			return;
+
+		if (Atack)
+		{
+			if (IcyTouch_Timer < diff)
+			{
+				DoCast(m_creature->getVictim(),SPELL_ICY_TOUCH);
+				IcyTouch_Timer = 8000;
+			}else IcyTouch_Timer -= diff;
+
+			if (PlagueStrike_Timer < diff)
+			{
+				DoCast(m_creature->getVictim(),SPELL_PLAGUE_STRIKE);
+				PlagueStrike_Timer = 8000;
+			}else PlagueStrike_Timer -= diff;
+
+			if (BloodStrike_Timer < diff)
+			{
+				DoCast(m_creature->getVictim(),SPELL_BLOOD_STRIKE);
+				BloodStrike_Timer = 9000;
+			}else BloodStrike_Timer -= diff;
+
+			if (DeathCoil_Timer < diff)
+			{
+				DoCast(m_creature->getVictim(),SPELL_DEATH_COIL);
+				DeathCoil_Timer = 8000;
+			}else DeathCoil_Timer -= diff;
+			DoMeleeAttackIfReady();
+		}
+	}
+	
+	void EventBegin(GameObject* pGo, Player* pPlayer)
+	{
+		EventStart = true;
+		Creature* Anchor = GetClosestCreatureWithEntry(m_creature, 29521, 7.0f);
+		if (Anchor)
+			Anchor->InterruptNonMeleeSpells(true);
+		m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+		m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+		m_creature->Say(SAY_EVENT_START,LANG_UNIVERSAL,NULL);
+		m_creature->GetMotionMaster()->MovePoint(1, pGo->GetPositionX(), pGo->GetPositionY(), m_creature->GetPositionZ());
+		event_starter = pPlayer->GetGUID();
+	}
+
+	void MovementInform(uint32 type, uint32 id)
+    {
+        if(type != POINT_MOTION_TYPE)
+            return;
+
+        if(id == 1)
+        {
+            UpdateEquipp();			
+			m_creature->Say(SAY_EVENT_ATTACK,LANG_UNIVERSAL,NULL);
+            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_TALK);			
+        }
     }
 
-    void JustDied(Unit *killer)
+	void JustDied(Unit *killer)
     {
         if(m_creature->GetEntry() !=  29519)
             if(killer->GetTypeId() == TYPEID_PLAYER)
                 ((Player*)killer)->KilledMonster(29519,m_creature->GetGUID());
     }
 
-    void AddEquipp()
+	void UpdateEquipp()
     {
         int model_counter = 0;
         for(int i = 0; i< 20; i++)
@@ -172,41 +306,19 @@ struct MANGOS_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
         m_creature->LoadEquipment(m_creature->GetEquipmentId());
     }
 
-    void MovementInform(uint32 type, uint32 id)
-    {
-        if(type != POINT_MOTION_TYPE)
-            return;
+	void ResetGO()
+	{
+		for (int x = 0; x<12; x++)
+		{
+			GameObject* pGo = GetClosestGameObjectWithEntry(m_creature,acherus_soul_prison[x],7.0f);
+				if (!pGo)
+					continue;
+				pGo->ResetDoorOrButton();
+				break;
+		}
+	}
 
-        if(id == 1)
-        {
-            wait_timer = 5000;
-            AddEquipp();
 
-            DoSay(SAY_EVENT_ATTACK,LANG_UNIVERSAL,NULL);
-            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
-
-            phase = ToAttacking;
-        }
-    }
-
-    void EventStart(Creature* anchor, Player* target)
-    {
-        wait_timer = 5000;
-        phase = ToEquipping;
-
-        m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-
-        anchor->GetPosition(targ_x,targ_y,targ_z);
-        anchor->DealDamage(anchor,anchor->GetHealth());
-        m_creature->RemoveAurasDueToSpell(SPELL_SOUL_PRISON_CHAIN_SELF);
-        m_creature->RemoveAurasDueToSpell(SPELL_SOUL_PRISON_CHAIN);
-
-        DoSay(SAY_EVENT_START,LANG_UNIVERSAL,NULL);
-        m_creature->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
-        event_starter = target->GetGUID();
-    }
-
-    void UpdateAI(const uint32 diff);
 };
 
 CreatureAI* GetAI_npc_unworthy_initiate(Creature* pCreature)
@@ -214,163 +326,41 @@ CreatureAI* GetAI_npc_unworthy_initiate(Creature* pCreature)
     return new npc_unworthy_initiateAI(pCreature);
 }
 
-struct MANGOS_DLL_DECL npc_unworthy_initiate_anchorAI : public ScriptedAI
+/*######
+## go_acherus_soul_prison
+######*/
+
+bool GOHello_go_acherus_soul_prison(Player* pPlayer, GameObject* pGo)
 {
-    npc_unworthy_initiate_anchorAI(Creature* pCreature) : ScriptedAI(pCreature) { guid_target = 0; }
-
-    uint64 guid_target;
-
-    void Aggro(Unit *who) {}
-    void Reset(){}
-
-    void SetTarget(uint64 target);
-    uint64 GetTarget()
-    {
-        return guid_target;
-    }
-
-    void UpdateAI(const uint32 diff){}
-};
-
-void npc_unworthy_initiate_anchorAI::SetTarget(uint64 target)
-{
-    if(guid_target == 0)
-        guid_target = target;
-}
-
-void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
-{
-    switch(phase)
-    {
-    case Chained:
-        if(!m_creature->HasAura(SPELL_SOUL_PRISON_CHAIN))
-        {
-            float x, y, z;
-            float dist = 99;
-
-            for(int i = 0; i < 12; i++)
-            {
-                GameObject* temp_prison;
-                temp_prison = FindGameObject(acherus_soul_prison[i],30,m_creature);
-                if(!temp_prison) return;
-                if(dist == 99 || dist > m_creature->GetDistance2d(temp_prison))
-                {
-                    temp_prison->GetPosition(x, y, z);
-                    dist = m_creature->GetDistance2d(temp_prison);
-                }
-            }
-
-            Creature* trigger = m_creature->SummonCreature(29521,x,y,z,0,TEMPSUMMON_MANUAL_DESPAWN,1000);
-            if(trigger)
-            {
-                ((npc_unworthy_initiate_anchorAI*)trigger->AI())->SetTarget(m_creature->GetGUID());
-                trigger->CastSpell(m_creature,SPELL_SOUL_PRISON_CHAIN,true);
-            }
-
-        }
-        return;
-    case ToEquipping:
-        if(wait_timer)
-        {
-            if(wait_timer < diff)
-            {
-                m_creature->GetMotionMaster()->MovePoint(1,targ_x,targ_y,m_creature->GetPositionZ());
-                phase = Equipping;
-                wait_timer = 0;
-            }else wait_timer -= diff;
-        }
-        return;
-    case ToAttacking:
-        if(wait_timer)
-        {
-            if(wait_timer < diff)
-            {
-                m_creature->setFaction(14);
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
-                phase = Attacking;
-
-                if(Unit* target = Unit::GetUnit((*m_creature),event_starter))
-                    m_creature->AI()->AttackStart(target);
-                wait_timer = 0;
-            }else wait_timer -= diff;
-        }
-        return;
-    case Attacking:
-            if(!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            while(uint32 eventId = events.ExecuteEvent())
-            {
-                switch(eventId)
-                {
-                    case EVENT_ICY_TOUCH:
-                        DoCast(m_creature->getVictim(), SPELL_ICY_TOUCH);
-                        events.DelayEvents(1000, GCD_CAST);
-                        events.ScheduleEvent(EVENT_ICY_TOUCH, 5000, GCD_CAST);
-                        break;
-                    case EVENT_PLAGUE_STRIKE:
-                        DoCast(m_creature->getVictim(), SPELL_PLAGUE_STRIKE);
-                        events.DelayEvents(1000, GCD_CAST);
-                        events.ScheduleEvent(SPELL_PLAGUE_STRIKE, 5000, GCD_CAST);
-                        break;
-                    case EVENT_BLOOD_STRIKE:
-                        DoCast(m_creature->getVictim(), SPELL_BLOOD_STRIKE);
-                        events.DelayEvents(1000, GCD_CAST);
-                        events.ScheduleEvent(EVENT_BLOOD_STRIKE, 5000, GCD_CAST);
-                        break;
-                    case EVENT_DEATH_COIL:
-                        DoCast(m_creature->getVictim(), SPELL_DEATH_COIL);
-                        events.DelayEvents(1000, GCD_CAST);
-                        events.ScheduleEvent(EVENT_DEATH_COIL, 5000, GCD_CAST);
-                        break;
-                }
-            }
-
-            DoMeleeAttackIfReady();
-        return;
-    }
-}
-
-CreatureAI* GetAI_npc_unworthy_initiate_anchor(Creature* pCreature)
-{
-    return new npc_unworthy_initiate_anchorAI(pCreature);
-}
-
-bool GOHello_go_acherus_soul_prison(Player *player, GameObject* _GO)
-{
-    Creature* finder = player->SummonCreature(WORLD_TRIGGER,_GO->GetPositionX(),_GO->GetPositionY(),_GO->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,2000);
-    if(!finder) return false;
-
-    Unit* prison_anchor = FindCreature(29521,5,finder);
-    if(!prison_anchor) return false;
-
-    uint64 owner = ((npc_unworthy_initiate_anchorAI*)((Creature*)prison_anchor)->AI())->GetTarget();
-
-    Creature* prisoner = Creature::GetCreature((*player),owner);
-
-    if(prisoner && prison_anchor)
-    {
-        ((npc_unworthy_initiateAI*)(prisoner->AI()))->EventStart((Creature*)prison_anchor,player);
-    }
+	for (int x = 0; x < 5; x++)
+	{
+		Creature* Initiate = GetClosestCreatureWithEntry(pGo, AnchorId[x], 6.5f);
+		
+		if (!Initiate)
+			continue;
+		
+		if (Initiate->isAlive() && !Initiate->isInCombat())
+		{
+			((npc_unworthy_initiateAI*)Initiate->AI())->EventBegin(pGo, pPlayer);
+			break;
+		}
+	}
 
     return false;
 }
-
 
 void AddSC_the_scarlet_enclave()
 {
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name = "npc_unworthy_initiate";
-    newscript->GetAI = &GetAI_npc_unworthy_initiate;
+    newscript->Name = "npc_unworthy_initiate_anchor";
+    newscript->GetAI = &GetAI_npc_unworthy_initiate_anchor;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name = "npc_unworthy_initiate_anchor";
-    newscript->GetAI = &GetAI_npc_unworthy_initiate_anchor;
+    newscript->Name = "npc_unworthy_initiate";
+    newscript->GetAI = &GetAI_npc_unworthy_initiate;
     newscript->RegisterSelf();
 
     newscript = new Script;

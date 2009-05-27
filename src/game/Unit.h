@@ -845,8 +845,9 @@ struct SeatData
     float Orientation;
     uint32 c_time;
     uint8 seat;
-    //custom
+    //custom, usd as speedup
     uint32 s_flags;
+    uint32 v_flags;
 };
 
 class MANGOS_DLL_SPEC Unit : public WorldObject
@@ -1498,8 +1499,8 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         // vehicle system
         void EnterVehicle(Vehicle *vehicle, int8 seat_id, bool force = false);
         void ExitVehicle();
-        uint64 GetVehicle() { return m_vehicle; }
-        void SetVehicle(uint64 guid) { m_vehicle = guid; }
+        uint64 GetVehicleGUID() { return m_vehicleGUID; }
+        void SetVehicleGUID(uint64 guid) { m_vehicleGUID = guid; }
         // using extra variables to avoid problems with transports
         SeatData m_SeatData;
         void BuildVehicleInfo(Unit *target = NULL);
@@ -1555,7 +1556,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         uint32 m_reactiveTimer[MAX_REACTIVE];
         uint32 m_regenTimer;
         uint32 m_lastRegenerate;                            // msecs
-        uint64 m_vehicle;
+        uint64 m_vehicleGUID;
 
     private:
         void SendAttackStop(Unit* victim);                  // only from AttackStop(Unit*)

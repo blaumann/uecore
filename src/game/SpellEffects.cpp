@@ -2673,9 +2673,10 @@ void Spell::EffectApplyAura(uint32 i)
     if(!Aur)
         return;
 
-    // Prayer of Mending (jump animation), we need formal caster instead original for correct animation
+    //This is Test issue
+    /*// Prayer of Mending (jump animation), we need formal caster instead original for correct animation
     if( m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST && (m_spellInfo->SpellFamilyFlags & 0x00002000000000LL))
-        m_caster->CastSpell(unitTarget, 41637, true, NULL, Aur, m_originalCasterGUID);
+        m_caster->CastSpell(unitTarget, 41637, true, NULL, Aur, m_originalCasterGUID);*/
 }
 
 void Spell::EffectUnlearnSpecialization( uint32 i )
@@ -7588,7 +7589,15 @@ void Spell::EffectQuestFail(uint32 i)
     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    ((Player*)unitTarget)->FailQuest(m_spellInfo->EffectMiscValue[i]);
+    int32 creatureEntry = m_spellInfo->EffectMiscValue[i]; 
+    if(!creatureEntry) 
+    { 
+        if(m_spellInfo->Id == 42793) // Burn Body 
+            creatureEntry = 24008; // Fallen Combatant 
+    } 
+ 
+    if(creatureEntry) 
+        ((Player*)unitTarget)->RewardPlayerAndGroupAtEvent(creatureEntry, unitTarget); 
 }
 
 void Spell::EffectSpecialSummon( uint32 spell_id, uint32 i, Unit* m_caster )

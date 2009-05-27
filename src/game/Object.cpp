@@ -270,7 +270,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags, uint32 flags2
             case TYPEID_UNIT:
             {
                 flags2 = ((Unit*)this)->isInFlight() ? (MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_LEVITATING) : MOVEMENTFLAG_NONE;
-                if(((Unit*)this)->GetVehicle())
+                if(((Unit*)this)->GetVehicleGUID())
                     flags2 |= (MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1);
             }
             break;
@@ -294,7 +294,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags, uint32 flags2
                     flags2 = (MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_SPLINE2);
                 }
                 // this have to be set manuealy here, because movementflags can change
-                if(((Unit*)this)->GetVehicle())
+                if(((Unit*)this)->GetVehicleGUID())
                     flags2 |= MOVEMENTFLAG_ONTRANSPORT;
             }
             break;
@@ -313,11 +313,11 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags, uint32 flags2
         // 0x00000200
         if(flags2 & MOVEMENTFLAG_ONTRANSPORT)
         {
-            if((GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT) && ((Unit*)this)->GetVehicle())
+            if((GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT) && ((Unit*)this)->GetVehicleGUID())
             {
                 float scale = GetFloatValue(OBJECT_FIELD_SCALE_X);
                 uint32 veh_time = getMSTimeDiff(((Unit*)this)->m_SeatData.c_time,getMSTime());
-                *data << (uint64)((Unit*)this)->GetVehicle();                   // transport guid
+                *data << (uint64)((Unit*)this)->GetVehicleGUID();               // transport guid
                 *data << (float)((Unit*)this)->m_SeatData.OffsetX * scale;      // transport offsetX
                 *data << (float)((Unit*)this)->m_SeatData.OffsetY * scale;      // transport offsetY
                 *data << (float)((Unit*)this)->m_SeatData.OffsetZ * scale;      // transport offsetZ

@@ -23,4 +23,15 @@ UPDATE `creature_template` SET  `speed` = '1.7', `ScriptName` = 'npc_kservant' W
 -- Khadgar
 UPDATE `creature_template` SET `ScriptName`='npc_khadgar' WHERE `entry` = '18166';
 
+-- The Endless Hunger
+UPDATE `creature_template` SET `AIName` = 'npc_unworthy_initiate_anchor' WHERE `entry` = 29521;
+UPDATE `creature_template` SET `AIName` = 'npc_unworthy_initiate' WHERE `entry` = 29566;
+UPDATE `creature_template` SET `AIName` = 'npc_unworthy_initiate' WHERE `entry` = 29565;
+UPDATE `creature_template` SET `AIName` = 'npc_unworthy_initiate' WHERE `entry` = 29519;
+UPDATE `creature_template` SET `AIName` = 'npc_unworthy_initiate' WHERE `entry` = 29520;
+UPDATE `creature_template` SET `AIName` = 'npc_unworthy_initiate' WHERE `entry` = 29567;
+UPDATE creature_template set scriptname = 'npc_unworthy_initiate' where entry in (29519,29520,29565,29566,29567);
+UPDATE gameobject_template set scriptname = 'go_acherus_soul_prison' where entry in (191577,191580,191581,191582,191583,191584,191585,191586,191587,191588,191589,191590);
+UPDATE `gameobject_template` SET `ScriptName` = 'go_acherus_soul_prison' WHERE name like 'acherus soul prison'; 
+
 

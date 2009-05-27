@@ -103,7 +103,7 @@ void AggressorAI::EnterEvadeMode()
         //i_tracker.Reset(TIME_INTERVAL_LOOK);
     }
 
-    if(!m_creature->isCharmed() && !m_creature->GetVehicle())
+    if(!m_creature->isCharmed() && !m_creature->GetVehicleGUID())
     {
         m_creature->RemoveAllAuras();
 
@@ -159,6 +159,14 @@ AggressorAI::AttackStart(Unit *u)
         m_creature->SetInCombatWith(u);
         u->SetInCombatWith(m_creature);
 
+        if(m_creature->GetCharmGUID() && m_creature->GetCharmGUID() == m_creature->GetVehicleGUID())
+        {
+            if(Unit *veh = m_creature->GetCharm())
+            {
+                veh->GetMotionMaster()->MoveChase(u);
+                return;
+            }
+        }
         m_creature->GetMotionMaster()->MoveChase(u);
     }
 }

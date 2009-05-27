@@ -96,7 +96,6 @@ class Vehicle : public Creature
         {
             return m_vehicleflags;
         }
-
         uint32 GetCreationTime()
         {
             return m_creation_time;

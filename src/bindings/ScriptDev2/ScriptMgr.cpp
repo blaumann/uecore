@@ -325,6 +325,7 @@ extern void AddSC_dustwallow_marsh();
 
 //Eastern Plaguelands
 extern void AddSC_eastern_plaguelands();
+extern void AddSC_the_scarlet_enclave();
 
 //Ebon Hold
 /*Not implement*/
@@ -1390,6 +1391,7 @@ void ScriptsInit()
 
     //Eastern Plaguelands
     AddSC_eastern_plaguelands();
+    AddSC_the_scarlet_enclave();
 
     //Ebon Hold
     /* Not Implemented */

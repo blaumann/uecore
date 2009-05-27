@@ -2565,14 +2565,15 @@ enum BattleGroundTypeId
 but for now, they are too unknown for us, to use them */
 enum CustomVehicleFLags
 {
-    SV_CANT_MOVE                    = 0x0001,                   // vehicle can't move, only turn, maybe handle by some auras?
-    SV_FACTION                      = 0x0002,                   // vehicle retain its own faction
-    SV_DESPAWN_NPC                  = 0x0004,                   // vehicle will delete npc on spellclick
-    SV_DESPAWN_AT_LEAVE             = 0x0008,                   // vehicle will be deleted when rider leaves
-    SV_CAN_BE_HEALED                = 0x0010,                   // vehicle can be healed
-    SV_CAN_SWIM                     = 0x0020,                   // vehicle can swim
-    SV_GIVE_EXP                     = 0x0040,                   // vehicle will give exp for killing enemies
-    SV_HAS_FUEL                     = 0x0080                    // TODO : find out what energy type is fuel and implement this
+    VF_CANT_MOVE                    = 0x0001,                   // vehicle cant move, only turn, maybe handle by some auras?
+    VF_FACTION                      = 0x0002,                   // vehicle retain its own faction
+    VF_DESPAWN_NPC                  = 0x0004,                   // vehicle will delete npc on spellclick
+    VF_DESPAWN_AT_LEAVE             = 0x0008,                   // vehicle will be deleted when rider leaves
+    VF_CAN_BE_HEALED                = 0x0010,                   // vehicle can be healed
+    VF_CAN_SWIM                     = 0x0020,                   // vehicle can swim
+    VF_GIVE_EXP                     = 0x0040,                   // vehicle will give exp for killing enemies
+    VF_HAS_FUEL                     = 0x0080,                   // TODO : find out what energy type is fuel and implement this
+    VF_MOVEMENT                     = 0x0100                    // vehicle will move on its own, not depending on rider, however rider can cast spells
 };
 
 enum CustomVehicleSeatFLags

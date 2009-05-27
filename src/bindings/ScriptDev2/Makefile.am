@@ -221,6 +221,7 @@ scripts/zone/duskwood/duskwood.cpp \
 scripts/zone/desolace/desolace.cpp \
 scripts/zone/dustwallow_marsh/dustwallow_marsh.cpp \
 scripts/zone/eastern_plaguelands/eastern_plaguelands.cpp \
+scripts/zone/eastern_plaguelands/the_scarlet_enclave.cpp \
 scripts/zone/ebon_hold/ebon_hold.cpp \
 scripts/zone/elwynn_forest/elwynn_forest.cpp \
 scripts/zone/eversong_woods/eversong_woods.cpp \

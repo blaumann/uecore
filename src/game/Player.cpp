@@ -18303,7 +18303,7 @@ void Player::SendInitialPacketsAfterAddToMap()
         SendMessageToSet(&data2,true);
     }
 
-    if(GetVehicle())
+    if(GetVehicleGUID())
     {
         BuildVehicleInfo();
         WorldPacket data3(SMSG_FORCE_MOVE_ROOT, 10);
@@ -19097,6 +19097,9 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
     {
         xp = PvP ? 0 : MaNGOS::XP::Gain(this, pVictim);
 
+        if(!(m_SeatData.v_flags & VF_GIVE_EXP))
+            xp = 0;
+
         // honor can be in PvP and !PvP (racial leader) cases
         if(RewardHonor(pVictim,1))
             honored_kill = true;
@@ -19696,8 +19699,7 @@ void Player::SendEnterVehicle(Vehicle *vehicle)
     data << vehicle->GetPositionY();                        // y
     data << vehicle->GetPositionZ();                        // z
     data << vehicle->GetOrientation();                      // o
-    // transport part, TODO: load/calculate seat offsets
-    // TODO : save this values for later use
+    // transport part
     data << uint64(vehicle->GetGUID());                     // transport guid
     data << float(m_SeatData.OffsetX);                      // transport offsetX
     data << float(m_SeatData.OffsetY);                      // transport offsetY

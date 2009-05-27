@@ -160,7 +160,7 @@ Unit::Unit()
     // remove aurastates allowing special moves
     for(int i=0; i < MAX_REACTIVE; ++i)
         m_reactiveTimer[i] = 0;
-    m_vehicle = 0;
+    m_vehicleGUID = 0;
 }
 
 Unit::~Unit()
@@ -10907,7 +10907,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
     if (procFlag & MELEE_BASED_TRIGGER_MASK)
     {
         // Update skills here for players
-        if (GetTypeId() == TYPEID_PLAYER && !GetVehicle())
+        if (GetTypeId() == TYPEID_PLAYER && !GetVehicleGUID())
         {
             // On melee based hit/miss/resist need update skill (for victim and attacker)
             if (procExtra&(PROC_EX_NORMAL_HIT|PROC_EX_MISS|PROC_EX_RESIST))
@@ -11297,7 +11297,17 @@ void Unit::SetFeared(bool apply, uint64 casterGUID, uint32 spellID, uint32 time)
         {
             // restore appropriate movement generator
             if(getVictim())
-                GetMotionMaster()->MoveChase(getVictim());
+            {
+                if(GetCharmGUID() && GetCharmGUID() == GetVehicleGUID())
+                {
+                    if(Unit *veh = GetCharm())
+                        veh->GetMotionMaster()->MoveChase(getVictim());
+                    else
+                        GetMotionMaster()->MoveChase(getVictim());
+                }
+                else
+                    GetMotionMaster()->MoveChase(getVictim());
+            }
             else
                 GetMotionMaster()->Initialize();
 
@@ -11332,11 +11342,21 @@ void Unit::SetConfused(bool apply, uint64 casterGUID, uint32 spellID)
         {
             // if in combat restore movement generator
             if(getVictim())
+            {
+                if(GetCharmGUID() && GetCharmGUID() == GetVehicleGUID())
+                {
+                    if(Unit *veh = GetCharm())
+                    {
+                        veh->GetMotionMaster()->MoveChase(getVictim());
+                        return;
+                    }
+                }
                 GetMotionMaster()->MoveChase(getVictim());
+            }
         }
     }
 
-    if(GetTypeId() == TYPEID_PLAYER && !GetVehicle())
+    if(GetTypeId() == TYPEID_PLAYER && !GetVehicleGUID())
         ((Player*)this)->SetClientControl(this, !apply);
 }
 
@@ -11987,7 +12007,6 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seat_id, bool force)
     VehicleSeatEntry const *veSeat = sVehicleSeatStore.LookupEntry(ve->m_seatID[seat_id]);
     if(!veSeat)
         return;
-    InterruptNonMeleeSpells(true);
 
     m_SeatData.OffsetX = veSeat->m_attachmentOffsetX;                                                           // transport offsetX
     m_SeatData.OffsetY = veSeat->m_attachmentOffsetY;                                                           // transport offsetY
@@ -11996,38 +12015,39 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seat_id, bool force)
     m_SeatData.c_time = vehicle->GetCreationTime();                                                             // time pased from moment when it was created, confirmed
     m_SeatData.seat = seat_id;
     m_SeatData.s_flags = objmgr.GetSeatFlags(veSeat->m_ID);
+    m_SeatData.v_flags = vehicle->GetVehicleFlags();
 
     addUnitState(UNIT_STAT_ON_VEHICLE);
     AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1);
-    // interupt autorepeat spells here
+    InterruptNonMeleeSpells(false);
 
     if(Pet *pet = GetPet())
         pet->Remove(PET_SAVE_AS_CURRENT);
-
-    vehicle->AddPassenger(this, seat_id, force);
 
     if(GetTypeId() == TYPEID_PLAYER)
     {
         ((Player*)this)->SendEnterVehicle(vehicle);
     }
+    vehicle->AddPassenger(this, seat_id, force);
+
     BuildVehicleInfo();
 }
 
 void Unit::ExitVehicle()
 {
-    if(uint64 vehicleGUID = GetVehicle())
+    if(uint64 vehicleGUID = GetVehicleGUID())
     {
         if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
         {
             vehicle->RemovePassenger(this);
         }
+
         clearUnitState(UNIT_STAT_ON_VEHICLE);
         RemoveUnitMovementFlag((MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1));
 
         if(GetTypeId() == TYPEID_PLAYER)
         {
             ((Player*)this)->SendExitVehicle();
-            return;
         }
     }
 }
@@ -12038,7 +12058,7 @@ void Unit::BuildVehicleInfo(Unit *target)
     if(!passenger)
         passenger = this;
 
-    if(!passenger->GetVehicle())
+    if(!passenger->GetVehicleGUID())
         return;
 
     passenger->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1 | MOVEMENTFLAG_FORWARD);
@@ -12062,7 +12082,7 @@ void Unit::BuildVehicleInfo(Unit *target)
     data << float(passenger->GetPositionY());
     data << float(passenger->GetPositionZ());
     data << float(passenger->GetOrientation());
-    data << uint64(passenger->GetVehicle());
+    data << uint64(passenger->GetVehicleGUID());
     data << float(passenger->m_SeatData.OffsetX);
     data << float(passenger->m_SeatData.OffsetY);
     data << float(passenger->m_SeatData.OffsetZ);
