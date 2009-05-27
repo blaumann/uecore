@@ -34,5 +34,6 @@ UPDATE creature_template set scriptname = 'npc_unworthy_initiate' where entry in
 UPDATE gameobject_template set scriptname = 'go_acherus_soul_prison' where entry in (191577,191580,191581,191582,191583,191584,191585,191586,191587,191588,191589,191590);
 UPDATE `gameobject_template` SET `ScriptName` = 'go_acherus_soul_prison' WHERE name like 'acherus soul prison';
 UPDATE `creature_template` SET `ScriptName`='npc_death_knight_initiate' WHERE `entry`=28406;
+UPDATE `creature_template` SET `ScriptName`='npc_salanar_the_horseman' WHERE `entry`=28653;
 
 

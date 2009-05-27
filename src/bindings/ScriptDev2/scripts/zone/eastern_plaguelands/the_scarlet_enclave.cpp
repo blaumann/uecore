@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: The-Scarlet-Enclave
 SD%Complete: 100
-SDComment: Quest support: 12848, 28406.
+SDComment: Quest support: 12848, 28406, 12680.
 SDCategory: Eastern Plaguelands: The Scarlet Enclave
 EndScriptData */
 
@@ -38,7 +38,7 @@ EndScriptData */
 #define SAY_EVENT_START                 -1000099
 #define SAY_EVENT_ATTACK                -1000098
 #define SAY_EVENT_START2                 "? ?????? ??????? ? ?????? ??? ????????? ?????!"
-#define SAY_EVENT_ATTACK2               "???????????? ????????? – ??????!"
+#define SAY_EVENT_ATTACK2                "???????????? ????????? – ??????!"
 #define SAY_EVENT_START3                 "?? ?????????? ????????, $c."
 #define SAY_EVENT_ATTACK3                "??! ?? ?? ??????-?? ??? ???????! ???? ???? ?????? ??????."
 
@@ -369,7 +369,7 @@ bool GOHello_go_acherus_soul_prison(Player* pPlayer, GameObject* pGo)
 
 struct MANGOS_DLL_DECL npc_death_knight_initiateAI : public ScriptedAI
 {
-    npc_death_knight_initiateAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_death_knight_initiateAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset()
     {
@@ -428,9 +428,9 @@ struct MANGOS_DLL_DECL npc_death_knight_initiateAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_death_knight_initiate(Creature *_Creature)
+CreatureAI* GetAI_npc_death_knight_initiate(Creature* pCreature)
 {
-    return new npc_death_knight_initiateAI(_Creature);
+    return new npc_death_knight_initiateAI(pCreature);
 }
 
 bool GossipHello_npc_death_knight_initiate(Player *player, Creature *_Creature)
@@ -451,6 +451,38 @@ bool GossipSelect_npc_death_knight_initiate(Player *player, Creature *_Creature,
         ((npc_death_knight_initiateAI*)_Creature->AI())->AttackStart(player);
     }
     return true;
+}
+
+/*######
+## npc_salanar_the_horseman
+######*/
+
+struct MANGOS_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
+{
+    npc_salanar_the_horsemanAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+
+    void Reset() { }
+
+    void MoveInLineOfSight(Unit *who)
+    {
+        if( (who->GetTypeId() == TYPEID_UNIT) && ((Creature*)who)->isVehicle() && m_creature->IsWithinDistInMap(who, 25.0f) )
+        {
+            if( Unit *charmer = who->GetCharmer() )
+            {
+                if( charmer->GetTypeId() == TYPEID_PLAYER && ((Player*)charmer)->GetQuestStatus(12680) == QUEST_STATUS_INCOMPLETE )
+                {
+                    ((Player*)charmer)->KilledMonster(28767,m_creature->GetGUID());
+                    ((Player*)charmer)->ExitVehicle();
+                    // TODO: dismiss Vehicle; Now we cant do it from script.
+                }
+            }
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_salanar_the_horseman(Creature* pCreature)
+{
+    return new npc_salanar_the_horsemanAI(pCreature);
 }
 
 void AddSC_the_scarlet_enclave()
@@ -477,5 +509,10 @@ void AddSC_the_scarlet_enclave()
     newscript->pGossipHello = &GossipHello_npc_death_knight_initiate;
     newscript->pGossipSelect = &GossipSelect_npc_death_knight_initiate;
     newscript->GetAI = &GetAI_npc_death_knight_initiate;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="npc_salanar_the_horseman";
+    newscript->GetAI = &GetAI_npc_salanar_the_horseman;
     newscript->RegisterSelf();
 }
