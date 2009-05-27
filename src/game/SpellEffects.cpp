@@ -1221,6 +1221,10 @@ void Spell::EffectDummy(uint32 i)
                     return;
 
                 }
+                case 22877:
+                {
+                    m_caster->CastSpell(m_caster, 25139, true);
+                }
                 case 52308:
                 {
                     switch(i)
@@ -1979,6 +1983,40 @@ void Spell::EffectDummy(uint32 i)
                 }
                 return;
             }
+            //Summon Gargoyle
+            if(m_spellInfo->Id == 50524)
+            {
+                if(!m_caster || m_caster->GetTypeId() != TYPEID_PLAYER || m_caster->getClass() != CLASS_DEATH_KNIGHT)
+                    return;
+
+                uint32 proto = 50514;
+                GuardianPetList const& guardians = ((Player*)m_caster)->GetGuardians();
+                if(guardians.empty())
+                {
+                    m_caster->RemoveAurasDueToSpell(proto);
+                    return;
+                }
+
+                for(GuardianPetList::const_iterator itr = guardians.begin(); itr != guardians.end(); ++itr)
+                {
+                    Pet* pet = ObjectAccessor::GetPet(*itr);
+                    if(pet && pet->GetEntry() == 27829)
+                    {
+                        if(pet->isAlive())
+                        {
+                            int32 cost = 8;
+                            if((int32)m_caster->GetPower(POWER_RUNIC_POWER) < cost)
+                            {
+                                m_caster->RemoveAurasDueToSpell(proto);
+                                ((Player*)m_caster)->RemovePet(pet,PET_SAVE_NOT_IN_SLOT);
+                            }else
+                                m_caster->ModifyPower(POWER_RUNIC_POWER,-cost);
+                        }else
+                            m_caster->RemoveAurasDueToSpell(proto);
+                        return;
+                    }
+                }
+            }
             break;
         case SPELLFAMILY_DEATHKNIGHT:
             // Desecration
@@ -2458,8 +2496,19 @@ void Spell::EffectTeleportUnits(uint32 i)
 {
     if(!unitTarget || unitTarget->isInFlight())
         return;
-
-    switch (m_spellInfo->EffectImplicitTargetB[i])
+	
+    int32 a;
+	
+    if (m_spellInfo->EffectImplicitTargetB[i] == 0 && m_spellInfo->EffectImplicitTargetA[i] > 0)
+    {
+        a=(m_spellInfo->EffectImplicitTargetA[i]);
+    }
+    else
+    {
+        a=(m_spellInfo->EffectImplicitTargetB[i]);
+    }
+	
+    switch (a)
     {
         case TARGET_INNKEEPER_COORDINATES:
         {
@@ -5536,40 +5585,13 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_DECREASE_SPEED);
                     return;
                 }
-                // Demonic Empowerment
-                case 47193:
+                // Demonic Empowerment (succubus Vanish effect)
+                case 54436:
                 {
-                    if(m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    Pet* pet = m_caster->GetPet();
-                    if(!pet)        // Return if no pet
-                        return;
-
-                    if(pet->getPetType() != SUMMON_PET || m_caster != pet->GetOwner())
-                        return;
-
-                    // Select appropriate spell based on creature family
-                    uint32 pSpellId = 0;
-                    int32 bp0 = 0;
-                    switch(pet->GetCreatureInfo()->family)
-                    {
-                        case CREATURE_FAMILY_FELHUNTER:     pSpellId = 54509; break;
-                        case CREATURE_FAMILY_SUCCUBUS:      pSpellId = 54435; break;
-                        case CREATURE_FAMILY_IMP:           pSpellId = 54444; break;
-                        case CREATURE_FAMILY_FELGUARD:      pSpellId = 54508; break;
-                        case CREATURE_FAMILY_VOIDWALKER:    // Needs BasePoints0 to be corrected
-                        {
-                            pSpellId = 54443; 
-                            if(SpellEntry const* voidSpell = sSpellStore.LookupEntry(pSpellId))
-                                bp0 = int32(pet->GetMaxHealth() * (voidSpell->EffectBasePoints[0]+1) / 100);
-                            break;
-                        }
-                        default: break;
-                    }
-
-                    if(pSpellId)
-                        bp0 ? pet->CastCustomSpell(pet, pSpellId, &bp0, NULL, NULL, true) : pet->CastSpell(pet, pSpellId, true);
+                    m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_ROOT);
+                    m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_DECREASE_SPEED);
+                    m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_STALKED);
+                    m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_STUN);
                     return;
                 }
                 // Mirren's Drinking Hat
@@ -5863,6 +5885,25 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     DoCreateItem( effIndex, itemtype );
                     return;
                 }
+                // Demonic Empowerment
+                case 47193: 
+                {
+                    uint32 entry = unitTarget->GetEntry();
+                    uint32 spellID;
+                    int32 bp0 = 0;
+                    switch(entry)
+                    {
+                        case   416: spellID=54444; break;               //imp
+                        case   417: spellID=54509; break;               //fellhunter
+                        case  1860: spellID=54443; break;               //void
+                        case  1863: spellID=54435; break;               //succubus
+                        case 17252: spellID=54508; break;               //fellguard
+                        default:
+                            return;
+                    }
+                    unitTarget->CastSpell(unitTarget,spellID,true);
+                    return;
+                }
                 // Everlasting Affliction
                 case 47422:
                 {
@@ -5876,42 +5917,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                            (*itr).second->GetCasterGUID() == m_caster->GetGUID())
                            (*itr).second->RefreshAura();
                     }
-                    return;
-                }
-                // Demonic Empowerment
-                case 47193:
-                {
-                    if(m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    Pet* pet = m_caster->GetPet();
-                    if(!pet)        // Return if no pet
-                        return;
-
-                    if(pet->getPetType() != SUMMON_PET || m_caster != pet->GetOwner())
-                        return;
-
-                    // Select appropriate spell based on creature family
-                    uint32 pSpellId = 0;
-                    int32 bp0 = 0;
-                    switch(pet->GetCreatureInfo()->family)
-                    {
-                        case CREATURE_FAMILY_FELHUNTER:     pSpellId = 54509; break;
-                        case CREATURE_FAMILY_SUCCUBUS:      pSpellId = 54435; break;
-                        case CREATURE_FAMILY_IMP:           pSpellId = 54444; break;
-                        case CREATURE_FAMILY_FELGUARD:      pSpellId = 54508; break;
-                        case CREATURE_FAMILY_VOIDWALKER:    // Needs BasePoints0 to be corrected
-                        {
-                            pSpellId = 54443; 
-                            if(SpellEntry const* voidSpell = sSpellStore.LookupEntry(pSpellId))
-                                bp0 = int32(pet->GetMaxHealth() * (voidSpell->EffectBasePoints[0]+1) / 100);
-                            break;
-                        }
-                        default: break;
-                    }
-
-                    if(pSpellId)
-                        bp0 ? pet->CastCustomSpell(pet, pSpellId, &bp0, NULL, NULL, true) : pet->CastSpell(pet, pSpellId, true);
                     return;
                 }
             }

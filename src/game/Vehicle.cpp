@@ -452,11 +452,6 @@ void Vehicle::RemovePassenger(Unit *unit)
                 unit->SetCharm(NULL);
                 SetCharmerGUID(NULL);
                 setFaction(GetCreatureInfo()->faction_A);
-                if(GetVehicleFlags() & VF_DESPAWN_AT_LEAVE)
-                {
-                    // will be deleted at next update
-                    SetSpawnDuration(1);
-                }
             }
             if(seat->second.vs_flags & SF_UNATTACKABLE)
                 unit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

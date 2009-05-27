@@ -16497,6 +16497,18 @@ bool Player::HasGuardianWithEntry(uint32 entry)
     return false;
 }
 
+Pet* Player::GetGuardian(uint32 entry)
+{
+    for(GuardianPetList::const_iterator itr = m_guardianPets.begin(); itr != m_guardianPets.end(); ++itr)
+    {
+        if(Pet* pet = ObjectAccessor::GetPet(*itr))
+            if (pet->GetEntry() == entry)
+				return pet;
+    }
+
+    return NULL;
+}
+
 void Player::Uncharm()
 {
     Unit* charm = GetCharm();
@@ -16597,10 +16609,7 @@ void Player::PetSpellInitialize()
     data << uint8(charmInfo->GetReactState()) << uint8(charmInfo->GetCommandState()) << uint16(0);
 
     // action bar loop
-    for(uint32 i = 0; i < 10; ++i)
-    {
-        data << uint32(charmInfo->GetActionBarEntry(i)->Raw);
-    }
+    charmInfo->BuildActionBar(&data);
 
     size_t spellsCountPos = data.wpos();
 
@@ -16673,10 +16682,7 @@ void Player::PossessSpellInitialize()
     data << uint32(0);
     data << uint32(0);
 
-    for(uint32 i = 0; i < 10; ++i)
-    {
-        data << uint16(charmInfo->GetActionBarEntry(i)->SpellOrAction) << uint16(charmInfo->GetActionBarEntry(i)->Type);
-    }
+    charmInfo->BuildActionBar(&data);                       //40
 
     data << uint8(0);                                       // spells count
     data << uint8(0);                                       // cooldowns count
@@ -16762,10 +16768,7 @@ void Player::CharmSpellInitialize()
     else
         data << uint8(0) << uint8(0) << uint16(0);
 
-    for(uint32 i = 0; i < 10; ++i)
-    {
-        data << uint16(charmInfo->GetActionBarEntry(i)->SpellOrAction) << uint16(charmInfo->GetActionBarEntry(i)->Type);
-    }
+    charmInfo->BuildActionBar(&data);                       //40
 
     data << uint8(addlist);
 
@@ -19097,7 +19100,7 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
     {
         xp = PvP ? 0 : MaNGOS::XP::Gain(this, pVictim);
 
-        if(!(m_SeatData.v_flags & VF_GIVE_EXP))
+        if(GetVehicleGUID() && !(m_SeatData.v_flags & VF_GIVE_EXP))
             xp = 0;
 
         // honor can be in PvP and !PvP (racial leader) cases

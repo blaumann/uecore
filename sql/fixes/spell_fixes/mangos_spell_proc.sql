@@ -146,3 +146,16 @@ INSERT INTO `spell_proc_event` VALUES (47569, 0x00, 6, 0x00004000, 0x00000000, 0
 -- 47570 Improved Shadowform (Rank 2)
 DELETE FROM `spell_proc_event` WHERE `entry` IN (47570); 
 INSERT INTO `spell_proc_event` VALUES (47570, 0x00, 6, 0x00004000, 0x00000000, 0x00000000, 0x00004000, 0x00000000, 0.000000, 100.000000, 0);
+
+-- Hunt ()
+DELETE FROM `spell_proc_event` WHERE `entry` IN ('48181','59161','59163','59164');
+INSERT INTO `spell_proc_event` VALUES
+('48181','32','5','0','262144','0','131072','0','0','0','0'),
+('59161','32','5','0','262144','0','131072','0','0','0','0'),
+('59163','32','5','0','262144','0','131072','0','0','0','0'),
+('59164','32','5','0','262144','0','131072','0','0','0','0');
+
+-- Torment the Weak ()
+INSERT INTO `spell_proc_event` VALUES (29447, 0x00, 0, 0x20000821, 0x00009000, 0x00000000, 0x00010000, 0x00000000, 0.000000, 0.000000, 0); 
+INSERT INTO `spell_proc_event` VALUES (55339, 0x00, 0, 0x20000821, 0x00009000, 0x00000000, 0x00010000, 0x00000000, 0.000000, 0.000000, 0); 
+INSERT INTO `spell_proc_event` VALUES (55340, 0x00, 0, 0x20000821, 0x00009000, 0x00000000, 0x00010000, 0x00000000, 0.000000, 0.000000, 0);

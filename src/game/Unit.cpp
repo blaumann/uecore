@@ -4544,6 +4544,36 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
     {
         case SPELLFAMILY_GENERIC:
         {
+			 //Torment the Weak 
+            if (dummySpell->SpellIconID == 3263) 
+            { 
+                bool found = false; 
+
+                if (!procSpell) 
+                    return false; 
+
+                AuraMap const& mech = pVictim->GetAuras(); 
+                for(AuraMap::const_iterator itr = mech.begin();itr != mech.end(); ++itr) 
+                { 
+                    SpellEntry const* f_spell = itr->second->GetSpellProto(); 
+                    if (GetSpellMechanicMask(f_spell, itr->second->GetEffIndex()) & (1<<MECHANIC_SNARE)) 
+                    { 
+                        found = true; 
+                        break; 
+                    } 
+                } 
+                if (found) 
+                { 
+                    SpellModifier* mod = new SpellModifier; 
+                    mod->op = SPELLMOD_DAMAGE; 
+                    mod->value = triggerAmount; 
+                    mod->type = SPELLMOD_PCT; 
+                    mod->spellId = procSpell->Id; 
+                    mod->mask = 0x0000000000240000LL; 
+                    mod->mask2 = 0LL; 
+                    ((Player*)this)->AddSpellMod(mod, true); 
+                } 
+            }
 			//Master Shapeshifter
 			if (dummySpell->SpellIconID == 2851)
 			{
@@ -5194,6 +5224,16 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
         }
         case SPELLFAMILY_WARLOCK:
         {
+            // Haunt
+            if (dummySpell->SpellIconID == 3172 && dummySpell->SpellFamilyFlags & 0x4000000000000LL)
+            {
+                if (pVictim->GetGUID() == triggeredByAura->GetCasterGUID())
+                {
+                    Modifier* mod = triggeredByAura->GetModifier();
+                    mod->m_amount = mod->m_amount * damage / 100;
+                }
+                return true;
+            }
             // Seed of Corruption
             if (dummySpell->SpellFamilyFlags & 0x0000001000000000LL)
             {
@@ -5552,7 +5592,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
             // Deadly Brew
             if( dummySpell->SpellIconID == 2963 )
             {
-                triggered_spell_id = 25809;
+                triggered_spell_id = 44289;
                 break;
             }
             // Quick Recovery
@@ -10629,40 +10669,18 @@ void CharmInfo::InitPetActionBar()
     // the first 3 SpellOrActions are attack, follow and stay
     for(uint32 i = 0; i < 3; ++i)
     {
-        PetActionBar[i].Type = ACT_COMMAND;
-        PetActionBar[i].SpellOrAction = COMMAND_ATTACK - i;
-
-        PetActionBar[i + 7].Type = ACT_REACTION;
-        PetActionBar[i + 7].SpellOrAction = COMMAND_ATTACK - i;
+        SetActionBar(i,COMMAND_ATTACK - i,ACT_COMMAND);
+        SetActionBar(i + 7,COMMAND_ATTACK - i,ACT_REACTION);
     }
-    for(uint32 i=0; i < 4; ++i)
-    {
-        PetActionBar[i + 3].Type = ACT_DISABLED;
-        PetActionBar[i + 3].SpellOrAction = 0;
-    }
+    for(uint32 i = 0; i < 4; ++i)
+        SetActionBar(i,0,ACT_DISABLED);
 }
 
 void CharmInfo::InitEmptyActionBar()
 {
-    if(this->m_unit->GetTypeId() != TYPEID_PLAYER && !((Creature*)this->m_unit)->isVehicle() )
-	{
-		// If its not vehicle, first one is always attack
-		for(uint32 x = 1; x < 10; ++x)
-		{
-			PetActionBar[x].Type = ACT_PASSIVE;
-			PetActionBar[x].SpellOrAction = 0;
-		}
-		PetActionBar[0].Type = ACT_COMMAND;
-		PetActionBar[0].SpellOrAction = COMMAND_ATTACK;
-	}
-	else 
-	{
-		for(uint32 x = 0; x < 10; ++x)
-		{
-			PetActionBar[x].Type = ACT_PASSIVE;
-			PetActionBar[x].SpellOrAction = 0;
-		}		
-	}
+    SetActionBar(0,COMMAND_ATTACK,ACT_COMMAND);
+    for(uint32 x = 1; x < MAX_UNIT_ACTION_BAR_INDEX; ++x)
+        SetActionBar(x,0,ACT_PASSIVE);
 }
 
 void CharmInfo::InitPossessCreateSpells()
@@ -10678,7 +10696,7 @@ void CharmInfo::InitPossessCreateSpells()
         if(IsPassiveSpell(spellid))
             m_unit->CastSpell(m_unit, spellid, true);
         else
-			AddSpellToAB(0, spellid, ACT_DISABLED);
+            AddSpellToActionBar(((Creature*)m_unit)->m_spells[x], ACT_PASSIVE);
     }
 }
 
@@ -10723,50 +10741,56 @@ void CharmInfo::InitCharmCreateSpells()
             else
                 newstate = ACT_PASSIVE;
 
-            AddSpellToAB(0, spellId, newstate);
+            AddSpellToActionBar(spellId, newstate);
         }
     }
 }
 
-bool CharmInfo::AddSpellToAB(uint32 oldid, uint32 newid, ActiveStates newstate)
+bool CharmInfo::AddSpellToActionBar(uint32 spell_id, ActiveStates newstate)
 {
-    // new spell already listed for example in case prepered switch to lesser rank in Pet::removeSpell
-    for(uint8 i = 0; i < 10; ++i)
-        if (PetActionBar[i].Type == ACT_DISABLED || PetActionBar[i].Type == ACT_ENABLED || PetActionBar[i].Type == ACT_PASSIVE)
-            if (newid && PetActionBar[i].SpellOrAction == newid)
-                return true;
+    uint32 first_id = spellmgr.GetFirstSpellInChain(spell_id);
 
-    // old spell can be leasted for example in case learn high rank
-    for(uint8 i = 0; i < 10; ++i)
+    // new spell rank can be already listed
+    for(uint8 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
     {
-        if (PetActionBar[i].Type == ACT_DISABLED || PetActionBar[i].Type == ACT_ENABLED || PetActionBar[i].Type == ACT_PASSIVE)
+        if (PetActionBar[i].SpellOrAction && PetActionBar[i].IsActionBarForSpell())
         {
-            if (PetActionBar[i].SpellOrAction == oldid)
+            if (spellmgr.GetFirstSpellInChain(PetActionBar[i].SpellOrAction) == first_id)
             {
-                PetActionBar[i].SpellOrAction = newid;
-                if (!oldid)
-                {
-                    if(newstate == ACT_DECIDE)
-                    {
-                        if(IsPassiveSpell(newid))
-                            PetActionBar[i].Type = ACT_PASSIVE;
-                        else
-                            PetActionBar[i].Type = IsPetAutoCastableSpell(newid) ? ACT_DISABLED : ACT_PASSIVE;
-                    }
-                    else
-                    {
-                        if (((newstate != ACT_DISABLED) && (newstate != ACT_ENABLED)) ||
-                             IsPetAutoCastableSpell(newid))
-                            PetActionBar[i].Type = newstate;
-                        else
-                            PetActionBar[i].Type = ACT_PASSIVE;
-                    }
-                }
-
+                PetActionBar[i].SpellOrAction = spell_id;
                 return true;
             }
         }
     }
+
+    // or use empty slot in other case 
+    for(uint8 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+    {
+        if (!PetActionBar[i].SpellOrAction && PetActionBar[i].IsActionBarForSpell())
+        {
+            SetActionBar(i,spell_id,newstate == ACT_DECIDE ? ACT_DISABLED : newstate);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool CharmInfo::RemoveSpellFromActionBar(uint32 spell_id)
+{
+    uint32 first_id = spellmgr.GetFirstSpellInChain(spell_id);
+
+    for(uint8 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+    {
+        if (PetActionBar[i].SpellOrAction && PetActionBar[i].IsActionBarForSpell())
+        {
+            if (spellmgr.GetFirstSpellInChain(PetActionBar[i].SpellOrAction) == first_id)
+            {
+                SetActionBar(i,0,ACT_DISABLED);
+                return true;
+            }
+        }
+    }
+
     return false;
 }
 
@@ -10794,6 +10818,50 @@ void CharmInfo::SetPetNumber(uint32 petnumber, bool statwindow)
         m_unit->SetUInt32Value(UNIT_FIELD_PETNUMBER, m_petnumber);
     else
         m_unit->SetUInt32Value(UNIT_FIELD_PETNUMBER, 0);
+}
+
+bool CharmInfo::LoadActionBar( std::string data )
+{
+    Tokens tokens = StrSplit(data, " ");
+
+    if (tokens.size() != MAX_UNIT_ACTION_BAR_INDEX*2)
+        return false;
+
+    int index;
+    Tokens::iterator iter;
+    for(iter = tokens.begin(), index = 0; index < MAX_UNIT_ACTION_BAR_INDEX; ++iter, ++index )
+    {
+        // use unsigned cast to avoid sign negative format use at long-> ActiveStates (int) conversion
+        PetActionBar[index].Type  = atol((*iter).c_str());
+        ++iter;
+        PetActionBar[index].SpellOrAction = atol((*iter).c_str());
+
+        // check correctness
+        if(PetActionBar[index].IsActionBarForSpell() && !sSpellStore.LookupEntry(PetActionBar[index].SpellOrAction))
+            SetActionBar(index,0,ACT_DISABLED);
+    }
+    return true;
+}
+
+void CharmInfo::BuildActionBar( WorldPacket* data )
+{
+    for(uint32 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+    {
+        *data << uint16(PetActionBar[i].SpellOrAction);
+        *data << uint16(PetActionBar[i].Type);
+    }
+}
+
+void CharmInfo::SetSpellAutocast( uint32 spell_id, bool state )
+{
+    for(int i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+    {
+        if(spell_id == PetActionBar[i].SpellOrAction && PetActionBar[i].IsActionBarForSpell())
+        {
+            PetActionBar[i].Type = state ? ACT_ENABLED : ACT_DISABLED;
+            break;
+        }
+    }
 }
 
 bool Unit::isFrozen() const
@@ -11834,7 +11902,8 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura* aura, SpellEntry con
     }
     // Aura added by spell can`t trogger from self (prevent drop charges/do triggers)
     // But except periodic triggers (can triggered from self)
-    if(procSpell && procSpell->Id == spellProto->Id && !(spellProto->procFlags&PROC_FLAG_ON_TAKE_PERIODIC))
+    if(procSpell && procSpell->Id == spellProto->Id && !(spellProto->procFlags&PROC_FLAG_ON_TAKE_PERIODIC) &&
+        !(procSpell->SpellIconID == 3172 && spellProto->SpellIconID == 3172)) // It's a hack to allow Haunt proc from self
         return false;
 
     // Check if current equipment allows aura to proc
@@ -12039,6 +12108,14 @@ void Unit::ExitVehicle()
     {
         if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
         {
+            if(m_SeatData.s_flags & SF_MAIN_RIDER)
+            {
+                if(vehicle->GetVehicleFlags() & VF_DESPAWN_AT_LEAVE)
+                {
+                    // will be deleted at next update
+                    vehicle->SetSpawnDuration(1);
+                }
+            }
             vehicle->RemovePassenger(this);
         }
 

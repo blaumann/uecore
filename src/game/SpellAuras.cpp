@@ -2191,6 +2191,11 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
 				if( caster && GetTarget() && GetTarget()->GetEntry() == 18879 && (GetTarget()->GetHealth() * 100 / GetTarget()->GetMaxHealth() < 30) )
 					GetTarget()->SetEntry(19595);
 			}
+            case 61777:
+            {
+                caster->CastSpell(caster,50514,true,NULL,this);
+                return;
+            }
         }
 
         // Living Bomb
@@ -2466,6 +2471,18 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
         }
         case SPELLFAMILY_HUNTER:
             break;
+        case SPELLFAMILY_WARLOCK:
+        {
+            if (GetSpellProto()->SpellIconID == 3172 && GetSpellProto()->SpellFamilyFlags & 0x4000000000000LL)
+            {
+                if (!apply)
+                {
+                    int32 bp0 = m_modifier.m_amount;
+                    caster->CastCustomSpell(caster,48210,&bp0,NULL,NULL,true);
+                }
+            }
+            break;
+        }
         case SPELLFAMILY_SHAMAN:
         {
             // Improved Weapon Totems
@@ -5029,11 +5046,13 @@ void Aura::HandleAuraModIncreaseHealth(bool apply, bool Real)
         case 34511:                                         // Valor (Bulwark of Kings, Bulwark of the Ancient Kings)
         case 44055:                                         // Tremendous Fortitude (Battlemaster's Alacrity)
         case 50322:                                         // Survival Instincts
+        case 54443:                                         // Demonic Empowerment (Voidwalker)
         {
             if(Real)
             {
                 if(apply)
                 {
+                    if (GetId() == 54443) m_modifier.m_amount = m_target->GetMaxHealth() * m_modifier.m_amount / 100;
                     m_target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, float(m_modifier.m_amount), apply);
                     m_target->ModifyHealth(m_modifier.m_amount);
                 }
