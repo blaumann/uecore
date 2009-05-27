@@ -33,6 +33,9 @@ aclocal.m4
 autom4te.cache
 compile
 config.guess
+config.h.in
+config.log
+config.status
 config.sub
 configure
 depcomp

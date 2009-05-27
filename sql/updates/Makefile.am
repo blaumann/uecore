@@ -25,15 +25,6 @@ pkgdatadir = $(datadir)/mangos/sql/updates
 ## Files to be installed
 #  Install basic SQL files to datadir
 pkgdata_DATA = \
-	7705_01_mangos_command.sql \
-	7706_01_mangos_command.sql \
-	7714_01_mangos_command.sql \
-	7720_01_mangos_mangos_string.sql \
-	7776_01_mangos_npc_spellclick_spells.sql \
-	7777_01_mangos_spell_proc_event.sql \
-	7782_01_mangos_spell_proc_event.sql \
-	7796_01_mangos_command.sql \
-	7796_02_mangos_mangos_string.sql \
 	7802_01_characters_character_achievement.sql \
 	7802_02_characters_character_achievement_progress.sql \
 	7823_01_mangos_item_template.sql \
@@ -52,20 +43,12 @@ pkgdata_DATA = \
 	7886_01_mangos_petcreateinfo_spell.sql \
 	7887_01_characters_character_pet.sql \
 	7893_01_mangos_command.sql \
+	7896_01_mangos_creature_template.sql \
 	README
 
 ## Additional files to include when running 'make dist'
 #  SQL update files, to upgrade database schema from older revisions
 EXTRA_DIST = \
-	7705_01_mangos_command.sql \
-	7706_01_mangos_command.sql \
-	7714_01_mangos_command.sql \
-	7720_01_mangos_mangos_string.sql \
-	7776_01_mangos_npc_spellclick_spells.sql \
-	7777_01_mangos_spell_proc_event.sql \
-	7782_01_mangos_spell_proc_event.sql \
-	7796_01_mangos_command.sql \
-	7796_02_mangos_mangos_string.sql \
 	7802_01_characters_character_achievement.sql \
 	7802_02_characters_character_achievement_progress.sql \
 	7823_01_mangos_item_template.sql \
@@ -84,4 +67,5 @@ EXTRA_DIST = \
 	7886_01_mangos_petcreateinfo_spell.sql \
 	7887_01_characters_character_pet.sql \
 	7893_01_mangos_command.sql \
+	7896_01_mangos_creature_template.sql \
 	README

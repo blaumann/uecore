@@ -4338,7 +4338,7 @@ void Spell::EffectSummonGuardian(uint32 i)
                         if ((guardian = ObjectAccessor::GetPet(*itr)) && guardian->GetEntry() == pet_entry)
                         {
 							
-                            ((Player*)unitTarget)->SetFarSightGUID(apply ? guardian->GetGUID() : 0);
+                            ((Player*)unitTarget)->SetFarSightGUID(apply ? guardian->GetGUID() : NULL);
                             ((Player*)unitTarget)->SetCharm(apply ? guardian : NULL);
                             ((Player*)unitTarget)->SetClientControl(guardian, apply ? 1 : 0);
 							
@@ -5575,14 +5575,17 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 case 29830:
                 {
                     uint32 item = 0;
-                    switch ( urand(1,6) )
+                    switch ( urand(1, 6) )
                     {
-                        case 1:case 2:case 3:
-                            item = 23584;break;             // Loch Modan Lager
-                        case 4:case 5:
-                            item = 23585;break;             // Stouthammer Lite
+                        case 1:
+                        case 2:
+                        case 3:
+                            item = 23584; break;            // Loch Modan Lager
+                        case 4:
+                        case 5:
+                            item = 23585; break;            // Stouthammer Lite
                         case 6:
-                            item = 23586;break;             // Aerie Peak Pale Ale
+                            item = 23586; break;             // Aerie Peak Pale Ale
                     }
                     if (item)
                         DoCreateItem(effIndex,item);
