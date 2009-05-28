@@ -1530,6 +1530,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             if( spellInfo_1->Id == 2825 && spellInfo_2->SpellIconID == 38 && spellInfo_2->SpellVisual[0] == 0 )
                 return false;
             break;
+	case SPELLFAMILY_DEATHKNIGHT:
             if (spellInfo_2->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT)
             {
                 // Desecration (speed reduction aura) and Desecration (owner's damage bonus aura)
