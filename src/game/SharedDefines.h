@@ -2397,7 +2397,11 @@ enum SummonType
     SUMMON_TYPE_UNKNOWN13         = 467,
     SUMMON_TYPE_UNKNOWN8          = 487,
     SUMMON_TYPE_VEHICLE3          = 488,
+    SUMMON_TYPE_UNKNOWN18         = 489, //DK horse unk
+    SUMMON_TYPE_UNKNOWN19         = 490, //wild
     SUMMON_TYPE_VEHICLE4          = 493,
+    SUMMON_TYPE_UNKNOWN14         = 494, //grul guard
+    SUMMON_TYPE_UNKNOWN20         = 496, //unk
     SUMMON_TYPE_VEHICLE5          = 607,
     SUMMON_TYPE_UNKNOWN7          = 628,
     SUMMON_TYPE_TOTEM2            = 647,
@@ -2405,6 +2409,7 @@ enum SummonType
     SUMMON_TYPE_GHOUL_OF_THE_DEAD = 687,
     SUMMON_TYPE_VEHICLE6          = 708,
     SUMMON_TYPE_VEHICLE7          = 710,
+    SUMMON_TYPE_UNKNOWN21         = 713, //guard
     SUMMON_TYPE_VEHICLE8          = 716,
     SUMMON_TYPE_UNKNOWN10         = 780,
     SUMMON_TYPE_UNKNOWN6          = 781,

@@ -3683,9 +3683,11 @@ void Spell::EffectSummonType(uint32 i)
                 break; 
               } 
  
-        case SUMMON_TYPE_GUARDIAN2:
         case SUMMON_TYPE_GHOUL_OF_THE_DEAD:
         case SUMMON_TYPE_FORCE_OF_NATURE:
+        case SUMMON_TYPE_GUARDIAN2:
+        case SUMMON_TYPE_UNKNOWN14:
+        case SUMMON_TYPE_UNKNOWN21:
             EffectSummonGuardian(i);
             return;
         case SUMMON_TYPE_POSESSED:
@@ -3703,12 +3705,15 @@ void Spell::EffectSummonType(uint32 i)
         case SUMMON_TYPE_UNKNOWN10:
         case SUMMON_TYPE_UNKNOWN11:
         case SUMMON_TYPE_UNKNOWN12:
+        case SUMMON_TYPE_UNKNOWN19:
         case SUMMON_TYPE_WILD2:
             EffectSummonWild(i);
             return;
         case SUMMON_TYPE_DEMON:
             EffectSummonDemon(i);
             return;
+        case SUMMON_TYPE_UNKNOWN18:
+        case SUMMON_TYPE_UNKNOWN20:
         case SUMMON_TYPE_SUMMON:
             EffectSummon(i);
             return;

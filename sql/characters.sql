@@ -21,7 +21,7 @@
 
 DROP TABLE IF EXISTS `character_db_version`;
 CREATE TABLE `character_db_version` (
-  `required_7887_01_characters_character_pet` bit(1) default NULL
+  `required_7903_01_characters_character_pet` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Last applied sql update to DB';
 
 --
@@ -516,25 +516,24 @@ DROP TABLE IF EXISTS `character_pet`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `character_pet` (
-  `id` int(11) unsigned NOT NULL DEFAULT '0',
-  `entry` int(11) unsigned NOT NULL DEFAULT '0',
-  `owner` int(11) unsigned NOT NULL DEFAULT '0',
-  `modelid` int(11) unsigned DEFAULT '0',
-  `CreatedBySpell` int(11) unsigned NOT NULL DEFAULT '0',
-  `PetType` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `level` int(11) unsigned NOT NULL DEFAULT '1',
-  `exp` int(11) unsigned NOT NULL DEFAULT '0',
-  `Reactstate` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `talentpoints` int(11) unsigned NOT NULL DEFAULT '0',
-  `name` varchar(100) DEFAULT 'Pet',
-  `renamed` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `slot` int(11) unsigned NOT NULL DEFAULT '0',
-  `curhealth` int(11) unsigned NOT NULL DEFAULT '1',
-  `curmana` int(11) unsigned NOT NULL DEFAULT '0',
-  `curhappiness` int(11) unsigned NOT NULL DEFAULT '0',
-  `savetime` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `resettalents_cost` int(11) unsigned NOT NULL DEFAULT '0',
-  `resettalents_time` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `id` int(11) unsigned NOT NULL default '0',
+  `entry` int(11) unsigned NOT NULL default '0',
+  `owner` int(11) unsigned NOT NULL default '0',
+  `modelid` int(11) unsigned default '0',
+  `CreatedBySpell` int(11) unsigned NOT NULL default '0',
+  `PetType` tinyint(3) unsigned NOT NULL default '0',
+  `level` int(11) unsigned NOT NULL default '1',
+  `exp` int(11) unsigned NOT NULL default '0',
+  `Reactstate` tinyint(1) unsigned NOT NULL default '0',
+  `name` varchar(100) default 'Pet',
+  `renamed` tinyint(1) unsigned NOT NULL default '0',
+  `slot` int(11) unsigned NOT NULL default '0',
+  `curhealth` int(11) unsigned NOT NULL default '1',
+  `curmana` int(11) unsigned NOT NULL default '0',
+  `curhappiness` int(11) unsigned NOT NULL default '0',
+  `savetime` bigint(20) unsigned NOT NULL default '0',
+  `resettalents_cost` int(11) unsigned NOT NULL default '0',
+  `resettalents_time` bigint(20) unsigned NOT NULL default '0',
   `abdata` longtext,
   PRIMARY KEY  (`id`),
   KEY `owner` (`owner`)
