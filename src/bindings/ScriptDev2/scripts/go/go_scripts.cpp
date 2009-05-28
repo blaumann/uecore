@@ -368,6 +368,19 @@ bool GOHello_go_tele_to_violet_stand(Player* pPlayer, GameObject* pGo)
     return true;
 }
 
+/*######
+## go_acherus_soul_prison
+######*/
+
+bool GOHello_go_acherus_soul_prison(Player* pPlayer, GameObject* pGo)
+{
+	Creature* chainTrigger = GetClosestCreatureWithEntry(pGo, 29521,2);
+	if(chainTrigger)
+		chainTrigger->CastSpell(chainTrigger,7,true);
+
+    return true;
+}
+
 void AddSC_go_scripts()
 {
     Script *newscript;
@@ -455,5 +468,10 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name = "go_tele_to_violet_stand";
     newscript->pGOHello =           &GOHello_go_tele_to_violet_stand;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_acherus_soul_prison";
+    newscript->pGOHello =           &GOHello_go_acherus_soul_prison;
     newscript->RegisterSelf();
 }

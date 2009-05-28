@@ -26,12 +26,14 @@ item_area_52_special(i28132)        Prevents abuse of this item
 item_arcane_charges                 Prevent use if player is not flying (cannot cast while on ground)
 item_attuned_crystal_cores(i34368)  Prevent abuse(quest 11524 & 11525)
 item_blackwhelp_net(i31129)         Quest Whelps of the Wyrmcult (q10747). Prevents abuse
+item_dart_gun                       Prevent quest provided item instakill anything but the expected
 item_draenei_fishing_net(i23654)    Hacklike implements chance to spawn item or creature
 item_disciplinary_rod               Prevents abuse
 item_nether_wraith_beacon(i31742)   Summons creatures for quest Becoming a Spellfire Tailor (q10832)
 item_flying_machine(i34060,i34061)  Engineering crafted flying machines
 item_gor_dreks_ointment(i30175)     Protecting Our Own(q10488)
 item_muiseks_vessel                 Cast on creature, they must be dead(q 3123,3124,3125,3126,3127)
+item_pagles_fish_paste_extra_strength(i33166)  Summons creature for quest Nat's Bargain (q11209)
 item_protovoltaic_magneto_collector Prevents abuse
 item_razorthorn_flayer_gland        Quest Discovering Your Roots (q11520) and Rediscovering Your Roots (q11521). Prevents abuse
 item_tame_beast_rods(many)          Prevent cast on any other creature than the intended (for all tame beast quests)
@@ -551,6 +553,20 @@ bool ItemUse_item_jeremiahs_tools(Player *player, Item* _Item, SpellCastTargets 
     return true;
 }
 
+/*#####
+# item_pagles_fish_paste_extra_strength
+#####*/
+
+bool ItemUse_item_pagles_fish_paste_extra_strength(Player* pPlayer, Item* pItem, const SpellCastTargets &pTargets)
+{
+    if (pPlayer->GetQuestStatus(11209) == QUEST_STATUS_INCOMPLETE)
+    {
+        // Summon Lurking Shark
+        pPlayer->SummonCreature(23928, -4195.63, -3913.69, -5.33236, 5.24459, TEMPSUMMON_TIMED_DESPAWN, 300000);
+    }
+    return false;
+}
+
 void AddSC_item_scripts()
 {
     Script *newscript;
@@ -683,5 +699,10 @@ void AddSC_item_scripts()
     newscript = new Script;
     newscript->Name = "item_jeremiahs_tools";
     newscript->pItemUse = &ItemUse_item_jeremiahs_tools;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "item_pagles_fish_paste_extra_strength";
+    newscript->pItemUse = &ItemUse_item_pagles_fish_paste_extra_strength;
     newscript->RegisterSelf();
 }

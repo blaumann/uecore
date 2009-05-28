@@ -14,6 +14,7 @@ enum
     DATA_SHADRON                = 12,
     DATA_VESPERON               = 13,
     DATA_GO_TWILIGHT_PORTAL     = 14,
+    DATA_SARTHARION_EVENT       = 15,
 
     NPC_SARTHARION              = 28860,
     NPC_TENEBRON                = 30452,

@@ -24,7 +24,7 @@ INSERT INTO npc_spellclick_spells (`npc_entry`, `spell_id`, `quest_id`, `quest_s
 (28607, 52263, 12680, 3, 1);
 
 -- Quest 12641
-update creature_template set spell5=51890 where entry = 28511; -- Eye of Acherus flight
+update creature_template set spell4=51890 where entry = 28511; -- Eye of Acherus flight
 
 DELETE FROM `spell_script_target` WHERE entry IN
 (51859);
