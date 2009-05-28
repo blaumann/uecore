@@ -39,12 +39,12 @@ uint32 oldModels[] = {
 	25373,	25358,	25357,	25364 
 };
 
-uint32 newModels[] = {
-	25434,	25416,	25436,	25375,
-	25414,	25428,	25426,	25430,
-	25432,	25408,	25412,	25410,
-	25404,	25438,	25440,	25406,
-	25422,	25418,	25420,	25424
+uint32 newModelSpells[] = {
+	51545,	51539,	51544,	51520,
+	51538,	51546,	51549,	51547,
+	51552,	51540,	51542,	51536,
+	51534,	51549,	51548,	51537,
+	51551,	51535,	51541,	51543
 };
 
 int Textids[]= {
@@ -52,12 +52,11 @@ int Textids[]= {
 	-1615044, -1615045,
 	-1615046, -1615047
 };
-
 enum
 {
 	QUEST_THE_ENDLESS_HUNGER = 12848,
 	SPELL_CHAINED_TO_TRIGGER = 54612,
-	SPELL_BLOOD_PRESENCE     = 55212,
+	SPELL_INITIATE_VISUAL    = 51519,
 };
 
 struct MANGOS_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
@@ -73,26 +72,21 @@ struct MANGOS_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
 	int resetTimer;
 	int Textid;
 
-	uint32 modelId;
-
 	void Reset()
 	{
-		int i = 0;
 		changeTimer    = 10000;
 		castSpellTimer = 5000;
-		modelId        = -1;
 		phase          = 0;
 		Textid         = rand()%3 *2;
 
-		while(modelId == -1 && i < 20){
-			if(m_creature->GetDisplayId() == oldModels[i])
-				modelId = i;
-			i++;
-		}
+		for(int i=0; i < 20; i++)
+			m_creature->RemoveAurasDueToSpell(newModelSpells[i]);
 		
+		//kneel
+		m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
 		m_creature->setFaction(7);
-		m_creature->SetDisplayId(oldModels[modelId]);
 		m_creature->SetUInt32Value(UNIT_FIELD_FLAGS, 33024);
+
 	}
 
 	void JustDied(Unit* killer)
@@ -113,10 +107,24 @@ struct MANGOS_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
 			//timer until the initiate dresses up
 			if(changeTimer < diff)
 			{
-				m_creature->SetDisplayId(newModels[modelId]);
+				int modelId = -1;
+				int i = 0;
+				while(modelId == -1){
+					if(m_creature->GetDisplayId() == oldModels[i])
+						modelId = i;
+					i++;
+				}
+
+				//stand up
+				m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+				//change model
+				DoCast(m_creature, newModelSpells[modelId]);
+				//become hostile
 				m_creature->setFaction(14);
-				m_creature->SetUInt32Value(UNIT_FIELD_FLAGS,0);
-				DoCast(m_creature,SPELL_BLOOD_PRESENCE);
+				//remove possible unattackable flags
+				m_creature->SetUInt32Value(UNIT_FIELD_FLAGS, 0);
+				//cast the wierd visual spell
+				DoCast(m_creature, SPELL_INITIATE_VISUAL);
 				DoScriptText(Textids[Textid], m_creature);
 
 				changeTimer = 3000;
