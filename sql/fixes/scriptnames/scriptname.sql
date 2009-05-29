@@ -221,3 +221,5 @@ UPDATE `creature_template` SET `ScriptName`='boss_kalecgos' WHERE `entry`=24850;
 UPDATE `creature_template` SET `ScriptName`='boss_sathrovarr' WHERE `entry`=24892;
 UPDATE `creature_template` SET `ScriptName`='boss_kalec' WHERE `entry`=24891;
 UPDATE `creature_template` SET `ScriptName`='npc_blackhole' WHERE `entry`=25855;
+UPDATE creature_template SET scriptname='npc_loot_crazed_hunter' WHERE entry='25979';
+UPDATE creature_template SET scriptname='npc_neeru_fireblade' WHERE entry='3216';

@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Orgrimmar
 SD%Complete: 100
-SDComment: Quest support: 2460, 5727, 6566
+SDComment: Quest support: 829, 2460, 5727, 6566
 SDCategory: Orgrimmar
 EndScriptData */
 
@@ -34,6 +34,9 @@ EndContentData */
 ######*/
 
 #define QUEST_5727  5727
+
+/* Speech */
+#define SAY_NEERU_FIREBLADE_ONCOMPLETE	-1999579
 
 bool GossipHello_npc_neeru_fireblade(Player* pPlayer, Creature* pCreature)
 {
@@ -61,6 +64,14 @@ bool GossipSelect_npc_neeru_fireblade(Player* pPlayer, Creature* pCreature, uint
             break;
     }
     return true;
+}
+
+bool QuestComplete_npc_neeru_fireblade(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+{
+    if ((pQuest->GetQuestId() == 829) || (pQuest->GetQuestId() == 829))
+		DoScriptText(SAY_NEERU_FIREBLADE_ONCOMPLETE, pCreature);
+
+	return true;
 }
 
 /*######
@@ -254,6 +265,7 @@ void AddSC_orgrimmar()
     newscript->Name = "npc_neeru_fireblade";
     newscript->pGossipHello =  &GossipHello_npc_neeru_fireblade;
     newscript->pGossipSelect = &GossipSelect_npc_neeru_fireblade;
+	newscript->pQuestAccept = &QuestComplete_npc_neeru_fireblade;
     newscript->RegisterSelf();
 
     newscript = new Script;

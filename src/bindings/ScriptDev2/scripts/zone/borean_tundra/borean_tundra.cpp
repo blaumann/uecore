@@ -87,6 +87,32 @@ bool GossipSelect_npc_surristrasz(Player* pPlayer, Creature* pCreature, uint32 s
     return true;
 }
 
+/*######
+## npc_loot_crazed_hunter
+######*/ 
+
+#define SAY_LOOT_CRAZED_HUNTER_AGGRO	-1999580
+
+struct MANGOS_DLL_DECL npc_loot_crazed_hunterAI : public ScriptedAI
+{
+	npc_loot_crazed_hunterAI(Creature *pCreature) : ScriptedAI(pCreature)
+	{ 
+		Reset();
+	}
+
+	void Reset() { }
+
+	void Aggro(Unit *who)
+	{
+		DoScriptText(SAY_LOOT_CRAZED_HUNTER_AGGRO, m_creature);
+	}
+};
+
+CreatureAI* GetAI_npc_loot_crazed_hunter(Creature* pCreature)
+{
+    return new npc_loot_crazed_hunterAI(pCreature);
+}
+
 void AddSC_borean_tundra()
 {
     Script *newscript;
@@ -102,4 +128,9 @@ void AddSC_borean_tundra()
     newscript->pGossipHello =  &GossipHello_npc_surristrasz;
     newscript->pGossipSelect = &GossipSelect_npc_surristrasz;
     newscript->RegisterSelf();
+
+	newscript = new Script;
+	newscript->Name = "npc_loot_crazed_hunter";
+	newscript->GetAI = &GetAI_npc_loot_crazed_hunter;
+	newscript->RegisterSelf();
 }
