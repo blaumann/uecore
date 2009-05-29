@@ -2424,6 +2424,7 @@ enum SummonType
     SUMMON_TYPE_GUARDIAN2         = 1161,
     SUMMON_TYPE_VEHICLE12         = 1162,
     SUMMON_TYPE_UNKNOWN9          = 1321,
+    SUMMON_TYPE_UNKNOWN22         = 1362,
     SUMMON_TYPE_VEHICLE13         = 25995
 };
 
