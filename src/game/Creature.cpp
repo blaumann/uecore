@@ -1656,7 +1656,7 @@ bool Creature::IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index)
 		case SPELL_EFFECT_HEAL_PCT:
 		    return true;
 		default : break;
-	  }
+      }
     }
     return Unit::IsImmunedToSpellEffect(spellInfo, index);
 }
