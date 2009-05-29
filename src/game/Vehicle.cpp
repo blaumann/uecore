@@ -29,7 +29,9 @@ Vehicle::Vehicle() : Creature(), m_vehicleId(0)
     despawn = false;
     m_isVehicle = true;
     m_creation_time = 0;
-    m_updateFlag = (UPDATEFLAG_LIVING | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_VEHICLE);
+    m_updateFlag = (UPDATEFLAG_LOWGUID | UPDATEFLAG_HIGHGUID | UPDATEFLAG_LIVING | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_VEHICLE);
+	//m_updateFlag = (UPDATEFLAG_LIVING | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_VEHICLE);
+    RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
 }
 
 Vehicle::~Vehicle()
@@ -207,7 +209,11 @@ void Vehicle::setDeathState(DeathState s)                       // overwrite vir
 {
     Creature::setDeathState(s);
     if(s == JUST_DIED)
+    {
         RemoveAllPassengers();
+        if(GetVehicleFlags() & VF_DESPAWN_NPC)
+            Dismiss();
+    }
 }
 
 void Vehicle::Update(uint32 diff)
@@ -254,10 +260,6 @@ bool Vehicle::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, u
     if(!VehicleDS)
         return false;
     m_vehicleflags = VehicleDS->v_flags;
-
-    for (int i = 0; i < 4; ++i )
-         this->m_spells[i] = this->GetCreatureInfo()->spells[i]; // So our vehicles can have spells on bar
-    GetMotionMaster()->MovePoint(0, GetPositionX(), GetPositionY(), GetPositionZ()+2 ); // So we can fly with Dragon Vehicles
 
     return true;
 }
@@ -347,23 +349,10 @@ void Vehicle::AddPassenger(Unit *unit, int8 seatId, bool force)
 
     if(unit->GetTypeId() == TYPEID_PLAYER)
     {
-        if(seat->second.vs_flags & SF_CAN_CAST)
-        {
-            //((Player*)unit)->SetClientControl(unit, 1);
-            WorldPacket data0(SMSG_FORCE_MOVE_ROOT, 10);
-            data0.append(unit->GetPackGUID());
-            data0 << (uint32)(2);                        // can rotate
-            unit->SendMessageToSet(&data0,true);
-        }
-        else
-        {
-            //((Player*)unit)->SetClientControl(unit, 0);
-            WorldPacket data1(SMSG_FORCE_MOVE_ROOT, 10);
-            data1.append(unit->GetPackGUID());
-            data1 << (uint32)(0);                        // cannot rotate
-            unit->SendMessageToSet(&data1,true);
-            //((Player*)unit)->SetFarSightGUID(GetGUID());
-        }
+        WorldPacket data0(SMSG_FORCE_MOVE_ROOT, 10);
+        data0.append(unit->GetPackGUID());
+        data0 << (uint32)((seat->second.vs_flags & SF_CAN_CAST) ? 2 : 0);
+        unit->SendMessageToSet(&data0,true);
     }
 
     if(seat->second.vs_flags & SF_MAIN_RIDER)
@@ -376,7 +365,7 @@ void Vehicle::AddPassenger(Unit *unit, int8 seatId, bool force)
             SetCharmerGUID(unit->GetGUID());
             unit->SetCharm(this);
             if(unit->GetTypeId() == TYPEID_PLAYER)
-            ((Player*)unit)->SetClientControl(this, 1);
+                ((Player*)unit)->SetClientControl(this, 1);
         }
         if(unit->GetTypeId() == TYPEID_PLAYER)
         {
@@ -443,7 +432,7 @@ void Vehicle::RemovePassenger(Unit *unit)
                 RemoveSpellsCausingAura(SPELL_AURA_CONTROL_VEHICLE);
                 if(unit->GetTypeId() == TYPEID_PLAYER)
                 {
-		      ((Player*)unit)->SetClientControl(unit, 1);
+                    ((Player*)unit)->SetClientControl(unit, 1);
                     WorldPacket data(SMSG_PET_SPELLS, 8+4);
                     data << uint64(0);
                     data << uint32(0);

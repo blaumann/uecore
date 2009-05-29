@@ -1154,7 +1154,6 @@ Death.CorpseReclaimDelay.PvE = 1
 Death.Bones.World = 1
 Death.Bones.BattlegroundOrArena = 1
 
-
 ###################################################################################################################
 # BATTLEGROUND CONFIG
 #
@@ -1245,7 +1244,6 @@ Arena.AutoDistributeInterval = 7
 Arena.QueueAnnouncer.Enable = 0
 Arena.ArenaSeason.ID = 1
 Arena.ArenaSeason.InProgress = 1
-
 
 ###################################################################################################################
 # MULTITHREADED MAPS CONFIG

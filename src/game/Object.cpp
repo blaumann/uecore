@@ -1115,7 +1115,7 @@ void WorldObject::_Create( uint32 guidlow, HighGuid guidhigh, uint32 mapid, uint
 
 uint32 WorldObject::GetZoneId() const
 {
-    return MapManager::Instance(). GetBaseMap(m_mapId)->GetZoneId(m_positionX, m_positionY, m_positionZ);
+    return MapManager::Instance().GetBaseMap(m_mapId)->GetZoneId(m_positionX, m_positionY, m_positionZ);
 }
 
 uint32 WorldObject::GetAreaId() const

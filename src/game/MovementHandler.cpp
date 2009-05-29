@@ -680,7 +680,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
             if(((Creature*)mover)->isVehicle())
                 ((Vehicle*)mover)->RellocatePassengers(map);
         }
-            //mover->SetUnitMovementFlags(movementInfo.flags);
+            mover->SetUnitMovementFlags(movementInfo.flags);
     }
 }
 

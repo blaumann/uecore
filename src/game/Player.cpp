@@ -1621,6 +1621,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         m_movementInfo.t_o = 0.0f;
         m_movementInfo.t_time = 0;
     }
+    ExitVehicle();
 
     // The player was ported to another map and looses the duel immediately.
     // We have to perform this check before the teleport, otherwise the
@@ -10930,7 +10931,7 @@ void Player::DestroyZoneLimitedItem( bool update, uint32 new_zone )
             for(uint32 j = 0; j < pBag->GetBagSize(); ++j)
                 if (Item* pItem = pBag->GetItemByPos(j))
                     if (pItem->IsLimitedToAnotherMapOrZone(GetMapId(), new_zone))
-                        DestroyItem( i, j, update);
+                        DestroyItem(i, j, update);
 
     // in equipment and bag list
     for(int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_BAG_END; ++i)
@@ -11611,7 +11612,7 @@ void Player::UpdateEnchantTime(uint32 time)
 
 void Player::AddEnchantmentDurations(Item *item)
 {
-    for(int x=0; x<MAX_ENCHANTMENT_SLOT; ++x)
+    for(int x = 0; x < MAX_ENCHANTMENT_SLOT; ++x)
     {
         if(!item->GetEnchantmentId(EnchantmentSlot(x)))
             continue;
@@ -11643,7 +11644,7 @@ void Player::RemoveAllEnchantments(EnchantmentSlot slot)
     for(EnchantDurationList::iterator itr = m_enchantDuration.begin(), next; itr != m_enchantDuration.end(); itr = next)
     {
         next = itr;
-        if(itr->slot==slot)
+        if(itr->slot == slot)
         {
             if(itr->item && itr->item->GetEnchantmentId(slot))
             {
@@ -11716,7 +11717,7 @@ void Player::ApplyEnchantment(Item *item,bool apply)
         ApplyEnchantment(item, EnchantmentSlot(slot), apply);
 }
 
-void Player::ApplyEnchantment(Item *item,EnchantmentSlot slot, bool apply, bool apply_dur, bool ignore_condition)
+void Player::ApplyEnchantment(Item *item, EnchantmentSlot slot, bool apply, bool apply_dur, bool ignore_condition)
 {
     if(!item)
         return;
@@ -16687,45 +16688,6 @@ void Player::PossessSpellInitialize()
     data << uint8(0);                                       // spells count
     data << uint8(0);                                       // cooldowns count
 
-    GetSession()->SendPacket(&data);
-}
-
-void Player::VehicleSpellInitialize()
-{
-    Unit* charm = GetCharm();
-    if(!charm || charm->GetTypeId() != TYPEID_UNIT)
-        return;
-
-    WorldPacket data(SMSG_PET_SPELLS, 8+4+4+4+4*10+1+1);
-    data << uint64(charm->GetGUID());
-    data << uint32(0x00000000);
-    data << uint32(0x00000000);
-    data << uint32(0x00000101);
-
-    for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
-    {
-        uint32 spellId = ((Creature*)charm)->m_spells[i];
-        if(!spellId)
-            continue;
-
-        SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
-        if(!spellInfo)
-            continue;
-
-        if(IsPassiveSpell(spellId) || spellInfo->activeIconID == 2158) //flight
-        {
-            charm->CastSpell(charm, spellId, true);
-            data << uint16(0) << uint8(0) << uint8(i+8);
-        }
-        else
-            data << uint16(spellId) << uint8(0) << uint8(i+8);
-    }
-
-    for(uint32 i = CREATURE_MAX_SPELLS; i < 10; ++i)
-        data << uint16(0) << uint8(0) << uint8(i+8);
-
-    data << uint8(0);
-    data << uint8(0);
     GetSession()->SendPacket(&data);
 }
 

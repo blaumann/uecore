@@ -1020,8 +1020,8 @@ struct ItemLimitCategoryEntry
     uint32      ID;                                         // 0 Id
     //char*     name[16]                                    // 1-16     m_name_lang
                                                             // 17 name flags
-    uint32      maxCount;                                   // max allowed equipped as item or in gem slot
-    //uint32      unk;                                      // 1 for prismatic gems only...
+    uint32      maxCount;                                   // 18, max allowed equipped as item or in gem slot
+    //uint32      unk;                                      // 19, 1 for gems only...
 };
 
 struct ItemRandomPropertiesEntry
@@ -1533,11 +1533,11 @@ struct StableSlotPricesEntry
 struct SummonPropertiesEntry
 {
     uint32  Id;                                             // 0
-    uint32  Group;                                          // 1, 0 - can't be controlled?, 1 - something guardian?, 2 - pet?, 3 - something controllable?, 4 - taxi/mount?
-    uint32  Faction;                                        // 2, 14 rows > 0
-    uint32  Type;                                           // 3, see enum
-    uint32  Slot;                                           // 4, 0-6
-    uint32  Flags;                                          // 5
+    uint32  Group;                                          // 1, enum SummonPropGroup,  0 - can't be controlled?, 1 - something guardian?, 2 - pet?, 3 - something controllable?, 4 - taxi/mount?
+    uint32  FactionId;                                      // 2,                        14 rows > 0
+    uint32  Type;                                           // 3, enum SummonPropType
+    uint32  Slot;                                           // 4,                        0-6
+    uint32  Flags;                                          // 5, enum SummonPropFlags
 };
 
 #define MAX_TALENT_RANK 5

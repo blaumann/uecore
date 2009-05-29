@@ -567,7 +567,6 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         if (pVictim->GetTypeId() == TYPEID_PLAYER)
             ((Player*)pVictim)->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED, health);
 
-
         // find player: owner of controlled `this` or `this` itself maybe
         Player *player = GetCharmerOrOwnerPlayerOrPlayerItself();
 
@@ -4346,10 +4345,10 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *log)
     SendMessageToSet( &data, true );
 }
 
-void Unit::SendSpellNonMeleeDamageLog(Unit *target,uint32 SpellID,uint32 Damage, SpellSchoolMask damageSchoolMask,uint32 AbsorbedDamage, uint32 Resist,bool PhysicalDamage, uint32 Blocked, bool CriticalHit)
+void Unit::SendSpellNonMeleeDamageLog(Unit *target, uint32 SpellID, uint32 Damage, SpellSchoolMask damageSchoolMask, uint32 AbsorbedDamage, uint32 Resist, bool PhysicalDamage, uint32 Blocked, bool CriticalHit)
 {
-    SpellNonMeleeDamage log(this,target,SpellID,damageSchoolMask);
-    log.damage = Damage-AbsorbedDamage-Resist-Blocked;
+    SpellNonMeleeDamage log(this, target, SpellID, damageSchoolMask);
+    log.damage = Damage - AbsorbedDamage - Resist - Blocked;
     log.absorb = AbsorbedDamage;
     log.resist = Resist;
     log.physicalLog = PhysicalDamage;
@@ -9774,10 +9773,15 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 return;
         }
         data.append(GetPackGUID());
-        data << (uint32)0;                                  // moveEvent, NUM_PMOVE_EVTS = 0x39
+        data << (uint32)0;                                  // WOTLK - count
         if (mtype == MOVE_RUN)
+        // NOTE : here should be 1, but i am not sure what
+        // it will cause, because we arent handling count
+        // and we are sending this packet to everyone
             data << uint8(0);                               // new 2.1.0
         data << float(GetSpeed(mtype));
+        // NOTE : this should not be send to everyone,
+        // it should be sent only to owner and mover
         SendMessageToSet( &data, true );
     }
 }
@@ -10809,7 +10813,7 @@ bool CharmInfo::AddSpellToActionBar(uint32 spell_id, ActiveStates newstate)
         }
     }
 
-    // or use empty slot in other case 
+    // or use empty slot in other case
     for(uint8 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
     {
         if (!PetActionBar[i].SpellOrAction && PetActionBar[i].IsActionBarForSpell())
@@ -11347,7 +11351,7 @@ void Unit::SendPetClearCooldown (uint32 spellid)
     if(!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_CLEAR_COOLDOWN, 4 + 8);
+    WorldPacket data(SMSG_CLEAR_COOLDOWN, 4+8);
     data << uint32(spellid);
     data << uint64(GetGUID());
     ((Player*)owner)->GetSession()->SendPacket(&data);
@@ -11362,6 +11366,7 @@ void Unit::SendPetAIReaction(uint64 guid)
     WorldPacket data(SMSG_AI_REACTION, 8 + 4);
     data << uint64(guid);
     data << uint32(AI_REACTION_AGGRO);
+    ((Player*)owner)->GetSession()->SendPacket(&data);
 }
 
 ///----------End of Pet responses methods----------
@@ -12082,6 +12087,7 @@ void Unit::NearTeleportTo( float x, float y, float z, float orientation, bool ca
         ((Player*)this)->TeleportTo(GetMapId(), x, y, z, orientation, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (casting ? TELE_TO_SPELL : 0));
     else
     {
+        ExitVehicle();
         GetMap()->CreatureRelocation((Creature*)this, x, y, z, orientation);
 
         WorldPacket data;
@@ -12112,6 +12118,7 @@ void Unit::SetPvP( bool state )
 
 void Unit::EnterVehicle(Vehicle *vehicle, int8 seat_id, bool force)
 {
+    RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
     VehicleEntry const *ve = sVehicleStore.LookupEntry(vehicle->GetVehicleId());
     if(!ve)
         return;
@@ -12184,7 +12191,7 @@ void Unit::BuildVehicleInfo(Unit *target)
     if(!passenger->GetVehicleGUID())
         return;
 
-    passenger->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1 | MOVEMENTFLAG_FORWARD);
+    passenger->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1);
     uint32 veh_time = getMSTimeDiff(passenger->m_SeatData.c_time,getMSTime());
 
     uint32 p_length = passenger->GetPackGUID().size()+4+2+4+4+4+4+4+8+4+4+4+4+4+1+4;

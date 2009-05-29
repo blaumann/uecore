@@ -280,6 +280,11 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     if(mover != _player && mover->GetTypeId()==TYPEID_PLAYER)
         return;
 
+    // vehicle spells are handled by CMSG_PET_CAST_SPELL,
+    // but player is still able to cast own spells
+    if(_player->GetCharmGUID() && _player->GetCharmGUID() == _player->GetVehicleGUID())
+        mover = _player;
+
     sLog.outDebug("WORLD: got cast spell packet, spellId - %u, cast_count: %u, unk_flags %u, data length = %i",
         spellId, cast_count, unk_flags, (uint32)recvPacket.size());
 
@@ -319,6 +324,9 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     if(targets.getUnitTarget())
     {
         SpellEntry const *actualSpellInfo = spellmgr.SelectAuraRankForPlayerLevel(spellInfo,targets.getUnitTarget()->getLevel());
+
+        if(mover == _player)
+           _player->SetSelection(targets.getUnitTarget()->GetGUID());
 
         // if rank not found then function return NULL but in explicit cast case original spell can be casted and later failed with appropriate error message
         if(actualSpellInfo)

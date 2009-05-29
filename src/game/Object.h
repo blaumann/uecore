@@ -60,6 +60,7 @@ enum TypeID
     TYPEID_DYNAMICOBJECT = 6,
     TYPEID_CORPSE        = 7
 };
+
 #define NUM_CLIENT_OBJECT_TYPES             8
 
 uint32 GuidHigh2TypeId(uint32 guid_hi);
