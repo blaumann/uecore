@@ -45,7 +45,7 @@ struct MANGOS_DLL_DECL mob_lazy_peonAI : public ScriptedAI
 
 CreatureAI* GetAI_mob_lazy_peon(Creature* pCreature)
 {
-    return new mob_lazy_peonAI(pCreature);
+    return new mob_lazy_peonAI(pCreature); 
 };
 
 void AddSC_mob_lazy_peon()
