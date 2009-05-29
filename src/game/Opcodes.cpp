@@ -1232,7 +1232,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x4B3*/ { "UMSG_UNKNOWN_1203",                            STATUS_NEVER,    &WorldSession::Handle_NULL                     },
     /*0x4B4*/ { "UMSG_UNKNOWN_1204",                            STATUS_NEVER,    &WorldSession::Handle_NULL                     },
     /*0x4B5*/ { "SMSG_UNKNOWN_1205",                            STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
-    /*0x4B6*/ { "CMSG_UNKNOWN_1206",                            STATUS_NEVER,    &WorldSession::Handle_NULL                     },
+    /*0x4B6*/ { "CMSG_UNKNOWN_1206",                            STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x4B7*/ { "SMSG_UNKNOWN_1207",                            STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x4B8*/ { "CMSG_LFG_SET_ROLES",                           STATUS_LOGGEDIN, &WorldSession::HandleLfgSetRoles               },
     /*0x4B9*/ { "UMSG_UNKNOWN_1209",                            STATUS_NEVER,    &WorldSession::Handle_NULL                     },

@@ -3676,7 +3676,7 @@ void Spell::EffectSummonType(uint32 i)
     switch(m_spellInfo->EffectMiscValueB[i])
     {
         case SUMMON_TYPE_GUARDIAN:
-        case SUMMON_TYPE_UNKNOWN13:
+        case SUMMON_TYPE_WILD17:
         // Feral Spirit 
             if( m_spellInfo -> Id == 51533 ){ 
                 EffectSummon ( i ); 
@@ -3686,40 +3686,41 @@ void Spell::EffectSummonType(uint32 i)
         case SUMMON_TYPE_GHOUL_OF_THE_DEAD:
         case SUMMON_TYPE_FORCE_OF_NATURE:
         case SUMMON_TYPE_GUARDIAN2:
-        case SUMMON_TYPE_UNKNOWN14:
-        case SUMMON_TYPE_UNKNOWN21:
+        case SUMMON_TYPE_DK_GUARDIAN5:
+        case SUMMON_TYPE_GUARDIAN12:
             EffectSummonGuardian(i);
             return;
         case SUMMON_TYPE_POSESSED:
         case SUMMON_TYPE_POSESSED2:
+        case SUMMON_TYPE_POSESSED3:
             EffectSummonPosessed(i);
             return;
-        case SUMMON_TYPE_GHOUL:
-            EffectSummonGuardian(i);
-            return;
         case SUMMON_TYPE_WILD:
-        case SUMMON_TYPE_UNKNOWN6:
-        case SUMMON_TYPE_UNKNOWN7:
+        case SUMMON_TYPE_WILD33:
+        case SUMMON_TYPE_WILD21:
         case SUMMON_TYPE_UNKNOWN8:
         case SUMMON_TYPE_UNKNOWN9:
-        case SUMMON_TYPE_UNKNOWN10:
-        case SUMMON_TYPE_UNKNOWN11:
-        case SUMMON_TYPE_UNKNOWN12:
-        case SUMMON_TYPE_UNKNOWN19:
+        case SUMMON_TYPE_WILD11:
+        case SUMMON_TYPE_WILD37:
+        case SUMMON_TYPE_WILD14:
+		case SUMMON_TYPE_WILD58:
         case SUMMON_TYPE_WILD2:
+        case SUMMON_TYPE_WILD10:
+        case SUMMON_TYPE_WILD16:
+        case SUMMON_TYPE_WILD3:
             EffectSummonWild(i);
             return;
         case SUMMON_TYPE_DEMON:
             EffectSummonDemon(i);
             return;
-        case SUMMON_TYPE_UNKNOWN18:
-        case SUMMON_TYPE_UNKNOWN20:
         case SUMMON_TYPE_SUMMON:
+        case SUMMON_TYPE_SUMMON2:
             EffectSummon(i);
             return;
         case SUMMON_TYPE_CRITTER:
         case SUMMON_TYPE_CRITTER2:
         case SUMMON_TYPE_CRITTER3:
+        case SUMMON_TYPE_CRITTER5:
             EffectSummonCritter(i);
             return;
         case SUMMON_TYPE_TOTEM_SLOT1:
@@ -3742,14 +3743,9 @@ void Spell::EffectSummonType(uint32 i)
         case SUMMON_TYPE_VEHICLE10:
         case SUMMON_TYPE_VEHICLE11:
         case SUMMON_TYPE_VEHICLE12:
-        case SUMMON_TYPE_VEHICLE13:
             EffectSummonVehicle(i);
             return;
         case SUMMON_TYPE_UNKNOWN1:
-        case SUMMON_TYPE_UNKNOWN2:
-        case SUMMON_TYPE_UNKNOWN3:
-        case SUMMON_TYPE_UNKNOWN4:
-        case SUMMON_TYPE_UNKNOWN5:
             return;
         default:
             sLog.outError("EffectSummonType: Unhandled summon type %u", m_spellInfo->EffectMiscValueB[i]);

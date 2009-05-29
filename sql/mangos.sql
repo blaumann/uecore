@@ -24,7 +24,7 @@ DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
   `creature_ai_version` varchar(120) default NULL,
-  `required_7904_01_mangos_creature_template` bit(1) default NULL
+  `required_7908_03_mangos_creature_template_addon` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -584,13 +584,12 @@ DROP TABLE IF EXISTS `creature_addon`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `creature_addon` (
-  `guid` int(11) NOT NULL DEFAULT '0',
-  `mount` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `bytes0` int(10) unsigned NOT NULL DEFAULT '0',
-  `bytes1` int(10) unsigned NOT NULL DEFAULT '0',
-  `bytes2` int(10) unsigned NOT NULL DEFAULT '0',
-  `emote` int(10) unsigned NOT NULL DEFAULT '0',
-  `moveflags` int(10) unsigned NOT NULL DEFAULT '0',
+  `guid` int(11) NOT NULL default '0',
+  `mount` mediumint(8) unsigned NOT NULL default '0',
+  `bytes1` int(10) unsigned NOT NULL default '0',
+  `bytes2` int(10) unsigned NOT NULL default '0',
+  `emote` int(10) unsigned NOT NULL default '0',
+  `moveflags` int(10) unsigned NOT NULL default '0',
   `auras` text,
   PRIMARY KEY (`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -972,6 +971,7 @@ CREATE TABLE `creature_template` (
   `dmg_multiplier` float NOT NULL default '1',
   `baseattacktime` int(10) unsigned NOT NULL default '0',
   `rangeattacktime` int(10) unsigned NOT NULL default '0',
+  `unit_class` tinyint(3) unsigned NOT NULL default '0',
   `unit_flags` int(10) unsigned NOT NULL default '0',
   `dynamicflags` int(10) unsigned NOT NULL default '0',
   `family` tinyint(4) NOT NULL default '0',
@@ -1021,7 +1021,8 @@ SET character_set_client = @saved_cs_client;
 
 LOCK TABLES `creature_template` WRITE;
 /*!40000 ALTER TABLE `creature_template` DISABLE KEYS */;
-INSERT INTO `creature_template` VALUES (1,0,10045,0,10045,0,'Waypoint(Only GM can see it)','Visual',NULL,1,1,64,64,0,0,0,35,35,0,0.91,1,0,14,15,0,100,2000,2200,4096,0,0,0,0,0,0,1.76,2.42,100,8,5242886,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'',0,3,1,1,0,1,0,0,130,'');
+INSERT INTO `creature_template` VALUES
+(1,0,10045,0,10045,0,'Waypoint(Only GM can see it)','Visual',NULL,1,1,64,64,0,0,0,35,35,0,0.91,1,0,14,15,0,100,1,2000,2200,8,4096,0,0,0,0,0,0,1.76,2.42,100,8,5242886,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'',0,3,1.0,1.0,0,1,0,0,0x82,'');
 /*!40000 ALTER TABLE `creature_template` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1033,13 +1034,12 @@ DROP TABLE IF EXISTS `creature_template_addon`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `creature_template_addon` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `mount` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `bytes0` int(10) unsigned NOT NULL DEFAULT '0',
-  `bytes1` int(10) unsigned NOT NULL DEFAULT '0',
-  `bytes2` int(10) unsigned NOT NULL DEFAULT '0',
-  `emote` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `moveflags` int(10) unsigned NOT NULL DEFAULT '0',
+  `entry` mediumint(8) unsigned NOT NULL default '0',
+  `mount` mediumint(8) unsigned NOT NULL default '0',
+  `bytes1` int(10) unsigned NOT NULL default '0',
+  `bytes2` int(10) unsigned NOT NULL default '0',
+  `emote` mediumint(8) unsigned NOT NULL default '0',
+  `moveflags` int(10) unsigned NOT NULL default '0',
   `auras` text,
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;

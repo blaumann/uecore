@@ -362,7 +362,7 @@ void Vehicle::AddPassenger(Unit *unit, int8 seatId, bool force)
             data1.append(unit->GetPackGUID());
             data1 << (uint32)(0);                        // cannot rotate
             unit->SendMessageToSet(&data1,true);
-            ((Player*)unit)->SetFarSightGUID(GetGUID());
+            //((Player*)unit)->SetFarSightGUID(GetGUID());
         }
     }
 
@@ -376,7 +376,7 @@ void Vehicle::AddPassenger(Unit *unit, int8 seatId, bool force)
             SetCharmerGUID(unit->GetGUID());
             unit->SetCharm(this);
             if(unit->GetTypeId() == TYPEID_PLAYER)
-                ((Player*)unit)->SetClientControl(this, 1);
+            ((Player*)unit)->SetClientControl(this, 1);
         }
         if(unit->GetTypeId() == TYPEID_PLAYER)
         {
@@ -443,11 +443,11 @@ void Vehicle::RemovePassenger(Unit *unit)
                 RemoveSpellsCausingAura(SPELL_AURA_CONTROL_VEHICLE);
                 if(unit->GetTypeId() == TYPEID_PLAYER)
                 {
+		      ((Player*)unit)->SetClientControl(unit, 1);
                     WorldPacket data(SMSG_PET_SPELLS, 8+4);
                     data << uint64(0);
                     data << uint32(0);
                     ((Player*)unit)->GetSession()->SendPacket(&data);
-                    ((Player*)unit)->SetClientControl(unit, 1);
                 }
                 unit->SetCharm(NULL);
                 SetCharmerGUID(NULL);
