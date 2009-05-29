@@ -491,6 +491,10 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex)
                     if(spellproto->CalculateSimpleValue(effIndex) < 0)
                         return false;
                     break;
+                case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:
+                    if (spellproto->Id == 53414) // Elemental oath (must be positive spell)
+                        return true;
+                    break;
                 case SPELL_AURA_FORCE_REACTION:
                     if(spellproto->Id==42792)               // Recently Dropped Flag (prevent cancel)
                         return false;

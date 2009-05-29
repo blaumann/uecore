@@ -371,6 +371,7 @@ void Creature::Update(uint32 diff)
             }
             break;
         }
+        case GHOULED:
         case CORPSE:
         {
             if (m_isDeadByDefault)

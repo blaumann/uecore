@@ -5330,7 +5330,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 if (!target)
                     return false;
                 triggered_spell_id = 54181;
-                basepoints0 = damage * triggerAmount / 100;
+                basepoints0 = int32(damage * 0.15f);
                 break;
             }
             switch(dummySpell->Id)
@@ -6957,6 +6957,13 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                 return false;
             break;
         }
+        // Unyielding Knights
+        case 38164:
+        {
+            if (pVictim && (pVictim->GetTypeId() != TYPEID_UNIT || pVictim->GetEntry() != 19457))
+                return false;
+            break;
+        }
         // Bonus Healing (Crystal Spire of Karabor mace)
         case 40971:
         {
@@ -6982,13 +6989,6 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                 return false;
             break;
         }
-		// Unyielding Knights
-		case 38164:
-		{
-			// Do not summont our knights if we arent fighting specific enemy
-			if( GetTypeId() != TYPEID_PLAYER || pVictim->GetEntry() != 19457)
-				return false;
-		}
     }
 
     // Custom basepoints/target for exist spell
