@@ -153,7 +153,7 @@ extern int main(int argc, char **argv)
     sLog.outTitle( " //****** /**/   ///** //****** //****** /***   //******");
     sLog.outTitle( "  //////  //       //   //////   //////  ///     ////// ");
     sLog.outTitle( ":::::::::::CORE:::::VISIT:::::WWW.WOW-EXTREM.DE:::::::::");
-    sLog.outTitle( "Modify by Thyros\n\n");
+    sLog.outTitle( "Based on MaNGOS - Modify by Thyros\n\n");
 
     sLog.outString("Using configuration file %s.", cfg_file);
 
