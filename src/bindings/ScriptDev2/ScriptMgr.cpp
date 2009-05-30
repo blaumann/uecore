@@ -756,7 +756,7 @@ extern void AddSC_boss_xevozz();
 extern void AddSC_boss_zuramat();
 
 //Wailing caverns
-/* Not Implement*/
+extern void AddSC_instance_wailing_caverns();
 
 //Western plaguelands
 extern void AddSC_western_plaguelands();
@@ -1821,7 +1821,7 @@ void ScriptsInit()
     AddSC_boss_zuramat();
 
     //Wailing caverns
-    /* Not Implemented */
+    AddSC_instance_wailing_caverns();
 
     //Western plaguelands
     AddSC_western_plaguelands();

@@ -22,3 +22,68 @@ SDCategory: Wailing Caverns
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_wailing_caverns.h"
+
+struct MANGOS_DLL_DECL  instance_wailing_caverns : public ScriptedInstance
+{
+    instance_wailing_caverns(Map *Map) : ScriptedInstance(Map) {Initialize();};
+
+	uint64 Anacondra; // ID: 3671
+	uint64 Cobrahn; // ID: 3669
+	uint64 Pythas; // ID: 3670
+	uint64 Serpentis; // ID: 3673
+
+	bool AllBossesDead;
+
+	void Initialize()
+	{
+		Anacondra = 0;
+		Cobrahn = 0;
+		Pythas = 0;
+		Serpentis = 0;
+
+		AllBossesDead = false;
+	}
+
+    Player* GetPlayerInMap()
+    {
+        Map::PlayerList const& players = instance->GetPlayers();
+
+        if (!players.isEmpty())
+        {
+            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            {
+                if (Player* plr = itr->getSource())
+                return plr;
+            }
+        }
+
+        debug_log("SD2: Instance Wailing Caverns: GetPlayerInMap, but PlayerList is empty!");
+        return NULL;
+    }
+
+    void OnCreatureCreate(Creature *creature, uint32 creature_entry)
+    {
+        switch(creature->GetEntry())
+        { 
+            case 3671:    Anacondra = creature->GetGUID();             break;
+            case 3669:    Cobrahn = creature->GetGUID();              break;
+            case 3670:    Pythas = creature->GetGUID();             break;
+            case 3673:    Serpentis = creature->GetGUID();               break;
+        }
+    }
+};
+
+InstanceData* GetInstanceData_instance_wailing_caverns(Map* map)
+{
+   return new instance_wailing_caverns(map);
+}
+
+void AddSC_instance_wailing_caverns()
+{
+   Script *newscript;
+   newscript = new Script;
+   newscript->Name = "instance_wailing_caverns";
+   newscript->GetInstanceData = &GetInstanceData_instance_wailing_caverns;
+   newscript->RegisterSelf();
+}

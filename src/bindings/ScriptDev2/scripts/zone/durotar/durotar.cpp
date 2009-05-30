@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Durotar
 SD%Complete: 0
-SDComment: Not tested, not blizzlike
+SDComment: Placeholder, Quest to support: 5441
 SDCategory: Durotar
 EndScriptData */
 
@@ -26,33 +26,3 @@ EndScriptData */
 //Variables
 #define	SPELL_HIT       19938
 #define	NPC_LAZY_PEON   10556
-
-struct MANGOS_DLL_DECL mob_lazy_peonAI : public ScriptedAI
-{
-	mob_lazy_peonAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
-
-	void Reset()
-	{
-		m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-	}
-
-	void SpellHit(Unit *pCaster, const SpellEntry *pSpell)
-	{
-		if ( !m_creature->isInCombat() && (pSpell->Id == SPELL_HIT) )
-			m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE); 
-	}
-};
-
-CreatureAI* GetAI_mob_lazy_peon(Creature* pCreature)
-{
-    return new mob_lazy_peonAI(pCreature); 
-};
-
-void AddSC_mob_lazy_peon()
-{
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name="mob_lazy_peon";
-    newscript->GetAI = &GetAI_mob_lazy_peon;
-    newscript->RegisterSelf();
-}
