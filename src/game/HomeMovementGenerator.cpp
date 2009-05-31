@@ -27,6 +27,8 @@
 void
 HomeMovementGenerator<Creature>::Initialize(Creature & owner)
 {
+    float x, y, z;
+    owner.GetRespawnCoord(x, y, z);
     owner.RemoveUnitMovementFlag(MONSTER_MOVE_WALK);
     _setTargetLocation(owner);
 }

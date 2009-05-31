@@ -1413,7 +1413,7 @@ void World::SetInitialWorldSettings()
     sprintf( isoDate, "%04d-%02d-%02d %02d:%02d:%02d",
         local.tm_year+1900, local.tm_mon+1, local.tm_mday, local.tm_hour, local.tm_min, local.tm_sec);
 
-    loginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, startstring, uptime) VALUES('%u', " I64FMTD ", '%s', 0)", realmID, uint64(m_startTime), isoDate);
+    loginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, startstring, uptime) VALUES('%u', " UI64FMTD ", '%s', 0)", realmID, uint64(m_startTime), isoDate);
 
     static uint32 abtimer = 0;
     abtimer = sConfig.GetIntDefault("AutoBroadcast.Timer", 60000);
@@ -1445,6 +1445,10 @@ void World::SetInitialWorldSettings()
     sLog.outString( "Starting Map System" );
     MapManager::Instance().Initialize();
 
+    sLog.outString("Starting Game Event system..." );
+    uint32 nextGameEvent = gameeventmgr.Initialize();
+    m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
+
     ///- Initialize Battlegrounds
     sLog.outString( "Starting BattleGround System" );
     sBattleGroundMgr.CreateInitialBattleGrounds();
@@ -1465,10 +1469,6 @@ void World::SetInitialWorldSettings()
 
     sLog.outString("Starting objects Pooling system..." );
     poolhandler.Initialize();
-
-    sLog.outString("Starting Game Event system..." );
-    uint32 nextGameEvent = gameeventmgr.Initialize();
-    m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
 
     sLog.outString("Starting Autobroadcast system..." );
 
@@ -1595,7 +1595,7 @@ void World::Update(uint32 diff)
         uint32 maxClientsNum = GetMaxActiveSessionCount();
 
         m_timers[WUPDATE_UPTIME].Reset();
-        loginDatabase.PExecute("UPDATE uptime SET uptime = %u, maxplayers = %u WHERE realmid = %u AND starttime = " I64FMTD, tmpDiff, maxClientsNum, realmID, uint64(m_startTime));
+        loginDatabase.PExecute("UPDATE uptime SET uptime = %u, maxplayers = %u WHERE realmid = %u AND starttime = " UI64FMTD, tmpDiff, maxClientsNum, realmID, uint64(m_startTime));
     }
 
     /// <li> Handle all other objects

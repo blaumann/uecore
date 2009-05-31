@@ -90,7 +90,7 @@ Object::~Object( )
         if(IsInWorld())
         {
             ///- Do NOT call RemoveFromWorld here, if the object is a player it will crash
-            sLog.outError("Object::~Object - guid="I64FMTD", typeid=%d deleted but still in world!!", GetGUID(), GetTypeId());
+            sLog.outError("Object::~Object - guid="UI64FMTD", typeid=%d deleted but still in world!!", GetGUID(), GetTypeId());
             //assert(0);
         }
 
@@ -633,7 +633,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
     // 2 specialized loops for speed optimization in non-unit case
     if(isType(TYPEMASK_UNIT))                               // unit (creature/player) case
     {
-        for( uint16 index = 0; index < m_valuesCount; index ++ )
+        for( uint16 index = 0; index < m_valuesCount; ++index )
         {
             if( updateMask->GetBit( index ) )
             {
@@ -714,7 +714,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
     }
     else if(isType(TYPEMASK_GAMEOBJECT))                    // gameobject case
     {
-        for( uint16 index = 0; index < m_valuesCount; index ++ )
+        for( uint16 index = 0; index < m_valuesCount; ++index )
         {
             if( updateMask->GetBit( index ) )
             {
@@ -746,7 +746,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
     }
     else                                                    // other objects case (no special index checks)
     {
-        for( uint16 index = 0; index < m_valuesCount; index ++ )
+        for( uint16 index = 0; index < m_valuesCount; ++index )
         {
             if( updateMask->GetBit( index ) )
             {
@@ -759,7 +759,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
 
 void Object::ClearUpdateMask(bool remove)
 {
-    for( uint16 index = 0; index < m_valuesCount; index ++ )
+    for( uint16 index = 0; index < m_valuesCount; ++index )
     {
         if(m_uint32Values_mirror[index]!= m_uint32Values[index])
             m_uint32Values_mirror[index] = m_uint32Values[index];
@@ -807,7 +807,7 @@ bool Object::LoadValues(const char* data)
 
 void Object::_SetUpdateBits(UpdateMask *updateMask, Player* /*target*/) const
 {
-    for( uint16 index = 0; index < m_valuesCount; index ++ )
+    for( uint16 index = 0; index < m_valuesCount; ++index )
     {
         if(m_uint32Values_mirror[index]!= m_uint32Values[index])
             updateMask->SetBit(index);
@@ -816,7 +816,7 @@ void Object::_SetUpdateBits(UpdateMask *updateMask, Player* /*target*/) const
 
 void Object::_SetCreateBits(UpdateMask *updateMask, Player* /*target*/) const
 {
-    for( uint16 index = 0; index < m_valuesCount; index++ )
+    for( uint16 index = 0; index < m_valuesCount; ++index )
     {
         if(GetUInt32Value(index) != 0)
             updateMask->SetBit(index);
@@ -935,7 +935,7 @@ void Object::SetUInt16Value( uint16 index, uint8 offset, uint16 value )
         return;
     }
 
-    if(uint8(m_uint32Values[ index ] >> (offset * 16)) != value)
+    if(uint16(m_uint32Values[ index ] >> (offset * 16)) != value)
     {
         m_uint32Values[ index ] &= ~uint32(uint32(0xFFFF) << (offset * 16));
         m_uint32Values[ index ] |= uint32(uint32(value) << (offset * 16));

@@ -735,10 +735,6 @@ enum MangosStrings
     LANG_BG_AV_H_NEAR_LOSE              = 788,
     LANG_BG_AV_H_GENERAL_DEAD           = 789,
     LANG_BG_AV_A_GENERAL_DEAD           = 790,
-
-
-    // Room for batleground/arena strings 790-799 not used
-
     LANG_BG_COMMAND_UPDATE              = 756,
     LANG_BG_COMMAND_END                 = 757,
     LANG_BG_COMMAND_NO_BG_FOUND         = 758,

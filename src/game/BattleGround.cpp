@@ -547,7 +547,7 @@ void BattleGround::SendPacketToAll(WorldPacket *packet)
         if (plr)
             plr->GetSession()->SendPacket(packet);
         else
-            sLog.outError("BattleGround: Player " I64FMTD " not found!", itr->first);
+            sLog.outError("BattleGround: Player (GUID: %u) not found!", GUID_LOPART(itr->first));
     }
 }
 
@@ -559,7 +559,7 @@ void BattleGround::SendPacketToTeam(uint32 TeamID, WorldPacket *packet, Player *
 
         if (!plr)
         {
-            sLog.outError("BattleGround: Player " I64FMTD " not found!", itr->first);
+            sLog.outError("BattleGround: Player (GUID: %u) not found!", GUID_LOPART(itr->first));
             continue;
         }
 
@@ -591,7 +591,7 @@ void BattleGround::PlaySoundToTeam(uint32 SoundID, uint32 TeamID)
 
         if (!plr)
         {
-            sLog.outError("BattleGround: Player " I64FMTD " not found!", itr->first);
+            sLog.outError("BattleGround: Player (GUID: %u) not found!", GUID_LOPART(itr->first));
             continue;
         }
 
@@ -614,7 +614,7 @@ void BattleGround::CastSpellOnTeam(uint32 SpellID, uint32 TeamID)
 
         if (!plr)
         {
-            sLog.outError("BattleGround: Player " I64FMTD " not found!", itr->first);
+            sLog.outError("BattleGround: Player (GUID: %u) not found!", GUID_LOPART(itr->first));
             continue;
         }
 
@@ -634,7 +634,7 @@ void BattleGround::RewardHonorToTeam(uint32 Honor, uint32 TeamID)
 
         if (!plr)
         {
-            sLog.outError("BattleGround: Player " I64FMTD " not found!", itr->first);
+            sLog.outError("BattleGround: Player (GUID: %u) not found!", GUID_LOPART(itr->first));
             continue;
         }
 
@@ -659,7 +659,7 @@ void BattleGround::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, 
 
         if (!plr)
         {
-            sLog.outError("BattleGround: Player " I64FMTD " not found!", itr->first);
+            sLog.outError("BattleGround: Player (GUID: %u) not found!", GUID_LOPART(itr->first));
             continue;
         }
 
@@ -758,7 +758,7 @@ void BattleGround::EndBattleGround(uint32 winner)
                 else
                     loser_arena_team->OfflineMemberLost(itr->first, winner_rating);
             }
-            sLog.outError("BattleGround: Player " I64FMTD " not found!", itr->first);
+            sLog.outError("BattleGround: Player (GUID: %u) not found!", GUID_LOPART(itr->first));
             continue;
         }
 
@@ -1589,7 +1589,7 @@ bool BattleGround::DelCreature(uint32 type)
     Creature *cr = HashMapHolder<Creature>::Find(m_BgCreatures[type]);
     if (!cr)
     {
-		sLog.outError("BattleGround: Can't find creature guid: %u",GUID_LOPART(m_BgCreatures[type]));
+        sLog.outError("Can't find Battleground creature type:%u guid:%u",type, GUID_LOPART(m_BgCreatures[type]));
         return false;
     }
     cr->CleanupsBeforeDelete();
@@ -1606,7 +1606,7 @@ bool BattleGround::DelObject(uint32 type)
     GameObject *obj = HashMapHolder<GameObject>::Find(m_BgObjects[type]);
     if (!obj)
     {
-        sLog.outError("BattleGround: Can't find gobject guid: %u",GUID_LOPART(m_BgObjects[type]));
+        sLog.outError("Can't find Battleground gobject type:%u guid:%u",type, GUID_LOPART(m_BgObjects[type]));
         return false;
     }
     obj->SetRespawnTime(0);                                 // not save respawn time
