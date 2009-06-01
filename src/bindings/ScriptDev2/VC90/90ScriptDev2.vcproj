@@ -1371,6 +1371,10 @@
 				<Filter
 					Name="Gnomeregan"
 					>
+					<File
+						RelativePath="..\scripts\zone\gnomeregan\instance_gnomeregan.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Hillsbrad Foothills"
