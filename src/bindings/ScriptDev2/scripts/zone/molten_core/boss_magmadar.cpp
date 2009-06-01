@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation; either version 2 of the License, or
@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: Boss_Magmadar
-SD%Complete: 90
+SD%Complete: 100
 SDComment: 
 SDCategory: Molten Core
 EndScriptData */
@@ -27,14 +27,13 @@ EndScriptData */
 #define EMOTE_FRENZY                -1409001
 
 #define SPELL_FRENZY                19451
-#define SPELL_MAGMASPIT             19449                   //This is actually a buff he gives himself
+#define SPELL_MAGMASPIT             19450
 #define SPELL_PANIC                 19408       
-#define SPELL_LAVABOMB              19411                   //This calls a dummy server side effect that isn't implemented yet
-#define SPELL_LAVABOMB_ALT          19428                   //This is the spell that the lava bomb casts
+#define SPELL_LAVABOMB              19411
 
 struct MANGOS_DLL_DECL boss_magmadarAI : public ScriptedAI
 {
-    boss_magmadarAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_magmadarAI(Creature *pCreature) : ScriptedAI(pCreature)
 	{
         pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
@@ -45,25 +44,33 @@ struct MANGOS_DLL_DECL boss_magmadarAI : public ScriptedAI
     uint32 Frenzy_Timer;
     uint32 Panic_Timer;
     uint32 Lavabomb_Timer;
+	uint32 MagmaSpit_Timer;
 
     void Reset()
     {
-        Frenzy_Timer = 30000;
+		pInstance->SetData(DATA_MAGMADAR_PROGRESS, NOT_STARTED);
+
+        Frenzy_Timer = 15000;
         Panic_Timer = 20000;
         Lavabomb_Timer = 12000;
+		MagmaSpit_Timer = 20000;
+    }
 
-        m_creature->CastSpell(m_creature,SPELL_MAGMASPIT,true);
+    void Aggro(Unit *who)
+    {
+		pInstance->SetData(DATA_MAGMADAR_PROGRESS, IN_PROGRESS);
     }
 
 	void JustDied(Unit* Killer)
     {
-		if(pInstance)
-			pInstance->SetData(DATA_MAGMADAR_DEAD,0);
+		pInstance->SetData(DATA_MAGMADAR_PROGRESS, DONE);
+
+		if(pInstance->GetData(DATA_ALL_BOSSES_DEAD) == 1)
+			m_creature->SummonCreature(12018,758.762,-1166.332,-119.181,3.54182,TEMPSUMMON_TIMED_DESPAWN,3600000);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        //Return since we have no target
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
@@ -87,10 +94,17 @@ struct MANGOS_DLL_DECL boss_magmadarAI : public ScriptedAI
         if (Lavabomb_Timer < diff)
         {
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(target,SPELL_LAVABOMB_ALT);
+                DoCast(target,SPELL_LAVABOMB);
 
             Lavabomb_Timer = 12000;
         }else Lavabomb_Timer -= diff;
+
+		if (MagmaSpit_Timer < diff)
+		{
+			DoCast(m_creature->getVictim(),SPELL_MAGMASPIT);
+
+            MagmaSpit_Timer = 12000;
+        }else MagmaSpit_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

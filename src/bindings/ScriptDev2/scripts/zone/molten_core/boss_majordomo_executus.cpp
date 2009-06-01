@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation; either version 2 of the License, or
@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: Boss_Majordomo_Executus
-SD%Complete: 90
-SDComment: Teleport not implemented
+SD%Complete: 100
+SDComment: 
 SDCategory: Molten Core
 EndScriptData */
 
@@ -30,75 +30,68 @@ EndScriptData */
 #define SAY_SPECIAL         -1409006
 #define SAY_DEFEAT          -1409007
 
-#define SOUND_AGGRO     8035
-#define SAY_SUMMON_MAJ      -1409008
-#define SAY_ARRIVAL2_MAJ    -1409010
-#define SOUND_SPAWN     8039
+//Majordomo Speech at Ragnaros
+#define SAY_SUMMON_MAJ      -1409008		//Seht Ragnaros den Feuerfürsten
+#define SAY_ARRIVAL2_MAJ    -1409010		//Diese ungläubigen Sterblichen
 
-#define SPAWN_RAG_X         829.07147
-#define SPAWN_RAG_Y         -849.46392
-#define SPAWN_RAG_Z         -´229.5953
-#define SPAWN_RAG_O         1.157160
-
-#define SOUND_DEFEAT    8038
+//Majordomo Spells
 #define SPELL_MAGIC_REFLECTION      20619
 #define SPELL_DAMAGE_REFLECTION     21075
 #define SPELL_BLASTWAVE             20229
 #define SPELL_AEGIS                 20620                   //This is self casted whenever we are below 50%
-#define SPELL_TELEPORT              20618
 #define SPELL_SUMMON_RAGNAROS       19774
 
-#define SOUND_KILL      8037
+//Fiery Pit Spell
+#define SPELL_FIERYPIT				20623
+
 #define ENTRY_FLAMEWALKER_HEALER    11663
 #define ENTRY_FLAMEWALKER_ELITE     11664
 
-#define SOUND_SPECIAL   8036
-#define SOUND_SUMMON    8040
-#define SOUND_ARRIVAL1  8041
-
-#define GOSSIP_ITEM_DOMO   "Let me speak to your Master, Servant"
-
+//Majordomo Adds
 //ADDS right site
-#define ADD_PRIEST_R1_X 756.115
-#define ADD_PRIEST_R1_Y -1222.127
-#define ADD_PRIEST_R1_Z -119.700
-#define ADD_PRIEST_R1_O 1.839
+#define ADD_PRIEST_R1_X 761.088
+#define ADD_PRIEST_R1_Y -1174.606
+#define ADD_PRIEST_R1_Z -119.181
+#define ADD_PRIEST_R1_O 3.541
 
-#define ADD_PRIEST_R2_X 756.338
-#define ADD_PRIEST_R2_Y -1212.633
-#define ADD_PRIEST_R2_Z -119.650
-#define ADD_PRIEST_R2_O 1.796
+#define ADD_PRIEST_R2_X 756.907
+#define ADD_PRIEST_R2_Y -1191.007
+#define ADD_PRIEST_R2_Z -119.181
+#define ADD_PRIEST_R2_O 3.541
 
-#define ADD_ELITE_R1_X 770.432
-#define ADD_ELITE_R1_Y -1204.971
-#define ADD_ELITE_R1_Z -119.606
-#define ADD_ELITE_R1_O 1.867
+#define ADD_ELITE_R1_X 760.444
+#define ADD_ELITE_R1_Y -1183.175
+#define ADD_ELITE_R1_Z -119.181
+#define ADD_ELITE_R1_O 3.541
 
-#define ADD_ELITE_R2_X 761.817
-#define ADD_ELITE_R2_Y -1215.765
-#define ADD_ELITE_R2_Z -119.636
-#define ADD_ELITE_R2_O 1.792
+#define ADD_ELITE_R2_X 753.009
+#define ADD_ELITE_R2_Y -1198.237
+#define ADD_ELITE_R2_Z -118.346
+#define ADD_ELITE_R2_O 3.541
 
 //ADDS left site
-#define ADD_PRIEST_L1_X 744.201
-#define ADD_PRIEST_L1_Y -1227.621
-#define ADD_PRIEST_L1_Z -119.633
-#define ADD_PRIEST_L1_O 1.792
+#define ADD_PRIEST_L1_X 753.748
+#define ADD_PRIEST_L1_Y -1159.354
+#define ADD_PRIEST_L1_Z -119.181
+#define ADD_PRIEST_L1_O 3.541
 
-#define ADD_PRIEST_L2_X 731.172
-#define ADD_PRIEST_L2_Y -1224.489
-#define ADD_PRIEST_L2_Z -119.948
-#define ADD_PRIEST_L2_O 1.792
+#define ADD_PRIEST_L2_X 738.322
+#define ADD_PRIEST_L2_Y -1152.389
+#define ADD_PRIEST_L2_Z -119.181
+#define ADD_PRIEST_L2_O 3.541
 
-#define ADD_ELITE_L1_X 736.566
-#define ADD_ELITE_L1_Y -1222.606
-#define ADD_ELITE_L1_Z -119.633
-#define ADD_ELITE_L1_O 1.751
+#define ADD_ELITE_L1_X 746.649
+#define ADD_ELITE_L1_Y -1154.512
+#define ADD_ELITE_L1_Z -119.181
+#define ADD_ELITE_L1_O 3.541
 
-#define ADD_ELITE_L2_X 721.837
-#define ADD_ELITE_L2_Y -1216.640
-#define ADD_ELITE_L2_Z -119.979
-#define ADD_ELITE_L2_O 1.751
+#define ADD_ELITE_L2_X 729.771
+#define ADD_ELITE_L2_Y -1153.243
+#define ADD_ELITE_L2_Z -119.181
+#define ADD_ELITE_L2_O 3.541
+//End Majordomo Adds
+
+#define GOSSIP_ITEM_DOMO   "Lass mich eine Unteredung mit deinem Herrn führen"
 
 struct MANGOS_DLL_DECL boss_majordomoAI : public ScriptedAI
 {
@@ -109,73 +102,101 @@ struct MANGOS_DLL_DECL boss_majordomoAI : public ScriptedAI
     }
     ScriptedInstance *pInstance;
 
+	Creature *EliteR1, *EliteR2, *EliteL1, *EliteL2, *PriestR1, *PriestR2, *PriestL1, *PriestL2;
+
     uint32 MagicReflection_Timer;
     uint32 DamageReflection_Timer;
     uint32 Blastwave_Timer;
-
-	bool Speech, Death, Summon, Teleport, SaySpawn;
-	uint32 Speech_Timer;
-	uint32 Death_Timer;
-	uint32 Summon_Timer;
 	uint32 Teleport_Timer;
+
 	uint32 CheckFlamewaker_Timer;
 
-	uint32 Reset_Count;
+	uint32 TeleportDomo_Timer;
+	uint32 SehtRag_Timer;
+	uint32 Unglaeubigen_Timer;
+	uint8 WPdone;
 
-	Creature *EliteR1, *EliteR2, *EliteL1, *EliteL2, *PriestR1, *PriestR2, *PriestL1, *PriestL2;
+	bool SaySpawn;
+	bool Death;
+	bool IntroDone;
+	bool Moving;
 
     void Reset()
     {
-		Reset_Count++;
-        MagicReflection_Timer =  30000;      //Damage reflection first so we alternate
-        DamageReflection_Timer = 15000;
-        Blastwave_Timer = 10000;
-		
-		Speech = Death = Summon = Teleport = SaySpawn = false;
-		if(Reset_Count != 1)
+		if(pInstance->GetData(DATA_MAJORDOMO_PROGRESS) != SPECIAL)
 		{
-			if(EliteR1->isDead())
-				EliteR1 = m_creature->SummonCreature(11664,ADD_ELITE_R1_X,ADD_ELITE_R1_Y,ADD_ELITE_R1_Z,ADD_ELITE_R1_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
-			if(EliteR2->isDead())
-				EliteR2 = m_creature->SummonCreature(11664,ADD_ELITE_R2_X,ADD_ELITE_R2_Y,ADD_ELITE_R2_Z,ADD_ELITE_R2_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
-			if(EliteL1->isDead())
-				EliteL1 = m_creature->SummonCreature(11664,ADD_ELITE_L1_X,ADD_ELITE_L1_Y,ADD_ELITE_L1_Z,ADD_ELITE_L1_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
-			if(EliteL2->isDead())
-				EliteL2 = m_creature->SummonCreature(11664,ADD_ELITE_L2_X,ADD_ELITE_L2_Y,ADD_ELITE_L2_Z,ADD_ELITE_L2_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
-			if(PriestR1->isDead())
-				PriestR1 = m_creature->SummonCreature(11662,ADD_PRIEST_R1_X,ADD_PRIEST_R1_Y,ADD_PRIEST_R1_Z,ADD_PRIEST_R1_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
-			if(PriestR2->isDead())
-				PriestR2 = m_creature->SummonCreature(11662,ADD_PRIEST_R2_X,ADD_PRIEST_R2_Y,ADD_PRIEST_R2_Z,ADD_PRIEST_R2_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
-			if(PriestL1->isDead())
-				PriestL1 = m_creature->SummonCreature(11662,ADD_PRIEST_L1_X,ADD_PRIEST_L1_Y,ADD_PRIEST_L1_Z,ADD_PRIEST_L1_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
-			if(PriestL2->isDead())
-				PriestL2 = m_creature->SummonCreature(11662,ADD_PRIEST_L2_X,ADD_PRIEST_L2_Y,ADD_PRIEST_L2_Z,ADD_PRIEST_L2_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
-		}
+			pInstance->SetData(DATA_DOMO_RESETCOUNT,0);
+			pInstance->SetData(DATA_MAJORDOMO_PROGRESS, NOT_STARTED);
 
-		Speech_Timer=23000;
-		Death_Timer=30000;
-		Summon_Timer=11000;
-		Teleport_Timer=40000;
-		CheckFlamewaker_Timer = 2000;
+			MagicReflection_Timer =  30000;      //Damage reflection first so we alternate
+			DamageReflection_Timer = 15000;
+			Blastwave_Timer = 10000;
+			Teleport_Timer = 20000;
+
+			CheckFlamewaker_Timer = 2000;
+			SaySpawn = false;
+
+			if(pInstance->GetData(DATA_DOMO_RESETCOUNT) == 1)
+			{
+				EliteR1 = EliteR2 = EliteL1 = EliteL2 = PriestR1 = PriestR2 = PriestL1 = PriestL2 = NULL;
+
+				EliteR1 = m_creature->SummonCreature(11664,ADD_ELITE_R1_X,ADD_ELITE_R1_Y,ADD_ELITE_R1_Z,ADD_ELITE_R1_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
+				EliteR2 = m_creature->SummonCreature(11664,ADD_ELITE_R2_X,ADD_ELITE_R2_Y,ADD_ELITE_R2_Z,ADD_ELITE_R2_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
+				EliteL1 = m_creature->SummonCreature(11664,ADD_ELITE_L1_X,ADD_ELITE_L1_Y,ADD_ELITE_L1_Z,ADD_ELITE_L1_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
+				EliteL2 = m_creature->SummonCreature(11664,ADD_ELITE_L2_X,ADD_ELITE_L2_Y,ADD_ELITE_L2_Z,ADD_ELITE_L2_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
+				PriestR1 = m_creature->SummonCreature(11662,ADD_PRIEST_R1_X,ADD_PRIEST_R1_Y,ADD_PRIEST_R1_Z,ADD_PRIEST_R1_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
+				PriestR2 = m_creature->SummonCreature(11662,ADD_PRIEST_R2_X,ADD_PRIEST_R2_Y,ADD_PRIEST_R2_Z,ADD_PRIEST_R2_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
+				PriestL1 = m_creature->SummonCreature(11662,ADD_PRIEST_L1_X,ADD_PRIEST_L1_Y,ADD_PRIEST_L1_Z,ADD_PRIEST_L1_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
+				PriestL2 = m_creature->SummonCreature(11662,ADD_PRIEST_L2_X,ADD_PRIEST_L2_Y,ADD_PRIEST_L2_Z,ADD_PRIEST_L2_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
+			}
+			else if(pInstance->GetData(DATA_DOMO_RESETCOUNT) > 1)
+			{
+				//Check Adds
+				if(EliteR1->isDead())
+					EliteR1 = m_creature->SummonCreature(11664,ADD_ELITE_R1_X,ADD_ELITE_R1_Y,ADD_ELITE_R1_Z,ADD_ELITE_R1_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
+				if(EliteR2->isDead())
+					EliteR2 = m_creature->SummonCreature(11664,ADD_ELITE_R2_X,ADD_ELITE_R2_Y,ADD_ELITE_R2_Z,ADD_ELITE_R2_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
+				if(EliteL1->isDead())
+					EliteL1 = m_creature->SummonCreature(11664,ADD_ELITE_L1_X,ADD_ELITE_L1_Y,ADD_ELITE_L1_Z,ADD_ELITE_L1_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
+				if(EliteL2->isDead())
+					EliteL2 = m_creature->SummonCreature(11664,ADD_ELITE_L2_X,ADD_ELITE_L2_Y,ADD_ELITE_L2_Z,ADD_ELITE_L2_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
+				if(PriestR1->isDead())
+					PriestR1 = m_creature->SummonCreature(11662,ADD_PRIEST_R1_X,ADD_PRIEST_R1_Y,ADD_PRIEST_R1_Z,ADD_PRIEST_R1_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
+				if(PriestR2->isDead())
+					PriestR2 = m_creature->SummonCreature(11662,ADD_PRIEST_R2_X,ADD_PRIEST_R2_Y,ADD_PRIEST_R2_Z,ADD_PRIEST_R2_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
+				if(PriestL1->isDead())
+					PriestL1 = m_creature->SummonCreature(11662,ADD_PRIEST_L1_X,ADD_PRIEST_L1_Y,ADD_PRIEST_L1_Z,ADD_PRIEST_L1_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
+				if(PriestL2->isDead())
+					PriestL2 = m_creature->SummonCreature(11662,ADD_PRIEST_L2_X,ADD_PRIEST_L2_Y,ADD_PRIEST_L2_Z,ADD_PRIEST_L2_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
+			}
+		}
+		else if(pInstance->GetData(DATA_MAJORDOMO_PROGRESS) == SPECIAL)
+		{
+			//Intro handling
+			TeleportDomo_Timer = 36000;
+			SehtRag_Timer = 16000;
+			Unglaeubigen_Timer = 14000;
+			WPdone = 0;
+
+			Death = false;
+			IntroDone = false;
+			Moving = false;
+		}
     }
 
 	void BeginEvent(Player* target)
     {
-        DoScriptText(SAY_SUMMON_MAJ, m_creature);
-        DoPlaySoundToSet(m_creature,SOUND_SUMMON);
-
-		Summon=true;
+		pInstance->SetData(DATA_VARRAGNAROSINTRO,2);
     }
 
 	void MoveInLineOfSight(Unit *who)
     {
-		if(m_creature->getFaction() == 35)
+		if(pInstance->GetData(DATA_MAJORDOMO_PROGRESS) == SPECIAL)
 			return;
 
         if( !m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessablePlaceFor(m_creature) && !SaySpawn)
         {
 			DoScriptText(SAY_SPAWN, m_creature);
-			DoPlaySoundToSet(m_creature,SOUND_SPAWN);
 			SaySpawn = true;
         }
 
@@ -192,7 +213,7 @@ struct MANGOS_DLL_DECL boss_majordomoAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        if (rand()%5)
+        if(rand()%5)
             return;
 
         DoScriptText(SAY_SLAY, m_creature);
@@ -200,146 +221,186 @@ struct MANGOS_DLL_DECL boss_majordomoAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
+		pInstance->SetData(DATA_MAJORDOMO_PROGRESS, IN_PROGRESS);
+
 		DoScriptText(SAY_AGGRO, m_creature);
-        DoPlaySoundToSet(m_creature,SOUND_AGGRO);
+    }
+
+	void MovementInform(uint32 type, uint32 id)
+    {
+		if(type != POINT_MOTION_TYPE)
+			return;
+
+		if(id == 1)
+		{
+			DoCast(m_creature,SPELL_SUMMON_RAGNAROS);
+			WPdone = 1;
+			Moving = false;
+		}
+
+        if(id == 2)
+		{
+			WPdone = 2;
+			Moving = false;
+		}
     }
 
     void UpdateAI(const uint32 diff)
     {
-		if(pInstance->GetData(DATA_ALL_BOSSES_DEAD) == 1 && Reset_Count == 1)
+		if(!IntroDone)
 		{
-			m_creature->SetVisibility(VISIBILITY_ON);
-			m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-			m_creature->setFaction(54);
+			switch(pInstance->GetData(DATA_VARRAGNAROSINTRO))
+			{
+				case 1:
+					if(TeleportDomo_Timer < diff && pInstance->GetData(DATA_DOMO_PORTED) != 1)
+					{
+						Creature *Domo = m_creature->SummonCreature(12018, 854.975, -827.593, -228.504, 4.99008, TEMPSUMMON_TIMED_DESPAWN,3600000);
+						Domo->setFaction(35);
+						Domo->SetUInt32Value(UNIT_NPC_FLAGS,1);
+						m_creature->SetVisibility(VISIBILITY_OFF);
 
-			EliteR1 = m_creature->SummonCreature(11664,ADD_ELITE_R1_X,ADD_ELITE_R1_Y,ADD_ELITE_R1_Z,ADD_ELITE_R1_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
-			EliteR2 = m_creature->SummonCreature(11664,ADD_ELITE_R2_X,ADD_ELITE_R2_Y,ADD_ELITE_R2_Z,ADD_ELITE_R2_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
-			EliteL1 = m_creature->SummonCreature(11664,ADD_ELITE_L1_X,ADD_ELITE_L1_Y,ADD_ELITE_L1_Z,ADD_ELITE_L1_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
-			EliteL2 = m_creature->SummonCreature(11664,ADD_ELITE_L2_X,ADD_ELITE_L2_Y,ADD_ELITE_L2_Z,ADD_ELITE_L2_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
-			PriestR1 = m_creature->SummonCreature(11662,ADD_PRIEST_R1_X,ADD_PRIEST_R1_Y,ADD_PRIEST_R1_Z,ADD_PRIEST_R1_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
-			PriestR2 = m_creature->SummonCreature(11662,ADD_PRIEST_R2_X,ADD_PRIEST_R2_Y,ADD_PRIEST_R2_Z,ADD_PRIEST_R2_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
-			PriestL1 = m_creature->SummonCreature(11662,ADD_PRIEST_L1_X,ADD_PRIEST_L1_Y,ADD_PRIEST_L1_Z,ADD_PRIEST_L1_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
-			PriestL2 = m_creature->SummonCreature(11662,ADD_PRIEST_L2_X,ADD_PRIEST_L2_Y,ADD_PRIEST_L2_Z,ADD_PRIEST_L2_O,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1200000);
-			Reset_Count++;
-		}
+						pInstance->SetData(DATA_DOMO_PORTED, 1);
+					}else TeleportDomo_Timer -= diff;
+					break;
 
-		if(Teleport){
-			if(Teleport_Timer < diff){
-				
-				m_creature->SetUInt32Value(UNIT_NPC_FLAGS,1);
+				case 2:
+					if(WPdone == 0 && !Moving)
+					{
+						m_creature->GetMotionMaster()->Clear();
+						m_creature->GetMotionMaster()->MovePoint(1,851.266,-816.847,-229.358);
+						Moving = true;
+					}
 
-				m_creature->GetMotionMaster()->Clear();
-				//m_creature->GetMotionMaster()->MovePoint(0, SPAWN_RAG_X, SPAWN_RAG_Y, SPAWN_RAG_Z);
-				
-				Teleport=false;
-			}else Teleport_Timer -= diff;
-		}
+					if(WPdone == 1)
+					{
+						m_creature->GetMotionMaster()->Clear();
+						m_creature->GetMotionMaster()->MovePoint(2,843.145,-813.479,-230.067);
+						Moving = true;
+						pInstance->SetData(DATA_VARRAGNAROSINTRO,3);
+					}
+					break;
 
-		if(Summon){
-			if(Summon_Timer == 10000)
-				DoCast(m_creature,SPELL_SUMMON_RAGNAROS);
-			if(Summon_Timer < diff){
-				
-				m_creature->SummonCreature(11502,837.919,-833.090,-231.896,3.874637,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,12000000);
+				case 3:
+					if (SehtRag_Timer < diff)
+					{
+						DoScriptText(SAY_SUMMON_MAJ, m_creature);
+						m_creature->SummonCreature(11502, 839.380066 ,-833.359558, -229.358, 1.380336, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,7200000);
 
-				Speech=true;
-				Summon=false;
-			}else Summon_Timer -= diff;
-		}
+						pInstance->SetData(DATA_VARRAGNAROSINTRO,4);
+					}else SehtRag_Timer -= diff;
+					break;
 
+				case 6:
+					if (Unglaeubigen_Timer <diff)
+					{
+						DoScriptText(SAY_ARRIVAL2_MAJ, m_creature);
 
-		if(Speech){
-			if (Speech_Timer < diff){
-				DoScriptText(SAY_ARRIVAL2_MAJ, m_creature);
-				DoPlaySoundToSet(m_creature,SOUND_ARRIVAL1);
-				Death=true;
-				Speech=false;
-			}else Speech_Timer -= diff;
-		}
+						pInstance->SetData(DATA_VARRAGNAROSINTRO,7);
+						IntroDone = true;
+					}else Unglaeubigen_Timer -= diff;
+					break;
+			}
+		}		
 
-		if(Death){
-			if (Death_Timer <diff){
-				m_creature->setDeathState(JUST_DIED);
-				m_creature->RemoveCorpse();
-				Death=false;
-			}else Death_Timer -= diff;
-		}
-
-        //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() || (m_creature->getFaction() == 35))
+        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
-		
-        //Cast Ageis if less than 50% hp
-        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 50)
+		if(pInstance->GetData(DATA_MAJORDOMO_PROGRESS) == SPECIAL)
+			return;
+
+		if(CheckFlamewaker_Timer < diff)
+		{
+			if(EliteR1->isDead() && EliteR2->isDead() && EliteL1->isDead() && EliteL2->isDead() &&
+				PriestR1->isDead() && PriestR2->isDead() && PriestL1->isDead() && PriestL2->isDead())
+			{
+				pInstance->SetData(DATA_MAJORDOMO_PROGRESS, SPECIAL);
+
+				CheckFlamewaker_Timer=600000;
+
+				DoScriptText(SAY_DEFEAT, m_creature);
+				pInstance->SetData(DATA_VARRAGNAROSINTRO, 1);
+
+				m_creature->setFaction(35);
+				EnterEvadeMode();
+			}
+			CheckFlamewaker_Timer = 2000;
+		}else CheckFlamewaker_Timer -= diff;
+
+        if(m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 50)
         {
             DoCast(m_creature,SPELL_AEGIS);
         }
 
-        //MagicReflection_Timer
         if (MagicReflection_Timer < diff)
         {
             DoCast(m_creature, SPELL_MAGIC_REFLECTION);
+			DoCast((Unit*)EliteR1,SPELL_MAGIC_REFLECTION);
+			DoCast((Unit*)EliteR2,SPELL_MAGIC_REFLECTION);
+			DoCast((Unit*)EliteL1,SPELL_MAGIC_REFLECTION);
+			DoCast((Unit*)EliteL2,SPELL_MAGIC_REFLECTION);
+			DoCast((Unit*)PriestR1,SPELL_MAGIC_REFLECTION);
+			DoCast((Unit*)PriestR2,SPELL_MAGIC_REFLECTION);
+			DoCast((Unit*)PriestL1,SPELL_MAGIC_REFLECTION);
+			DoCast((Unit*)PriestL2,SPELL_MAGIC_REFLECTION);
 
-            //60 seconds until we should cast this agian
             MagicReflection_Timer = 30000;
         }else MagicReflection_Timer -= diff;
 
-        //DamageReflection_Timer
-        if (DamageReflection_Timer < diff)
+        if(DamageReflection_Timer < diff)
         {
             DoCast(m_creature, SPELL_DAMAGE_REFLECTION);
+			DoCast((Unit*)EliteR1,SPELL_DAMAGE_REFLECTION);
+			DoCast((Unit*)EliteR2,SPELL_DAMAGE_REFLECTION);
+			DoCast((Unit*)EliteL1,SPELL_DAMAGE_REFLECTION);
+			DoCast((Unit*)EliteL2,SPELL_DAMAGE_REFLECTION);
+			DoCast((Unit*)PriestR1,SPELL_DAMAGE_REFLECTION);
+			DoCast((Unit*)PriestR2,SPELL_DAMAGE_REFLECTION);
+			DoCast((Unit*)PriestL1,SPELL_DAMAGE_REFLECTION);
+			DoCast((Unit*)PriestL2,SPELL_DAMAGE_REFLECTION);
 
-            //60 seconds until we should cast this agian
             DamageReflection_Timer = 30000;
         }else DamageReflection_Timer -= diff;
 
-        //Blastwave_Timer
-        if (Blastwave_Timer < diff)
+        if(Blastwave_Timer < diff)
         {
-            //Cast
             DoCast(m_creature->getVictim(),SPELL_BLASTWAVE);
 
-            //10 seconds until we should cast this agian
             Blastwave_Timer = 10000;
-        }else Blastwave_Timer -= diff;		
+        }else Blastwave_Timer -= diff;
 
-		if (CheckFlamewaker_Timer <diff)
+		if(Teleport_Timer < diff)
 		{
-			if(EliteR1->isDead() && EliteR2->isDead() && EliteL1->isDead() && EliteL2->isDead() && PriestR1->isDead() && PriestR2->isDead() && PriestL1->isDead() && PriestL2->isDead())
+			Unit* target;
+			if(rand()%10 + 1 < 6)
 			{
-				m_creature->InterruptNonMeleeSpells(false);
-				m_creature->DeleteThreatList();
-				m_creature->ClearInCombat();
-				m_creature->AttackStop();
-				m_creature->setFaction(35);
-
-				if(pInstance)
-					pInstance->SetData(DATA_MAJORDOMO_SURRENDER,0);
-
-				CheckFlamewaker_Timer=600000;
-				Teleport=true;
-
-				//m_creature->AddGameObject(GameObject::GetGameObject(*m_creature,pInstance->GetData64(DATA_CACHEOFTHEFIRELORD_GUID)));
-
-				DoScriptText(SAY_DEFEAT, m_creature);
-				DoPlaySoundToSet(m_creature,SOUND_DEFEAT);
+				target = m_creature->getVictim();
+				m_creature->getThreatManager().modifyThreatPercent(target, 80);
 			}
-		}else CheckFlamewaker_Timer -= diff;
+			else
+				target = SelectUnit(SELECT_TARGET_RANDOM,0);
+
+			if(target)
+			{
+				target->NearTeleportTo(736.466, -1177.063, -119.181, target->GetOrientation());
+				DoCast(target,SPELL_FIERYPIT);
+			}
+
+			Teleport_Timer = 20000 + rand()%5000;
+		}else Teleport_Timer -= diff;
 
 		DoMeleeAttackIfReady();
-    }		
+    }
 };
 
-CreatureAI* GetAI_boss_majordomo(Creature* pCreature)
+CreatureAI* GetAI_boss_majordomo(Creature *pCreature)
 {
     return new boss_majordomoAI(pCreature);
 }
 
-bool GossipHello_boss_majordomo(Player *pPlayer, Creature *pCreature)
+bool GossipHello_boss_majordomo(Player *player, Creature *_Creature)
 {
-    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_DOMO , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-    pPlayer->SEND_GOSSIP_MENU(68,pCreature->GetGUID());
+    player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_DOMO , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+    player->SEND_GOSSIP_MENU(68,_Creature->GetGUID());
     return true;
 }
 
@@ -364,7 +425,7 @@ void AddSC_boss_majordomo()
 
     newscript->Name = "boss_majordomo";
     newscript->GetAI = &GetAI_boss_majordomo;
-    newscript->pGossipHello = &GossipHello_boss_majordomo;
+	newscript->pGossipHello = &GossipHello_boss_majordomo;
     newscript->pGossipSelect = &GossipSelect_boss_majordomo;
     newscript->RegisterSelf();
 }
