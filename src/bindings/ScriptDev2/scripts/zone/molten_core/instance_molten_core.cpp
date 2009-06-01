@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation; either version 2 of the License, or
@@ -25,41 +25,55 @@ EndScriptData */
 #include "def_molten_core.h"
 
 #define ENCOUNTERS      9
-
-#define ID_LUCIFRON     12118
-#define ID_MAGMADAR     11982
-#define ID_GEHENNAS     12259
-#define ID_GARR         12057
-#define ID_GEDDON       12056
-#define ID_SHAZZRAH     12264
-#define ID_GOLEMAGG     11988
-#define ID_DOMO			12018
-#define ID_SULFURON     12098
-#define ID_RAGNAROS     11502
-#define ID_FLAMEWAKERPRIEST     11662
-
-#define ID_CACHEOFTHEFIRELORD	179703
+//Unit* Kalecgos = Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_KALECGOS_DRAGON));
 
 struct MANGOS_DLL_SPEC instance_molten_core : public ScriptedInstance
 {
     instance_molten_core(Map *Map) : ScriptedInstance(Map) {Initialize();}
 
-    //uint64 RuneGUID[7];
-    
-    //If all necessary Bosses are dead.
-    bool SulfuronDead;
-	bool GeddonDead;
-	bool ShazzrahDead;
-	bool GolemaggDead;
-	bool GarrDead;
-	bool MagmadarDead;
-	bool GehennasDead;
+    uint8 SulfuronProgress;
+	uint8 GeddonProgress;
+	uint8 ShazzrahProgress;
+	uint8 GolemaggProgress;
+	uint8 GarrProgress;
+	uint8 MagmadarProgress;
+	uint8 GehennasProgress;
+	uint8 LucifronProgress;
+	uint8 MajordomoProgress;
+	uint8 RagnarosProgress;
 
-    uint64 Lucifron, Magmadar, Gehennas, Garr, Geddon, Shazzrah, Sulfuron, Golemagg, Domo, Ragnaros, FlamewakerPriest, CacheOfTheFirelordGuid;
+	//Creatures
+    uint64 Lucifron;
+	uint64 Magmadar;
+	uint64 Gehennas;
+	uint64 Garr;
+	uint64 Geddon;
+	uint64 Shazzrah;
+	uint64 Sulfuron;
+	uint64 Golemagg;
+	uint64 Domo;
+	uint64 Ragnaros;
 
-	uint32 FireswornDead;
+	//Gameobjects
+	GameObject* CacheOfTheFirelord;
 
-	GameObject *CacheOfTheFirelord;
+	//Misc
+	uint8 VarRagnarosIntro;
+	uint32 DomoResetCount;
+	uint8 DomoPorted;
+
+	/*
+	1 Teleport Domo
+	2 Summon Ragnaros Cast+Waypoint
+	3 Seht Ragnaros
+	4 Ragnaros erscheint
+	5 Zu früh
+	6 Diese ungläubigen
+	7 Narr, du
+	8 Domo stirbt
+	9 Nun zu euch
+	10 Ragnaros greift an
+	*/
 
     void Initialize()
     {
@@ -73,89 +87,75 @@ struct MANGOS_DLL_SPEC instance_molten_core : public ScriptedInstance
         Golemagg = 0;
         Domo = 0;
         Ragnaros = 0;
-        FlamewakerPriest = 0;
-		CacheOfTheFirelordGuid = 0;
 
-        SulfuronDead = false;
-		GeddonDead = false;
-		ShazzrahDead = false;
-		GolemaggDead = false;
-		GarrDead = false;
-		MagmadarDead = false;
-		GehennasDead = false;
-
-		FireswornDead = 0;
+		SulfuronProgress = 0;
+		GeddonProgress = 0;
+		ShazzrahProgress = 0;
+		GolemaggProgress = 0;
+		GarrProgress = 0;
+		MagmadarProgress = 0;
+		GehennasProgress = 0;
+		LucifronProgress = 0;
+		MajordomoProgress = 0;
+		RagnarosProgress = 0;
 
 		CacheOfTheFirelord = NULL;
+
+		VarRagnarosIntro = 0;
+		DomoResetCount = 0;
+		DomoPorted = 0;
 	}
 
     //Called every map update
-    void Update(uint32 diff) 
-    {
-    }
+    void Update(uint32 diff){}
 
-    //Used by the map's CanEnter function.
-    //This is to prevent players from entering during boss encounters.
-    bool IsEncounterInProgress() const 
-    {
-        return false; 
-    };
 
     //Called when a gameobject is created
     void OnObjectCreate(GameObject *obj) 
     {
 		switch(obj->GetEntry())
 		{
-		case ID_CACHEOFTHEFIRELORD:
+			case 179703:
 				CacheOfTheFirelord = obj;
-				CacheOfTheFirelordGuid = obj->GetGUID();
-				//CacheOfTheFirelord->SetUInt32Value(GAMEOBJECT_FLAGS, 33);
 				break;
 		}
     }
 
     //called on creature creation
-    void OnCreatureCreate(Creature *creature, uint32 creature_entry)
+    void OnCreatureCreate(Creature* pCreature)
     {
-        switch (creature_entry)
+		switch (pCreature->GetEntry())
         {
-            case ID_LUCIFRON:
-                Lucifron = creature->GetGUID();
+            case 12118:
+                Lucifron = pCreature->GetGUID();
                 break;
-            case ID_MAGMADAR:
-                Magmadar = creature->GetGUID();
+            case 11982:
+                Magmadar = pCreature->GetGUID();
                 break;
-            case ID_GEHENNAS:
-                Gehennas = creature->GetGUID();
+            case 12259:
+                Gehennas = pCreature->GetGUID();
                 break;
-            case ID_GARR:
-                Garr = creature->GetGUID();
+            case 12057:
+                Garr = pCreature->GetGUID();
                 break;
-            case ID_GEDDON:
-                Geddon = creature->GetGUID();
+            case 12056:
+                Geddon = pCreature->GetGUID();
                 break;
-            case ID_SHAZZRAH:
-                Shazzrah = creature->GetGUID();
+            case 12264:
+                Shazzrah = pCreature->GetGUID();
                 break;
-            case ID_SULFURON:
-                Sulfuron = creature->GetGUID();
+            case 12098:
+                Sulfuron = pCreature->GetGUID();
                 break;
-            case ID_GOLEMAGG:
-                Golemagg = creature->GetGUID();
+            case 11988:
+                Golemagg = pCreature->GetGUID();
                 break;
-            case ID_DOMO:
-                Domo = creature->GetGUID();
-				creature->setFaction(35);
-				creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-				creature->SetVisibility(VISIBILITY_OFF);
+            case 12018:
+                Domo = pCreature->GetGUID();
                 break;
-            case ID_RAGNAROS:
-                Ragnaros = creature->GetGUID();
-				creature->setFaction(35);
-				creature->CastSpell(creature,20568,false);
-                break;
-            case ID_FLAMEWAKERPRIEST:
-                FlamewakerPriest = creature->GetGUID();
+            case 11502:
+                Ragnaros = pCreature->GetGUID();
+				pCreature->SetVisibility(VISIBILITY_OFF);
                 break;
         }
     }
@@ -166,30 +166,53 @@ struct MANGOS_DLL_SPEC instance_molten_core : public ScriptedInstance
         {
             case DATA_SULFURON:
                 return Sulfuron;
+				break;
             case DATA_GOLEMAGG:
                 return Golemagg;
 				break;
-			case DATA_CACHEOFTHEFIRELORD_GUID:
-				return CacheOfTheFirelordGuid;
+			case DATA_GARR:
+				return Garr;
 				break;
-			default:
-				return 0;
+			case DATA_MAJORDOMO:
+				return Domo;
+				break;
+			case DATA_CACHEOFTHEFIRELORD:
+				return CacheOfTheFirelord->GetGUID();
 				break;
         }
-    } // end GetData64
+		return 0;
+    }
 
     uint32 GetData(uint32 type)
     {
         switch(type)
         {
 			case DATA_ALL_BOSSES_DEAD:
-				if(GeddonDead /*&& SulfuronDead && ShazzrahDead && GolemaggDead && GarrDead && MagmadarDead && GehennasDead*/)
+				if(GeddonProgress == DONE && 
+					SulfuronProgress == DONE && 
+					ShazzrahProgress == DONE &&
+					GolemaggProgress == DONE &&
+					GarrProgress == DONE &&
+					MagmadarProgress == DONE &&
+					GehennasProgress == DONE)
 					return 1;
 				else return 0;
 				break;
 
-			case DATA_FIRESWORNISDEAD:
-				return FireswornDead;
+			case DATA_MAJORDOMO_PROGRESS:
+				return MajordomoProgress;
+				break;
+
+			case DATA_DOMO_RESETCOUNT:
+				return DomoResetCount;
+				break;
+
+			case DATA_DOMO_PORTED:
+				return DomoPorted;
+				break;
+
+			case DATA_VARRAGNAROSINTRO:
+				return VarRagnarosIntro;
 				break;
         }
 		return 0;
@@ -200,41 +223,63 @@ struct MANGOS_DLL_SPEC instance_molten_core : public ScriptedInstance
     {
 		switch(type)
 		{
-		case DATA_FIRESWORN_DEATH:
-			FireswornDead++;
+		case DATA_SULFURON_PROGRESS:
+			SulfuronProgress = data;
 			break;
 
-		case DATA_MAJORDOMO_SURRENDER:
-			//CacheOfTheFirelord->SetUInt32Value(GAMEOBJECT_FLAGS, 0);
-			CacheOfTheFirelord->Respawn();
+		case DATA_GEDDON_PROGRESS:
+			GeddonProgress = data;
 			break;
 
-		case DATA_SULFURON_DEAD:
-			SulfuronDead=true;
+		case DATA_SHAZZRAH_PROGRESS:
+			ShazzrahProgress = data;
 			break;
 
-		case DATA_GEDDON_DEAD:
-			GeddonDead=true;
+		case DATA_GOLEMAGG_PROGRESS:
+			GolemaggProgress = data;
 			break;
 
-		case DATA_SHAZZRAH_DEAD:
-			ShazzrahDead=true;
+		case DATA_GARR_PROGRESS:
+			GarrProgress = data;
 			break;
 
-		case DATA_GOLEMAGG_DEAD:
-			GolemaggDead=true;
+		case DATA_MAGMADAR_PROGRESS:
+			MagmadarProgress = data;
 			break;
 
-			case DATA_GARR_DEAD:
-			GarrDead=true;
+		case DATA_GEHENNAS_PROGRESS:
+			GehennasProgress = data;
 			break;
 
-		case DATA_MAGMADAR_DEAD:
-			MagmadarDead=true;
+		case DATA_LUCIFRON_PROGRESS:
+			LucifronProgress = data;
 			break;
 
-		case DATA_GEHENNAS_DEAD:
-			GehennasDead=true;
+		case DATA_MAJORDOMO_PROGRESS:
+			MajordomoProgress = data;
+			if(data == SPECIAL)
+			{
+				if(CacheOfTheFirelord->isSpawned())
+					return;
+				else
+					CacheOfTheFirelord->SetRespawnTime(3600000);
+			}
+			break;
+
+		case DATA_DOMO_RESETCOUNT:
+			DomoResetCount++;
+			break;
+
+		case DATA_DOMO_PORTED:
+			DomoPorted = data;
+			break;
+
+		case DATA_VARRAGNAROSINTRO:
+			VarRagnarosIntro = data;
+			break;
+
+		case DATA_RAGNAROS_PROGRESS:
+			RagnarosProgress = data;
 			break;
 		}
     }

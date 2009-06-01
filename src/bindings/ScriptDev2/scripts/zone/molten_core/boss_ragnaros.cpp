@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation; either version 2 of the License, or
@@ -16,12 +16,13 @@
 
 /* ScriptData
 SDName: Boss_Ragnaros
-SD%Complete: 90
-SDComment: ready for testing
+SD%Complete: 99
+SDComment: Ready for test
 SDCategory: Molten Core
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_molten_core.h"
 
 #define SAY_REINFORCEMENTS1         -1409013
 #define SAY_REINFORCEMENTS2         -1409014
@@ -32,7 +33,6 @@ EndScriptData */
 
 #define SPELL_HANDOFRAGNAROS        19780
 #define SPELL_WRATHOFRAGNAROS       20566
-#define SPELL_LAVABURST             21158
 
 #define SPELL_MAGMABURST            20565       //Ranged attack
 
@@ -44,12 +44,9 @@ EndScriptData */
 #define SPELL_ELEMENTALFIRE         20564
 #define SPELL_ERRUPTION             17731
 
-#define SAY_ARRIVAL1_RAG    -1409009
-#define SAY_ARRIVAL3_RAG    -1409011
-#define SAY_ARRIVAL5_RAG    -1409012
-//#define SAY_ARRIVAL_1       "ZU FRÜH! IHR HABT MICH ZU FRÜH ERWECKT, EXEKUTOR! WAS HAT DIESE STÖRUNG ZU BEDEUTEN?"
-//#define SAY_ARRIVAL_3       "NARR! DU LÄSST ES ZU DAS SICH DIESE INSEKTEN IM GEHEILIGTEN KERN HERUMTREIBEN, UND NUN FÜHRST DU SIE AUCH NOCH IN MEINE HEIMSTÄTTE? DU ENTTÄUSCHT MICH, EXECUTUS! IN DER TAT WERDE ICH GERECHTIGKRILT WALTEN LASSEN!"
-//#define SAY_ARRIVAL_5       "NUN ZU EUCH, INSEKTEN. MUTIG HABT IHR NACH DER MACHT VON RAGNAROS GESUCHT. NUN SOLLT IHR SIE AUS ERSTER HAND ERFAHREN."
+#define SAY_ARRIVAL1_RAG    -1409009			//Zu Fr�h, du hast mich zu fr�h erweckt Executus
+#define SAY_ARRIVAL3_RAG    -1409011			//Narr! Du erlaubst es, dass
+#define SAY_ARRIVAL5_RAG    -1409012			//Nun zu euch Insekten
 
 #define SOUND_ARRIVAL_1         8043
 #define SOUND_ARRIVAL_3         8044
@@ -103,30 +100,43 @@ EndScriptData */
 
 struct MANGOS_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
 {
-    boss_ragnarosAI(Creature *c) : Scripted_NoMovementAI(c) {Reset();BeginEvent();}
+    boss_ragnarosAI(Creature *pCreature) : Scripted_NoMovementAI(pCreature)
+	{
+		pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+		Reset();
+	}
+
+	ScriptedInstance *pInstance;
+	Unit *Domo;
 
     uint32 WrathOfRagnaros_Timer;
     uint32 HandOfRagnaros_Timer;
-    uint32 LavaBurst_Timer;
     uint32 MagmaBurst_Timer;
     uint32 ElementalFire_Timer;
     uint32 Erruption_Timer;
     uint32 Submerge_Timer;
     uint32 Attack_Timer;
-    Creature *Summoned;
     bool HasYelledMagmaBurst;
     bool HasSubmergedOnce;
     bool WasBanished; 
     bool HasAura;
 
-	bool Speech1, Speech2, AlterFaction;
-	uint32 Speech1_Timer, Speech2_Timer, AlterFaction_Timer;
+	//Intro handling
+	uint32 EmergeRagnaros_Timer;
+	uint32 ToSoon_Timer;
+	uint32 Narr_Timer;
+	uint32 DomoDie_Timer;
+	uint32 ZuEuch_Timer;
+	uint32 StartAttack_Timer;
+	bool IntroDone;
 
     void Reset()
     {
-        WrathOfRagnaros_Timer = 30000;
-        HandOfRagnaros_Timer = 25000;
-        LavaBurst_Timer = 10000;
+		pInstance->SetData(DATA_RAGNAROS_PROGRESS, NOT_STARTED);
+		Domo = Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_MAJORDOMO));
+
+        WrathOfRagnaros_Timer = 25000;
+        HandOfRagnaros_Timer = 20000;
         MagmaBurst_Timer = 2000;
         Erruption_Timer = 15000;
         ElementalFire_Timer = 3000;
@@ -139,142 +149,155 @@ struct MANGOS_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
         m_creature->CastSpell(m_creature,SPELL_MELTWEAPON,true);
         HasAura = true;
 
-		Speech1 = Speech2 = AlterFaction = false;
-		Speech1_Timer=9000;
-		Speech2_Timer=25000;
-		AlterFaction_Timer = 37000;
+		//Intro handling
+		EmergeRagnaros_Timer = 9000;
+		ToSoon_Timer = 5000;
+		Narr_Timer = 9000;
+		DomoDie_Timer = 16000;
+		ZuEuch_Timer = 6000;
+		StartAttack_Timer = 3000;
+		IntroDone = false;
     }
-
-	void BeginEvent()
-    {
-		Speech1=true;
-	}
 
     void KilledUnit(Unit* victim)
     {
-        if (rand()%5)
+        if(rand()%5)
             return;
 
         DoScriptText(SAY_KILL, m_creature);
     }
 
+	void MoveInLineOfSight(Unit *who)
+	{
+		if(pInstance->GetData(DATA_VARRAGNAROSINTRO) == 10 && m_creature->IsWithinDistInMap(who, m_creature->GetAttackDistance(who)))
+			AttackStart(who);
+	}
+
+    void Aggro(Unit *who)
+	{
+		pInstance->SetData(DATA_RAGNAROS_PROGRESS, IN_PROGRESS);
+	}
+
+	void JustDied(Unit* Killer)
+    {
+		pInstance->SetData(DATA_RAGNAROS_PROGRESS, DONE);
+    }
+
     void UpdateAI(const uint32 diff)
     {
-		if(Speech1){
-			if(Speech1_Timer <diff){
-				DoScriptText(SAY_ARRIVAL1_RAG, m_creature);
-				//m_creature->Yell(SAY_ARRIVAL_1, LANG_UNIVERSAL, 0);
-				DoPlaySoundToSet(m_creature,SOUND_ARRIVAL_1);
-				Speech2=true;
-				Speech1=false;
-			}else Speech1_Timer -= diff;
+		if(!IntroDone)
+		{
+			switch(pInstance->GetData(DATA_VARRAGNAROSINTRO))
+			{
+				case 4:
+					if(EmergeRagnaros_Timer < diff)
+					{
+						m_creature->SetVisibility(VISIBILITY_ON);
+						DoCast(m_creature,SPELL_RAGEMERGE);
+
+						pInstance->SetData(DATA_VARRAGNAROSINTRO,5);
+					}else EmergeRagnaros_Timer -= diff;
+					break;
+
+				case 5:
+					if(ToSoon_Timer<diff)
+					{
+						DoScriptText(SAY_ARRIVAL1_RAG, m_creature);
+
+						pInstance->SetData(DATA_VARRAGNAROSINTRO,6);
+					}else ToSoon_Timer -=diff;
+					break;
+
+				case 7:
+					if(Narr_Timer < diff)
+					{
+						DoScriptText(SAY_ARRIVAL3_RAG, m_creature);
+
+						pInstance->SetData(DATA_VARRAGNAROSINTRO,8);
+					}else Narr_Timer -= diff;
+					break;
+
+				case 8:
+					if(DomoDie_Timer < diff)
+					{
+						DoCast(Domo,SPELL_WRATHOFRAGNAROS);
+						Domo->DealDamage(Domo, Domo->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+
+						pInstance->SetData(DATA_VARRAGNAROSINTRO,9);
+					}else DomoDie_Timer -= diff;
+					break;
+
+				case 9:
+					if(ZuEuch_Timer < diff)
+					{
+						DoScriptText(SAY_ARRIVAL5_RAG, m_creature);
+
+						pInstance->SetData(DATA_VARRAGNAROSINTRO,10);
+						IntroDone = true;
+					}else ZuEuch_Timer -= diff;
+			}
+			return;
 		}
 
-		if(Speech2){
-			if(Speech2_Timer<diff){
-				DoScriptText(SAY_ARRIVAL3_RAG, m_creature);
-				//m_creature->Yell(SAY_ARRIVAL_3, LANG_UNIVERSAL, 0);
-				DoPlaySoundToSet(m_creature,SOUND_ARRIVAL_3);
-
-				Speech2=false;
-				AlterFaction = true;
-			}else Speech2_Timer -=diff;
-		}
-
-		if(AlterFaction){
-			if(AlterFaction_Timer < diff){
-				AlterFaction=false;
-				DoScriptText(SAY_ARRIVAL5_RAG, m_creature);
-				//m_creature->Yell(SAY_ARRIVAL_5, LANG_UNIVERSAL, 0);
-				DoPlaySoundToSet(m_creature,SOUND_ARRIVAL_5);
-				m_creature->setFaction(91);
-			}else AlterFaction_Timer -= diff;
-		}
-
-        if (WasBanished && Attack_Timer < diff)
+        if(WasBanished && Attack_Timer < diff)
         {
             //Become unbanished again 
-            m_creature->setFaction(14);
+            //m_creature->setFaction(14);
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             DoCast(m_creature,SPELL_RAGEMERGE);
             WasBanished = false;
-        } else if (WasBanished)
+        }
+		else if(WasBanished)
         {
             Attack_Timer -= diff;
-            //Do nothing while banished
             return;
         }
 
-        //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
-        //WrathOfRagnaros_Timer
-        if (WrathOfRagnaros_Timer < diff)
+        if(WrathOfRagnaros_Timer < diff)
         {
-            //Cast
             DoCast(m_creature->getVictim(),SPELL_WRATHOFRAGNAROS);
+			m_creature->getThreatManager().modifyThreatPercent(m_creature->getVictim(), 70);
 
             if (rand()%2 == 0)
             {
-                //Say our dialog
                 DoScriptText(SAY_WRATH, m_creature);
                 DoPlaySoundToSet(m_creature,SOUND_WRATH);
             }
 
-            //60 seconds until we should cast this agian
-            WrathOfRagnaros_Timer = 30000;
+            WrathOfRagnaros_Timer = 25000;
         }else WrathOfRagnaros_Timer -= diff;
 
-        //HandOfRagnaros_Timer
-        if (HandOfRagnaros_Timer < diff)
+        if(HandOfRagnaros_Timer < diff)
         {
-            //Cast
             DoCast(m_creature,SPELL_HANDOFRAGNAROS);
 
-            if (rand()%2==0)
+            if (rand()%2 == 0)
             {
-                //Say our dialog
                 DoScriptText(SAY_HAND, m_creature);
                 DoPlaySoundToSet(m_creature,SOUND_HAND);
             }
 
-            //60 seconds until we should cast this agian
-            HandOfRagnaros_Timer = 25000;
+            HandOfRagnaros_Timer = 20000 + rand()%10000;
         }else HandOfRagnaros_Timer -= diff;
 
-        //LavaBurst_Timer
-        if (LavaBurst_Timer < diff)
+        if(Erruption_Timer < diff)
         {
-            //Cast
-            DoCast(m_creature->getVictim(),SPELL_LAVABURST);
-
-            //10 seconds until we should cast this agian
-            LavaBurst_Timer = 10000;
-        }else LavaBurst_Timer -= diff;
-
-        //Erruption_Timer
-        if (LavaBurst_Timer < diff)
-        {
-            //Cast
             DoCast(m_creature->getVictim(),SPELL_ERRUPTION);
 
-            //10 seconds until we should cast this agian
             Erruption_Timer = 20000 + rand()%25000;
         }else Erruption_Timer -= diff;
 
-        //ElementalFire_Timer
-        if (ElementalFire_Timer < diff)
+        if(ElementalFire_Timer < diff)
         {
-            //Cast
             DoCast(m_creature->getVictim(),SPELL_ELEMENTALFIRE);
 
-            //10 seconds until we should cast this agian
-            ElementalFire_Timer = 10000 + rand()%4000;
+            ElementalFire_Timer = 9000 + rand()%4000;
         }else ElementalFire_Timer -= diff;
 
-        //Submerge_Timer
-        if (!WasBanished && Submerge_Timer < diff)
+        if(!WasBanished && Submerge_Timer < diff)
         {
             //Creature spawning and ragnaros becomming unattackable
             //is not very well supported in the core
@@ -282,84 +305,53 @@ struct MANGOS_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
 
             m_creature->InterruptNonMeleeSpells(false);
             //Root self
-            DoCast(m_creature,23973);
-            m_creature->setFaction(35);
+            //DoCast(m_creature,23973);
+            //m_creature->setFaction(35);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 			m_creature->CastSpell(m_creature,SPELL_RAGSUBMERGEVISUAL,true);
             m_creature->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
 
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-
-
-
             if (!HasSubmergedOnce)
             {
                 DoScriptText(SAY_REINFORCEMENTS1, m_creature);
+				HasSubmergedOnce = true;
+			}
+			else
+				DoScriptText(SAY_REINFORCEMENTS2, m_creature);
 
-                // summon 4 elementals
-                Unit* target = NULL;
-                for(int i = 0; i < 7;i++)
-                {
-                    target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                    Summoned = m_creature->SummonCreature(12143,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,900000);
-                    if (Summoned)
-                        ((CreatureAI*)Summoned->AI())->AttackStart(target);
-                }
-
-                HasSubmergedOnce = true;
-                WasBanished = true;
-                DoCast(m_creature,SPELL_RAGSUBMERGE);
-                Attack_Timer = 90000;
-
-            }else
+            // summon 10 elementals
+            Unit* ptarget = NULL;
+            for(int i = 0; i < 9; i++)
             {
-                //Say our dialog
-                DoScriptText(SAY_REINFORCEMENTS2, m_creature);
-                DoPlaySoundToSet(m_creature,SOUND_REINFORCEMENTS2);
-
-                Unit* target = NULL;
-                for(int i = 0; i < 9;i++)
-                {
-                    target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                    Summoned = m_creature->SummonCreature(12143,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,900000);
-                    if (Summoned)
-                        ((CreatureAI*)Summoned->AI())->AttackStart(target);
-                }
-
-                WasBanished = true;
-                DoCast(m_creature,SPELL_RAGSUBMERGE);
-                Attack_Timer = 90000;
+				ptarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                Creature *Summoned = m_creature->SummonCreature(12143,ptarget->GetPositionX(), ptarget->GetPositionY(), ptarget->GetPositionZ(),0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,900000);
+                if(Summoned)
+					Summoned->AI()->AttackStart(ptarget);
             }
+                
+            WasBanished = true;
+            DoCast(m_creature,SPELL_RAGSUBMERGE);
+            Attack_Timer = 90000;
 
-            //3 minutes until we should cast this agian
             Submerge_Timer = 180000;
         }else Submerge_Timer -= diff;
 
-        //If we are within range melee the target
-        if( m_creature->IsWithinDistInMap(m_creature->getVictim(), ATTACK_DISTANCE))
+        if(m_creature->IsWithinDistInMap(m_creature->getVictim(), ATTACK_DISTANCE))
         {
-            //Make sure our attack is ready and we arn't currently casting
-            if( m_creature->isAttackReady() && !m_creature->IsNonMeleeSpellCasted(false))
-            {
-                m_creature->AttackerStateUpdate(m_creature->getVictim());
-                m_creature->resetAttackTimer();
-            }
-        }else
+            DoMeleeAttackIfReady();
+        }
+		else
         {
-            //MagmaBurst_Timer
-            if (MagmaBurst_Timer < diff)
+            if(MagmaBurst_Timer < diff)
             {
-                //Cast
                 DoCast(m_creature->getVictim(),SPELL_MAGMABURST);
 
-                if (!HasYelledMagmaBurst)
+                if(!HasYelledMagmaBurst)
                 {
                     DoScriptText(SAY_MAGMABURST, m_creature);
                     HasYelledMagmaBurst = true;
                 }
 
-                //3 seconds until we should cast this agian
                 MagmaBurst_Timer = 2500;
             }else MagmaBurst_Timer -= diff;
         }
