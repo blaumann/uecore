@@ -21,7 +21,7 @@
 
 DROP TABLE IF EXISTS `realmd_db_version`;
 CREATE TABLE `realmd_db_version` (
-  `required_7867_01_realmd_account` bit(1) default NULL
+  `required_7938_01_realmd_account` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Last applied sql update to DB';
 
 --
@@ -43,10 +43,10 @@ DROP TABLE IF EXISTS `account`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `account` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Identifier',
-  `username` varchar(32) NOT NULL DEFAULT '',
-  `sha_pass_hash` varchar(40) NOT NULL DEFAULT '',
-  `gmlevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `id` int(11) unsigned NOT NULL auto_increment COMMENT 'Identifier',
+  `username`      varchar(32) NOT NULL default '',
+  `sha_pass_hash` varchar(40) NOT NULL default '',
+  `gmlevel` tinyint(3) unsigned NOT NULL default '0',
   `sessionkey` longtext,
   `v` longtext,
   `s` longtext,
