@@ -15,7 +15,7 @@
  */
 
 /* ScriptData
-SDName: Instance_Gnomeregan
+SDName: Instance_Wailing_Caverns
 SD%Complete: 0
 SDComment: Placeholder
 SDCategory: Gnomeregan
@@ -23,9 +23,9 @@ EndScriptData */
 
 #include "precompiled.h"
 
-struct MANGOS_DLL_DECL  instance_gnomeregan : public ScriptedInstance
+struct MANGOS_DLL_DECL  instance_dire_maul : public ScriptedInstance
 {
-    instance_gnomeregan(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_dire_maul(Map *Map) : ScriptedInstance(Map) {Initialize();};
 
 	void Initialize() { }
 
@@ -42,23 +42,23 @@ struct MANGOS_DLL_DECL  instance_gnomeregan : public ScriptedInstance
             }
         }
 
-        debug_log("SD2: Instance Gnomeregan: GetPlayerInMap, but PlayerList is empty!");
+        debug_log("SD2: Instance Dire Maul: GetPlayerInMap, but PlayerList is empty!");
         return NULL;
     }
 
     void OnCreatureCreate(Creature *creature, uint32 creature_entry) { }
 };
 
-InstanceData* GetInstanceData_instance_gnomeregan(Map* map)
+InstanceData* GetInstanceData_instance_dire_maul(Map* map)
 {
-   return new instance_gnomeregan(map);
+   return new instance_dire_maul(map);
 }
 
-void AddSC_instance_gnomeregan()
+void AddSC_instance_dire_maul()
 {
    Script *newscript;
    newscript = new Script;
-   newscript->Name = "instance_gnomeregan";
-   newscript->GetInstanceData = &GetInstanceData_instance_gnomeregan;
+   newscript->Name = "instance_dire_maul";
+   newscript->GetInstanceData = &GetInstanceData_instance_dire_maul;
    newscript->RegisterSelf();
 }
