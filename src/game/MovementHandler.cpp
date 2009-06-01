@@ -412,6 +412,25 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     ReadMovementInfo(recv_data, &movementInfo);
     /*----------------*/
 
+    // we sent a movement packet with MOVEMENTFLAG_ONTRANSPORT and we are on vehicle
+    // this can be moving on vehicle or entering another transport (eg. boat)
+    if((movementInfo.flags & MOVEMENTFLAG_ONTRANSPORT) && _player->GetVehicleGUID())
+    {
+        // we are controlling that vehicle
+        if(mover->GetGUID() == _player->GetVehicleGUID())
+        {
+            // we sent movement packet, related to movement ON vehicle,
+            // but not WITH vehicle, so mover = player
+            if(_player->GetVehicleGUID() == movementInfo.t_guid)
+            {
+                // this is required to avoid client crash, otherwise it will result
+                // in moving with vehicle on the same vehicle and that = crash
+                mover = _player;
+                plMover = _player;
+            }
+        }
+    }
+
     if(recv_data.size() != recv_data.rpos())
     {
         sLog.outError("MovementHandler: player %s (guid %d, account %u) sent a packet (opcode %u) that is %u bytes larger than it should be. Kicked as cheater.", _player->GetName(), _player->GetGUIDLow(), _player->GetSession()->GetAccountId(), recv_data.GetOpcode(), recv_data.size() - recv_data.rpos());

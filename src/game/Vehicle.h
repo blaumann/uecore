@@ -100,6 +100,11 @@ class Vehicle : public Creature
         {
             return m_creation_time;
         }
+
+        const uint64& GetAuraUpdateMask() const { return m_auraUpdateMask; }
+        void SetAuraUpdateMask(uint8 slot) { m_auraUpdateMask |= (uint64(1) << slot); }
+        void ResetAuraUpdateMask() { m_auraUpdateMask = 0; }
+
     protected:
         uint32 m_vehicleId;
         uint32 m_vehicleflags;
@@ -107,6 +112,7 @@ class Vehicle : public Creature
         int32 m_spawnduration;
         bool despawn;
         uint32 m_creation_time;
+        uint64  m_auraUpdateMask;
 
     private:
         void SaveToDB(uint32, uint8)                        // overwrited of Creature::SaveToDB     - don't must be called

@@ -24,14 +24,10 @@
 #include "Unit.h"
 #include "Util.h"
 
-Vehicle::Vehicle() : Creature(), m_vehicleId(0)
+Vehicle::Vehicle() : Creature(), m_vehicleId(0), m_auraUpdateMask(0), despawn(false), m_creation_time(0)
 {
-    despawn = false;
     m_isVehicle = true;
-    m_creation_time = 0;
     m_updateFlag = (UPDATEFLAG_LOWGUID | UPDATEFLAG_HIGHGUID | UPDATEFLAG_LIVING | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_VEHICLE);
-	//m_updateFlag = (UPDATEFLAG_LIVING | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_VEHICLE);
-    RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
 }
 
 Vehicle::~Vehicle()
@@ -261,6 +257,9 @@ bool Vehicle::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, u
         return false;
     m_vehicleflags = VehicleDS->v_flags;
 
+    RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+    LoadCreaturesAddon();
+
     return true;
 }
 
@@ -369,13 +368,17 @@ void Vehicle::AddPassenger(Unit *unit, int8 seatId, bool force)
         }
         if(unit->GetTypeId() == TYPEID_PLAYER)
         {
+            // it should be added only on rider enter?
+            if(((Player*)unit)->GetGroup())
+                ((Player*)unit)->SetGroupUpdateFlag(GROUP_UPDATE_VEHICLE);
+
             SpellClickInfoMap const& map = objmgr.mSpellClickInfoMap;
             for(SpellClickInfoMap::const_iterator itr = map.lower_bound(unit->GetEntry()); itr != map.upper_bound(unit->GetEntry()); ++itr)
             {
                 if(itr->second.questId == 0 || ((Player*)unit)->GetQuestStatus(itr->second.questId) == QUEST_STATUS_INCOMPLETE)
                 {
-                    Unit *caster = (itr->second.castFlags & 0x1) ? unit : (Unit*)this;
-                    Unit *target = (itr->second.castFlags & 0x2) ? unit : (Unit*)this;
+                    Unit *caster = (itr->second.castFlags & 0x1) ? unit : this;
+                    Unit *target = (itr->second.castFlags & 0x2) ? unit : this;
 
                     caster->CastSpell(target, itr->second.spellId, true);
                 }
@@ -426,7 +429,7 @@ void Vehicle::RemovePassenger(Unit *unit)
         if((seat->second.flags & (SEAT_FULL | SEAT_VEHICLE_FREE | SEAT_VEHICLE_FULL)) && seat->second.passenger == unit)
         {
             unit->SetVehicleGUID(0);
-            // when rider was removed, other passengers arent so important
+
             if(seat->second.vs_flags & SF_MAIN_RIDER)
             {
                 RemoveSpellsCausingAura(SPELL_AURA_CONTROL_VEHICLE);
@@ -437,6 +440,9 @@ void Vehicle::RemovePassenger(Unit *unit)
                     data << uint64(0);
                     data << uint32(0);
                     ((Player*)unit)->GetSession()->SendPacket(&data);
+
+                    if(((Player*)unit)->GetGroup())
+                        ((Player*)unit)->SetGroupUpdateFlag(GROUP_UPDATE_VEHICLE);
                 }
                 unit->SetCharm(NULL);
                 SetCharmerGUID(NULL);
@@ -469,6 +475,7 @@ void Vehicle::RemovePassenger(Unit *unit)
             unit->m_SeatData.OffsetZ = 0.0f;
             unit->m_SeatData.Orientation = 0.0f;
             unit->m_SeatData.c_time = 0;
+            unit->m_SeatData.dbc_seat = 0;
             unit->m_SeatData.seat = 0;
             unit->m_SeatData.s_flags = 0;
             unit->m_SeatData.v_flags = 0;

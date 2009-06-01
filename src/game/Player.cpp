@@ -18294,8 +18294,13 @@ void Player::SendUpdateToOutOfRangeGroupMembers()
 
     m_groupUpdateMask = GROUP_UPDATE_FLAG_NONE;
     m_auraUpdateMask = 0;
-    if(Pet *pet = GetPet())
-        pet->ResetAuraUpdateMask();
+    if(Unit *pet = GetPetorVehicle())
+    {
+        if(((Creature*)pet)->isPet())
+            ((Pet*)pet)->ResetAuraUpdateMask();
+        else if(((Creature*)pet)->isVehicle())
+            ((Vehicle*)pet)->ResetAuraUpdateMask();
+    }
 }
 
 void Player::SendTransferAborted(uint32 mapid, uint8 reason, uint8 arg)

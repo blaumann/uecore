@@ -796,7 +796,15 @@ struct CharmSpellEntry
     uint16 active;
 };
 
-#define MAX_UNIT_ACTION_BAR_INDEX 10
+enum ActionBarIndex
+{
+    ACTION_BAR_INDEX_START = 0,
+    ACTION_BAR_INDEX_PET_SPELL_START = 3,
+    ACTION_BAR_INDEX_PET_SPELL_END = 7,
+    ACTION_BAR_INDEX_END = 10,
+};
+
+#define MAX_UNIT_ACTION_BAR_INDEX (ACTION_BAR_INDEX_END-ACTION_BAR_INDEX_START)
 
 struct CharmInfo
 {
@@ -820,7 +828,7 @@ struct CharmInfo
                                                             //return true if successful
         bool AddSpellToActionBar(uint32 spellid, ActiveStates newstate = ACT_DECIDE);
         bool RemoveSpellFromActionBar(uint32 spell_id);
-        bool LoadActionBar(std::string data);
+        void LoadPetActionBar(std::string data);
         void BuildActionBar(WorldPacket* data);
         void SetSpellAutocast(uint32 spell_id, bool state);
         void SetActionBar(uint8 index, uint32 spellOrAction,ActiveStates type)
@@ -869,8 +877,9 @@ struct SeatData
     float OffsetZ;
     float Orientation;
     uint32 c_time;
+    uint32 dbc_seat;
     uint8 seat;
-    //custom, usd as speedup
+    //custom, used as speedup
     uint32 s_flags;
     uint32 v_flags;
 };
@@ -1185,6 +1194,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         Unit* GetOwner() const;
         Pet* GetPet() const;
+        Unit* GetPetorVehicle() const;
         Unit* GetCharmer() const;
         Unit* GetCharm() const;
         Unit* GetCharmerOrOwner() const { return GetCharmerGUID() ? GetCharmer() : GetOwner(); }

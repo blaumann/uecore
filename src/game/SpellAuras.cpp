@@ -2997,6 +2997,8 @@ void Aura::HandleAuraTransform(bool apply, bool Real)
                     }
                     break;
                 }
+                // Pygmy Oil
+                case 53806: m_target->SetDisplayId(14973); break;
                 // Murloc costume
                 case 42365: m_target->SetDisplayId(21723); break;
                 default: break;
@@ -3607,7 +3609,7 @@ void Aura::HandleAuraModStun(bool apply, bool Real)
         else
         {
             ((Player*)m_target)->m_movementInfo.flags = 0;    //Clear movement flags
-            m_target->SetStandState(UNIT_STAND_STATE_STAND);
+            m_target->SetStandState(UNIT_STAND_STATE_STAND);  // in 1.5 client
         }
 
         if(!m_target->hasUnitState(UNIT_STAT_ON_VEHICLE))

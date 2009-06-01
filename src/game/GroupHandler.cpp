@@ -25,6 +25,7 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "Vehicle.h"
 #include "Group.h"
 #include "SocialMgr.h"
 #include "Util.h"
@@ -709,7 +710,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
         }
     }
 
-    Pet *pet = player->GetPet();
+    Unit *pet = player->GetPetorVehicle();
     if (mask & GROUP_UPDATE_FLAG_PET_GUID)
     {
         if(pet)
@@ -778,19 +779,40 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
     {
         if(pet)
         {
-            const uint64& auramask = pet->GetAuraUpdateMask();
-            *data << uint64(auramask);
-            for(uint32 i = 0; i < MAX_AURAS; ++i)
+            if(((Creature*)pet)->isPet())
             {
-                if(auramask & (uint64(1) << i))
+                const uint64& auramask = ((Pet*)pet)->GetAuraUpdateMask();
+                *data << uint64(auramask);
+                for(uint32 i = 0; i < MAX_AURAS; ++i)
                 {
-                    *data << uint32(pet->GetVisibleAura(i));
-                    *data << uint8(1);
+                    if(auramask & (uint64(1) << i))
+                    {
+                        *data << uint32(pet->GetVisibleAura(i));
+                        *data << uint8(1);
+                    }
+                }
+            }
+            else if(((Creature*)pet)->isVehicle())
+            {
+                const uint64& auramask = ((Vehicle*)pet)->GetAuraUpdateMask();
+                *data << uint64(auramask);
+                for(uint32 i = 0; i < MAX_AURAS; ++i)
+                {
+                    if(auramask & (uint64(1) << i))
+                    {
+                        *data << uint32(pet->GetVisibleAura(i));
+                        *data << uint8(1);
+                    }
                 }
             }
         }
         else
             *data << (uint64) 0;
+    }
+
+    if (mask & GROUP_UPDATE_FLAG_VEHICLE_SEAT)
+    {
+        *data << (uint32) player->m_SeatData.dbc_seat;
     }
 }
 

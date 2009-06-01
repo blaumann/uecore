@@ -854,6 +854,21 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastSpell(m_caster, spell_id, true, NULL);
                     return;
                 }
+                case 53808:                                 // Pygmy Oil
+                {
+                    if(m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+                    uint32 spell_id = 0;
+                    uint32 roll = urand(0, 99);
+
+                    if(roll < 20)                            
+                        spell_id = 53806;                    // 20% for 10min Pygmified buff. (off-like chance unknown)
+                    else                                    
+                        spell_id = 53805;                    // You feel a little smaller buff.
+
+                    m_caster->CastSpell(unitTarget,spell_id,true,NULL);
+                    return;
+                }
                 case 17251:                                 // Spirit Healer Res
                 {
                     if(!unitTarget || !m_originalCaster)
@@ -4800,6 +4815,8 @@ void Spell::EffectTameCreature(uint32 /*i*/)
     finish();
 
     Pet* pet = m_caster->CreateTamedPetFrom(creatureTarget, m_spellInfo->Id);
+    if(!pet)                                                // in versy specific state like near world end/etc.
+        return;
 
     // kill original creature
     creatureTarget->setDeathState(JUST_DIED);
