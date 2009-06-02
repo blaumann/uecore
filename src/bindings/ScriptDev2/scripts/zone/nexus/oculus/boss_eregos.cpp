@@ -15,15 +15,16 @@ update creature_template set scriptname = '' where entry = '';
 //Two Repeating phases
 
 //Spells
-#define SPELL_ARCANE_BARRAGE                       50804
-#define SPELL_ARCANE_VOLLEY                        51153
-#define SPELL_ENRAGED_ASSAULT                      51170
-#define SPELL_PLANAR_ANOMALIES                     57959
-#define SPELL_PLANAR_SHIFT                         51162
-
-//Heroic
-#define SPELL_ARCANE_BARRAGE_H                     59381
-#define SPELL_ARCANE_VOLLEY_H                      59382
+enum Spells
+{
+	SPELL_ARCANE_BARRAGE_N		= 50804, // Normal
+	SPELL_ARCANE_VOLLEY_N		= 51153, // Normal
+	SPELL_ARCANE_BARRAGE_H		= 59381, // Heroic
+	SPELL_ARCANE_VOLLEY_H		= 59382, // Heroic
+	SPELL_ENRAGED_ASSAULT		= 51170,
+	SPELL_PLANAR_ANOMALIES		= 57959,
+	SPELL_PLANAR_SHIFT			= 51162
+};
 
 /*Ruby Drake , 
 (npc 27756) (item 37860) 

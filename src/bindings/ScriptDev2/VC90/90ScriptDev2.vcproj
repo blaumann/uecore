@@ -2237,14 +2237,6 @@
 					</File>
 				</Filter>
 				<Filter
-					Name="Nagrand"
-					>
-					<File
-						RelativePath="..\scripts\zone\nagrand\nagrand.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
 					Name="Netherstorm"
 					>
 					<File
@@ -2993,6 +2985,14 @@
 					>
 					<File
 						RelativePath="..\scripts\zone\wintergrasp\wintergrasp.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Nagrand"
+					>
+					<File
+						RelativePath="..\scripts\zone\nagrand\nagrand.cpp"
 						>
 					</File>
 				</Filter>
