@@ -374,9 +374,9 @@ bool GOHello_go_tele_to_violet_stand(Player* pPlayer, GameObject* pGo)
 
 bool GOHello_go_acherus_soul_prison(Player* pPlayer, GameObject* pGo)
 {
-	Creature* chainTrigger = GetClosestCreatureWithEntry(pGo, 29521,2);
-	if(chainTrigger)
-		chainTrigger->CastSpell(chainTrigger,7,true);
+    Creature* chainTrigger = GetClosestCreatureWithEntry(pGo, 29521, 2);
+    if(chainTrigger)
+        chainTrigger->CastSpell(chainTrigger, 7, true);
 
     return true;
 }

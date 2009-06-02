@@ -32,11 +32,11 @@ uint32 spellList[] = { 52374, 52372, 52373, 52375 };
 
 //old modelids to know which new model has to be chosen
 uint32 oldModels[] = {
-	25370,	25359,	25368,	25354,
-	25356,	25365,	25367,	25366, 
-	25369,	25362,	25363,	25360, 
-	25355,	25372,	25371,	25361,  
-	25373,	25358,	25357,	25364 
+    25370,  25359,  25368,  25354,
+    25356,  25365,  25367,  25366,
+    25369,  25362,  25363,  25360,
+    25355,  25372,  25371,  25361,
+    25373,  25358,  25357,  25364
 };
 
 uint32 newModelSpells[] = {
@@ -48,9 +48,9 @@ uint32 newModelSpells[] = {
 };
 
 int Textids[]= {
-	-1615042, -1615043,
-	-1615044, -1615045,
-	-1615046, -1615047
+	-1999926, -1999927,
+	-1999928, -1999929,
+	-1999930, -1999931
 };
 enum
 {
@@ -109,8 +109,8 @@ struct MANGOS_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
 			{
 				int modelId = -1;
 				int i = 0;
-				while(modelId == -1){
-					if(m_creature->GetDisplayId() == oldModels[i])
+				while(modelId == -1){//24507 
+					if((m_creature->GetDisplayId() == oldModels[i])||(m_creature->GetDisplayId()==25407))
 						modelId = i;
 					i++;
 				}
@@ -170,7 +170,7 @@ struct MANGOS_DLL_DECL npc_unworthy_initiate_triggerAI : public ScriptedAI
 		chainedTo = NULL;
 		chainTimer = 2000;
 	}
-	
+
 	void UpdateAI(const uint32 diff)
 	{
 		if(chainTimer < diff && !chainedTo)
