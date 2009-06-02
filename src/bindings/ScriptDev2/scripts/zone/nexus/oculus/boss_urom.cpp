@@ -116,11 +116,14 @@ struct MANGOS_DLL_DECL boss_uromAI : public ScriptedAI
 					if (HeroicMode)
 						m_creature->CastSpell(m_creature, SPELL_EMPOWERED_ARCANE_EXPLOSION_H, true);
 					else m_creature->CastSpell(m_creature, SPELL_EMPOWERED_ARCANE_EXPLOSION_N, true); 
+<<<<<<< HEAD:src/bindings/ScriptDev2/scripts/zone/nexus/oculus/boss_urom.cpp
 					switch(rand()%3)
 					{
 						case 0: DoScriptText(SAY_EXPLOSION_1, m_creature); break;
 						case 1: DoScriptText(SAY_EXPLOSION_2, m_creature); break;
 					}
+=======
+>>>>>>> 4f16be09618fc671458d85962887a22cd8abc491:src/bindings/ScriptDev2/scripts/zone/nexus/oculus/boss_urom.cpp
 				}else ExplosionTimer -=diff;
 			}
 
