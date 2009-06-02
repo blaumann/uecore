@@ -119,7 +119,7 @@ struct MANGOS_DLL_DECL boss_uromAI : public ScriptedAI
 					switch(rand()%3)
 					{
 						case 0: DoScriptText(SAY_EXPLOSION_1, m_creature); break;
-						case 1: DoScriptText(SAY_EXPLOsion_2, m_creature); break;
+						case 1: DoScriptText(SAY_EXPLOSION_2, m_creature); break;
 					}
 				}else ExplosionTimer -=diff;
 			}
