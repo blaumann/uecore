@@ -259,14 +259,14 @@ struct MANGOS_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
             ShadowBoltVolley_Timer = 15000 + rand()%15000;;
         }else ShadowBoltVolley_Timer -= diff;
 
-        if (HeroicMode && banish_Timer < diff)
+        /*if (HeroicMode && banish_Timer < diff)
         {
             if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM))
             {
                 DoCast(target,SPELL_BANISH);
                 banish_Timer = 16000;
             }
-        }else banish_Timer -= diff;
+        }else banish_Timer -= diff;*/
 
         if ( DrawShadows_Timer < diff)
         {
