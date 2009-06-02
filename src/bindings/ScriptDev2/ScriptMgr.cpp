@@ -315,6 +315,7 @@ extern void AddSC_instance_drak_tharon();
 extern void AddSC_dun_morogh();
 
 //Durotar
+extern void AddSC_mob_lazy_peon();
 /*Not implement*/
 
 //Duskwood
@@ -1381,6 +1382,7 @@ void ScriptsInit()
     AddSC_dun_morogh();
 
     //Durotar
+	AddSC_mob_lazy_peon();
     /* Not Implemented */
 
     //Duskwood
