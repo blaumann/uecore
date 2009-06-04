@@ -43,7 +43,7 @@ bool OutdoorPvPObjective::HandlePlayerEnter(Player * plr)
     // player distance and activity state was checked already in the AI
     std::pair<std::set<uint64>::iterator,bool> newinsert = m_ActivePlayerGuids[team].insert(plr->GetGUID());
     if(newinsert.second)
-        sLog.outDebug("player %u entered an outdoorpvpobjective", plr->GetGUIDLow());
+        sLog.outDebug("Player %u entered an outdoorpvpobjective", plr->GetGUIDLow());
     return true;
 }
 
@@ -52,7 +52,7 @@ void OutdoorPvPObjective::HandlePlayerLeave(Player * plr)
     uint32 team = (plr->GetTeam() == HORDE) ? 1 : 0;
     // only decrease the count if the player is in the active list
     if(m_ActivePlayerGuids[team].erase(plr->GetGUID()) > 0)
-        sLog.outDebug("player %u left an outdoorpvpobjective", plr->GetGUIDLow());
+        sLog.outDebug("Player %u left an outdoorpvpobjective", plr->GetGUIDLow());
 }
 
 void OutdoorPvPObjective::HandlePlayerActivityChanged(Player * plr)
@@ -185,7 +185,7 @@ bool OutdoorPvPObjective::AddCreature(uint32 type, uint32 entry, uint32 teamval,
 
 bool OutdoorPvPObjective::AddCapturePoint(uint32 entry, uint32 map, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3)
 {
-    sLog.outDebug("creating capture point %u and capture point creature",entry);
+    sLog.outDebug("Creating capture point %u and capture point creature",entry);
 
     // check info existence
     GameObjectInfo const* goinfo = objmgr.GetGameObjectInfo(entry);
