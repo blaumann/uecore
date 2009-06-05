@@ -403,71 +403,40 @@ CreatureAI* GetAI_boss_gloomrel(Creature* pCreature)
 #define GOSSIP_ITEM_TEACH_1 "Teach me the art of smelting dark iron"
 #define GOSSIP_ITEM_TEACH_2 "Continue..."
 #define GOSSIP_ITEM_TRIBUTE "I want to pay tribute"
-#define QUEST_SPECTRAL_CHALICE 4083
-#define SPELL_SMELT_DARK_IRON 14891
-#define SPELL_TEACH_SMELT_DARK_IRON 14894
 
 bool GossipHello_boss_gloomrel(Player* pPlayer, Creature* pCreature)
 {
-    // If player has already completed quest [4083] Spectral Chalice...
-    // he has mining skill of 230 or more...
-    // and does not have "Smelt Dark Iron" spell [14891]...
-    // add gossip menu to teach this spell (skip tribute).
-    if (pPlayer->GetQuestRewardStatus(QUEST_SPECTRAL_CHALICE) == 1 && 
-        pPlayer->GetSkillValue(SKILL_MINING) >= 230 && 
-        !pPlayer->HasSpell(SPELL_SMELT_DARK_IRON)) {
+    if (pPlayer->GetQuestRewardStatus(4083) == 1 && pPlayer->GetSkillValue(SKILL_MINING) >= 230 && !pPlayer->HasSpell(14891))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TEACH_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        pPlayer->SEND_GOSSIP_MENU(1, pCreature->GetGUID());
-        return true;
-    }
 
-    // If player has not completed quest [4083] Spectral Chalice...
-    // and he has mining skill of 230 or more...
-    // and Spectral Chalice object is not spawned...
-    // add gossip menu to pay tribute (quest [4083]).
-    if (pPlayer->GetQuestRewardStatus(QUEST_SPECTRAL_CHALICE) == 0 && pPlayer->GetSkillValue(SKILL_MINING) >= 230) {
-        bool addGossip = true; // Show gossip by default.
-        if (ScriptedInstance* pInstance = (ScriptedInstance*) pCreature->GetInstanceData()) {
-            uint64 id = pInstance->GetData64(DATA_GO_CHALICE);
-            if (id != 0) {
-                if (GameObject *pGo = pInstance->instance->GetGameObject(id)) {
-                    addGossip = !pGo-> isSpawned(); // Show gossip if object is not spawned.
-                }
-            }
-        }
-        if (addGossip) {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TRIBUTE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            pPlayer->SEND_GOSSIP_MENU(1, pCreature->GetGUID());
-            return true;
-        }
-    }
+    if (pPlayer->GetQuestRewardStatus(4083) == 0 && pPlayer->GetSkillValue(SKILL_MINING) >= 230)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TRIBUTE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
 
-    // In other cases show default gossip hello.
-    return false;
+    return true;
 }
 
 bool GossipSelect_boss_gloomrel(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     switch (action)
     {
-        case GOSSIP_ACTION_INFO_DEF + 1:
+        case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TEACH_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
             pPlayer->SEND_GOSSIP_MENU(2606, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 11:
+        case GOSSIP_ACTION_INFO_DEF+11:
             pPlayer->CLOSE_GOSSIP_MENU();
-            pCreature->CastSpell(pPlayer, SPELL_TEACH_SMELT_DARK_IRON, false);
+            pCreature->CastSpell(pPlayer, 14894, false);
             break;
-        case GOSSIP_ACTION_INFO_DEF + 2:
+        case GOSSIP_ACTION_INFO_DEF+2:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[PH] Continue...", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);
             pPlayer->SEND_GOSSIP_MENU(2604, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 22:
+        case GOSSIP_ACTION_INFO_DEF+22:
             pPlayer->CLOSE_GOSSIP_MENU();
-            if (ScriptedInstance* pInstance = (ScriptedInstance*) pCreature->GetInstanceData())
+            if (ScriptedInstance* pInstance = (ScriptedInstance*)pCreature->GetInstanceData())
             {
                 //are 5 minutes expected? go template may have data to despawn when used at quest
-                pInstance->DoRespawnGameObject(pInstance->GetData64(DATA_GO_CHALICE), MINUTE * 5);
+                pInstance->DoRespawnGameObject(pInstance->GetData64(DATA_GO_CHALICE),MINUTE*5);
             }
             break;
     }

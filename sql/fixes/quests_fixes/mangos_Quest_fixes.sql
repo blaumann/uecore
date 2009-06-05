@@ -23,24 +23,25 @@ UPDATE `creature_template` SET  `speed` = '1.7', `ScriptName` = 'npc_kservant' W
 -- Khadgar
 UPDATE `creature_template` SET `ScriptName`='npc_khadgar' WHERE `entry` = '18166';
 
--- The Endless Hunger
-UPDATE `creature_template` SET `AIName` = 'unworthy_initiate_anchor' WHERE `entry` = 29521;
-UPDATE `creature_template` SET `AIName` = 'unworthy_initiate' WHERE `entry` = 29566;
-UPDATE `creature_template` SET `AIName` = 'unworthy_initiate' WHERE `entry` = 29565;
-UPDATE `creature_template` SET `AIName` = 'unworthy_initiate' WHERE `entry` = 29519;
-UPDATE `creature_template` SET `AIName` = 'unworthy_initiate' WHERE `entry` = 29520;
-UPDATE `creature_template` SET `AIName` = 'unworthy_initiate' WHERE `entry` = 29567;
-UPDATE creature_template set scriptname = 'unworthy_initiate' where entry in (29519,29520,29565,29566,29567);
-UPDATE gameobject_template set scriptname = 'go_acherus_soul_prison' where entry in (191577,191580,191581,191582,191583,191584,191585,191586,191587,191588,191589,191590);
-UPDATE `gameobject_template` SET `ScriptName` = 'go_acherus_soul_prison' WHERE name like 'acherus soul prison';
-UPDATE `creature_template` SET `ScriptName`='npc_death_knight_initiate' WHERE `entry`=28406;
-UPDATE `creature_template` SET `ScriptName`='npc_salanar_the_horseman' WHERE `entry`=28653;
-
+-- Quest: The Endless Hunger
 -- set the scriptnames
-UPDATE creature_template set ScriptName="npc_unworthy_initiate" where name="unworthy_initiate";
-UPDATE creature_template set ScriptName="npc_unworthy_initiate_trigger" where name="unworthy_initiate_anchor";
+UPDATE `creature_template` SET `ScriptName`='npc_unworthy_initiate' WHERE `entry`  IN (29519, 29520, 29565, 29566, 29567);
+UPDATE `creature_template` SET `ScriptName`='npc_unworthy_initiate_trigger' WHERE `name`='unworthy initiate anchor';
+UPDATE `gameobject_template` SET `ScriptName`='go_acherus_soul_prison' WHERE `name` = 'Acherus Soul Prison';
 
--- Delete all preexisting auras from creature addon 
-DELETE FROM creature_addon WHERE auras="546120"
+-- Delete all preexisting auras from creature addon
+UPDATE `creature_addon` SET auras='' WHERE auras='54612 0';
+
+DELETE FROM `script_texts` WHERE `entry` IN (-1999926, -1999927, -1999928, -1999929, -1999930, -1999931);
+INSERT INTO `script_texts`(`entry`, `content_default`, `type`, `emote`) VALUES
+-- 1
+(-1999926, 'You have made a grave error, fiend!', 1, 0),
+(-1999927, 'Unworthy Initiate says: To battle!', 1, 0), 
+-- 2
+(-1999928, 'I was a soldier of the Light once... Look at what I have become... ', 1, 0),
+(-1999929, 'Let your fears consume you!', 1, 0),
+-- 3
+(-1999930, 'You are hopelessly outmatched\, $R.', 1, 0),
+(-1999931, 'And now you die!', 1, 0);
 
 

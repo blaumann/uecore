@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: The-Scarlet-Enclave
 SD%Complete: 100
-SDComment: Quest support: 12848, 28406, 12680.
+SDComment: Quest support: 12848, 28406, 12680, 12687.
 SDCategory: Eastern Plaguelands: The Scarlet Enclave
 EndScriptData */
 
@@ -328,6 +328,42 @@ CreatureAI* GetAI_npc_salanar_the_horseman(Creature* pCreature)
     return new npc_salanar_the_horsemanAI(pCreature);
 }
 
+/*######
+## npc_ros_dark_rider
+######*/
+
+struct MANGOS_DLL_DECL npc_ros_dark_riderAI : public ScriptedAI
+{
+    npc_ros_dark_riderAI(Creature *c) : ScriptedAI(c) {}
+
+    void Reset()
+    {
+        Creature* deathcharger = m_creature->FindNearestCreature(28782, 30);
+        if(!deathcharger) return;
+        //deathcharger->SetFaction(0);
+        deathcharger->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+        deathcharger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+    }
+
+    void JustDied(Unit *killer)
+    {
+        Creature* deathcharger = m_creature->FindNearestCreature(28782, 30);
+        if(!deathcharger) return;
+        if( killer->GetTypeId() == TYPEID_PLAYER && deathcharger->GetTypeId() == TYPEID_UNIT && deathcharger->isVehicle() )
+        {
+            deathcharger->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            deathcharger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            deathcharger->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+            deathcharger->setFaction(2096);
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_ros_dark_rider(Creature *_Creature)
+{
+    return new npc_ros_dark_riderAI(_Creature);
+}
+
 void AddSC_the_scarlet_enclave()
 {
     Script *newscript;
@@ -343,14 +379,19 @@ void AddSC_the_scarlet_enclave()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_death_knight_initiate";
+    newscript->Name = "npc_death_knight_initiate";
     newscript->pGossipHello = &GossipHello_npc_death_knight_initiate;
     newscript->pGossipSelect = &GossipSelect_npc_death_knight_initiate;
     newscript->GetAI = &GetAI_npc_death_knight_initiate;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_salanar_the_horseman";
+    newscript->Name = "npc_salanar_the_horseman";
     newscript->GetAI = &GetAI_npc_salanar_the_horseman;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_ros_dark_rider";
+    newscript->GetAI = &GetAI_npc_ros_dark_rider;
     newscript->RegisterSelf();
 }
