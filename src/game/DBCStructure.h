@@ -966,7 +966,7 @@ struct ItemEntry
 {
    uint32   ID;                                             // 0
    uint32   Class;                                          // 1
-   uint32   SubClass;                                       // 2 some items have strnage subclasses
+   uint32   SubClass;                                       // 2 some items have strange subclasses
    int32    Unk0;                                           // 3
    int32    Material;                                       // 4
    uint32   DisplayId;                                      // 5
@@ -1451,7 +1451,9 @@ struct SpellRangeEntry
 {
     uint32    ID;
     float     minRange;
+    float     minRangeFriendly;
     float     maxRange;
+    float     maxRangeFriendly;
 };
 
 struct SpellRuneCostEntry

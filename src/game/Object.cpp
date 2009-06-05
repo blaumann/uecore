@@ -1472,6 +1472,24 @@ void Object::ForceValuesUpdateAtIndex(uint32 i)
 	}
 }
 
+Creature* WorldObject::FindNearestCreature(uint32 entry, float range, bool alive)
+{
+    Creature *creature = NULL;
+    MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck checker(*this, entry, alive, range);
+    MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(this, creature, checker);
+    //VisitNearbyObject(range, searcher);
+    return creature;
+}
+
+GameObject* WorldObject::FindNearestGameObject(uint32 entry, float range)
+{
+    GameObject *go = NULL;
+    MaNGOS::NearestGameObjectEntryInObjectRangeCheck checker(*this, entry, range);
+    MaNGOS::GameObjectLastSearcher<MaNGOS::NearestGameObjectEntryInObjectRangeCheck> searcher(this, go, checker);
+    //VisitNearbyGridObject(range, searcher);
+    return go;
+}
+
 namespace MaNGOS
 {
     class MonsterChatBuilder

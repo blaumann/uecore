@@ -29,7 +29,6 @@
 #include "MovementGeneratorImpl.h"
 #include "CreatureAIRegistry.h"
 #include "WaypointMovementGenerator.h"
-#include "OutdoorPvPObjectiveAI.h"
 
 namespace AIRegistry
 {

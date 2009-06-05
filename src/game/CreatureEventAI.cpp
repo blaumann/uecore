@@ -798,8 +798,8 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             break;
         case ACTION_T_CALL_FOR_HELP:
         {
-	     m_creature->CallForHelp(action.call_for_help.radius);
-	     break;
+            m_creature->CallForHelp(action.call_for_help.radius);
+            break;
         }
         case ACTION_T_SET_SHEATH:
         {

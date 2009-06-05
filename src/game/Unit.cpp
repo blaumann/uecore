@@ -1903,7 +1903,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                     // This, if I'm not mistaken, shows that we get back ~2% of the absorbed damage as runic power.
                     int32 absorbed = RemainingDamage * currentAbsorb / 100;
                     int32 regen = absorbed * 2 / 10;
-                    pVictim->CastCustomSpell(pVictim, 49088, &regen, 0, 0, true, 0, *i);
+                    pVictim->CastCustomSpell(pVictim, 49088, &regen, NULL, NULL, true, NULL, *i);
                     RemainingDamage -= absorbed;
                     continue;
                 }
@@ -5322,14 +5322,26 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 mod->m_amount-=damage;
                 return true;
             }
+            // Improved Drain Soul
+            if (dummySpell->SpellIconID == 113)
+            {
+                Unit *caster = triggeredByAura->GetCaster();
+
+                if (!caster)
+                    return false;
+				
+                basepoints0 = caster->GetMaxPower(POWER_MANA)* triggerAmount / 100;
+                triggered_spell_id = 18371;
+                break;
+            }
             // Fel Synergy
             if (dummySpell->SpellIconID == 3222)
             {
                 target = GetPet();
                 if (!target)
                     return false;
+                basepoints0 = damage * 15 / 100;
                 triggered_spell_id = 54181;
-                basepoints0 = int32(damage * 0.15f);
                 break;
             }
             switch(dummySpell->Id)
@@ -5565,6 +5577,28 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     break;
                 }
             }
+            // King of the Jungle 
+            if (dummySpell->SpellIconID == 2850) 
+            { 
+                if (!procSpell) 
+                    return false; 
+ 
+                if (effIndex!=0) 
+                    return true; 
+ 
+                if (procSpell->SpellFamilyFlags & UI64LIT(0x0000000000080000)) 
+                { 
+                    triggered_spell_id = 51185; 
+                    basepoints0 = triggerAmount; 
+                    break; 
+                } 
+                if (procSpell->SpellFamilyFlags2 & UI64LIT(0x00000800)) 
+                { 
+                    triggered_spell_id = 51178; 
+                    basepoints0 = 4*triggerAmount; 
+                    break; 
+                } 
+            }
             // Eclipse
             if (dummySpell->SpellIconID == 2856)
             {
@@ -5778,7 +5812,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     int32 holy = caster->SpellBaseDamageBonus(SPELL_SCHOOL_MASK_HOLY) +
                                  caster->SpellBaseDamageBonusForVictim(SPELL_SCHOOL_MASK_HOLY, this);
                     basepoints0 = int32(ap*0.10f + 0.10f*holy);
-                    pVictim->CastCustomSpell(pVictim, 20267, &basepoints0, 0, 0, true, 0, triggeredByAura);
+                    pVictim->CastCustomSpell(pVictim, 20267, &basepoints0, NULL, NULL, true, NULL, triggeredByAura);
                     return true;
                 }
                 // Judgement of Wisdom
@@ -5786,8 +5820,9 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 {
                     if (pVictim->getPowerType() == POWER_MANA)
                     {
-                        int32 bp = 2*(pVictim->GetCreateMana() / 100);
-                        pVictim->CastCustomSpell(pVictim, 20268, &bp, 0, 0, true, 0, triggeredByAura);
+                        // 2% of maximum mana
+                        basepoints0 = int32(pVictim->GetMaxPower(POWER_MANA) * 2 / 100);
+                        pVictim->CastCustomSpell(pVictim, 20268, &basepoints0, NULL, NULL, true, NULL, triggeredByAura);
                     }
                     return true;
                 }
@@ -5816,6 +5851,29 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                             break;
                         case CLASS_WARRIOR:
                             triggered_spell_id = 28790;     // Increases the friendly target's armor
+                            break;
+                        default:
+                            return false;
+                    }
+                    break;
+                }
+                // Blessing of Sanctuary
+                case 20911:
+                {
+                    if (target->GetTypeId() != TYPEID_PLAYER)
+                        return false;
+
+                    target = this;
+                    switch (target->getPowerType())
+                    {
+                        case POWER_MANA:
+                            triggered_spell_id = 57319;
+                            break;
+                        case POWER_RAGE:
+                            triggered_spell_id = 57320;
+                            break;
+                        case POWER_RUNIC_POWER:
+                            triggered_spell_id = 57321;
                             break;
                         default:
                             return false;
@@ -5924,7 +5982,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                         if (procSpell->Effect[i] == SPELL_EFFECT_ENERGIZE)
                         {
                             int32 mana = procSpell->EffectBasePoints[i];
-                            CastCustomSpell(this, 54986, 0, &mana, 0, true, castItem, triggeredByAura);
+                            CastCustomSpell(this, 54986, NULL, &mana, NULL, true, castItem, triggeredByAura);
                             break;
                         }
                     return true;
@@ -7187,7 +7245,7 @@ bool Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, uint32 damage, Aura 
                 return false;
             int32 cost = procSpell->manaCost + procSpell->ManaCostPercentage * GetCreateMana() / 100;
             int32 basepoints0 = cost * triggeredByAura->GetModifier()->m_amount/100;
-            CastCustomSpell(this, 47762, &basepoints0, 0, 0, true, 0, triggeredByAura);
+            CastCustomSpell(this, 47762, &basepoints0, NULL, NULL, true, NULL, triggeredByAura);
             return true;
         }
         case 7282: // Crypt Fever and Ebon Plaguebringer
@@ -11242,6 +11300,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
                 DealSpellDamage(&damageInfo, true);
                 break;
             }
+            case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:
             case SPELL_AURA_MANA_SHIELD:
             case SPELL_AURA_OBS_MOD_MANA:
             case SPELL_AURA_DUMMY:
@@ -11983,7 +12042,7 @@ Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget,uint32 spell_id)
 
     pet->SetOwnerGUID(GetGUID());
     pet->SetCreatorGUID(GetGUID());
-    pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
+    pet->setFaction(getFaction());
     pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, spell_id);
 
     if(GetTypeId()==TYPEID_PLAYER)
@@ -12341,3 +12400,4 @@ void Unit::BuildVehicleInfo(Unit *target)
     else if(GetTypeId() == TYPEID_PLAYER)
         ((Player*)this)->GetSession()->SendPacket(&data);
 }
+
