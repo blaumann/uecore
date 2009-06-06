@@ -2370,6 +2370,23 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 }
                 else if(!apply && m_removeMode != AURA_REMOVE_BY_DEFAULT)
                   m_target-> RemoveAurasDueToSpell(50322);
+			}
+			// Borrowed Time
+            if( m_spellProto->SpellIconID == 2899 && m_target->GetTypeId()==TYPEID_PLAYER )
+            {
+                if(apply)
+                {
+                    // increase spell power scaling of Power Word: Shield
+                    SpellModifier *mod = new SpellModifier;
+                    mod->op = SPELLMOD_SPELL_BONUS_DAMAGE;
+                    mod->value = m_modifier.m_amount;
+                    mod->type = SPELLMOD_PCT;
+                    mod->spellId = GetId();
+                    mod->mask = 0x1;
+                    mod->mask2= 0x0;
+                    m_spellmod = mod;
+                }
+                ((Player*)m_target)->AddSpellMod(m_spellmod, apply);
                 return;
             }
             break;
@@ -3135,11 +3152,19 @@ void Aura::HandleChannelDeathItem(bool apply, bool Real)
         if(spellInfo->EffectItemType[m_effIndex] == 0)
             return;
 
-        // Soul Shard only from non-grey units
-        if( spellInfo->EffectItemType[m_effIndex] == 6265 &&
-            (victim->getLevel() <= MaNGOS::XP::GetGrayLevel(caster->getLevel()) ||
-             victim->GetTypeId()==TYPEID_UNIT && !((Player*)caster)->isAllowedToLoot((Creature*)victim)) )
-            return;
+        // Soul Shard
+        if (spellInfo->EffectItemType[m_effIndex] == 6265)
+        {
+            // Only from non-grey units
+            if ((victim->getLevel() <= MaNGOS::XP::GetGrayLevel(caster->getLevel()) ||
+                victim->GetTypeId() == TYPEID_UNIT && !((Player*)caster)->isAllowedToLoot((Creature*)victim)))
+                return;
+
+            // Glyph of Soul Shard
+            if ((caster->HasAura(58070)) && (roll_chance_i(5)))
+                caster->CastSpell(caster, 58068, true, NULL, NULL, 0);
+        }
+
         //Adding items
         uint32 noSpaceForCount = 0;
         uint32 count = m_modifier.m_amount;
@@ -3155,7 +3180,7 @@ void Aura::HandleChannelDeathItem(bool apply, bool Real)
         }
 
         Item* newitem = ((Player*)caster)->StoreNewItem(dest, spellInfo->EffectItemType[m_effIndex], true);
-        ((Player*)caster)->SendNewItem(newitem, count, true, false);
+        ((Player*)caster)->SendNewItem(newitem, count, true, true);
     }
 }
 
@@ -5971,42 +5996,27 @@ void Aura::HandleSchoolAbsorb(bool apply, bool Real)
     {
         if(Unit* caster = GetCaster())
         {
-            float DoneActualBenefit = 0.0f;
-            switch(m_spellProto->SpellFamilyName)
+            // Check for custom scaling, default is 0%
+            float CustomSpellPowerScaling = 0.0f;
+            float CustomAttackPowerScaling = 0.0f;
+            SpellBonusEntry const* bonus = spellmgr.GetSpellBonusData(m_spellProto->Id);
+            if (bonus)
             {
-                case SPELLFAMILY_PRIEST:
-                    if(m_spellProto->SpellFamilyFlags == 0x1) //PW:S
-                    {
-                        //+30% from +healing bonus
-                        DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.3f;
-                        break;
-                    }
-                    break;
-                case SPELLFAMILY_MAGE:
-                    if (m_spellProto->SpellFamilyFlags == UI64LIT(0x80100) ||
-                        m_spellProto->SpellFamilyFlags == UI64LIT(0x8) ||
-                        m_spellProto->SpellFamilyFlags == UI64LIT(0x100000000))
-                    {
-                        //frost ward, fire ward, ice barrier
-                        //+10% from +spd bonus
-                        DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.1f;
-                        break;
-                    }
-                    break;
-                case SPELLFAMILY_WARLOCK:
-                    if(m_spellProto->SpellFamilyFlags == 0x00)
-                    {
-                        //shadow ward
-                        //+10% from +spd bonus
-                        DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.1f;
-                        break;
-                    }
-                    break;
-                default:
-                    break;
+                CustomSpellPowerScaling = bonus->direct_damage;
+                CustomAttackPowerScaling = bonus->ap_bonus;
             }
 
-            DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellProto());
+            //check for SpellMod Scaling
+            float SpellModSpellPowerScaling = 100.0f;
+            if( Player* modOwner = caster->GetSpellModOwner() )
+                modOwner->ApplySpellMod(m_spellProto->Id, SPELLMOD_SPELL_BONUS_DAMAGE, SpellModSpellPowerScaling);
+            SpellModSpellPowerScaling = (SpellModSpellPowerScaling - 100.0f)/100.0f;
+
+            float LvlPenalty = caster->CalculateLevelPenalty(GetSpellProto());
+
+            float DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto))*(CustomSpellPowerScaling + SpellModSpellPowerScaling);
+            DoneActualBenefit += caster->GetTotalAttackPowerValue(BASE_ATTACK) * CustomAttackPowerScaling;
+            DoneActualBenefit *= LvlPenalty;
 
             m_modifier.m_amount += (int32)DoneActualBenefit;
         }

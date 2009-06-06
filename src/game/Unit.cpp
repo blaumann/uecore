@@ -1846,6 +1846,37 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                     continue;
                 }
 
+				// Rapture
+				if (spellProto->SpellFamilyFlags & 0x1 || spellProto->SpellFamilyFlags2 & 0x400)
+                {
+					Unit* caster = (*i)->GetCaster();
+                    if (!caster)
+                        break;
+
+					AuraList const& vOverRideCS = caster->GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
+					for(AuraList::const_iterator k = vOverRideCS.begin(); k != vOverRideCS.end(); ++k)
+					{
+						switch((*k)->GetModifier()->m_miscvalue)
+						{
+							case 7552:                          // Rank 5
+							case 7553:                          // Rank 4
+							case 7554:							// Rank 3
+							case 7555:							// Rank 2
+							case 7556:							// Rank 1
+							{
+								int32 manaRestore = RemainingDamage >= currentAbsorb ? currentAbsorb : RemainingDamage;
+								//max possible amount
+								int32 max = caster->GetMaxPower(POWER_MANA) * (*k)->GetModifier()->m_amount/1000;
+								//amount
+								manaRestore *= float((*k)->GetModifier()->m_amount)/25 * 0.000004f *caster->GetMaxPower(POWER_MANA);
+								manaRestore = manaRestore > max ? max : manaRestore;
+
+								caster->CastCustomSpell(caster,47755,&manaRestore,NULL,NULL,true,NULL,(*k));
+							}break;
+                            default: break;
+                        }
+                    }
+				}
                 // Reflective Shield
                 if (spellProto->SpellFamilyFlags == 0x1 && spellProto->SpellIconID == 566)
                 {
@@ -5415,6 +5446,17 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 triggered_spell_id = 47753;
                 break;
             }
+			// Rapture Proc (from heal)
+			if( dummySpell->SpellIconID == 2894 )
+			{
+				//max possible amount
+				int32 max = GetMaxPower(POWER_MANA) * 5*triggerAmount/1000;
+				//amount
+				basepoints0 = int32(float(triggerAmount)/5 * 0.000004f * damage*GetMaxPower(POWER_MANA));
+				basepoints0 = basepoints0 > max ? max : basepoints0;
+
+				triggered_spell_id = 47755;
+			}
             switch(dummySpell->Id)
             {
                 // Vampiric Embrace
@@ -5500,7 +5542,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
         {
             switch(dummySpell->Id)
             {
-				// Leader of the Pack
+                // Leader of the Pack
                 case 24932:
                 {
                     if (triggerAmount == 0)
@@ -6725,6 +6767,22 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                     }
                     basepoints0 = damage * triggerAmount / 100 / 3;
                     target = this;
+                }
+                //borrowed time - haste
+                else if (auraSpellInfo->SpellIconID == 2899)
+                {
+                    switch (auraSpellInfo->Id)
+                    {
+                        case 52795: trigger_spell_id = 59887; break;
+                        case 52797: trigger_spell_id = 59888; break;
+                        case 52798: trigger_spell_id = 59889; break;
+                        case 52799: trigger_spell_id = 59890; break;
+                        case 52800: trigger_spell_id = 59891; break;
+                        default:
+                            sLog.outError("Unit::HandleProcTriggerSpell: Spell %u not handled in Borrowed time", auraSpellInfo->Id);
+                        return false;
+                    }
+                    target = pVictim;
                 }
                 break;
             }
@@ -9886,7 +9944,7 @@ void Unit::setDeathState(DeathState s)
     {
         SetDisplayId(GetNativeDisplayId());
     }
-    
+
     m_deathState = s;
 
     if (s != ALIVE && s!= JUST_ALIVED)
@@ -9902,6 +9960,9 @@ void Unit::setDeathState(DeathState s)
 
     if (s == JUST_DIED)
     {
+        if(GetMotionMaster()->GetCurrentMovementGeneratorType() == ASSISTANCE_MOTION_TYPE)
+            GetMotionMaster()->MovePoint(GetGUIDLow(), GetPositionX(), GetPositionY(), GetPositionZ());
+
         ExitVehicle();
         RemoveAllAurasOnDeath();
         UnsummonAllTotems();
