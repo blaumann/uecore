@@ -1,18 +1,18 @@
 /* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 /* ScriptData
 SDName: Boss_Gothik
@@ -22,565 +22,496 @@ SDCategory: Naxxramas
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_naxxramas.h"
 
-#define SAY_START                   "Foolishly you have sought your own demise. Brazenly you have disregarded powers beyond your understanding. You have fought hard to invade the realm of the harvester. Now there is only one way out - to walk the lonely path of the damned."
-#define SOUND_START                 8807
-#define SAY_TELEPORT                "I have waited long enough! Now, you face the harvester of souls!"
-#define SOUND_TELEPORT              8808
-#define SAY_SLAY                    "Death is the only escape."
-#define SOUND_SLAY                  8806
-#define SAY_DEATH                   "I... am... undone!"
-#define SOUND_DEATH                 8805
+//GO: the door
+#define GO_GOTHIK_GATE      181170
 
-//Gothik
-#define SPELL_HARVESTSOUL           28679
-#define SPELL_SHADOWBOLT            19729
+//creatures id
+//Gothik - 16060
+#define CR_UN_TRAINEE       16124
+#define CR_UN_DEATHKNIGHT   16125
+#define CR_UN_RIDER         16126
+#define CR_SP_TRAINEE       16127
+#define CR_SP_DEATHKNIGHT   16148
+#define CR_SP_RIDER         16150
 
-//Unrelenting Trainee 16124 --> Event AI
-#define MOB_UNRELENTING_TRAINEE     16124
-#define SPELL_EAGLECLAW             30285
-#define SPELL_KNOCKDOWN_PASSIVE     6961
+//SPELLS
+//Gothik the Harvester
+#define SP_HARVEST_SOUL     28679
+#define SP_SHADOWBOLT       29317
+#define H_SP_SHADOWBOLT     56405
+//Unrelenting Trainee
+#define SP_DEATH_PLAGUE     55604
+#define H_SP_DEATH_PLAGUE   55645
+//Unrelenting Death Knight
+#define SP_SHADOW_MARK      27825
+//Unrelenting Rider
+#define SP_SHADOW_VOLLEY    27831
+#define H_SP_SHADOW_VOLLEY  55638
+//Spectral Trainee
+#define SP_EXPLOSION        27989
+#define H_SP_EXPLOSION      56407
+//Spectral Death Knight
+#define SP_WHIRLWIND        56408
+//Spectral Rider
+#define SP_UNHOLY_AURA      55606
+#define H_SP_UNHOLY_AURA    55608
+#define SP_UNHOLY_FRENZY    55648
+#define H_SP_UNHOLY_FRENZY  27995
+#define SP_DRAIN_LIFE       27994
+#define H_SP_DRAIN_LIFE     55646
 
-//Unrelenting Deathknight 16125
-#define MOB_UNRELENTING_DEATHKNIGHT 16125
-#define SPELL_CHARGE                22120
-#define SPELL_SHADOW_MARK           27825
 
-//Unrelenting Rider 16126
-#define MOB_UNRELENTING_RIDER       16126
-#define SPELL_UNHOLY_AURA           27987
-#define SPELL_SHADOWBOLT            19729        //Search thru targets and find those who have the SHADOW_MARK to cast this on
-
-//Spectral Trainee  --> Event AI
-#define MOB_SPECTRAL_TRAINEE        16127                 
-#define SPELL_ARCANE_EXPLOSION      27989
-
-/*
-insert into `eventai_scripts` (`id`,`creature_id`,`event_type`,`event_param1`,`event_param2`,`event_param3`,`action1_type`,`action1_param1`,`action1_param2`,`action1_param3`,`action2_type`,`action2_param1`,`action2_param2`,`action2_param3`,`action3_type`,`action3_param1`,`action3_param2`,`action3_param3`)
-values
-(NULL,16127, 0,7500,0,0, 11,27989,1,0, 0,0,0,0 ,0,0,0,0);
-*/
-
-//Spectral Deathknight --> Event AI
-#define MOB_SPECTRAL_DEATHKNIGHT    16148       
-#define SPELL_WHIRLWIND             28334
-#define SPELL_SUNDER_ARMOR          25051 //cannot find sunder that reduces armor by 2950
-#define SPELL_CLEAVE                20677
-#define SPELL_MANA_BURN             17631
-
-/*
-insert into `eventai_scripts` (`id`,`creature_id`,`event_type`,`event_param1`,`event_param2`,`event_param3`,`action1_type`,`action1_param1`,`action1_param2`,`action1_param3`,`action2_type`,`action2_param1`,`action2_param2`,`action2_param3`,`action3_type`,`action3_param1`,`action3_param2`,`action3_param3`)
-values
-(NULL,16148, 0,15000,0,0, 11,28334,0,1, 0,0,0,0 ,0,0,0,0),
-(NULL,16148, 0,5000,0,0, 11,25051,4,0, 0,0,0,0 ,0,0,0,0),
-(NULL,16148, 0,7500,0,0, 11,20677,1,0, 0,0,0,0 ,0,0,0,0),
-(NULL,16148, 0,7000,0,0, 11,17631,5,0, 0,0,0,0 ,0,0,0,0);
-*/
-
-//Spectral Rider --> Try Event AI
-#define MOB_SPECTRAL_RIDER          16150
-#define SPELL_LIFEDRAIN             24300
-//USES SAME UNHOLY AURA AS UNRELENTING RIDER
-
-/*
-insert into `eventai_scripts` (`id`,`creature_id`,`event_type`,`event_param1`,`event_param2`,`event_param3`,`action1_type`,`action1_param1`,`action1_param2`,`action1_param3`,`action2_type`,`action2_param1`,`action2_param2`,`action2_param3`,`action3_type`,`action3_param1`,`action3_param2`,`action3_param3`)
-values
-(NULL,16150, 0,10000,0,0, 11,24300,4,0, 0,0,0,0 ,0,0,0,0),
-(NULL,16150, 1,1000,0,0, 11,27987,0,0, 0,0,0,0 ,0,0,0,0);
-*/
-
-//Spectral Horse --> Event AI
-#define MOB_SPECTRAL_HORSE          16149
-#define SPELL_STOMP                 27993
-
-/*
-insert into `eventai_scripts` (`id`,`creature_id`,`event_type`,`event_param1`,`event_param2`,`event_param3`,`action1_type`,`action1_param1`,`action1_param2`,`action1_param3`,`action2_type`,`action2_param1`,`action2_param2`,`action2_param3`,`action3_type`,`action3_param1`,`action3_param2`,`action3_param3`)
-values
-(NULL,16149, 0,7500,0,0, 11,27993,1,0, 0,0,0,0 ,0,0,0,0);
-*/
-
-float lifeside_spawn[3][3] = 
-{
-    {2714.49, -3429.49, 269},
-    {2692.22, -3429.49, 269},
-    {2669.90, -3429.49, 269}
-};
-
-float deadside_spawn[5][3] = 
-{
-    {2665.31, -3340.27, 269},
-    {2682.65, -3304.45, 269},
-    {2699.89, -3322.92, 269},
-    {2725.91, -3339.97, 269},
-    {2733.40, -3349.32, 269}
-};
-
-float teleport_spots[2][3] = 
-{
-    {2691.11, -3317.14, 269},
-    {2691.42, -3400.62, 269}
-};
+//Gothik Teleport Coordinates
+#define LIVE_X      2691.991699
+#define LIVE_Y      -3422.510742
+#define LIVE_Z      267.689362
+#define UNDEAD_X    2693.844238
+#define UNDEAD_Y    -3298.302490
+#define UNDEAD_Z    267.683167
 
 struct MANGOS_DLL_DECL boss_gothikAI : public ScriptedAI
 {
     boss_gothikAI(Creature* pCreature) : ScriptedAI(pCreature)
-    {  
-        pInstance = (pCreature->GetInstanceData()) ? ((ScriptedInstance*)pCreature->GetInstanceData()) : NULL;
+    {
         Reset();
+        Heroic = m_creature->GetMap()->IsHeroic();
+
+        LiveX[0]=2669.430176; LiveY[0]=-3430.828613; LiveZ[0]=268.563049;
+        LiveX[1]=2692.187988; LiveY[1]=-3431.384277; LiveZ[1]=268.563538;
+        LiveX[2]=2714.282959; LiveY[2]=-3431.556152; LiveZ[2]=268.563538;
     }
 
-    ScriptedInstance *pInstance;
-	
-    uint32 phase1end_timer;
-    uint32 harvestsouls_timer;
-    uint32 shadowbolt_timer;
-    uint32 teleport_timer;
+    //summon coordinates
+    float LiveX[3];
+    float LiveY[3];
+    float LiveZ[3];
+    
+    bool Heroic;
     uint32 phase;
-    uint32 pos;
+    uint32 Phase_Timer;
+    uint32 Shadowbolt_Timer;
 
-    uint32 spawn_trainee;
-    uint32 spawn_deathknight;
-    uint32 spawn_rider; 
+    //summon timers
+    uint32 Trainee_Timer;
+    uint32 DeathKnight_Timer;
+    uint32 Rider_Timer;
 
-    bool InCombat;
-
-    void JustDied(Unit* Killer)
-    {
-		DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
-		DoPlaySoundToSet(m_creature,SOUND_DEATH);
-		
-		if(pInstance)
-		{
-			pInstance->SetData(ENCOUNT_GOTHIK, 2);
-			HandleDoors(GO_VACCUUM_ENTER, 0);
-			HandleDoors(GO_VACCUUM_EXIT, 0);
-			HandleDoors(GO_VACCUUM_COMBAT, 0);
-			Unit *temp = Unit::GetUnit((*m_creature),pInstance->GetData64(GUID_RAZUVIOUS));
-			if(temp && temp->isDead())
-				HandleDoors(GO_DEATHKNIGHT_DOOR, 0);
-		}
-    }
-
-    void KilledUnit()
-    {
-        DoYell(SAY_SLAY,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_SLAY);
-    }
+    ScriptedInstance* pInstance;
 
     void Reset()
     {
-        m_creature->Relocate(2642.2,-3388.39,285.6); 
-       (*m_creature).GetMotionMaster()->MoveTargetedHome();
-        InCombat = false;
-        phase1end_timer = 24000; 
-        teleport_timer = 20000;//test
-        harvestsouls_timer = 5000;//test
-        shadowbolt_timer = 7500;//test
-        phase = -1;    
-        pos = -1; // teleport possition .. -1 Start , 0 life , 1 death
-        spawn_trainee = 27000;
-        spawn_deathknight = 77000;
-        spawn_rider = 137000; 	
+        phase = 1;
+        Phase_Timer = 210000;
+        Shadowbolt_Timer = 1200;
 
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-		if(pInstance)
-		{
-			pInstance->SetData(ENCOUNT_GOTHIK, 0);
-			HandleDoors(GO_VACCUUM_EXIT, 1);
-			HandleDoors(GO_VACCUUM_COMBAT, 0);
-			HandleDoors(GO_DEATHKNIGHT_DOOR, 1);
-            Unit *temp = Unit::GetUnit((*m_creature),pInstance->GetData64(GUID_RAZUVIOUS));
-			if(temp && temp->isDead())
-			    HandleDoors(GO_VACCUUM_ENTER, 0);
-		}
+        Trainee_Timer = 12000;     //every 15-21 sec, 3 trainees at a time
+        DeathKnight_Timer = 20000; //every 12-15 sec after that
+        Rider_Timer = 60000;       //every 45 sec after that
+
+        SetCombatMovement(false);
     }
-	
-	void AttackStart(Unit *who)
+
+    void DamageTaken(Unit *done_by, uint32 &damage)
     {
-        if (!who)
-            return;
-
-        if (who->isTargetableForAttack() && who!= m_creature)
-        {
-                ScriptedAI::AttackStart(who);
-                Aggro(who);
-        }
+        if(phase==1 || phase==2) damage=0;
     }
-	
-	void MoveInLineOfSight(Unit *who){}
 
     void Aggro(Unit *who)
     {
-        if (!InCombat)
+    }
+
+    void JustDied(Unit *killer)
+    {
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+            return;
+
+        int i;
+
+        //PHASE 1
+        if(phase==1)
         {
-            DoZoneInCombat(m_creature);
-            InCombat = true;
-            DoYell(SAY_START,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,SOUND_START);
-            phase = 0; 
-			phase1end_timer = 24000;  
-            //m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            HandleDoors(GO_VACCUUM_ENTER, GO_STATE_READY);
-            HandleDoors(GO_VACCUUM_COMBAT, 1);
+            if(Phase_Timer < diff)
+            {
+                phase = 2;
+                Phase_Timer = 60000; //phase 2 lasts 60 seconds
+            }
+            else Phase_Timer -= diff;
+
+            //summon trainees
+            if(Trainee_Timer < diff)
+            {
+                int r = irand(1,3);
+                for(i=0; i<r; i++)
+                {
+                    Unit *mob = m_creature->SummonCreature(CR_UN_TRAINEE, LiveX[i], LiveY[i], LiveZ[i], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+                    Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                    if(mob && target) mob->AddThreat(target, 1.0f);
+                }
+                Trainee_Timer = 15000+rand()%10000;
+            }
+            else Trainee_Timer -= diff;
+
+            //summon death knights
+            if(DeathKnight_Timer < diff)
+            {
+                i = irand(0,2);
+                Unit *mob = m_creature->SummonCreature(CR_UN_DEATHKNIGHT, LiveX[i], LiveY[i], LiveZ[i], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+                Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                if(mob && target) mob->AddThreat(target, 1.0f);
+                DeathKnight_Timer = 12000+rand()%6000;
+            }
+            else DeathKnight_Timer -= diff;
+
+            //summon rider
+            if(Rider_Timer < diff)
+            {
+                i = irand(0,2);
+                Unit *mob = m_creature->SummonCreature(CR_UN_RIDER, LiveX[i], LiveY[i], LiveZ[i], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+                Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                if(mob && target) mob->AddThreat(target, 1.0f);
+                Rider_Timer = 45000;
+            }
+            else Rider_Timer -= diff;
+        }
+
+        //PHASE 2
+        if(phase==2)
+        {
+            if(Phase_Timer < diff)
+            {
+                //teleport gothik down
+                m_creature->NearTeleportTo(UNDEAD_X, UNDEAD_Y, UNDEAD_Z, 0);
+                Phase_Timer = 15000;
+                phase = 3;
+
+                SetCombatMovement(true);
+                m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+            }
+            else Phase_Timer -= diff;
+        }
+
+        //PHASE 3,4
+        if(phase==3 || phase==4)
+        {
+            if(Phase_Timer < diff)
+            {
+                //cast Harvest Soul (-10% stats to the raid)
+                Unit* target = NULL;
+                std::list<HostilReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin();
+                for (i = m_creature->getThreatManager().getThreatList().begin(); i!=m_creature->getThreatManager().getThreatList().end(); ++i)
+                {
+                    target = Unit::GetUnit((*m_creature),(*i)->getUnitGuid());
+                    if(target && target->isAlive())
+                        DoCast(target, SP_HARVEST_SOUL);
+                }
+                //teleport gothik to the other side
+                if(phase==3)
+                    m_creature->NearTeleportTo(LIVE_X, LIVE_Y, LIVE_Z, 0);
+                else
+                    m_creature->NearTeleportTo(UNDEAD_X, UNDEAD_Y, UNDEAD_Z, 0);
+
+                Phase_Timer = 15000;
+                phase = (phase==3) ? 4 : 3;
+            }
+            else Phase_Timer -= diff;
+
+            //cast shadowbolts
+            if(Shadowbolt_Timer < diff)
+            {
+                DoCast(m_creature->getVictim(), Heroic ? H_SP_SHADOWBOLT : SP_SHADOWBOLT);
+                Shadowbolt_Timer = 1200;
+            }
+            else Shadowbolt_Timer -= diff;
+
+            //if 30% left, stop teleporting
+            if ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() <= 30)
+            {
+                phase=5;
+            }
+        }
+
+        //PHASE 5
+        if(phase==5)
+        {
+            if(Shadowbolt_Timer < diff)
+            {
+                DoCast(m_creature->getVictim(), Heroic ? H_SP_SHADOWBOLT : SP_SHADOWBOLT);
+                Shadowbolt_Timer = 1200;
+            }
+            else Shadowbolt_Timer -= diff;
         }
     }
-	 
-	 //Open/Closes Doors 
-    void HandleDoors(uint32 identifier, uint32 doorstate)
+};
+
+/*******************************************************************/
+//         UNRELENTING / SPECTRAL  TRAINEE  AI                     //
+/*******************************************************************/
+
+struct MANGOS_DLL_DECL mob_gothik_trainee_addAI : public ScriptedAI
+{
+    mob_gothik_trainee_addAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        if(pInstance)
+        Heroic = m_creature->GetMap()->IsHeroic();
+        Reset();
+    }
+
+    bool Heroic;
+    float UndeadX[5];
+    float UndeadY[5];
+    float UndeadZ[5];
+    uint32 PlagueTimer;
+    uint32 ExplosionTimer;
+
+    void Reset()
+    {
+        UndeadX[0]=2733.049561; UndeadY[0]=-3349.463135; UndeadZ[0]=268.113251;
+        UndeadX[1]=2725.951416; UndeadY[1]=-3310.180664; UndeadZ[1]=269.058899;
+        UndeadX[2]=2700.589111; UndeadY[2]=-3322.897949; UndeadZ[2]=269.107666;
+        UndeadX[3]=2683.933350; UndeadY[3]=-3304.313232; UndeadZ[3]=269.135010;
+        UndeadX[4]=2665.220459; UndeadY[4]=-3339.860840; UndeadZ[4]=268.846222;
+        PlagueTimer = 3000;
+        ExplosionTimer = 3000+rand()%8000;
+    }
+
+    void Aggro(Unit *who) {}
+
+    void JustDied(Unit *killer)
+    {
+        //if unrelenting trainee then spawn spectral trainee
+        if(m_creature->GetEntry()==CR_UN_TRAINEE) //maybe need check heroic entry too
         {
-            GameObject *door;
-            door = pInstance->instance->GetGameObject(pInstance->GetData64(identifier));
-            if (door)
-            {
-                switch (doorstate)
-                {
-                case 0: //open
-                    door->SetUInt32Value(GAMEOBJECT_FLAGS, 33);
-                    door->SetUInt32Value(GAMEOBJECT_BYTES_1, 0);
-                    break;
-                case 1: //close
-                    door->SetUInt32Value(GAMEOBJECT_FLAGS, 0);
-                    door->SetUInt32Value(GAMEOBJECT_BYTES_1, 1);
-                    break;
-                }
-            }
-            door = NULL;
+            int i = irand(0,5);
+            Unit *mob = m_creature->SummonCreature(CR_SP_TRAINEE, UndeadX[i], UndeadY[i], UndeadZ[i], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+            if(mob) mob->AddThreat(killer, 1.0f);
         }
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if(phase == 0)
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+            return;
+
+        if(m_creature->GetEntry()==CR_UN_TRAINEE)
         {
-            if(phase1end_timer < diff)
+            if(PlagueTimer < diff)
             {
-                switch(rand()%2)
-                {
-                case 0:
-                    DoYell("Foolishly you have sought your own demise.",LANG_UNIVERSAL,NULL);
-                    break;
-                case 1:
-                    DoYell("Teamanare shi rikk mannor rikk lok karkun",LANG_UNIVERSAL,NULL);
-                    break;
-                }
-                phase = 1;
-                phase1end_timer = 274000;
-                if(pInstance)
-			    {
-				    pInstance->SetData(ENCOUNT_GOTHIK, 1);				    
-				    HandleDoors(GO_VACCUUM_EXIT, 1);				    
-			    }  
-
-            }else phase1end_timer -=diff;
-
+                DoCast(m_creature->getVictim(), Heroic ? H_SP_DEATH_PLAGUE : SP_DEATH_PLAGUE);
+                PlagueTimer = 3500;
+            }
+            PlagueTimer -= diff;
+        }
+        else
+        {
+            if(ExplosionTimer < diff)
+            {
+                DoCast(m_creature, Heroic ? H_SP_EXPLOSION : SP_EXPLOSION);
+                ExplosionTimer = 5000+rand()%10000;
+            }
+            ExplosionTimer -= diff;
         }
 
-        if(phase == 1)
-        {
-            Unit* target; 
-            Creature* summon;
-            if(phase1end_timer < diff)
-            {
-                DoYell(SAY_TELEPORT,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_TELEPORT);
-                phase = 2;
-                pos = 0;
-                //teleport to life side
-                m_creature->Relocate(teleport_spots[pos][0],teleport_spots[pos][1],teleport_spots[pos][2]);
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-				HandleDoors(GO_VACCUUM_COMBAT, 0);
-            }else
-            {   
-                if (!m_creature->getVictim())
-                    m_creature->AI()->EnterEvadeMode();
-                phase1end_timer -=diff;
-            }
-              
-            if(spawn_trainee < diff)
-            {
-                
-                for(int i=0;i<=2;i++)
-                {
-                    summon = m_creature->SummonCreature(MOB_UNRELENTING_TRAINEE,lifeside_spawn[i][0],lifeside_spawn[i][1],lifeside_spawn[i][2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,15000);                                        
-                    target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                    summon->getThreatManager().addThreat(target,0.0f);
-                    
-                }
-                spawn_trainee = 20000;
-            }else spawn_trainee -=diff;
-
-            if(spawn_deathknight < diff)
-            {
-                summon = m_creature->SummonCreature(MOB_UNRELENTING_DEATHKNIGHT,lifeside_spawn[0][0],lifeside_spawn[0][1],lifeside_spawn[0][2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,15000);
-                target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                summon->getThreatManager().addThreat(target,0.0f);
-                summon = m_creature->SummonCreature(MOB_UNRELENTING_DEATHKNIGHT,lifeside_spawn[2][0],lifeside_spawn[2][1],lifeside_spawn[2][2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,15000);
-                target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                summon->getThreatManager().addThreat(target,0.0f);
-                spawn_deathknight = 25000;
-            }else spawn_deathknight -=diff;
-
-            if(spawn_rider < diff)
-            {
-                summon = m_creature->SummonCreature(MOB_UNRELENTING_RIDER,lifeside_spawn[1][0],lifeside_spawn[1][1],lifeside_spawn[1][2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,15000);   
-                target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                summon->getThreatManager().addThreat(target,0.0f);
-                spawn_rider = 30000;
-            } else spawn_rider -=diff;
-        }
-
-        if(phase == 2)
-        {
-            if (m_creature->getVictim())
-            {
-                if(teleport_timer < diff)
-                {
-                    if(pos == 1)
-                        pos = 0;
-                    else pos = 1;
-                    m_creature->Relocate(teleport_spots[pos][0],teleport_spots[pos][1],teleport_spots[pos][2]);
-                    teleport_timer = 20000;
-                }else 
-                {   
-                    if (!m_creature->getVictim())
-                        m_creature->AI()->EnterEvadeMode();
-                    teleport_timer  -= diff;
-                }
-         
-                if(harvestsouls_timer < diff) 
-                {          
-                    Unit* target = NULL;
-
-                    target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                    if (target)DoCast(target,SPELL_HARVESTSOUL);
-                    harvestsouls_timer = 5000;
-
-                }else harvestsouls_timer -= diff;
-
-                if(shadowbolt_timer < diff) 
-                {          
-                    Unit* target = NULL;
-
-                    target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                    if (target)DoCast(target,SPELL_SHADOWBOLT);
-                    shadowbolt_timer = 3000;
-                }else shadowbolt_timer -= diff;        
-            }
-
-        };
-    }   
+        DoMeleeAttackIfReady();
+    }
 };
+
+/*******************************************************************/
+//           UNRELENTING / SPECTRAL  DEATH KNIGHT  AI              //
+/*******************************************************************/
+
+struct MANGOS_DLL_DECL mob_gothik_dk_addAI : public ScriptedAI
+{
+    mob_gothik_dk_addAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        //Heroic = m_creature->GetMap()->IsHeroic();
+        Reset();      
+    }
+
+    float UndeadX[5];
+    float UndeadY[5];
+    float UndeadZ[5];
+    uint32 SpellTimer;
+
+    void Reset()
+    {
+        UndeadX[0]=2733.049561; UndeadY[0]=-3349.463135; UndeadZ[0]=268.113251;
+        UndeadX[1]=2725.951416; UndeadY[1]=-3310.180664; UndeadZ[1]=269.058899;
+        UndeadX[2]=2700.589111; UndeadY[2]=-3322.897949; UndeadZ[2]=269.107666;
+        UndeadX[3]=2683.933350; UndeadY[3]=-3304.313232; UndeadZ[3]=269.135010;
+        UndeadX[4]=2665.220459; UndeadY[4]=-3339.860840; UndeadZ[4]=268.846222;
+        SpellTimer = 8000+rand()%8000; //Shadow Mark and Whirlwind
+    }
+
+    void Aggro(Unit *who) {}
+
+    void JustDied(Unit *killer)
+    {
+        //if unrelenting DK then spawn spectral DK
+        if(m_creature->GetEntry()==CR_UN_DEATHKNIGHT) //maybe need check heroic entry too
+        {
+            int i = irand(0,5);
+            Unit *mob = m_creature->SummonCreature(CR_SP_DEATHKNIGHT, UndeadX[i], UndeadY[i], UndeadZ[i], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+            if(mob) mob->AddThreat(killer, 1.0f);
+        }
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+            return;
+
+        if(SpellTimer < diff)
+        {
+            if(m_creature->GetEntry()==CR_UN_DEATHKNIGHT)
+                DoCast(m_creature->getVictim(), SP_SHADOW_MARK);
+            else //Spectral DK
+                DoCast(m_creature->getVictim(), SP_WHIRLWIND);
+            SpellTimer = 8000+rand()%8000;
+        }
+        else SpellTimer -= diff;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+
+
+/*******************************************************************/
+//             UNRELENTING / SPECTRAL  RIDER  AI                   //
+/*******************************************************************/
+
+struct MANGOS_DLL_DECL mob_gothik_rider_addAI : public ScriptedAI
+{
+    mob_gothik_rider_addAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Heroic = m_creature->GetMap()->IsHeroic();
+        Reset();
+    }
+
+    bool Heroic;
+    uint32 VolleyTimer;
+    uint32 DrainTimer;
+    //uint32 FrenzyTimer;
+    float UndeadX[5];
+    float UndeadY[5];
+    float UndeadZ[5];
+
+    void Reset()
+    {
+        UndeadX[0]=2733.049561; UndeadY[0]=-3349.463135; UndeadZ[0]=268.113251;
+        UndeadX[1]=2725.951416; UndeadY[1]=-3310.180664; UndeadZ[1]=269.058899;
+        UndeadX[2]=2700.589111; UndeadY[2]=-3322.897949; UndeadZ[2]=269.107666;
+        UndeadX[3]=2683.933350; UndeadY[3]=-3304.313232; UndeadZ[3]=269.135010;
+        UndeadX[4]=2665.220459; UndeadY[4]=-3339.860840; UndeadZ[4]=268.846222;
+        VolleyTimer = 5000+rand()%10000;
+        DrainTimer = 8000+rand()%10000;
+        //FrenzyTimer = 2000;
+    }
+
+    void Aggro(Unit *who)
+    {
+        DoCast(m_creature, SP_UNHOLY_AURA);
+    }
+
+    void JustDied(Unit *killer)
+    {
+        //if unrelenting rider then spawn spectral rider
+        if(m_creature->GetEntry()==CR_UN_RIDER) //maybe need check heroic entry too
+        {
+            int i = irand(0,5);
+            Unit *mob = m_creature->SummonCreature(CR_SP_RIDER, UndeadX[i], UndeadY[i], UndeadZ[i], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+            if(mob) mob->AddThreat(killer, 1.0f);
+        }
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+            return;
+
+        if(m_creature->GetEntry()==CR_UN_RIDER)
+        {
+            if(VolleyTimer < diff)
+            {
+                //hit only targets with shadow mark
+                /*Unit* target = NULL;
+                std::list<HostilReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin();
+                for (i = m_creature->getThreatManager().getThreatList().begin(); i!=m_creature->getThreatManager().getThreatList().end(); ++i)
+                {
+                    target = Unit::GetUnit((*m_creature),(*i)->getUnitGuid());
+                    if(target && target->isAlive() && target->HasAura(SP_SHADOW_MARK))
+                        DoCast(target, Heroic ? H_SP_SHADOW_VOLLEY : SP_SHADOW_VOLLEY);
+                }*/
+                DoCast(m_creature->getVictim(), Heroic ? H_SP_SHADOW_VOLLEY : SP_SHADOW_VOLLEY);
+                VolleyTimer = 10000+rand()%10000;
+            }
+            else VolleyTimer -= diff;
+        }
+        else
+        {
+            if(DrainTimer < diff)
+            {
+                Unit *target = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
+                if(target) DoCast(target, Heroic ? H_SP_DRAIN_LIFE : SP_DRAIN_LIFE);
+                DrainTimer = 10000+rand()%10000;
+            }
+            else DrainTimer -= diff;
+
+            /*if(FrenzyTimer < diff)
+            { 
+                FrenzyTimer = 30000;
+            }
+            else FrenzyTimer -= diff;*/
+        }
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_mob_gothik_trainee_addAI(Creature* pCreature)
+{
+    return new mob_gothik_trainee_addAI(pCreature);
+}
+
+CreatureAI* GetAI_mob_gothik_dk_addAI(Creature* pCreature)
+{
+    return new mob_gothik_dk_addAI(pCreature);
+}
+
+CreatureAI* GetAI_mob_gothik_rider_addAI(Creature* pCreature)
+{
+    return new mob_gothik_rider_addAI(pCreature);
+}
 
 CreatureAI* GetAI_boss_gothik(Creature* pCreature)
 {
     return new boss_gothikAI(pCreature);
-};
-
-struct MANGOS_DLL_DECL mob_u_traineeAI : public ScriptedAI
-{
-    mob_u_traineeAI(Creature* pCreature) : ScriptedAI(pCreature)
-    {  
-        Reset();
-    }
-
-    uint32 knockdown_timer;
-    uint32 eagleclaw_timer;
-
-    void Reset()
-    {
-        knockdown_timer = 5000;
-        eagleclaw_timer = 7500;
-    }
-
-    void Aggro(Unit *who)
-    {
-    }
-
-    void JustDied(Unit* Killer)
-    {
-        int r;
-        r = rand()%4;
-        Creature* temp = m_creature->SummonCreature(MOB_SPECTRAL_TRAINEE,deadside_spawn[r][0],deadside_spawn[r][1],deadside_spawn[r][2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,15000);
-        temp->getThreatManager().addThreat(Killer,0.0f);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
-            return;
-
-        if (knockdown_timer < diff)
-        {
-            DoCast(m_creature->getVictim(),SPELL_KNOCKDOWN_PASSIVE);
-            knockdown_timer = 5000;            
-        }else knockdown_timer -= diff;
-
-        if (eagleclaw_timer < diff)
-        {
-            DoCast(m_creature->getVictim(),SPELL_EAGLECLAW);
-            eagleclaw_timer = 5000;            
-        }else eagleclaw_timer -= diff;
-
-        DoMeleeAttackIfReady();
-    }
-};
-
-CreatureAI* GetAI_mob_u_trainee(Creature* pCreature)
-{
-    return new mob_u_traineeAI(pCreature);
-};
-
-
-struct MANGOS_DLL_DECL mob_u_deathknightAI : public ScriptedAI
-{
-    mob_u_deathknightAI(Creature* pCreature) : ScriptedAI(pCreature)
-    {  
-        Reset();
-    }
-
-     uint32 charge_timer;
-     uint32 shadowmark_timer;
-
-    void Reset()
-    {
-        charge_timer = 7600;
-        shadowmark_timer = 5000;
-    }
-
-    void Aggro(Unit *who)
-    {
-    }
-
-    void JustDied(Unit* Killer)
-    {
-        int r;
-        r = rand()%4;
-        Creature* temp = m_creature->SummonCreature(MOB_SPECTRAL_DEATHKNIGHT,deadside_spawn[r][0],deadside_spawn[r][1],deadside_spawn[r][2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,15000);
-        temp->getThreatManager().addThreat(Killer,0.0f);
-        temp = m_creature->SummonCreature(MOB_SPECTRAL_HORSE,deadside_spawn[r][0],deadside_spawn[r][1],deadside_spawn[r][2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,15000);
-        temp->getThreatManager().addThreat(Killer,0.0f);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
-            return;
-
-        if (charge_timer < diff)
-        {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if(target) DoCast(target,SPELL_CHARGE);
-            charge_timer = 7000;            
-        }else charge_timer -= diff;
-
-        if (shadowmark_timer < diff)
-        {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if(target) DoCast(target,SPELL_SHADOW_MARK);
-            shadowmark_timer = 5000;            
-        }else shadowmark_timer -= diff;
-
-        DoMeleeAttackIfReady();
-    }
-};
-
-CreatureAI* GetAI_mob_u_deathknight(Creature* pCreature)
-{
-    return new mob_u_deathknightAI(pCreature);
-};
-
-
-
-struct MANGOS_DLL_DECL mob_u_riderAI : public ScriptedAI
-{
-    mob_u_riderAI(Creature* pCreature) : ScriptedAI(pCreature)
-    {  
-        Reset();
-    }
-
-    bool unholy_aura;
-    uint32 aura_check;
-    uint32 shadowbolt_timer;
-
-    void Reset()
-    {
-        unholy_aura = false;
-        aura_check = 0;
-        shadowbolt_timer = 15000;
-    }
-
-    void Aggro(Unit *who)
-    {
-    }
-
-    void JustDied(Unit* Killer)
-    {
-        int r;
-        r = rand()%4;
-        Creature* temp = m_creature->SummonCreature(MOB_SPECTRAL_RIDER,deadside_spawn[r][0],deadside_spawn[r][1],deadside_spawn[r][2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,15000);
-        temp->getThreatManager().addThreat(Killer,0.0f);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
-            return;
-
-        if (aura_check < diff)
-        {
-            if(!(m_creature->HasAura(SPELL_UNHOLY_AURA,0)))
-                DoCast(m_creature,SPELL_UNHOLY_AURA);
-            aura_check = 10000;            
-        }else aura_check -= diff;
-
-        if (shadowbolt_timer < diff)
-        {
-            
-            Unit* Temp = NULL; 
-            std::list<HostilReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin();
-            for (; i != m_creature->getThreatManager().getThreatList().end(); ++i)
-            {
-                Temp = Unit::GetUnit((*m_creature),(*i)->getUnitGuid());
-                if(Temp && Temp->HasAura(SPELL_SHADOW_MARK,0))
-                    DoCast(Temp,SPELL_SHADOWBOLT);
-            };    
-            shadowbolt_timer = 10000;                    
-        }else shadowbolt_timer -= diff;
-
-        DoMeleeAttackIfReady();
-    }
-};
-
-CreatureAI* GetAI_mob_u_rider(Creature* pCreature)
-{
-    return new mob_u_riderAI(pCreature);
-};
+}
 
 void AddSC_boss_gothik()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_gothik"; // update creature_template set ScriptName = 'boss_gothik' where entry = 16060;
+    newscript->Name = "boss_gothik";
     newscript->GetAI = &GetAI_boss_gothik;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_u_trainee";
-    newscript->GetAI = &GetAI_mob_u_trainee;
+    newscript->Name = "mob_gothik_trainee";
+    newscript->GetAI = &GetAI_mob_gothik_trainee_addAI;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_u_deathknight";
-    newscript->GetAI = &GetAI_mob_u_deathknight;
+    newscript->Name = "mob_gothik_dk";
+    newscript->GetAI = &GetAI_mob_gothik_dk_addAI;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_u_rider";
-    newscript->GetAI = &GetAI_mob_u_rider;
+    newscript->Name = "mob_gothik_rider";
+    newscript->GetAI = &GetAI_mob_gothik_rider_addAI;
     newscript->RegisterSelf();
 }

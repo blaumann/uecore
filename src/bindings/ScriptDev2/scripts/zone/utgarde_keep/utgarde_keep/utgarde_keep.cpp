@@ -1,6 +1,4 @@
-/*
- * Copyright (C) 2009 Trinity <http://www.trinitycore.org/>
- *
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -8,145 +6,147 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
+/* ScriptData
+SDName: Utgarde_Keep
+SD%Complete: 75
+SDComment:
+SDCategory: Utgarde Keep
+EndScriptData */
+
+/* ContentData
+mob_dragonflayer_forge_master
+EndContentData */
 
 #include "precompiled.h"
 #include "def_utgarde_keep.h"
 
-uint32 entry_search[3] = 
+/*######
+## mob_dragonflayer_forge_master
+######*/
+
+enum
 {
-    186609,
-    186610,
-    186611
+    SPELL_BURNING_BRAND     = 43757,
+    SPELL_BURNING_BRAND_H   = 59601,
+    SPELL_CAUTERIZE         = 60211,
+
+    MAX_FORGE               = 3
 };
 
-struct TRINITY_DLL_DECL npc_dragonflayer_forge_masterAI : public ScriptedAI
+struct MANGOS_DLL_DECL mob_dragonflayer_forge_masterAI : public ScriptedAI
 {
-    npc_dragonflayer_forge_masterAI(Creature *c) : ScriptedAI(c) 
+    mob_dragonflayer_forge_masterAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        fm_Type = 0;
+        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+        m_bHeroicMode = pCreature->GetMap()->IsHeroic();
+        m_uiForgeEncounterId = 0;
+        Reset();
     }
 
-    ScriptedInstance* pInstance;
-    uint8 fm_Type;
+    ScriptedInstance* m_pInstance;
+    bool m_bHeroicMode;
+
+    uint32 m_uiForgeEncounterId;
+    uint32 m_uiBurningBrandTimer;
 
     void Reset()
     {
-        if(fm_Type == 0) fm_Type = GetForgeMasterType();
-        CheckForge();
+        m_uiBurningBrandTimer = 2000;
     }
 
-    void CheckForge()
+    void SetMyForge()
     {
-       if(pInstance)
+        std::list<GameObject *> lGOList;
+        uint32 uiGOBellow = 0;
+        uint32 uiGOFire = 0;
+
+        for(uint8 i = 0; i < MAX_FORGE; ++i)
         {
-            switch(fm_Type)
+            switch(i)
             {
-            case 1:
-                pInstance->SetData(EVENT_FORGE_1,m_creature->isAlive() ? NOT_STARTED : DONE);
-                break;
-            case 2:
-                pInstance->SetData(EVENT_FORGE_2,m_creature->isAlive() ? NOT_STARTED : DONE);
-                break;
-            case 3:
-                pInstance->SetData(EVENT_FORGE_3,m_creature->isAlive() ? NOT_STARTED : DONE);
-                break;
+                case 0: uiGOBellow = GO_BELLOW_1; break;
+                case 1: uiGOBellow = GO_BELLOW_2; break;
+                case 2: uiGOBellow = GO_BELLOW_3; break;
             }
-        }
-    }
 
-    void JustDied(Unit *killer)
-    {
-        if(fm_Type == 0) fm_Type = GetForgeMasterType();
-        if(pInstance)
+            if (GameObject* pGOTemp = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(uiGOBellow)))
+                lGOList.push_back(pGOTemp);
+        }
+
+        if (!lGOList.empty())
         {
-            switch(fm_Type)
+            if (lGOList.size() != MAX_FORGE)
+                error_log("SD2: mob_dragonflayer_forge_master expected %u in lGOList, but does not match.", MAX_FORGE);
+
+            lGOList.sort(ObjectDistanceOrder(m_creature));
+
+            if (lGOList.front()->getLootState() == GO_READY)
+                lGOList.front()->UseDoorOrButton(DAY);
+            else if (lGOList.front()->getLootState() == GO_ACTIVATED)
+                lGOList.front()->ResetDoorOrButton();
+
+            switch(lGOList.front()->GetEntry())
             {
-            case 1:
-                pInstance->SetData(EVENT_FORGE_1,DONE);
-                break;
-            case 2:
-                pInstance->SetData(EVENT_FORGE_2,DONE);
-                break;
-            case 3:
-                pInstance->SetData(EVENT_FORGE_3,DONE);
-                break;
+                case GO_BELLOW_1: uiGOFire = GO_FORGEFIRE_1; break;
+                case GO_BELLOW_2: uiGOFire = GO_FORGEFIRE_2; break;
+                case GO_BELLOW_3: uiGOFire = GO_FORGEFIRE_3; break;
             }
-        }
-    }
 
-    void EnterCombat(Unit *who)
-    {
-        if(fm_Type == 0) fm_Type = GetForgeMasterType();
-        if(pInstance)
-        {
-            switch(fm_Type)
+            if (GameObject* pGOTemp = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(uiGOFire)))
             {
-            case 1:
-                pInstance->SetData(EVENT_FORGE_1,IN_PROGRESS);
-                break;
-            case 2:
-                pInstance->SetData(EVENT_FORGE_2,IN_PROGRESS);
-                break;
-            case 3:
-                pInstance->SetData(EVENT_FORGE_3,IN_PROGRESS);
-                break;
+                if (pGOTemp->getLootState() == GO_READY)
+                    pGOTemp->UseDoorOrButton(DAY);
+                else if (pGOTemp->getLootState() == GO_ACTIVATED)
+                    pGOTemp->ResetDoorOrButton();
             }
-        }
-        m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE ,EMOTE_ONESHOT_NONE);
-    }
 
-    uint8 GetForgeMasterType()
-    {
-        float diff = 30.0f;
-        int near_f = 0;
-
-        for(int i = 0; i < 3 ; i++)
-        {
-            GameObject* temp;
-            temp = FindGameObject(entry_search[i],30,m_creature);
-            if(temp)
-            {
-                if(diff > m_creature->GetDistance2d(temp))
-                {
-                    near_f = i + 1;
-                    diff = m_creature->GetDistance2d(temp);
-                    
-                }
-            }
-        }
-    
-        switch (near_f)
-        {
-        case 1:  return 1;
-        case 2:  return 2;
-        case 3:  return 3;
-        default: return 0;
+            m_uiForgeEncounterId = lGOList.front()->GetEntry();
         }
     }
 
-    void UpdateAI(const uint32 diff)
+    void Aggro(Unit* pWho)
     {
-        if(fm_Type == 0)
-            fm_Type = GetForgeMasterType();
+        SetMyForge();
+    }
 
-        if(!UpdateVictim())
+    void JustReachedHome()
+    {
+        SetMyForge();
+    }
+
+    void JustDied(Unit* pKiller)
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(m_uiForgeEncounterId, DONE);
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
+
+        if (m_uiBurningBrandTimer < uiDiff)
+        {
+            DoCast(m_creature->getVictim(), m_bHeroicMode ? SPELL_BURNING_BRAND_H : SPELL_BURNING_BRAND);
+            m_uiBurningBrandTimer = 15000;
+        }
+        else m_uiBurningBrandTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
 };
 
-CreatureAI* GetAI_npc_dragonflayer_forge_master(Creature *_Creature)
+CreatureAI* GetAI_mob_dragonflayer_forge_master(Creature* pCreature)
 {
-    return new npc_dragonflayer_forge_masterAI(_Creature);
+    return new mob_dragonflayer_forge_masterAI(pCreature);
 }
 
 void AddSC_utgarde_keep()
@@ -154,7 +154,7 @@ void AddSC_utgarde_keep()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npc_dragonflayer_forge_master";
-    newscript->GetAI = &GetAI_npc_dragonflayer_forge_master;
+    newscript->Name = "mob_dragonflayer_forge_master";
+    newscript->GetAI = &GetAI_mob_dragonflayer_forge_master;
     newscript->RegisterSelf();
 }

@@ -353,7 +353,6 @@ struct MANGOS_DLL_DECL npc_ros_dark_riderAI : public ScriptedAI
         {
             deathcharger->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             deathcharger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            deathcharger->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
             deathcharger->setFaction(2096);
         }
     }
