@@ -483,16 +483,20 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     // Check loaded DBC files proper version
-    if( !sSpellStore.LookupEntry(65509)            ||       // last added spell in 3.1.2
-        !sMapStore.LookupEntry(624)                ||       // last map added in 3.1.2
-        !sGemPropertiesStore.LookupEntry(1609)     ||       // last gem property added in 3.1.2
-        !sItemExtendedCostStore.LookupEntry(2670)  ||       // last item extended cost added in 3.1.2
-        !sCharTitlesStore.LookupEntry(166)         ||       // last char title added in 3.1.2
-        !sAreaStore.LookupEntry(2905)              ||       // last area (areaflag) added in 3.1.2
-        !sItemStore.LookupEntry(46379)             )        // last client known item added in 3.1.2
+    if( !sSpellStore.LookupEntry(66530)            ||       // last added spell in 3.1.3
+        !sMapStore.LookupEntry(624)                ||       // last map added in 3.1.3
+        !sGemPropertiesStore.LookupEntry(1609)     ||       // last gem property added in 3.1.3
+        !sItemExtendedCostStore.LookupEntry(2671)  ||       // last item extended cost added in 3.1.3
+        !sCharTitlesStore.LookupEntry(166)         ||       // last char title added in 3.1.3
+        !sAreaStore.LookupEntry(2905)              ||       // last area (areaflag) added in 3.1.3
+        !sItemStore.LookupEntry(46894)             )        // last client known item added in 3.1.3
     {
-        sLog.outError("\nYou have _outdated_ DBC files. Please extract correct versions from current using client.");
+        sLog.outError("\nYou have outdated DBC files. Please extract correct files from current client version.");
+        #ifndef MANGOS_DEBUG
         exit(1);
+        #else
+        sLog.outString("Continuing as this is a debug build...");
+        #endif
     }
 
     sLog.outString();

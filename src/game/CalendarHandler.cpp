@@ -63,9 +63,10 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket &recv_data)
     data.put<uint32>(p_counter,counter);
 
     data << (uint32) 1135753200;                            //wtf?? (28.12.2005 12:00)
-    data << (uint32) 0;                                     //  unk counter 4
+    data << (uint32) 0;                                     // unk counter 4
     data << (uint32) 0;                                     // unk counter 5
     //sLog.outDebug("Sending calendar");
+
     //data.hexlike();
     SendPacket(&data);
 }
