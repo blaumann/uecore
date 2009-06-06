@@ -1,1 +1,0 @@
-INSERT INTO script_texts SET entry='-1999579', content_default='', content_loc1='', content_loc2='', content_loc3='Interessant, sehr interessant. Habt ihr das in Durotar gefunden, $N?', content_loc4='', content_loc5='', content_loc6='', content_loc7='', content_loc8='', sound='', type='0', language='0', emote='0', comment='QUEST 829 OnComplete'; 

@@ -1,3 +1,0 @@
-- Fix current quests events SQL to avoid duplicate ID's,
-- Parse and fix all Instances SQL's,
-- and more...
