@@ -2432,7 +2432,7 @@ enum SummonType
     SUMMON_TYPE_WILD22            = 629, // 51061, 
     SUMMON_TYPE_DK_GUARDIAN4      = 647, // 55651, 52893, 
     SUMMON_TYPE_WILD23            = 648, // 59272, 55859,  51595, 48136,  42524, 
-    SUMMON_TYPE_WILD24            = 649, //47455, 
+    SUMMON_TYPE_WILD24            = 649, // 47455, 
     SUMMON_TYPE_WILD25            = 667, // 52556, 
     SUMMON_TYPE_CRITTER7          = 668, // 53768,
     SUMMON_TYPE_GHOUL_OF_THE_DEAD = 687,

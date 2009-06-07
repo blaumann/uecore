@@ -150,7 +150,7 @@ struct MANGOS_DLL_DECL ScriptedAI : public CreatureAI
     //Start no movement on victim
     void DoStartNoMovement(Unit* victim);
 
-    //Do melee swing of current victim if in rnage and ready and not casting
+    //Do melee swing of current victim if in range and ready and not casting
     void DoMeleeAttackIfReady();
 
     //Stop attack of current victim
