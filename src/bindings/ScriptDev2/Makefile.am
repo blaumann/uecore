@@ -64,7 +64,6 @@ scripts/npc/npc_escortAI.h \
 scripts/npc/npc_innkeeper.cpp \
 scripts/npc/npc_professions.cpp \
 scripts/npc/npcs_special.cpp \
-scripts/servers/guildmaster.cpp \
 scripts/zone/alterac_mountains/alterac_mountains.cpp \
 scripts/zone/arathi_highlands/arathi_highlands.cpp \
 scripts/zone/ashenvale_forest/ashenvale.cpp \
@@ -321,8 +320,6 @@ scripts/zone/naxxramas/def_naxxramas.h \
 scripts/zone/naxxramas/instance__naxxramas.cpp \
 scripts/zone/naxxramas/npcs_naxxramas_controller.cpp \
 scripts/zone/netherstorm/netherstorm.cpp \
-scripts/zone/northend/def_northrend.h \
-scripts/zone/northend/instance_northrend.cpp \
 scripts/zone/nexus/eye_of_eternity/boss_malygos.cpp \
 scripts/zone/nexus/eye_of_eternity/def_eye_of_eternity.h \
 scripts/zone/nexus/eye_of_eternity/instance_eye_of_eternity.cpp \

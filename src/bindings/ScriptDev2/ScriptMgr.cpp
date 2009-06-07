@@ -76,7 +76,6 @@ extern void AddSC_npc_professions();
 extern void AddSC_npcs_special();
 
 // -- Servers --
-extern void AddSC_guildmaster();
 
 //--------------------
 //------ ZONE --------
@@ -487,9 +486,6 @@ extern void AddSC_npc_naxxramas_controler();
 
 //Netherstorm
 extern void AddSC_netherstorm();
-
-//Northend
-extern void AddSC_instance_northrend();
 
 //Nexus
 //--Eye of Eternity
@@ -1157,7 +1153,6 @@ void ScriptsInit()
     AddSC_npcs_special();
 
     // -- Servers --
-    AddSC_guildmaster();
 
     //--------------------
     //------ ZONE --------
@@ -1554,9 +1549,6 @@ void ScriptsInit()
 
     //Netherstorm
     AddSC_netherstorm();
-
-    //Northend
-    AddSC_instance_northrend();
 
     //Nexus
     //--Eye of Eternity

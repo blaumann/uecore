@@ -866,8 +866,8 @@ void Spell::prepareDataForTriggerSystem()
                 if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000800000000060))
                     m_canTrigger = true;
                 break;
-            case SPELLFAMILY_PRIEST:  // For Penance heal/damage triggers need do it
-                if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0001800000000000))
+            case SPELLFAMILY_PRIEST:  // For Penance heal/damage triggers need do it / 34754 Clearcasting
+                if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0001820000000000))
                     m_canTrigger = true;
                 break;
             case SPELLFAMILY_ROGUE:   // For poisons need do it
@@ -1216,9 +1216,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
         return;
 
     // Recheck immune (only for delayed spells)
-    if( m_spellInfo->speed && (
-        unit->IsImmunedToDamage(GetSpellSchoolMask(m_spellInfo)) ||
-        unit->IsImmunedToSpell(m_spellInfo)))
+    if( m_spellInfo->speed && unit->IsImmunedToSpell(m_spellInfo))
     {
         m_caster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_IMMUNE);
         return;
@@ -4173,14 +4171,15 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if(m_caster->IsHostileTo(target))
                     return SPELL_FAILED_BAD_TARGETS;
             }
-            else
+            else if (!IsDispelSpell(m_spellInfo))
             {
                 if(m_caster->IsFriendlyTo(target))
                     return SPELL_FAILED_BAD_TARGETS;
             }
         }
 
-        if(IsPositiveSpell(m_spellInfo->Id))
+        // Dispel spells are considered negative, so let's do explicit check
+        if(IsPositiveSpell(m_spellInfo->Id) || (IsDispelSpell(m_spellInfo) && m_caster->IsFriendlyTo(target)))
             if(target->IsImmunedToSpell(m_spellInfo))
                 return SPELL_FAILED_TARGET_AURASTATE;
 
@@ -4211,6 +4210,19 @@ SpellCastResult Spell::CheckCast(bool strict)
         // check if target is in combat
         if (target != m_caster && (m_spellInfo->AttributesEx & SPELL_ATTR_EX_NOT_IN_COMBAT_TARGET) && target->isInCombat())
             return SPELL_FAILED_TARGET_AFFECTING_COMBAT;
+
+        // Do not allow replace of unique per target spells with lower ranks
+        if (Aura* Aur = target->GetAura(AuraType(m_spellInfo->EffectApplyAuraName[0]),
+                m_spellInfo->SpellFamilyName,
+                m_spellInfo->SpellFamilyFlags,
+                m_spellInfo->SpellFamilyFlags2))
+        {
+            // If already applied spell is casted not by us and is higher rank than our current spell
+            if ((Aur->GetCasterGUID() != m_caster->GetGUID()) &&
+                IsSingleFromSpellSpecificRanksPerTarget(GetSpellSpecific(m_spellInfo->Id),GetSpellSpecific(Aur->GetId())) &&
+                CompareAuraRanks(m_spellInfo->Id, 0, Aur->GetId(), 0) < 0)
+                return SPELL_FAILED_AURA_BOUNCED;
+        }
     }
 
     // Spell casted only on battleground
@@ -4455,14 +4467,19 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_EFFECT_TAMECREATURE:
             {
+                if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_BAD_TARGETS;
+
                 if (!m_targets.getUnitTarget() || m_targets.getUnitTarget()->GetTypeId() == TYPEID_PLAYER)
                     return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
 
-                if (m_targets.getUnitTarget()->getLevel() > m_caster->getLevel())
+                Creature* target = (Creature*)m_targets.getUnitTarget();
+
+                if (target->getLevel() > m_caster->getLevel())
                     return SPELL_FAILED_HIGHLEVEL;
 
                 // use SMSG_PET_TAME_FAILURE?
-                if (!((Creature*)m_targets.getUnitTarget())->GetCreatureInfo()->isTameable ())
+                if (!target->GetCreatureInfo()->isTameable (((Player*)m_caster)->CanTameExoticPets()))
                     return SPELL_FAILED_BAD_TARGETS;
 
                 // we must have SPELL_AURA_ALLOW_TAME_PET_TYPE aura in order to tame exotic pets
@@ -4780,6 +4797,14 @@ SpellCastResult Spell::CheckCast(bool strict)
         {
             case SPELL_AURA_DUMMY:
             {
+                // Mind Flay
+                if (m_spellInfo->SpellIconID == 548 && m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST)
+                {
+                    if (m_targets.getUnitTarget()->isDead())
+                        return SPELL_FAILED_BAD_TARGETS;
+                    if (m_caster->IsFriendlyTo(m_targets.getUnitTarget()))
+                        return SPELL_FAILED_TARGET_FRIENDLY;
+                }
                 //custom check
                 switch(m_spellInfo->Id)
                 {

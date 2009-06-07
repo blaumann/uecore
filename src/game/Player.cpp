@@ -279,7 +279,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_transport = 0;
 
     m_speakTime = 0;
-    m_speakCount = 0;
+    m_specsCount = 0;
 
     m_objectType |= TYPEMASK_PLAYER;
     m_objectTypeId = TYPEID_PLAYER;
@@ -3528,6 +3528,14 @@ bool Player::resetTalents(bool no_cost)
 
     //FIXME: remove pet before or after unlearn spells? for now after unlearn to allow removing of talent related, pet affecting auras
     RemovePet(NULL,PET_SAVE_NOT_IN_SLOT, true);
+    /* when prev line will dropped use next line
+    if(Pet* pet = GetPet())
+    {
+        if(pet->getPetType()==HUNTER_PET && !pet->GetCreatureInfo()->isTameable(CanTameExoticPets()))
+            RemovePet(NULL,PET_SAVE_NOT_IN_SLOT, true);
+    }
+    */
+
 
     if(m_canTitanGrip)
     {
@@ -14659,6 +14667,9 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 
 bool Player::isAllowedToLoot(Creature* creature)
 {
+    if (creature && !creature->isAlive() && !creature->PlayersWin()) 
+        return false;
+
     if(Player* recipient = creature->GetLootRecipient())
     {
         if (recipient == this)

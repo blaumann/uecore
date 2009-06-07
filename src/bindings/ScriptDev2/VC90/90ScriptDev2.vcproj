@@ -456,10 +456,6 @@
 			<Filter
 				Name="servers"
 				>
-				<File
-					RelativePath="..\scripts\servers\guildmaster.cpp"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="custom"
@@ -2965,18 +2961,6 @@
 					</File>
 					<File
 						RelativePath="..\scripts\zone\draktharon_keep\instance_drak_tharon_keep.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Northend"
-					>
-					<File
-						RelativePath="..\scripts\zone\northend\def_northrend.h"
-						>
-					</File>
-					<File
-						RelativePath="..\scripts\zone\northend\instance_northrend.cpp"
 						>
 					</File>
 				</Filter>

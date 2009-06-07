@@ -303,7 +303,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNoImmediateEffect,                         //248 SPELL_AURA_MOD_COMBAT_RESULT_CHANCE         implemented in Unit::RollMeleeOutcomeAgainst
     &Aura::HandleAuraConvertRune,                           //249 SPELL_AURA_CONVERT_RUNE
     &Aura::HandleAuraModIncreaseHealth,                     //250 SPELL_AURA_MOD_INCREASE_HEALTH_2
-    &Aura::HandleNULL,                                      //251 SPELL_AURA_MOD_ENEMY_DODGE
+    &Aura::HandleNoImmediateEffect,                         //251 SPELL_AURA_MOD_ENEMY_DODGE_REDUCE         implemented in Unit::RollMeleeOutcomeAgainst
     &Aura::HandleNULL,                                      //252 haste all?
     &Aura::HandleNULL,                                      //253 SPELL_AURA_MOD_BLOCK_CRIT_CHANCE
     &Aura::HandleNULL,                                      //254 SPELL_AURA_MOD_DISARM_SHIELD disarm Shield
@@ -1607,10 +1607,15 @@ void Aura::TriggerSpell()
                         caster->SummonCreature(17870, 0, 0, 0, caster->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 0);
                         return;
                     }
-//                    // Bloodmyst Tesla
-//                    case 31611: break;
-//                    // Doomfire
-//                    case 31944: break;
+//                  // Bloodmyst Tesla
+//                  case 31611: break;
+                    // Doomfire
+                    case 31944:
+                    {
+                        int32 damage = m_modifier.m_amount * ((float)(GetAuraDuration() + m_modifier.periodictime) / GetAuraMaxDuration());
+                        target->CastCustomSpell(target, 31969, &damage, 0, 0, true, NULL, NULL, 0);
+                        return;
+                    }
 //                    // Teleport Test
 //                    case 32236: break;
 //                    // Earthquake
@@ -1966,6 +1971,23 @@ void Aura::TriggerSpell()
         // Spell exist but require custom code
         switch(auraId)
         {
+            // Penance
+            case 47758: // Hurt effect - Rank 1
+            case 53001: // Hurt effect - Rank 2
+            case 53002: // Hurt effect - Rank 3
+            case 53003: // Hurt effect - Rank 4
+            case 47757: // Heal effect - Rank 1
+            case 52986: // Heal effect - Rank 2
+            case 52987: // Heal effect - Rank 3
+            case 52988: // Heal effect - Rank 4
+            {
+                if (!target->isAlive())
+                {
+                    caster->RemoveAurasDueToSpell(auraId);
+                    return;
+                }
+                break;
+            }
             // Curse of Idiocy
             case 1010:
             {
@@ -2051,11 +2073,11 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
     {
         switch(GetId())
         {
-            case 7057:                                      // Haunting Spirits
-                m_isPeriodic = true;
-                m_modifier.periodictime = irand (0, 60) + 30;
-                m_modifier.periodictime *= IN_MILISECONDS;
-                return;
+            case 7057:                                      // Haunting Spirits 
+                m_isPeriodic = true; 
+                m_modifier.periodictime = irand (0, 60) + 30; 
+                m_modifier.periodictime *= IN_MILISECONDS; 
+                return; 
             case 1515:                                      // Tame beast
                 // FIX_ME: this is 2.0.12 threat effect replaced in 2.1.x by dummy aura, must be checked for correctness
                 if( caster && m_target->CanHaveThreatList())
@@ -2339,6 +2361,13 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
         }
         case SPELLFAMILY_PRIEST:
         {
+            // Penance
+            if (m_spellProto->SpellIconID == 225 && caster->GetTypeId() == TYPEID_PLAYER)
+            {
+                if (apply)
+                    ((Player*)caster)->SetSelection(m_target->GetGUID());
+                return;
+            }
             // Pain and Suffering
             if( m_spellProto->SpellIconID == 2874 && m_target->GetTypeId()==TYPEID_PLAYER )
             {
@@ -6418,6 +6447,19 @@ void Aura::PeriodicTick()
                 int32 gain = pCaster->ModifyPower(power, gain_amount);
                 m_target->AddThreat(pCaster, float(gain) * 0.5f, GetSpellSchoolMask(GetSpellProto()), GetSpellProto());
             }
+             
+            // Mark of Kazzak 
+            if(GetId() == 32960) 
+            { 
+                int32 modifier = (m_target->GetPower(power) * 0.05f); 
+                m_target->ModifyPower(power, -modifier); 
+ 
+                if(m_target->GetPower(power) == 0) 
+                { 
+                    m_target->CastSpell(m_target, 32961, true, 0, this);                     
+                    SetAuraDuration(0); 
+                } 
+            }
             break;
         }
         case SPELL_AURA_PERIODIC_ENERGIZE:
@@ -6544,18 +6586,18 @@ void Aura::PeriodicTick()
                 m_target->ModifyPower(pt, m_modifier.m_amount * 3 / 5);
             break;
         }
-		case SPELL_AURA_DUMMY:
-		{
-            //Haunting Spirits
-            if (GetId() == 7057)
-            {
-                m_target->CastSpell((Unit*)NULL , m_modifier.m_amount , true);
-                m_modifier.periodictime = irand (0 , 60 ) + 30;
-                m_modifier.periodictime *= IN_MILISECONDS;
-                break;
-            }
-            break;
-        }
+        case SPELL_AURA_DUMMY: 
+        { 
+            // Haunting Spirits 
+            if (GetId() == 7057) 
+            { 
+                m_target->CastSpell((Unit*)NULL, m_modifier.m_amount, true); 
+                m_modifier.periodictime = irand (0, 60 ) + 30; 
+                m_modifier.periodictime *= IN_MILISECONDS; 
+                break; 
+            } 
+            break; 
+        }  
         // Here tick dummy auras
         case SPELL_AURA_PERIODIC_DUMMY:
         {
@@ -6905,15 +6947,8 @@ void Aura::PeriodicDummyTick()
             {
                 if (!caster)
                     return;
-                int32 damage = m_modifier.m_amount;
-                // Full damage to target at 0 tick
-                if (m_duration > m_modifier.periodictime)
-                {
-                    caster->CastCustomSpell(m_target, 53352, &damage, NULL, NULL, true, NULL, this);
-                    return;
-                }
-                damage/=4;
-                caster->CastCustomSpell(m_target, 56298, &damage, NULL, NULL, true, NULL, this);
+
+                m_target->CastCustomSpell(m_target, 53352, &m_modifier.m_amount, NULL, NULL, true, NULL, this);
                 return;
             }
             switch (spell->Id)

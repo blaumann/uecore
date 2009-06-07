@@ -1485,6 +1485,9 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         int32 CalculateSpellDamage(SpellEntry const* spellProto, uint8 effect_index, int32 basePoints, Unit const* target);
         int32 CalculateSpellDuration(SpellEntry const* spellProto, uint8 effect_index, Unit const* target);
         float CalculateLevelPenalty(SpellEntry const* spellProto) const;
+        bool PlayersWin() const { return (GetPlayersDamage()>0); }
+        int32 GetPlayersDamage() const { return m_playersDamage; }
+        void SetPlayersDamage(int32 v) { m_playersDamage = v; }
 
         void addFollower(FollowerReference* pRef) { m_FollowingRefManager.insertFirst(pRef); }
         void removeFollower(FollowerReference* /*pRef*/ ) { /* nothing to do yet */ }
@@ -1596,6 +1599,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         uint32 m_reactiveTimer[MAX_REACTIVE];
         uint32 m_regenTimer;
+        int32 m_playersDamage;
         uint32 m_lastRegenerate;                            // msecs
         uint64 m_vehicleGUID;
 
