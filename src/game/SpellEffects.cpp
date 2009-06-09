@@ -3707,8 +3707,11 @@ void Spell::EffectSummonType(uint32 i)
         case SUMMON_TYPE_GHOUL_OF_THE_DEAD:
         case SUMMON_TYPE_FORCE_OF_NATURE:
         case SUMMON_TYPE_GUARDIAN2:
+        case SUMMON_TYPE_DK_GUARDIAN4:
         case SUMMON_TYPE_DK_GUARDIAN5:
         case SUMMON_TYPE_GUARDIAN12:
+        case SUMMON_TYPE_GUARDIAN13:
+        case SUMMON_TYPE_GUARDIAN16:
             EffectSummonGuardian(i);
             return;
         case SUMMON_TYPE_POSESSED:
