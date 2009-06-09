@@ -27,7 +27,7 @@
 Vehicle::Vehicle() : Creature(), m_vehicleId(0), m_auraUpdateMask(0), despawn(false), m_creation_time(0)
 {
     m_isVehicle = true;
-    m_updateFlag = (UPDATEFLAG_LOWGUID | UPDATEFLAG_HIGHGUID | UPDATEFLAG_LIVING | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_VEHICLE);
+    m_updateFlag = (UPDATEFLAG_LIVING | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_VEHICLE);
 }
 
 Vehicle::~Vehicle()
@@ -206,9 +206,10 @@ void Vehicle::setDeathState(DeathState s)                       // overwrite vir
     Creature::setDeathState(s);
     if(s == JUST_DIED)
     {
-        RemoveAllPassengers();
         if(GetVehicleFlags() & VF_DESPAWN_NPC)
             Dismiss();
+        else
+            RemoveAllPassengers();
     }
 }
 
@@ -286,7 +287,10 @@ void Vehicle::RellocatePassengers(Map *map)
             float xx = GetPositionX() + passengers->m_SeatData.OffsetX * scale;
             float yy = GetPositionY() + passengers->m_SeatData.OffsetY * scale;
             float zz = GetPositionZ() + passengers->m_SeatData.OffsetZ * scale;
-            float oo = m_SeatData.Orientation;
+            //float oo = passengers->m_SeatData.Orientation;
+            // this is not correct, we should recalculate
+            // actual rotation depending on vehicle
+            float oo = passengers->GetOrientation();
 
             if(passengers->GetTypeId() == TYPEID_PLAYER)
                 ((Player*)passengers)->SetPosition(xx, yy, zz, oo);
@@ -303,7 +307,10 @@ void Vehicle::RellocatePassengers(Map *map)
             float xx = GetPositionX() + passengers->m_SeatData.OffsetX * scale;
             float yy = GetPositionY() + passengers->m_SeatData.OffsetY * scale;
             float zz = GetPositionZ() + passengers->m_SeatData.OffsetZ * scale;
-            float oo = m_SeatData.Orientation;
+            //float oo = passengers->m_SeatData.Orientation;
+            // this is not correct, we should recalculate
+            // actual rotation depending on vehicle
+            float oo = passengers->GetOrientation();
 
             map->CreatureRelocation((Creature*)passengers, xx, yy, zz, oo);
             ((Vehicle*)passengers)->RellocatePassengers(map);
@@ -373,7 +380,7 @@ void Vehicle::AddPassenger(Unit *unit, int8 seatId, bool force)
                 ((Player*)unit)->SetGroupUpdateFlag(GROUP_UPDATE_VEHICLE);
 
             SpellClickInfoMap const& map = objmgr.mSpellClickInfoMap;
-            for(SpellClickInfoMap::const_iterator itr = map.lower_bound(unit->GetEntry()); itr != map.upper_bound(unit->GetEntry()); ++itr)
+            for(SpellClickInfoMap::const_iterator itr = map.lower_bound(GetEntry()); itr != map.upper_bound(GetEntry()); ++itr)
             {
                 if(itr->second.questId == 0 || ((Player*)unit)->GetQuestStatus(itr->second.questId) == QUEST_STATUS_INCOMPLETE)
                 {
@@ -506,6 +513,8 @@ void Vehicle::RemoveAllPassengers()
             }
         }
     }
+    // make sure everything is cleared
+    InitSeats();
 }
 
 bool Vehicle::HasSpell(uint32 spell) const

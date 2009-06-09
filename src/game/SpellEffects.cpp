@@ -3707,11 +3707,8 @@ void Spell::EffectSummonType(uint32 i)
         case SUMMON_TYPE_GHOUL_OF_THE_DEAD:
         case SUMMON_TYPE_FORCE_OF_NATURE:
         case SUMMON_TYPE_GUARDIAN2:
-        case SUMMON_TYPE_DK_GUARDIAN4:
         case SUMMON_TYPE_DK_GUARDIAN5:
         case SUMMON_TYPE_GUARDIAN12:
-        case SUMMON_TYPE_GUARDIAN13:
-        case SUMMON_TYPE_GUARDIAN16:
             EffectSummonGuardian(i);
             return;
         case SUMMON_TYPE_POSESSED:
@@ -7115,8 +7112,12 @@ void Spell::EffectKnockBack(uint32 i)
     if(!unitTarget || !m_caster)
         return;
 
+    Unit* target = unitTarget->GetCharmer();
+    if(!target)
+        target = unitTarget;
+
     // Effect only works on players
-    if(unitTarget->GetTypeId()!=TYPEID_PLAYER)
+    if(target->GetTypeId()!=TYPEID_PLAYER)
         return;
 
     float vsin = sin(m_caster->GetAngle(unitTarget));
@@ -7130,7 +7131,7 @@ void Spell::EffectKnockBack(uint32 i)
     data << float(m_spellInfo->EffectMiscValue[i])/10;      // Horizontal speed
     data << float(damage/-10);                              // Z Movement speed (vertical)
 
-    ((Player*)unitTarget)->GetSession()->SendPacket(&data);
+    ((Player*)target)->GetSession()->SendPacket(&data);
 }
 
 void Spell::EffectSendTaxi(uint32 i)

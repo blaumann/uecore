@@ -10936,6 +10936,7 @@ void Unit::RemoveFromWorld()
 
 void Unit::CleanupsBeforeDelete()
 {
+    ExitVehicle();                                          // make sure we always leave vehicle, otherwise it will crash
     if(m_uint32Values)                                      // only for fully created object
     {
         InterruptNonMeleeSpells(true);
@@ -12399,7 +12400,12 @@ void Unit::SetPvP( bool state )
 
 void Unit::EnterVehicle(Vehicle *vehicle, int8 seat_id, bool force)
 {
+    // dont allow multiple vehicles
+    ExitVehicle();
+
     RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+    // NOTE : shapeshift too?
+
     VehicleEntry const *ve = sVehicleStore.LookupEntry(vehicle->GetVehicleId());
     if(!ve)
         return;
@@ -12434,6 +12440,7 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seat_id, bool force)
     }
     vehicle->AddPassenger(this, seat_id, force);
 
+    // probably not necesarry here for players
     BuildVehicleInfo();
 }
 

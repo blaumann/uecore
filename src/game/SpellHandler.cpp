@@ -120,8 +120,29 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     }
 
     SpellCastTargets targets;
-    if(!targets.read(&recvPacket, pUser))
+    if (!targets.read(&recvPacket, pUser))
         return;
+
+    targets.Update(pUser);
+
+    if (!pItem->IsTargetValidForItemUse(targets.getUnitTarget()))
+    {
+        // free gray item after use fail
+        pUser->SendEquipError(EQUIP_ERR_NONE, pItem, NULL);
+
+        // send spell error
+        if (SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellid))
+        {
+            // for implicit area/coord target spells 
+            if (IsPointEffectTarget(Targets(spellInfo->EffectImplicitTargetA[0])) ||
+                IsAreaEffectTarget(Targets(spellInfo->EffectImplicitTargetA[0])))
+                Spell::SendCastResult(_player,spellInfo,cast_count,SPELL_FAILED_NO_VALID_TARGETS);
+            // for explicit target spells 
+            else
+                Spell::SendCastResult(_player,spellInfo,cast_count,SPELL_FAILED_BAD_TARGETS);
+        }
+        return;
+    }
 
     //Note: If script stop casting it must send appropriate data to client to prevent stuck item in gray state.
     if(!Script->ItemUse(pUser,pItem,targets))
@@ -509,6 +530,9 @@ void WorldSession::HandleSpellClick( WorldPacket & recv_data )
     Creature *unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
 
     if(!unit)
+        return;
+
+    if(!unit->isAlive())
         return;
 
     VehicleDataStructure const* VehicleDS = objmgr.GetVehicleData(unit->GetEntry());

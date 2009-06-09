@@ -872,6 +872,9 @@ struct SpellProcEventEntry;                                 // used only private
 // vehicle system
 struct SeatData
 {
+    SeatData() : OffsetX(0.0f), OffsetY(0.0f),  OffsetZ(0.0f), Orientation(0.0f),
+                c_time(0), dbc_seat(0), seat(0), s_flags(0), v_flags(0) {}
+
     float OffsetX;
     float OffsetY;
     float OffsetZ;
