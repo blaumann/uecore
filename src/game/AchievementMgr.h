@@ -59,7 +59,7 @@ enum AchievementCriteriaDataType
     ACHIEVEMENT_CRITERIA_DATA_TYPE_T_TEAM              = 14,// team           0             HORDE(67), ALLIANCE(469)
 };
 
-#define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               15 // maximum value -1 in AchievementCriteriaDataType enum
+#define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               15 // maximum value +1 in AchievementCriteriaDataType enum
 
 class Player;
 class Unit;
