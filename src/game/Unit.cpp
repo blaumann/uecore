@@ -1293,8 +1293,26 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
                 uint32 resilienceReduction = ((Player*)pVictim)->GetMeleeCritDamageReduction(damageInfo->damage);
                 damageInfo->damage      -= resilienceReduction;
                 damageInfo->cleanDamage += resilienceReduction;
-            }
-            break;
+
+                if(GetTypeId()==TYPEID_PLAYER)
+                {
+			//sudden death
+			int chance = rand()%100;
+			if(HasAura(29723) && chance<4)
+			{
+			CastSpell(this, 52437, true);
+			}
+			if(HasAura(29725) && chance<7)
+			{
+			CastSpell(this, 52437, true);
+			}
+			if(HasAura(29724) && chance<10)
+			{
+			CastSpell(this, 52437, true);
+			}
+		}
+	}
+		break;
         }
         case MELEE_HIT_PARRY:
             damageInfo->TargetState  = VICTIMSTATE_PARRY;
