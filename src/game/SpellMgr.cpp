@@ -1139,7 +1139,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
         case SPELLFAMILY_GENERIC:
             switch(spellInfo_2->SpellFamilyName)
             {
-                case SPELLFAMILY_GENERIC:                   // same family case
+case SPELLFAMILY_GENERIC:                   // same family case
                 {
                     // Thunderfury
                     if ((spellInfo_1->Id == 21992 && spellInfo_2->Id == 27648) ||
@@ -1175,6 +1175,14 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     // See Chapel Invisibility and See Noth Invisibility
                     if( (spellInfo_1->Id == 52950 && spellInfo_2->Id == 52707) ||
                         (spellInfo_2->Id == 52950 && spellInfo_1->Id == 52707) )
+                        return false;
+
+                    // Sextant of Unstable Currents and Band of the Eternal Sage
+                    if( spellInfo_1->SpellIconID == 502 && spellInfo_2->SpellIconID == 502 )
+                        return false;
+
+                    // Lightning Speed and Crushing Waves
+                    if( spellInfo_1->SpellIconID == 2010 && spellInfo_2->SpellIconID == 2010 )
                         return false;
 
                     // Regular and Night Elf Ghost
@@ -1256,13 +1264,38 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 if( (spellInfo_1->SpellFamilyFlags & UI64LIT(0x0000000000010000)) && (spellInfo_2->SpellVisual[0] == 72 && spellInfo_2->SpellIconID == 1499) ||
                     (spellInfo_2->SpellFamilyFlags & UI64LIT(0x0000000000010000)) && (spellInfo_1->SpellVisual[0] == 72 && spellInfo_1->SpellIconID == 1499) )
                     return false;
+
+                // Living Bomb & Ignite (Dots)
+               if( (spellInfo_1->SpellFamilyFlags & UI64LIT(0x2000000000000)) && (spellInfo_2->SpellFamilyFlags & UI64LIT(0x8000000)) ||
+                   (spellInfo_2->SpellFamilyFlags & UI64LIT(0x2000000000000)) && (spellInfo_1->SpellFamilyFlags & UI64LIT(0x8000000)) )
+                   return false;
+
+               // Fireball & Pyroblast (Dots)
+               if( (spellInfo_1->SpellFamilyFlags & UI64LIT(0x1)) && (spellInfo_2->SpellFamilyFlags & UI64LIT(0x400000)) ||
+                   (spellInfo_2->SpellFamilyFlags & UI64LIT(0x1)) && (spellInfo_1->SpellFamilyFlags & UI64LIT(0x400000)) )
+                   return false;
+
             }
             // Detect Invisibility and Mana Shield (multi-family check)
             if( spellInfo_2->Id == 132 && spellInfo_1->SpellIconID == 209 && spellInfo_1->SpellVisual[0] == 968 )
                 return false;
 
+            // Arcane Intellect and Dalaran Intellect
+            if( spellInfo_1->Id == 61024 && spellInfo_2->SpellIconID == 125 ||
+                spellInfo_2->Id == 61024 && spellInfo_1->SpellIconID == 125 ||
+                spellInfo_1->Id == 61024 && spellInfo_2->SpellIconID == 1694 ||
+                spellInfo_2->Id == 61024 && spellInfo_1->SpellIconID == 1694 ||
+                spellInfo_1->Id == 61316 && spellInfo_2->SpellIconID == 125 ||
+                spellInfo_2->Id == 61316 && spellInfo_1->SpellIconID == 125 ||
+                spellInfo_1->Id == 61316 && spellInfo_2->SpellIconID == 1694 ||
+                spellInfo_2->Id == 61316 && spellInfo_1->SpellIconID == 1694 )
+                return true;                        // can't be stacked
+
             // Combustion and Fire Protection Aura (multi-family check)
             if( spellInfo_1->Id == 11129 && spellInfo_2->SpellIconID == 33 && spellInfo_2->SpellVisual[0] == 321 )
+                return false;
+
+            if( spellInfo_1->EffectSpellClassMaskC[0] == 262144 && spellInfo_2->EffectSpellClassMaskC[0] == 262144)
                 return false;
 
             break;
@@ -1427,6 +1460,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 if( IsSealSpell(spellInfo_1) && IsSealSpell(spellInfo_2) )
                     return true;
             }
+            // Inner Fire and Consecration
+            if(spellInfo_2->SpellFamilyName == SPELLFAMILY_PRIEST)
+                if(spellInfo_1->SpellIconID == 51 && spellInfo_2->SpellIconID == 51)
+                return false;
             // Combustion and Fire Protection Aura (multi-family check)
             if( spellInfo_2->Id == 11129 && spellInfo_1->SpellIconID == 33 && spellInfo_1->SpellVisual[0] == 321 )
                 return false;
@@ -1455,6 +1492,32 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             if( spellInfo_1->Id == 2825 && spellInfo_2->SpellIconID == 38 && spellInfo_2->SpellVisual[0] == 0 )
                 return false;
             break;
+	case SPELLFAMILY_DEATHKNIGHT:
+            if (spellInfo_2->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT)
+            {
+                // Desecration (speed reduction aura) and Desecration (owner's damage bonus aura)
+                if (spellInfo_1->SpellIconID==2296 && spellInfo_2->SpellIconID==2296 &&
+                    spellInfo_1->SpellFamilyFlags == spellInfo_2->SpellFamilyFlags)
+                    return false;
+                //Frost Presence -> +10% max. health or +10% max. health -> Frost Presence
+                if ((spellInfo_2->Id == 48263 && spellInfo_1->Id == 61261) ||
+                    (spellInfo_2->Id == 61261 && spellInfo_1->Id == 48263))
+                    return false;
+                // Ebon Plague must replace Crypt Fever.
+                if ( (spellInfo_1->Attributes & 0x40000) && (spellInfo_1->AttributesEx & 0x8) &&
+                     (spellInfo_2->Attributes & 0x10) && (spellInfo_2->AttributesEx3 & 0x40000000) )
+                    return true;
+                // Higher rank Crypt Fever must replace lower.
+                if ( (spellInfo_1->Attributes & 0x10) && (spellInfo_1->AttributesEx3 & 0x40000000) &&
+                     (spellInfo_2->Attributes & 0x10) && (spellInfo_2->AttributesEx3 & 0x40000000) &&
+                     spellInfo_1->Id > spellInfo_2->Id )
+                    return true;
+                // Higher rank Ebon Plague must replace lower.
+                if ( (spellInfo_1->Attributes & 0x40000) && (spellInfo_1->AttributesEx & 0x8) &&
+                     (spellInfo_2->Attributes & 0x40000) && (spellInfo_2->AttributesEx & 0x8) &&
+                     spellInfo_1->Id > spellInfo_2->Id)
+                    return true;
+            }
         default:
             break;
     }

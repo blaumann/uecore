@@ -4461,8 +4461,10 @@ void Aura::HandleAuraModBaseResistancePCT(bool apply, bool /*Real*/)
     }
     else
     {
-        for(int8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL;x++)
-        {
+	if (GetId() == 48263 && apply)
+		m_target->CastSpell(m_target,61261,true,NULL,this);
+	for(int8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL;x++)
+    {
             if(m_modifier.m_miscvalue & int32(1<<x))
                 m_target->HandleStatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + x), BASE_PCT, float(m_modifier.m_amount), apply);
         }
@@ -5622,11 +5624,35 @@ void Aura::HandleSpiritOfRedemption( bool apply, bool Real )
 
 void Aura::CleanupTriggeredSpells()
 {
+    // King of the Jungle, trigger of increase damage is remove with remove Enrage
+    if (m_spellProto->SpellFamilyName == SPELLFAMILY_DRUID && m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000080000))
+    {
+        m_target->RemoveAurasDueToSpell(51185);
+    }
     if (m_spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR && (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000001000000020)))
     {
         // Blood Frenzy remove
         m_target->RemoveAurasDueToSpell(30069);
         m_target->RemoveAurasDueToSpell(30070);
+        return;
+    }
+// Master Shapeshifter remove
+	if (m_spellProto->SpellFamilyName == SPELLFAMILY_DRUID)
+	{
+		switch(m_spellProto->Id)
+		{
+			case 5487:
+			case 9634: m_target->RemoveAurasDueToSpell(48418); break;
+			case 768: m_target->RemoveAurasDueToSpell(48420); break;
+			case 24858: m_target->RemoveAurasDueToSpell(48421); break;
+			case 33891: m_target->RemoveAurasDueToSpell(48422); break;
+		}
+	}
+
+    if (m_spellProto->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellProto->SpellFamilyFlags & 0x00008000LL && (m_spellProto->AttributesEx2 & 0x10) )
+    {
+        // Frost Presence +10% max. health remove
+        m_target->RemoveAurasDueToSpell(61261);
         return;
     }
 
