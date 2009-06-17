@@ -454,6 +454,7 @@ class BattleGround
         virtual void HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/) {}
         // must be implemented in BG subclass if need AND call base class generic code
         virtual void HandleKillPlayer(Player *player, Player *killer);
+	 virtual void HandleKillUnit(Creature* /*unit*/, Player* /*killer*/);
 
         /* Battleground events */
         virtual void EventPlayerDroppedFlag(Player* /*player*/) {}
@@ -486,6 +487,7 @@ class BattleGround
         bool DelCreature(uint32 type);
         bool DelObject(uint32 type);
         bool AddSpiritGuide(uint32 type, float x, float y, float z, float o, uint32 team);
+	 int32 GetBGObjectId(uint64 guid);
 
         void DoorOpen(uint32 type);
         void DoorClose(uint32 type);

@@ -951,20 +951,19 @@ void BattleGround::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
     if (plr && plr->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
         plr->RemoveSpellsCausingAura(SPELL_AURA_MOD_SHAPESHIFT);
 
-    if(plr && !plr->isAlive())                              // resurrect on exit
-    {
-        plr->ResurrectPlayer(1.0f);
-        plr->SpawnCorpseBones();
-    }
-
-    RemovePlayer(plr, guid);                                // BG subclass specific code
-
     if(participant) // if the player was a match participant, remove auras, calc rating, update queue
     {
         BattleGroundTypeId bgTypeId = GetTypeID();
         BattleGroundQueueTypeId bgQueueTypeId = BattleGroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType());
         if (plr)
         {
+        if(!plr->isAlive())                              // resurrect on exit
+        {
+            plr->ResurrectPlayer(1.0f);
+            plr->SpawnCorpseBones();
+        }
+        RemovePlayer(plr, guid);                                // BG subclass specific code
+
             plr->ClearAfkReports();
 
             if(!team) team = plr->GetTeam();
@@ -1041,6 +1040,10 @@ void BattleGround::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
             plr->TeleportTo(plr->GetBattleGroundEntryPoint());
 
         sLog.outDetail("BATTLEGROUND: Removed player %s from BattleGround.", plr->GetName());
+    }
+    else
+    {
+        sLog.outError("BATTLEGROUND: RemovePlayerAtLeave: couldnt find player to remove");
     }
 
     if (!GetPlayersSize() && !GetInvitedCount(HORDE) && !GetInvitedCount(ALLIANCE))
@@ -1587,6 +1590,19 @@ bool BattleGround::AddSpiritGuide(uint32 type, float x, float y, float z, float 
     return true;
 }
 
+int32 BattleGround::GetBGObjectId(uint64 guid)
+{
+    uint32 i = 0;
+    while(i <= m_BgObjects.size())
+    {
+        if(m_BgObjects[i] == guid)
+            return i;
+        else i++;
+    }
+    sLog.outError("BattleGround: cheating? a player used a gameobject which isnt supposed to be a usable object!");
+    return -1;
+}
+
 void BattleGround::SendMessageToAll(int32 entry, ChatMsg type, Player const* source)
 {
     MaNGOS::BattleGroundChatBuilder bg_builder(type, entry, source);
@@ -1688,6 +1704,10 @@ void BattleGround::HandleKillPlayer( Player *player, Player *killer )
     // to be able to remove insignia -- ONLY IN BattleGrounds
     if (!isArena())
         player->SetFlag( UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE );
+}
+
+void BattleGround::HandleKillUnit(Creature *creature, Player *killer)
+{
 }
 
 // return the player's team based on battlegroundplayer info

@@ -116,7 +116,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode( WorldPacket & recv_data )
     uint32 quest;
     uint32 unk1;
     recv_data >> guid >> quest >> unk1;
-
+    BattleGround* bg;
     if(!GetPlayer()->isAlive())
         return;
 
@@ -403,6 +403,11 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recv_data)
     Quest const *pQuest = objmgr.GetQuestTemplate(quest);
     if( pQuest )
     {
+        if(GetPlayer()->InBattleGround())
+            if(bg = GetPlayer()->GetBattleGround())
+                if(bg->GetTypeID() == BATTLEGROUND_AV)
+                    ((BattleGroundAV*)bg)->UpdateQuest(quest, GetPlayer());
+
         if( _player->GetQuestStatus( quest ) != QUEST_STATUS_COMPLETE )
         {
             if( pQuest->IsRepeatable() )

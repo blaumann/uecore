@@ -705,11 +705,37 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             Player *killed = ((Player*)pVictim);
             if(BattleGround *bg = killed->GetBattleGround())
                 if(player)
-                    bg->HandleKillPlayer(killed, player);
-                //later we can add support for creature->player kills here i'm
-                //not sure, but i guess those kills also get counted in av
-                //else if(GetTypeId() == TYPEID_UNIT)
-                //    bg->HandleKillPlayer(killed,(Creature*)this);
+		{
+                     bg->HandleKillPlayer(killed, killer);   // drop flags and etc
+                    // add +1 deaths
+                    bg->UpdatePlayerScore(killed, SCORE_DEATHS, 1);
+                    if(killer)
+                    {
+                        // add +1 kills
+                        bg->UpdatePlayerScore(killer, SCORE_HONORABLE_KILLS, 1);
+                        bg->UpdatePlayerScore(killer, SCORE_KILLING_BLOWS, 1);
+                    }
+                    // to be able to remove insignia
+                    killed->SetFlag( UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE );
+                }
+        }else if(pVictim->GetTypeId() == TYPEID_UNIT)
+        {
+            Player *killer = NULL;
+            if(GetTypeId() == TYPEID_PLAYER)
+                killer = ((Player*)this);
+            else if(GetTypeId() == TYPEID_UNIT && ((Creature*)this)->isPet())
+            {
+                Unit *owner = GetOwner();
+                if(owner && owner->GetTypeId() == TYPEID_PLAYER)
+                    killer = ((Player*)owner);
+            }
+            if(killer)
+            {
+                if(BattleGround *bg = killer->GetBattleGround())
+                {
+                    bg->HandleKillUnit((Creature*)pVictim,killer);
+                }
+            }
         }
     }
     else                                                    // if (health <= damage)
