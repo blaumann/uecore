@@ -34,7 +34,6 @@
 #include "World.h"
 #include "ObjectAccessor.h"
 #include "BattleGroundMgr.h"
-#include "MapManager.h"
 #include "SocialMgr.h"
 #include "zlib/zlib.h"
 
