@@ -725,7 +725,7 @@ void BattleGround::EndBattleGround(uint32 winner)
     {
         winner_arena_team = objmgr.GetArenaTeamById(GetArenaTeamIdForTeam(winner));
         loser_arena_team = objmgr.GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(winner)));
-        if (winner_arena_team && loser_arena_team)
+        if (winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team)
         {
             loser_rating = loser_arena_team->GetStats().rating;
             winner_rating = winner_arena_team->GetStats().rating;
@@ -750,7 +750,7 @@ void BattleGround::EndBattleGround(uint32 winner)
         if (!plr)
         {
             //if rated arena match - make member lost!
-            if (isArena() && isRated() && winner_arena_team && loser_arena_team)
+            if (isArena() && isRated() && winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team)
             {
                 if (team == winner)
                     winner_arena_team->OfflineMemberLost(itr->first, loser_rating);
@@ -781,7 +781,7 @@ void BattleGround::EndBattleGround(uint32 winner)
         //if(!team) team = plr->GetTeam();
 
         // per player calculation
-        if (isArena() && isRated() && winner_arena_team && loser_arena_team)
+        if (isArena() && isRated() && winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team)
         {
             if (team == winner)
             {
@@ -822,7 +822,7 @@ void BattleGround::EndBattleGround(uint32 winner)
         plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND, 1);
     }
 
-    if (isArena() && isRated() && winner_arena_team && loser_arena_team)
+    if (isArena() && isRated() && winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team)
     {
         // update arena points only after increasing the player's match count!
         //obsolete: winner_arena_team->UpdateArenaPointsHelper();
@@ -1071,7 +1071,7 @@ void BattleGround::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
                     //left a rated match while the encounter was in progress, consider as loser
                     ArenaTeam * winner_arena_team = objmgr.GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(team)));
                     ArenaTeam * loser_arena_team = objmgr.GetArenaTeamById(GetArenaTeamIdForTeam(team));
-                    if (winner_arena_team && loser_arena_team)
+                    if (winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team)
                         loser_arena_team->MemberLost(plr,winner_arena_team->GetRating());
                 }
             }

@@ -162,7 +162,7 @@ extern int main(int argc, char **argv)
     }
 
     sLog.outString( "%s [realm-daemon]", _FULLVERSION(REVISION_DATE,REVISION_TIME,REVISION_NR,REVISION_ID) );
-    sLog.outString( "[CWCore-Revision]: 61");
+    sLog.outString( "[CWCore-Revision]: 62");
     sLog.outString( "<Ctrl-C> to stop.\n" );
     sLog.outString("Using configuration file %s.", cfg_file);
 

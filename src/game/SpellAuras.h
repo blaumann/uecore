@@ -341,7 +341,7 @@ class MANGOS_DLL_SPEC Aura
 
         int32 m_currentBasePoints;                          // cache SpellEntry::EffectBasePoints and use for set custom base points
         int32 m_amount;
-		int32 m_maxduration;                                // Max aura duration
+        int32 m_maxduration;                                // Max aura duration
         int32 m_duration;                                   // Current time
         int32 m_timeCla;                                    // Timer for power per sec calcultion
         int32 m_periodicTimer;                              // Timer for periodic auras
