@@ -786,7 +786,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             if (IsAuraAddedBySpell(SPELL_AURA_MOD_CONFUSE, morphspell))
                 pVictim->RemoveAurasDueToSpell(morphspell);
             else if (IsAuraAddedBySpell(SPELL_AURA_MOD_PACIFY_SILENCE, morphspell))
-                pVictim->RemoveSpellbyDamageTaken(SPELL_AURA_MOD_PACIFY_SILENCE, damage);
+                pVictim->RemoveSpellbyDamageTaken(SPELL_AURA_MOD_PACIFY_SILENCE, damage, this);
 
         if(damagetype == DIRECT_DAMAGE || damagetype == SPELL_DIRECT_DAMAGE)
         {
