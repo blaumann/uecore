@@ -375,7 +375,7 @@ void Unit::RemoveSpellbyDamageTaken(AuraType auraType, uint32 damage, Unit *pCas
         return;
 
     // The chance to dispel an aura depends on the damage taken with respect to the casters level.
-    +    uint32 max_dmg = pCaster->getLevel() > 8 ? 25 * getLevel() - 150 : 50;
+    uint32 max_dmg = pCaster->getLevel() > 8 ? 25 * getLevel() - 150 : 50;
 
     // Glyph of Fear and Glyph of Entangling Roots bonus
     if (pCaster->GetTypeId() == TYPEID_PLAYER)

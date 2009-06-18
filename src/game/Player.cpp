@@ -4878,6 +4878,8 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
             }
             break;
         case CR_ARMOR_PENETRATION:
+            if(affectStats)
+                UpdateArmorPenetration(amount);
             break;
     }
 }
@@ -10484,6 +10486,16 @@ Item* Player::EquipItem( uint16 pos, Item *pItem, bool update )
             UpdateExpertise(BASE_ATTACK);
         else if( slot == EQUIPMENT_SLOT_OFFHAND )
             UpdateExpertise(OFF_ATTACK);
+
+        switch(slot)
+        {
+        case EQUIPMENT_SLOT_MAINHAND:
+        case EQUIPMENT_SLOT_OFFHAND:
+        case EQUIPMENT_SLOT_RANGED:
+            RecalculateRating(CR_ARMOR_PENETRATION);
+        default:
+            break;
+        }
     }
     else
     {
@@ -10626,6 +10638,16 @@ void Player::RemoveItem( uint8 bag, uint8 slot, bool update )
                     }
                     else if( slot == EQUIPMENT_SLOT_OFFHAND )
                         UpdateExpertise(OFF_ATTACK);
+                    // update armor penetration - passive auras may need it
+                    switch(slot)
+                    {
+                    case EQUIPMENT_SLOT_MAINHAND:
+                    case EQUIPMENT_SLOT_OFFHAND:
+                    case EQUIPMENT_SLOT_RANGED:
+                      RecalculateRating(CR_ARMOR_PENETRATION);
+                    default:
+                        break;
+                    }
                 }
             }
             // need update known currency
@@ -10733,7 +10755,17 @@ void Player::DestroyItem( uint8 bag, uint8 slot, bool update )
                 // remove item dependent auras and casts (only weapon and armor slots)
                 RemoveItemDependentAurasAndCasts(pItem);
 
-                // update expertise
+                // update expertise and armor penetration - passive auras may need it
+                switch(slot)
+                {
+                case EQUIPMENT_SLOT_MAINHAND:
+                case EQUIPMENT_SLOT_OFFHAND:
+                case EQUIPMENT_SLOT_RANGED:
+                    RecalculateRating(CR_ARMOR_PENETRATION);
+                default:
+                    break;
+                }
+
                 if ( slot == EQUIPMENT_SLOT_MAINHAND )
                     UpdateExpertise(BASE_ATTACK);
                 else if( slot == EQUIPMENT_SLOT_OFFHAND )

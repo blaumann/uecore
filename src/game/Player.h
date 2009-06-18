@@ -1568,6 +1568,7 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         void UpdateDefenseBonusesMod();
         void ApplyRatingMod(CombatRating cr, int32 value, bool apply);
+        inline void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true);}
         float GetMeleeCritFromAgility();
         float GetDodgeFromAgility();
         float GetSpellCritFromIntellect();
@@ -1594,6 +1595,7 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         void UpdateAllSpellCritChances();
         void UpdateSpellCritChance(uint32 school);
+        void UpdateArmorPenetration(int32 amount);
         void UpdateExpertise(WeaponAttackType attType);
         void ApplyManaRegenBonus(int32 amount, bool apply);
         void UpdateManaRegen();

@@ -309,6 +309,8 @@ class MANGOS_DLL_SPEC Aura
 
         virtual Unit* GetTriggerTarget() const { return m_target; }
 
+        void HandleModArmorPenetrationPct(bool Apply, bool Real);
+
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
         void HandleShapeshiftBoosts(bool apply);
 
@@ -320,6 +322,8 @@ class MANGOS_DLL_SPEC Aura
         void TriggerSpellWithValue();
         void PeriodicTick();
         void PeriodicDummyTick();
+
+        int32 GetAmount() const {return m_amount;}
 
         uint32 const *getAuraSpellClassMask() const { return  m_spellProto->EffectSpellClassMaskA + m_effIndex * 3; }
         bool isAffectedOnSpell(SpellEntry const *spell) const;
@@ -336,7 +340,8 @@ class MANGOS_DLL_SPEC Aura
         time_t m_applyTime;
 
         int32 m_currentBasePoints;                          // cache SpellEntry::EffectBasePoints and use for set custom base points
-        int32 m_maxduration;                                // Max aura duration
+        int32 m_amount;
+		int32 m_maxduration;                                // Max aura duration
         int32 m_duration;                                   // Current time
         int32 m_timeCla;                                    // Timer for power per sec calcultion
         int32 m_periodicTimer;                              // Timer for periodic auras
