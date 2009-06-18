@@ -1203,7 +1203,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
 
             unit->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
 
-            if( !(m_spellInfo->AttributesEx & SPELL_ATTR_EX_NO_INITIAL_AGGRO) )
+            if( !(m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_NO_INITIAL_AGGRO) )
             {
                 if(!unit->IsStandState() && !unit->hasUnitState(UNIT_STAT_STUNNED))
                     unit->SetStandState(UNIT_STAND_STATE_STAND);
@@ -1233,7 +1233,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             // assisting case, healing and resurrection
             if(unit->hasUnitState(UNIT_STAT_ATTACK_PLAYER))
                 m_caster->SetContestedPvP();
-            if( unit->isInCombat() && !(m_spellInfo->AttributesEx & SPELL_ATTR_EX_NO_INITIAL_AGGRO) )
+            if( unit->isInCombat() && !(m_spellInfo->AttributesEx & SPELL_ATTR_EX3_NO_INITIAL_AGGRO) )
             {
                 m_caster->SetInCombatState(unit->GetCombatTimer() > 0);
                 unit->getHostilRefManager().threatAssist(m_caster, 0.0f);
