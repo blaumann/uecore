@@ -1009,6 +1009,10 @@ void Aura::_AddAura()
             // Enrage aura state
             if(m_spellProto->Dispel == DISPEL_ENRAGE)
                 m_target->ModifyAuraState(AURA_STATE_ENRAGE, true);
+
+            // Bleeding aura state
+            if (GetAllSpellMechanicMask(m_spellProto) & 1<<MECHANIC_BLEED)
+                m_target->ModifyAuraState(AURA_STATE_BLEEDING, true);
         }
     }
 }
