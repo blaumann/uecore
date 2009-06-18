@@ -1306,6 +1306,11 @@ case SPELLFAMILY_GENERIC:                   // same family case
             if( spellInfo_1->EffectSpellClassMaskC[0] == 262144 && spellInfo_2->EffectSpellClassMaskC[0] == 262144)
                 return false;
 
+	     // Fire Ward and Fire Shield (multi-family check)
+            if ((spellInfo_1->SpellIconID == 16) && (spellInfo_1->SpellFamilyFlags & 0x0000000000000008LL) &&
+                (spellInfo_2->SpellIconID == 16) && (spellInfo_2->SpellFamilyName == SPELLFAMILY_WARLOCK))
+                return false;
+
             break;
         case SPELLFAMILY_WARLOCK:
             if( spellInfo_2->SpellFamilyName == SPELLFAMILY_WARLOCK )
@@ -1334,7 +1339,14 @@ case SPELLFAMILY_GENERIC:                   // same family case
             // Detect Invisibility and Mana Shield (multi-family check)
             if( spellInfo_1->Id == 132 && spellInfo_2->SpellIconID == 209 && spellInfo_2->SpellVisual[0] == 968 )
                 return false;
-            break;
+
+            // Fire Shield and Fire Ward (multi-family check)
+            if ((spellInfo_1->SpellIconID == 16) &&
+                (spellInfo_2->SpellIconID == 16) && (spellInfo_2->SpellFamilyFlags & 0x0000000000000008LL))
+                return false;
+
+		break;
+
         case SPELLFAMILY_WARRIOR:
             if( spellInfo_2->SpellFamilyName == SPELLFAMILY_WARRIOR )
             {
