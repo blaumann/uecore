@@ -46,6 +46,7 @@
 #include "BattleGround.h"
 #include "BattleGroundEY.h"
 #include "BattleGroundWS.h"
+#include "OutdoorPvPMgr.h"
 #include "VMapFactory.h"
 #include "Language.h"
 #include "SocialMgr.h"
@@ -54,6 +55,7 @@
 #include "ScriptCalls.h"
 #include "SkillDiscovery.h"
 #include "Formulas.h"
+#include "Vehicle.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -144,7 +146,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectStuck,                                    // 84 SPELL_EFFECT_STUCK
     &Spell::EffectSummonPlayer,                             // 85 SPELL_EFFECT_SUMMON_PLAYER
     &Spell::EffectActivateObject,                           // 86 SPELL_EFFECT_ACTIVATE_OBJECT
-    &Spell::EffectUnused,                                   // 87 SPELL_EFFECT_WMO_DAMAGE
+    &Spell::EffectDamageBuilding,                           // 87 SPELL_EFFECT_WMO_DAMAGE
     &Spell::EffectUnused,                                   // 88 SPELL_EFFECT_WMO_REPAIR
     &Spell::EffectUnused,                                   // 89 SPELL_EFFECT_WMO_CHANGE
     &Spell::EffectUnused,                                   // 90 SPELL_EFFECT_KILL_CREDIT
@@ -1232,40 +1234,20 @@ void Spell::EffectDummy(uint32 i)
             // Execute
             if(m_spellInfo->SpellFamilyFlags & UI64LIT(0x20000000))
             {
-                 if(!unitTarget)
-                     return;
-		int lastrage=0;
-		uint32 rage2 = 30;
-        uint32 rage = m_caster->GetPower(POWER_RAGE);
+                if(!unitTarget)
+                    return;
 
-		if(m_targets.getUnitTarget()->GetHealth() < m_targets.getUnitTarget()->GetMaxHealth()*0.2) rage2=rage; //Clean execute, ignore Sudden death
-		else if(m_caster->HasAura(29723)) lastrage=3;
-		else if (m_caster->HasAura(29725)) lastrage=7;
-		else if (m_caster->HasAura(29724)) lastrage=10;
+                uint32 rage = m_caster->GetPower(POWER_RAGE);
+                // Glyph of Execution bonus
+                if (Aura *aura = m_caster->GetDummyAura(58367))
+                    rage+=aura->GetModifier()->m_amount;
 
-                 // Glyph of Execution bonus
-                 if (Aura *aura = m_caster->GetDummyAura(58367)
-                 rage2+=aura->GetModifier()->m_amount;
-
-                int32 basePoints0 = damage+int32(rage2 * m_spellInfo->DmgMultiplier[i] +
-                                                  m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);
-                 m_caster->CastCustomSpell(unitTarget, 20647, &basePoints0, NULL, NULL, true, 0);
-
-		if(m_caster->HasAura(52437)) m_caster->RemoveSingleSpellAurasFromStack(52437);
-		if(lastrage !=0  )
-		{
-		if(rage-30 < lastrage)
-		m_caster->SetPower(POWER_RAGE,lastrage);
-		else
-		m_caster->SetPower(POWER_RAGE,rage-30);
-		}
-		else
-		{
-              m_caster->SetPower(POWER_RAGE,0);
-		}
-             return;
-             }
-
+                int32 basePoints0 = damage+int32(rage * m_spellInfo->DmgMultiplier[i] +
+                                                 m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);
+                m_caster->CastCustomSpell(unitTarget, 20647, &basePoints0, NULL, NULL, true, 0);
+                m_caster->SetPower(POWER_RAGE, 0);
+                return;
+            }
             // Slam
             if(m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000000200000))
             {
@@ -2983,10 +2965,8 @@ void Spell::EffectOpenLock(uint32 effIndex)
             if(BattleGround *bg = player->GetBattleGround())
             {
                 // check if it's correct bg
-                if(bg && bg->GetTypeID() == BATTLEGROUND_AB)
+                if(bg->GetTypeID() == BATTLEGROUND_AB || bg->GetTypeID() == BATTLEGROUND_AV)
                     bg->EventPlayerClickedOnFlag(player, gameObjTarget);
-                    if(bg && bg->GetTypeID() == BATTLEGROUND_AV)
-                        ((BattleGroundAV*)bg)->EventPlayerClaimsPoint(player,gameObjTarget->GetGUID(),gameObjTarget->GetEntry());
                 return;
             }
         }
@@ -3001,6 +2981,10 @@ void Spell::EffectOpenLock(uint32 effIndex)
                 return;
             }
         }
+        // handle outdoor pvp object opening, return true if go was registered for handling
+        // these objects must have been spawned by outdoorpvp!
+        else if(gameObjTarget->GetGOInfo()->type == GAMEOBJECT_TYPE_GOOBER && sOutdoorPvPMgr.HandleOpenGo(player, gameObjTarget->GetGUID()))
+            return;
         lockId = gameObjTarget->GetLockId();
         guid = gameObjTarget->GetGUID();
     }
@@ -3192,29 +3176,43 @@ void Spell::EffectSummonType(uint32 i)
         case SUMMON_TYPE_FORCE_OF_NATURE:
         case SUMMON_TYPE_GUARDIAN2:
             EffectSummonGuardian(i);
-            break;
+            return;
         case SUMMON_TYPE_WILD:
             EffectSummonWild(i);
-            break;
+            return;
         case SUMMON_TYPE_DEMON:
             EffectSummonDemon(i);
-            break;
-        case 1561:
-	     case SUMMON_TYPE_SUMMON:
+            return;
+        case SUMMON_TYPE_SUMMON:
             EffectSummon(i);
-            break;
+            return;
         case SUMMON_TYPE_CRITTER:
         case SUMMON_TYPE_CRITTER2:
         case SUMMON_TYPE_CRITTER3:
             EffectSummonCritter(i);
-            break;
+            return;
         case SUMMON_TYPE_TOTEM_SLOT1:
         case SUMMON_TYPE_TOTEM_SLOT2:
         case SUMMON_TYPE_TOTEM_SLOT3:
         case SUMMON_TYPE_TOTEM_SLOT4:
         case SUMMON_TYPE_TOTEM:
             EffectSummonTotem(i);
-            break;
+            return;
+        case SUMMON_TYPE_VEHICLE1:
+        case SUMMON_TYPE_VEHICLE2:
+        case SUMMON_TYPE_VEHICLE3:
+        case SUMMON_TYPE_VEHICLE4:
+        case SUMMON_TYPE_VEHICLE5:
+        case SUMMON_TYPE_VEHICLE6:
+        case SUMMON_TYPE_VEHICLE7:
+        case SUMMON_TYPE_VEHICLE8:
+        case SUMMON_TYPE_VEHICLE9:
+        case SUMMON_TYPE_VEHICLE10:
+        case SUMMON_TYPE_VEHICLE11:
+        case SUMMON_TYPE_VEHICLE12:
+        case SUMMON_TYPE_VEHICLE13:
+            EffectSummonVehicle(i);
+            return;
         case SUMMON_TYPE_UNKNOWN1:
         case SUMMON_TYPE_UNKNOWN2:
         case SUMMON_TYPE_UNKNOWN3:
@@ -3225,6 +3223,57 @@ void Spell::EffectSummonType(uint32 i)
             sLog.outError("EffectSummonType: Unhandled summon type %u", m_spellInfo->EffectMiscValueB[i]);
             break;
     }
+
+    SummonPropertiesEntry const *properties = sSummonPropertiesStore.LookupEntry(m_spellInfo->EffectMiscValueB[i]);
+    if(!properties)
+    {
+        sLog.outError("EffectSummonType: Unknow summon properties %u", m_spellInfo->EffectMiscValueB[i]);
+        return;
+    }
+
+    // more generic way, but incorrect in some cases
+    switch(properties->Group)
+    {
+        case SUMMON_CATEGORY_WILD:
+            EffectSummonWild(i);
+            break;
+        case SUMMON_CATEGORY_PET:
+            switch(properties->Type)
+            {
+                case SUMMON_MASK_SUMMON:
+                    EffectSummon(i);
+                    break;
+                default:
+                    EffectSummonGuardian(i);
+                    break;
+            }
+            break;
+        case SUMMON_CATEGORY_ALLY:
+        case SUMMON_CATEGORY_POSSESSED:
+            switch(properties->Type)
+            {
+                case SUMMON_MASK_NONE:
+                    EffectSummonWild(i);
+                    break;
+                case SUMMON_MASK_TOTEM:
+                    EffectSummonTotem(i);
+                    break;
+                case (SUMMON_MASK_SUMMON | SUMMON_MASK_TOTEM):
+                    EffectSummonCritter(i);
+                    break;
+                default:
+                    EffectSummonGuardian(i);
+                    break;
+            }
+            break;
+        case SUMMON_CATEGORY_VEHICLE:
+            // probably more types of vehicles here
+            EffectSummonVehicle(i);
+            break;
+        default:
+            break;
+   }
+
 }
 
 void Spell::EffectSummon(uint32 i)
@@ -6030,8 +6079,12 @@ void Spell::EffectKnockBack(uint32 i)
     if(!unitTarget || !m_caster)
         return;
 
+    Unit* target = unitTarget->GetCharmer();
+    if(!target)
+        target = unitTarget;
+
     // Effect only works on players
-    if(unitTarget->GetTypeId()!=TYPEID_PLAYER)
+    if(target->GetTypeId()!=TYPEID_PLAYER)
         return;
 
     float vsin = sin(m_caster->GetAngle(unitTarget));
@@ -6045,7 +6098,7 @@ void Spell::EffectKnockBack(uint32 i)
     data << float(m_spellInfo->EffectMiscValue[i])/10;      // Horizontal speed
     data << float(damage/-10);                              // Z Movement speed (vertical)
 
-    ((Player*)unitTarget)->GetSession()->SendPacket(&data);
+    ((Player*)target)->GetSession()->SendPacket(&data);
 }
 
 void Spell::EffectSendTaxi(uint32 i)
@@ -6607,4 +6660,52 @@ void Spell::EffectRenamePet(uint32 /*eff_idx*/)
         return;
 
     unitTarget->SetByteValue(UNIT_FIELD_BYTES_2, 2, UNIT_RENAME_ALLOWED);
+}
+
+void Spell::EffectSummonVehicle(uint32 i)
+{
+    uint32 creature_entry = m_spellInfo->EffectMiscValue[i];
+    if(!creature_entry)
+        return;
+
+    float px, py, pz;
+    // If dest location if present
+    if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
+    {
+        // Summon unit in dest location
+        px = m_targets.m_destX;
+        py = m_targets.m_destY;
+        pz = m_targets.m_destZ;
+    }
+    // Summon if dest location not present near caster
+    else
+        m_caster->GetClosePoint(px,py,pz,3.0f);
+
+    Vehicle *v = m_caster->SummonVehicle(creature_entry, px, py, pz, m_caster->GetOrientation());
+    if(!v)
+        return;
+
+    v->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
+    v->SetCreatorGUID(m_caster->GetGUID());
+
+    if(damage)
+    {
+        m_caster->CastSpell(v, damage, true);
+        m_caster->EnterVehicle(v, 0);
+    }
+    int32 duration = GetSpellMaxDuration(m_spellInfo);
+    if(duration > 0)
+        v->SetSpawnDuration(duration);
+}
+
+void Spell::EffectDamageBuilding(uint32 i)
+{
+    if(!gameObjTarget)
+        return;
+
+    if(gameObjTarget->GetGoType() != GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
+        return;
+
+    // NOTE : this can be increased by scaling stat system in vehicles
+    gameObjTarget->DealSiegeDamage(damage);
 }

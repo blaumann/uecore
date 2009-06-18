@@ -29,6 +29,8 @@
 #include "ObjectAccessor.h"
 #include "ScriptCalls.h"
 #include "Group.h"
+#include "BattleGround.h"
+#include "BattleGroundAV.h"
 
 void WorldSession::HandleQuestgiverStatusQueryOpcode( WorldPacket & recv_data )
 {
@@ -116,7 +118,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode( WorldPacket & recv_data )
     uint32 quest;
     uint32 unk1;
     recv_data >> guid >> quest >> unk1;
-    BattleGround* bg;
+
     if(!GetPlayer()->isAlive())
         return;
 
@@ -404,9 +406,9 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recv_data)
     if( pQuest )
     {
         if(GetPlayer()->InBattleGround())
-            if(bg = GetPlayer()->GetBattleGround())
+            if(BattleGround* bg = GetPlayer()->GetBattleGround())
                 if(bg->GetTypeID() == BATTLEGROUND_AV)
-                    ((BattleGroundAV*)bg)->UpdateQuest(quest, GetPlayer());
+                    ((BattleGroundAV*)bg)->HandleQuestComplete(quest, GetPlayer());
 
         if( _player->GetQuestStatus( quest ) != QUEST_STATUS_COMPLETE )
         {

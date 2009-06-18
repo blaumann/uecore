@@ -37,8 +37,10 @@
 #include "ObjectAccessor.h"
 #include "Object.h"
 #include "BattleGround.h"
+#include "SpellAuras.h"
 #include "Pet.h"
 #include "SocialMgr.h"
+#include "OutdoorPvP.h"
 
 void WorldSession::HandleRepopRequestOpcode( WorldPacket & /*recv_data*/ )
 {
@@ -275,6 +277,7 @@ void WorldSession::HandleLogoutRequestOpcode( WorldPacket & /*recv_data*/ )
     //Can not logout if...
     if( GetPlayer()->isInCombat() ||                        //...is in combat
         GetPlayer()->duel         ||                        //...is in Duel
+        GetPlayer()->GetVehicleGUID() ||                    //...is in vehicle
                                                             //...is jumping ...is falling
         GetPlayer()->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_JUMPING | MOVEMENTFLAG_FALLING))
     {
@@ -372,6 +375,11 @@ void WorldSession::HandleTogglePvP( WorldPacket & recv_data )
     {
         if(!GetPlayer()->pvpInfo.inHostileArea && GetPlayer()->IsPvP())
             GetPlayer()->pvpInfo.endTimer = time(NULL);     // start toggle-off
+    }
+
+    if(OutdoorPvP * pvp = _player->GetOutdoorPvP())
+    {
+        pvp->HandlePlayerActivityChanged(_player);
     }
 }
 
@@ -820,6 +828,12 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
                 bg->HandleAreaTrigger(GetPlayer(), Trigger_ID);
 
         return;
+    }
+
+    if(OutdoorPvP * pvp = GetPlayer()->GetOutdoorPvP())
+    {
+        if(pvp->HandleAreaTrigger(_player, Trigger_ID))
+            return;
     }
 
     // NULL if all values default (non teleport trigger)

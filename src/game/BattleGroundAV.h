@@ -21,132 +21,147 @@
 
 class BattleGround;
 
-#define LANG_BG_AV_ALLY                  "Alliance"
-#define LANG_BG_AV_HORDE                 "Horde"
+#define BG_AV_MAX_NODE_DISTANCE             25              // distance in which players are still counted in range of a banner (for alliance towers this is calculated from the center of the tower)
 
-#define LANG_BG_AV_TOWER_TAKEN           "%s was destroyed."
-#define LANG_BG_AV_TOWER_ASSAULTED       "%s is under attack! If left unchecked, the %s will destroy it!"
-#define LANG_BG_AV_TOWER_DEFENDED        "$n has defended the %s"
+#define BG_AV_BOSS_KILL_QUEST_SPELL         23658
 
-#define LANG_BG_AV_GRAVE_TAKEN           "The %s was taken by the %s"
-#define LANG_BG_AV_GRAVE_DEFENDED        "$n has defended the %s"
-#define LANG_BG_AV_GRAVE_ASSAULTED       "The %s is under attack! If left unchecked, the %s will control it!"
-#define LANG_BG_AV_GRAVE_CLAIMED         "$n claims the %s! If left unchallenged, the %s will control it!"
+#define BG_AV_CAPTIME                       240000          // 4 minutes
+#define BG_AV_SNOWFALL_FIRSTCAP             300000          // 5 minutes but i also have seen 4:05
 
-#define LANG_BG_AV_ONEMINTOSTART         "The Battle for Alterac Valley begins in 1 minute."
-#define LANG_BG_AV_HALFMINTOSTART        "The Battle for Alterac Valley begins in 30 seconds. Prepare yourselves!"
-#define LANG_BG_AV_STARTED               "The Battle for Alterac Valley has begun!"
-#define LANG_BG_AV_A_NEAR_LOSE           "The Alliance has only few Points left!" //TODO: look for the right sentence
-#define LANG_BG_AV_H_NEAR_LOSE           "The Horde has only few Points left!"      //TODO: here also..
+#define BG_AV_SCORE_INITIAL_POINTS          600
+#define BG_AV_SCORE_NEAR_LOSE               120
 
-#define SEND_MSG_NEAR_LOSE               120
-#define BG_AV_SPIRITGUIDE_ENTRY_A        13116
-#define BG_AV_CAPTIME                    240000  //4:00
-#define BG_AV_SNOWFALL_FIRSTCAP          300000  //5:00 but i also have seen 4:05
-#define BG_AV_SCORE_INITIAL_POINTS       600
-#define BG_AV_BANNER_RESPAWN_TIMER       3000
+// description: KILL = bonushonor kill one kill is 21honor worth at 0
+// REP reputation, RES = ressources a team will lose
+#define BG_AV_KILL_BOSS                     4
+#define BG_AV_REP_BOSS                      350
+#define BG_AV_REP_BOSS_HOLIDAY              525
 
-#define BG_AV_REP_BOSS                  100 //not sure
-#define BG_AV_HONOR_BOSS                80 //not sure (4kills)
-#define BG_AV_REP_CAPTAIN               125 //not sure
-#define BG_AV_KILL_CAPTAIN              3
-#define BG_AV_RES_CAPTAIN               100
-#define BG_AV_REP_TOWER                 12
-#define BG_AV_KILL_TOWER                 3
-#define BG_AV_RES_TOWER                 75
-#define BG_AV_KILL_COMMANDER            1 //for a safely returned wingcommander
-//bonushonor at the end
-#define BG_AV_SURVIVING_TOWER           2
-#define BG_AV_SURVIVING_CAPTAIN         2
+#define BG_AV_KILL_CAPTAIN                  3
+#define BG_AV_REP_CAPTAIN                   125
+#define BG_AV_REP_CAPTAIN_HOLIDAY           185
+#define BG_AV_RES_CAPTAIN                   100
 
-enum BG_AV_ObjectTypes
+#define BG_AV_KILL_TOWER                    3
+#define BG_AV_REP_TOWER                     12
+#define BG_AV_REP_TOWER_HOLIDAY             18
+#define BG_AV_RES_TOWER                     75
+
+#define BG_AV_KILL_GET_COMMANDER            1               // for a safely returned wingcommander TODO implement it
+
+// bonushonor at the end
+#define BG_AV_KILL_SURVIVING_TOWER          2
+#define BG_AV_REP_SURVIVING_TOWER           12
+#define BG_AV_REP_SURVIVING_TOWER_HOLIDAY   18
+
+#define BG_AV_KILL_SURVIVING_CAPTAIN        2
+#define BG_AV_REP_SURVIVING_CAPTAIN         125
+#define BG_AV_REP_SURVIVING_CAPTAIN_HOLIDAY 175
+
+#define BG_AV_KILL_MAP_COMPLETE             0
+#define BG_AV_KILL_MAP_COMPLETE_HOLIDAY     4
+
+#define BG_AV_REP_OWNED_GRAVE               12
+#define BG_AV_REP_OWNED_GRAVE_HOLIDAY       18
+
+#define BG_AV_REP_OWNED_MINE                24
+#define BG_AV_REP_OWNED_MINE_HOLIDAY        36
+
+enum BG_AV_Sounds
 {
-    //Initial setup
-    BG_AV_OBJECT_FLAG_A_FIRSTAID_STATION    = 0,
-    BG_AV_OBJECT_FLAG_A_STORMPIKE_GRAVE     = 1,
-    BG_AV_OBJECT_FLAG_A_STONEHEART_GRAVE    = 2,
-    BG_AV_OBJECT_FLAG_A_SNOWFALL_GRAVE      = 3,
-    BG_AV_OBJECT_FLAG_A_ICEBLOOD_GRAVE      = 4,
-    BG_AV_OBJECT_FLAG_A_FROSTWOLF_GRAVE     = 5,
-    BG_AV_OBJECT_FLAG_A_FROSTWOLF_HUT       = 6,
-    BG_AV_OBJECT_FLAG_A_DUNBALDAR_SOUTH     = 7,
-    BG_AV_OBJECT_FLAG_A_DUNBALDAR_NORTH     = 8,
-    BG_AV_OBJECT_FLAG_A_ICEWING_BUNKER      = 9,
-    BG_AV_OBJECT_FLAG_A_STONEHEART_BUNKER   = 10,
+    // TODO: get out if there comes a sound when neutral team captures mine
+/*
+ * some of my findings, texts taken from wowwiki.com, there are also other, so you can find it there
+8212:
+    alliance grave assault
+    alliance tower assault
+    drek "mlanzenabschaum! In meiner Burg?! Toetet sie all" - always when aggroing - "Stormpike filth! In my keep?! Slay them all!"
+8333:
+    galv "sterbt fuer euch ist kein platz hier" - (when aggroing) - Die! Your kind has no place in Alterac Valley!
 
-    BG_AV_OBJECT_FLAG_C_A_FIRSTAID_STATION    = 11,
-    BG_AV_OBJECT_FLAG_C_A_STORMPIKE_GRAVE     = 12,
-    BG_AV_OBJECT_FLAG_C_A_STONEHEART_GRAVE    = 13,
-    BG_AV_OBJECT_FLAG_C_A_SNOWFALL_GRAVE      = 14,
-    BG_AV_OBJECT_FLAG_C_A_ICEBLOOD_GRAVE      = 15,
-    BG_AV_OBJECT_FLAG_C_A_FROSTWOLF_GRAVE     = 16,
-    BG_AV_OBJECT_FLAG_C_A_FROSTWOLF_HUT       = 17,
-    BG_AV_OBJECT_FLAG_C_A_ICEBLOOD_TOWER      = 18,
-    BG_AV_OBJECT_FLAG_C_A_TOWER_POINT         = 19,
-    BG_AV_OBJECT_FLAG_C_A_FROSTWOLF_ETOWER    = 20,
-    BG_AV_OBJECT_FLAG_C_A_FROSTWOLF_WTOWER    = 21,
+8332:
+    bal "Verschwinde, dreckiger Abschaum! Die Allianz wird im Alteractal " - (when aggroing) - Begone, uncouth scum! The Alliance will prevail in Alterac Valley!
+8174:
+    horde tower assault
+    horde grave assault
+    van "es Sturmlanzenklans, euer General wird angegriffen! Ich fordere Unterst" - " Soldiers of Stormpike, your General is under attack! I require aid! Come! Come! Slay these mangy Frostwolf dogs."
+8173:
+    ally grave capture/defend
+    tower destroy
+    mine capture
+    ally wins
+8192:
+    ally tower destroy(only iceblood - found a bug^^ - but fixed it here ;))
+    ally tower  defend
+    horde tower defend
+8213
+horde:
+    grave defend/capture
+    tower destroy
+    mine capture
+    horde wins
+    */
 
-    BG_AV_OBJECT_FLAG_C_H_FIRSTAID_STATION    = 22,
-    BG_AV_OBJECT_FLAG_C_H_STORMPIKE_GRAVE     = 23,
-    BG_AV_OBJECT_FLAG_C_H_STONEHEART_GRAVE    = 24,
-    BG_AV_OBJECT_FLAG_C_H_SNOWFALL_GRAVE      = 25,
-    BG_AV_OBJECT_FLAG_C_H_ICEBLOOD_GRAVE      = 26,
-    BG_AV_OBJECT_FLAG_C_H_FROSTWOLF_GRAVE     = 27,
-    BG_AV_OBJECT_FLAG_C_H_FROSTWOLF_HUT       = 28,
-    BG_AV_OBJECT_FLAG_C_H_DUNBALDAR_SOUTH     = 29,
-    BG_AV_OBJECT_FLAG_C_H_DUNBALDAR_NORTH     = 30,
-    BG_AV_OBJECT_FLAG_C_H_ICEWING_BUNKER      = 31,
-    BG_AV_OBJECT_FLAG_C_H_STONEHEART_BUNKER   = 32,
+    BG_AV_SOUND_NEAR_LOSE               = 8456,             // not confirmed yet
 
-    BG_AV_OBJECT_FLAG_H_FIRSTAID_STATION    = 33,
-    BG_AV_OBJECT_FLAG_H_STORMPIKE_GRAVE     = 34,
-    BG_AV_OBJECT_FLAG_H_STONEHEART_GRAVE    = 35,
-    BG_AV_OBJECT_FLAG_H_SNOWFALL_GRAVE      = 36,
-    BG_AV_OBJECT_FLAG_H_ICEBLOOD_GRAVE      = 37,
-    BG_AV_OBJECT_FLAG_H_FROSTWOLF_GRAVE     = 38,
-    BG_AV_OBJECT_FLAG_H_FROSTWOLF_HUT       = 39,
-    BG_AV_OBJECT_FLAG_H_ICEBLOOD_TOWER      = 40,
-    BG_AV_OBJECT_FLAG_H_TOWER_POINT         = 41,
-    BG_AV_OBJECT_FLAG_H_FROSTWOLF_ETOWER    = 42,
-    BG_AV_OBJECT_FLAG_H_FROSTWOLF_WTOWER    = 43,
+    BG_AV_SOUND_ALLIANCE_ASSAULTS       = 8212,             // tower,grave + enemy boss if someone tries to attack him
+    BG_AV_SOUND_HORDE_ASSAULTS          = 8174,
+    BG_AV_SOUND_ALLIANCE_GOOD           = 8173,             // if something good happens for the team:  wins(maybe only through killing the boss), captures mine or grave, destroys tower and defends grave
+    BG_AV_SOUND_HORDE_GOOD              = 8213,
+    BG_AV_SOUND_BOTH_TOWER_DEFEND       = 8192,
 
-    BG_AV_OBJECT_FLAG_N_SNOWFALL_GRAVE      = 44,
+    BG_AV_SOUND_ALLIANCE_CAPTAIN        = 8232,             // gets called when someone attacks them and at the beginning after 3min + rand(x) * 10sec (maybe buff)
+    BG_AV_SOUND_HORDE_CAPTAIN           = 8333,
+};
 
-    BG_AV_OBJECT_DOOR_H                     = 45,
-    BG_AV_OBJECT_DOOR_A                     = 46,
-//auras for graveyards (3auras per graveyard neutral,alliance,horde)
-    BG_AV_OBJECT_AURA_N_FIRSTAID_STATION    = 47,
-    BG_AV_OBJECT_AURA_A_FIRSTAID_STATION    = 48,
-    BG_AV_OBJECT_AURA_H_FIRSTAID_STATION    = 49,
-    BG_AV_OBJECT_AURA_N_STORMPIKE_GRAVE     = 50,
-    BG_AV_OBJECT_AURA_A_STORMPIKE_GRAVE     = 51,
-    BG_AV_OBJECT_AURA_H_STORMPIKE_GRAVE     = 52,
-    BG_AV_OBJECT_AURA_N_STONEHEART_GRAVE    = 53,
-    BG_AV_OBJECT_AURA_A_STONEHEART_GRAVE    = 54,
-    BG_AV_OBJECT_AURA_H_STONEHEART_GRAVE    = 55,
-    BG_AV_OBJECT_AURA_N_SNOWFALL_GRAVE      = 56,
-    BG_AV_OBJECT_AURA_A_SNOWFALL_GRAVE      = 57,
-    BG_AV_OBJECT_AURA_H_SNOWFALL_GRAVE      = 58,
-    BG_AV_OBJECT_AURA_N_ICEBLOOD_GRAVE      = 59,
-    BG_AV_OBJECT_AURA_A_ICEBLOOD_GRAVE      = 60,
-    BG_AV_OBJECT_AURA_H_ICEBLOOD_GRAVE      = 61,
-    BG_AV_OBJECT_AURA_N_FROSTWOLF_GRAVE     = 62,
-    BG_AV_OBJECT_AURA_A_FROSTWOLF_GRAVE     = 63,
-    BG_AV_OBJECT_AURA_H_FROSTWOLF_GRAVE     = 64,
-    BG_AV_OBJECT_AURA_N_FROSTWOLF_HUT       = 65,
-    BG_AV_OBJECT_AURA_A_FROSTWOLF_HUT       = 66,
-    BG_AV_OBJECT_AURA_H_FROSTWOLF_HUT       = 67,
+enum BG_AV_CREATURE_ENTRIES                                 // only those, which are interesting for us
+{
+    BG_AV_CREATURE_ENTRY_H_CAPTAIN          = 11947,
+    BG_AV_CREATURE_ENTRY_A_CAPTAIN          = 11949,
+    BG_AV_CREATURE_ENTRY_H_BOSS             = 11946,
+    BG_AV_CREATURE_ENTRY_A_BOSS             = 11948,
+    // he yells all captures/defends... to all players
+    BG_AV_CREATURE_ENTRY_N_HERALD           = 11997,
 
-    BG_AV_OBJECT_MAX                          = 68
+    // they are needed cause they must get despawned after destroying a tower
+    BG_AV_CREATURE_ENTRY_A_MARSHAL_SOUTH    = 14763,
+    BG_AV_CREATURE_ENTRY_A_MARSHAL_NORTH    = 14762,
+    BG_AV_CREATURE_ENTRY_A_MARSHAL_ICE      = 14764,
+    BG_AV_CREATURE_ENTRY_A_MARSHAL_STONE    = 14765,
+    BG_AV_CREATURE_ENTRY_H_MARSHAL_ICE      = 14773,
+    BG_AV_CREATURE_ENTRY_H_MARSHAL_TOWER    = 14776,
+    BG_AV_CREATURE_ENTRY_H_MARSHAL_ETOWER   = 14772,
+    BG_AV_CREATURE_ENTRY_H_MARSHAL_WTOWER   = 14777,
+
+    BG_AV_CREATURE_ENTRY_A_GRAVE_DEFENSE_1  = 12050,
+    BG_AV_CREATURE_ENTRY_A_GRAVE_DEFENSE_2  = 13326,
+    BG_AV_CREATURE_ENTRY_A_GRAVE_DEFENSE_3  = 13331,
+    BG_AV_CREATURE_ENTRY_A_GRAVE_DEFENSE_4  = 13422,
+
+    BG_AV_CREATURE_ENTRY_H_GRAVE_DEFENSE_1  = 12053,
+    BG_AV_CREATURE_ENTRY_H_GRAVE_DEFENSE_2  = 13328,
+    BG_AV_CREATURE_ENTRY_H_GRAVE_DEFENSE_3  = 13332,
+    BG_AV_CREATURE_ENTRY_H_GRAVE_DEFENSE_4  = 13421,
+
+    BG_AV_CREATURE_ENTRY_A_TOWER_DEFENSE    = 13358,
+    BG_AV_CREATURE_ENTRY_H_TOWER_DEFENSE    = 13359,
+};
+
+enum BG_AV_OTHER_VALUES
+{
+    BG_AV_NORTH_MINE            = 0,
+    BG_AV_SOUTH_MINE            = 1,
+    BG_AV_MINE_TICK_TIMER       = 45000,
+    BG_AV_MINE_RECLAIM_TIMER    = 1200000,                  // TODO: get the right value.. this is currently 20 minutes
+    BG_AV_NEUTRAL_TEAM          = 0                         // this is the neutral owner of snowfall
 };
 
 enum BG_AV_ObjectIds
 {
-    //Banners
-    BG_AV_OBJECTID_BANNER_A             = 178925, // can only be used by horde
-    BG_AV_OBJECTID_BANNER_H             = 178943, // can only be used by alliance
-    BG_AV_OBJECTID_BANNER_CONT_A        = 178940, // can only be used by horde
-    BG_AV_OBJECTID_BANNER_CONT_H        = 179435, // can only be used by alliance
+    BG_AV_OBJECTID_BANNER_A             = 178925,           // can only be used by horde
+    BG_AV_OBJECTID_BANNER_H             = 178943,           // can only be used by alliance
+    BG_AV_OBJECTID_BANNER_CONT_A        = 178940,           // can only be used by horde
+    BG_AV_OBJECTID_BANNER_CONT_H        = 179435,           // can only be used by alliance
 
     BG_AV_OBJECTID_BANNER_A_B           = 178365,
     BG_AV_OBJECTID_BANNER_H_B           = 178364,
@@ -154,26 +169,12 @@ enum BG_AV_ObjectIds
     BG_AV_OBJECTID_BANNER_CONT_H_B      = 179287,
     BG_AV_OBJECTID_BANNER_SNOWFALL_N    = 180418,
 
-    //Auras
-    BG_AV_OBJECTID_AURA_A               = 180421,
-    BG_AV_OBJECTID_AURA_H               = 180422,
-    BG_AV_OBJECTID_AURA_N               = 180423,
-    BG_AV_OBJECTID_AURA_A_S             = 180100, //needed?
-    BG_AV_OBJECTID_AURA_H_S             = 180101, //needed?
-    BG_AV_OBJECTID_AURA_N_S             = 180102, //needed?
-
-    BG_AV_OBJECTID_GATE_A               = 180424,
-    BG_AV_OBJECTID_GATE_H               = 180424,
-
-//TODO: following objects aren't implemented yet
-    //mine supplies
-    BG_AV_OBJECTID_MINE_IRONDEEP        = 178785,
-    BG_AV_OBJECTID_MINE_COLDTOOTH       = 178784,
-
-    BG_AV_OBJECTID_FIRE                 = 179065
+    // mine supplies
+    BG_AV_OBJECTID_MINE_N               = 178785,
+    BG_AV_OBJECTID_MINE_S               = 178784,
 };
 
-+enum BG_AV_Nodes
+enum BG_AV_Nodes
 {
     BG_AV_NODES_FIRSTAID_STATION        = 0,
     BG_AV_NODES_STORMPIKE_GRAVE         = 1,
@@ -190,275 +191,149 @@ enum BG_AV_ObjectIds
     BG_AV_NODES_TOWER_POINT             = 12,
     BG_AV_NODES_FROSTWOLF_ETOWER        = 13,
     BG_AV_NODES_FROSTWOLF_WTOWER        = 14,
-
-    BG_AV_NODES_MAX                     = 15
+    BG_AV_NODES_ERROR                   = 255,
 };
-+const float BG_AV_NodePositions[15][4] = {
-    {641.154f,-31.4824f,46.3348f,5.163358f}, //firstaid station
-    {668.013f,-292.967f,30.2909f,2.76067f},  //stormpike
-    {78.3916f,-405.245f,47.1657f,1.64148f},  //stone grave
-    {-202.776f,-112.4f,78.4893f,2.01061f},   //snowfall
-    {-611.962f,-396.17f,60.8351f,2.53682f},  //ice grave
-    {-1083.37f,-340.922f,55.2714f,4.99119f}, //frostwolf grave
-    {-1403.93f,-308.839f,89.3659f,5.24645f}, //frostwolf hut
-    {552.585f,-77.9304f,51.9263f,5.10115f},  // dunbaldar south
-    {673.021f,-144.669f,63.6473f,0.907122f}, //dunbaldar north
-    {202.515f,-359.258f,56.3768f,5.34463f},  //icewing bunker
-    {-151.864f,-440.838f,40.3897f,4.1744f},  //stone bunker
-    {-572.723f,-262.062f,75.0087f,5.44671f}, //ice tower
-    {-768.907f,-363.71f,90.8949f,1.07991f},  //tower point
-    {-1297.5f,-266.767f,114.15f,3.31044f},   //frostwolf etower
-    {-1302.89f,-316.92f,113.867f,2.01453f}   //frostwolf wtower
+#define BG_AV_NODES_MAX                 15
+
+/// the last dimension 2 is for 0=assaulted, 1=controlled
+/// neutral node (snowfall) will get into an extra enum)
+/// destroyed will be handled as controlled by opponent
+
+/* we use (node * 4) + (2 * bg_team_id) + controlled + 1 instead of this array
+ * but i think with this array it's more clear which id does what, thats why i
+ * dont delete it
+const uint8 BG_AV_NodeEventIndexes[BG_AV_NODES_MAX][BG_TEAMS_COUNT][2] = {
+    { {1, 2}, {3, 4} },                                     // FIRSTAID_STATION
+    { {5, 6}, {7,  8} },                                    // STORMPIKE_GRAVE
+    { {9, 10}, {11, 12} },                                  // STONEHEART_GRAVE
+    { {13, 14}, {15, 16} },                                 // SNOWFALL_GRAVE
+    { {17, 18}, {19, 20} },                                 // ICEBLOOD_GRAVE
+    { {21, 22}, {23, 24} },                                 // FROSTWOLF_GRAVE
+    { {25, 26}, {27, 28} },                                 // FROSTWOLF_HUT
+    { {29, 30}, {31, 32} },                                 // DUNBALDAR_SOUTH
+    { {33, 34}, {35, 36} },                                 // DUNBALDAR_NORTH
+    { {37, 38}, {39, 40} },                                 // ICEWING_BUNKER
+    { {41, 42}, {43, 44} },                                 // STONEHEART_BUNKER
+    { {45, 46}, {47, 48} },                                 // ICEBLOOD_TOWER
+    { {49, 50}, {51, 52} },                                 // TOWER_POINT
+    { {53, 54}, {55, 56} },                                 // FROSTWOLF_ETOWER
+    { {57, 58}, {59, 60} }                                  // FROSTWOLF_WTOWER
+};
+*/
+// cause snowfall is the only neutral one, i will give it an extra variable, and
+// don't add neutral state to this array
+#define BG_AV_NodeEventSnowfall 61                          // neutral state of snowfall
+#define BG_AV_MAX_NODE_EVENTS   62
+
+#define BG_AV_NodeEventDoors 0
+#define BG_AV_NodeEventCaptainDead_A 63
+#define BG_AV_NodeEventCaptainDead_H 64
+
+/// stores x,y-position from the center of the node (for graves and horde-towers, the
+/// node-banner-position), (for alliance-towers the bigbanner/bigaura position)
+const float BG_AV_NodePositions[BG_AV_NODES_MAX][2] = {
+    {638.592f,-32.422f },                                   // firstaid station
+    {669.007f,-294.078f },                                  // stormpike
+    {77.8013f,-404.7f },                                    // stone grave
+    {-202.581f,-112.73f },                                  // snowfall
+    {-611.962f,-396.17f },                                  // iceblood grave
+    {-1082.45f,-346.823f },                                 // frostwolf grave
+    {-1402.21f,-307.431f },                                 // frostwolf hut
+    {555.848f,-84.4151f },                                  // dunbaldar south
+    {679.339f,-136.468f },                                  // dunbaldar north
+    {208.973f,-365.971f },                                  // icewing bunker
+    {-155.832f,-449.401f },                                 // stoneheart bunker
+    {-571.88f,-262.777f },                                  // ice tower
+    {-768.907f,-363.71f },                                  // tower point
+    {-1302.9f,-316.981f },                                  // frostwolf etower
+    {-1297.5f,-266.767f }                                   // frostwolf wtower
 };
 
-const float BG_AV_DoorPositons[2][4] = {
-    {780.487f, -493.024f, 99.9553f, 3.0976f},   //alliance
-    {-1375.193f, -538.981f, 55.2824f, 0.72178f} //horde
-};
-
-
-//creaturestuff starts here
-
-//x, y, z, o
-const float BG_AV_CreaturePos[75][4] = {
-    {643.000000f,44.000000f,69.740196f,-0.001854f},
-    {676.000000f,-374.000000f,30.000000f,-0.001854f},
-    {73.417755f,-496.433105f,48.731918f,-0.001854f},
-    {-157.409195f,31.206272f,77.050598f,-0.001854f},
-    {-1090.476807f,-253.308670f,57.672371f,-0.001854f},
-    {-531.217834f,-405.231384f,49.551376f,-0.001854f},
-    {-1496.065063f,-333.338409f,101.134804f,-0.001854f},
-    {873.001770f,-491.283630f,96.541931f,-0.001854f},
-    {-1437.670044f,-610.088989f,51.161900f,-0.001854f},
-//alliance
- //grave
- //firstaid
-    {645.532f,-30.2852f,46.8587f,0.226968f},
-    {639.823f,-25.7137f,47.0798f,1.45219f},
-    {635.435f,-32.0167f,45.9817f,2.95151f},
-    {641.079f,-36.9292f,45.6846f,4.66997f},
-   //stormpike
-    {669.272f,-297.304f,30.291f,4.66604f},
-    {674.08f,-292.328f,30.4817f,0.0918785f},
-    {667.01f,-288.532f,29.8809f,1.81583f},
-    {664.153f,-294.042f,30.2851f,3.28531f},
-  //stone
-    {81.7027f,-406.135f,47.7843f,0.598464f},
-    {78.1431f,-409.215f,48.0401f,5.05953f},
-    {73.4135f,-407.035f,46.7527f,3.34736f},
-    {78.2258f,-401.859f,46.4202f,2.05852f},
-  //snowfall
-    {-207.412f,-110.616f,78.7959f,2.43251f},
-    {-197.95f,-112.205f,78.5686f,6.22441f},
-    {-202.709f,-116.829f,78.4358f,5.13742f},
-    {-202.059f,-108.314f,78.5783f,5.91968f},
-  //ice
-    {-615.501f,-393.802f,60.4299f,3.06147f},
-    {-608.513f,-392.717f,62.5724f,2.06323f},
-    {-609.769f,-400.072f,60.7174f,5.22367f},
-    {-616.093f,-398.293f,60.5628f,3.73613f},
-  //frost
-    {-1077.7f,-340.21f,55.4682f,6.25569f},
-    {-1082.74f,-333.821f,54.7962f,2.05459f},
-    {-1090.66f,-341.267f,54.6768f,3.27746f},
-    {-1081.58f,-344.63f,55.256f,4.75636f},
-  //frost hut
-    {-1408.95f,-311.69f,89.2536f,4.49954f},
-    {-1407.15f,-305.323f,89.1993f,2.86827f},
-    {-1400.64f,-304.3f,89.7008f,1.0595f},
-    {-1400.4f,-311.35f,89.3028f,4.99434f},
-  //towers
-  //dun south
-    {566.87f,-73.6021f,52.5224f,1.06106f},
-    {574.349f,-81.493f,52.3379f,0.0502529f},
-    {574.858f,-90.2643f,52.3968f,5.61637f},
-    {568.527f,-99.569f,52.6258f,5.56924f},
-    //dun north
-    {668.627f,-121.855f,64.0853f,2.51718f},
-    {663.357f,-130.285f,64.1588f,2.979f},
-    {661.803f,-137.394f,64.2315f,3.19341f},
-    {665.178f,-144.785f,64.1426f,3.70392f},
-    //icewing
-    {192.439f,-364.37f,57.0477f,3.03868f},
-    {194.121f,-374.727f,56.9618f,3.37484f},
-    {202.65f,-382.997f,56.88f,4.18851f},
-    {215.096f,-382.895f,56.8842f,4.88594f},
-    //stone
-    {-172.851f,-452.366f,40.8725f,3.31829f},
-    {-147.147f,-435.053f,40.8022f,0.599238f},
-    {-169.456f,-440.325f,40.985f,2.59101f},
-    {-163.494f,-434.904f,41.0725f,1.84174f},
-    //ice
-    {-563.516f,-262.086f,74.9223f,6.14886f},
-    {-580.222f,-267.368f,74.9545f,4.34716f},
-    {-573.164f,-271.241f,74.9268f,4.65032f},
-    {-565.353f,-257.227f,74.9879f,0.43038f},
-    //towerpoint
-    {-763.04f,-371.032f,90.7933f,5.25979f},
-    {-759.764f,-358.264f,90.8681f,0.289795f},
-    {-768.808f,-353.056f,90.8811f,1.52601f},
-    {-775.944f,-362.639f,90.8949f,2.59573f},
-    //frost etower
-    {-1294.13f,-313.045f,107.328f,0.270162f},
-    {-1306.5f,-308.105f,113.767f,1.78755f},
-    {-1294.78f,-319.966f,113.79f,5.94545f},
-    {-1294.83f,-312.241f,113.799f,0.295293f},
-    //frost wtower
-    {-1300.96f,-275.111f,114.058f,4.12804f},
-    {-1302.41f,-259.256f,114.065f,1.67602f},
-    {-1287.97f,-262.087f,114.165f,6.18264f},
-    {-1291.59f,-271.166f,114.151f,5.28257f},
-    //drek thar
-    {-1370.9f,-219.793f,98.4258f,5.04381f},
-    //vanndar stormpike
-    {728.3f,-8.99467f,50.6213f,3.40862f},
-    //garni
-    {-538.972f,-168.116f,57.0112f,5.83707f},
-    //balinda
-    {-54.2655f,-288.492f,15.5646f,5.98551f},
-    //73 till now
-    //both smiths
-    {642.863f,-57.4503f,41.6571f,4.26077f},
-    {-1253.88f,-317.969f,62.6003f,1.20972f}
-
-
-};
-//is related to BG_AV_CreaturePos
-enum BG_AV_CreaturePlace
+enum BG_AV_DB_Creatures
 {
-    AV_CPLACE_SPIRIT_STORM_AID      = 0,
-    AV_CPLACE_SPIRIT_STORM_GRAVE    = 1,
-    AV_CPLACE_SPIRIT_STONE_GRAVE    = 2,
-    AV_CPLACE_SPIRIT_SNOWFALL       = 3,
-    AV_CPLACE_SPIRIT_FROSTWOLF      = 4,
-    AV_CPLACE_SPIRIT_ICE_GRAVE      = 5,
-    AV_CPLACE_SPIRIT_FROST_HUT      = 6,
-    AV_CPLACE_SPIRIT_MAIN_ALLIANCE  = 7,
-    AV_CPLACE_SPIRIT_MAIN_HORDE     = 8,
-
-//i don't will add for all 4 positions a variable.. i think one is enough to compute the rest
-    AV_CPLACE_DEFENSE_STORM_AID      = 9,
-    AV_CPLACE_DEFEMSE_STORM_GRAVE    = 13,
-    AV_CPLACE_DEFENSE_STONE_GRAVE    = 17,
-    AV_CPLACE_DEFENSE_SNOWFALL       = 21,
-    AV_CPLACE_DEFENSE_FROSTWOLF      = 25,
-    AV_CPLACE_DEFENSE_ICE_GRAVE      = 29,
-    AV_CPLACE_DEFENSE_FROST_HUT      = 33,
-
-    AV_CPLACE_DEFENSE_DUN_S          = 37,
-    AV_CPLACE_DEFENSE_DUN_N          = 41,
-    AV_CPLACE_DEFENSE_ICEWING        = 45,
-    AV_CPLACE_DEFENSE_STONE_TOWER    = 49,
-    AV_CPLACE_DEFENSE_ICE_TOWER      = 53,
-    AV_CPLACE_DEFENSE_TOWERPOINT     = 57,
-    AV_CPLACE_DEFENSE_FROST_E        = 61,
-    AV_CPLACE_DEFENSE_FROST_t        = 65,
-    AV_CPLACE_H_BOSS                 = 69,
-    AV_CPLACE_A_BOSS                 = 70,
-    AV_CPLACE_H_CAPTAIN              = 71,
-    AV_CPLACE_A_CAPTAIN              = 72,
-
-    AV_CPLACE_A_SMITH                = 73,
-    AV_CPLACE_H_SMITH                = 74,
-    AV_CPLACE_MAX = 75
+    BG_AV_CREATURE_HERALD      = 1,
+    BG_AV_CREATURE_A_BOSS      = 2,
+    BG_AV_CREATURE_H_BOSS      = 3,
+    BG_AV_CREATURE_SNIFFLE     = 4,
+    BG_AV_CREATURE_MARSHAL     = 5,                         // 4alliance marshals + 4 horde marshals their ids are similar to those of the tower - ids (only here)
+    BG_AV_DB_CREATURE_MAX      = 13
 };
 
-
-enum BG_AV_CreatureIds
+enum BG_AV_MineCreature_Entries
 {
-
-	AV_NPC_A_GRAVEDEFENSE0 = 0,		// stormpike Defender
-	AV_NPC_A_GRAVEDEFENSE1 = 1,		// seasoned defender
-	AV_NPC_A_GRAVEDEFENSE2 = 2,		// veteran defender
-    AV_NPC_A_GRAVEDEFENSE3 = 3,      // champion defender
-    AV_NPC_A_TOWERDEFENSE  = 4,      // stormpike bowman
-    AV_NPC_A_CAPTAIN       = 5,      // balinda
-    AV_NPC_A_BOSS          = 6,      // vanndar
-
-    AV_NPC_H_GRAVEDEFENSE0 = 7,      // frostwolf guardian
-	AV_NPC_H_GRAVEDEFENSE1 = 8,      // seasoned guardian
-	AV_NPC_H_GRAVEDEFENSE2 = 9,      // veteran guardian
-    AV_NPC_H_GRAVEDEFENSE3 = 10,     // champion guardian
-    AV_NPC_H_TOWERDEFENSE  = 11,     // frostwolf bowman
-    AV_NPC_H_CAPTAIN       = 12,     // galvangar
-    AV_NPC_H_BOSS          = 13,      // drek thar
-
-    AV_NPC_A_SMITH         = 14,     // murgot
-    AV_NPC_H_SMITH         = 15     // regzar
-};
-
-//entry, team, minlevel, maxlevel
-const uint32 BG_AV_CreatureInfo[16][4] = {
-	{ 12050,469,58,58 },
-	{ 13326,469,59,59},
-	{ 13331,469,60,60},
-    { 13422,469,61,61},
-    { 13358,469,60,61},
-    { 11949,469,0,0},
-    { 11948,469,0,0},
-
-    { 12053,67,58,58},
-	{ 13328,67,59,59},
-	{ 13332,67,60,60},
-    { 13421,67,61,61},
-    { 13359,67,60,61},
-    { 11947,67,0,0},
-    { 11946,67,0,0},
-
-    { 13257,469,60,60},
-    { 13176,67,60,60}
+    // North_Mine_..._X 4 is always boss
+    BG_AV_NORTH_MINE_NEUTRAL_1  = 10987,
+    BG_AV_NORTH_MINE_NEUTRAL_2  = 11600,
+    BG_AV_NORTH_MINE_NEUTRAL_3  = 11602,
+    BG_AV_NORTH_MINE_NEUTRAL_4  = 11657,
+    BG_AV_NORTH_MINE_ALLIANCE_1 = 13396,
+    BG_AV_NORTH_MINE_ALLIANCE_2 = 13080,
+    BG_AV_NORTH_MINE_ALLIANCE_3 = 13098,
+    BG_AV_NORTH_MINE_ALLIANCE_4 = 13078,
+    BG_AV_NORTH_MINE_HORDE_1    = 13397,
+    BG_AV_NORTH_MINE_HORDE_2    = 13099,
+    BG_AV_NORTH_MINE_HORDE_3    = 13081,
+    BG_AV_NORTH_MINE_HORDE_4    = 13079,
+    // South_Mine_..._X 4 is always boss
+    BG_AV_SOUTH_MINE_NEUTRAL_1  = 11603,
+    BG_AV_SOUTH_MINE_NEUTRAL_2  = 11604,
+    BG_AV_SOUTH_MINE_NEUTRAL_3  = 11605,
+    BG_AV_SOUTH_MINE_NEUTRAL_4  = 11677,
+    BG_AV_SOUTH_MINE_NEUTRAL_5  = 10982,
+    BG_AV_SOUTH_MINE_ALLIANCE_1 = 13317,
+    BG_AV_SOUTH_MINE_ALLIANCE_2 = 13096,
+    BG_AV_SOUTH_MINE_ALLIANCE_3 = 13087,
+    BG_AV_SOUTH_MINE_ALLIANCE_4 = 13086,
+    BG_AV_SOUTH_MINE_HORDE_1    = 13316,
+    BG_AV_SOUTH_MINE_HORDE_2    = 13097,
+    BG_AV_SOUTH_MINE_HORDE_3    = 13089,
+    BG_AV_SOUTH_MINE_HORDE_4    = 13088
 };
 
 enum BG_AV_Graveyards
 {
-    AV_GRAVE_STORM_AID         = 751,
-    AV_GRAVE_STORM_GRAVE       = 689,
-    AV_GRAVE_STONE_GRAVE       = 729,
-    AV_GRAVE_SNOWFALL          = 169,
-    AV_GRAVE_FROSTWOLF         = 749,
-    AV_GRAVE_ICE_GRAVE         = 690,
-    AV_GRAVE_FROST_HUT         = 750,
-    AV_GRAVE_MAIN_ALLIANCE     = 611,
-    AV_GRAVE_MAIN_HORDE        = 610
+    BG_AV_GRAVE_STORM_AID          = 751,
+    BG_AV_GRAVE_STORM_GRAVE        = 689,
+    BG_AV_GRAVE_STONE_GRAVE        = 729,
+    BG_AV_GRAVE_SNOWFALL           = 169,
+    BG_AV_GRAVE_ICE_GRAVE          = 749,
+    BG_AV_GRAVE_FROSTWOLF          = 690,
+    BG_AV_GRAVE_FROST_HUT          = 750,
+    BG_AV_GRAVE_MAIN_ALLIANCE      = 611,
+    BG_AV_GRAVE_MAIN_HORDE         = 610
 };
-
-
 
 const uint32 BG_AV_GraveyardIds[9]= {
-  AV_GRAVE_STORM_AID,
-  AV_GRAVE_STORM_GRAVE,
-  AV_GRAVE_STONE_GRAVE,
-  AV_GRAVE_SNOWFALL,
-  AV_GRAVE_ICE_GRAVE,
-  AV_GRAVE_FROSTWOLF,
-  AV_GRAVE_FROST_HUT,
-  AV_GRAVE_MAIN_ALLIANCE,
-  AV_GRAVE_MAIN_HORDE
+    BG_AV_GRAVE_STORM_AID,
+    BG_AV_GRAVE_STORM_GRAVE,
+    BG_AV_GRAVE_STONE_GRAVE,
+    BG_AV_GRAVE_SNOWFALL,
+    BG_AV_GRAVE_ICE_GRAVE,
+    BG_AV_GRAVE_FROSTWOLF,
+    BG_AV_GRAVE_FROST_HUT,
+    BG_AV_GRAVE_MAIN_ALLIANCE,
+    BG_AV_GRAVE_MAIN_HORDE
 };
 
-enum BG_AV_BUFF
-{ //TODO add all other buffs here
-    AV_BUFF_ARMOR = 21163
-};
 enum BG_AV_States
 {
-    POINT_NEUTRAL              =  0,
-    POINT_ASSAULTED            =  1,
-    POINT_DESTROYED            =  2,
-    POINT_CONTROLED            =  3
+    POINT_NEUTRAL               = 0,
+    POINT_ASSAULTED             = 1,
+    POINT_DESTROYED             = 2,
+    POINT_CONTROLLED            = 3
 };
 
 enum BG_AV_WorldStates
 {
-    AV_Alliance_Score               = 3127,
-    AV_Horde_Score                  = 3128,
-    AV_SHOW_H_SCORE                 = 3133,
-    AV_SHOW_A_SCORE                 = 3134,
+    BG_AV_Alliance_Score        = 3127,
+    BG_AV_Horde_Score           = 3128,
+    BG_AV_SHOW_H_SCORE          = 3133,
+    BG_AV_SHOW_A_SCORE          = 3134,
 
 /*
-    //the comments behind the state shows which icon overlaps the other.. but is, until now, unused
-    // Graves
+    //the comments behind the state shows which icon overlaps the other.. but is, until now, unused and maybe not a good solution (but give few performance (: )
 
+// Graves
     // Alliance
     //Stormpike first aid station
     AV_AID_A_C                      = 1325,
@@ -501,7 +376,7 @@ enum BG_AV_WorldStates
     AV_FROSTWOLFHUT_H_C             = 1330,
     AV_FROSTWOLFHUT_H_A             = 1332, //over ac
 
-    //Towers
+//Towers
     //Alliance
     //Dunbaldar South Bunker
     AV_DUNS_CONTROLLED              = 1361,
@@ -536,18 +411,17 @@ enum BG_AV_WorldStates
     AV_FROSTWOLFE_CONTROLLED        = 1383,
     AV_FROSTWOLFE_DESTROYED         = 1366,
     AV_FROSTWOLFE_ASSAULTED         = 1388,
-*/
-    //mines
-    AV_IRONDEEP_MINE_N              = 1360,
-    AV_IRONDEEP_MINE_A              = 1358,
-    AV_IRONDEEP_MINE_H              = 1359,
+
+//mines
+    AV_N_MINE_N                     = 1360,
+    AV_N_MINE_A                     = 1358,
+    AV_N_MINE_H                     = 1359,
 
     AV_S_MINE_N                     = 1357,
     AV_S_MINE_A                     = 1355,
     AV_S_MINE_H                     = 1356,
 
-/*
-    //towers assaulted by own team (unused)
+//towers assaulted by own team (unused)
     AV_STONEH_UNUSED                = 1377,
     AV_ICEWING_UNUSED               = 1376,
     AV_DUNS_UNUSED                  = 1375,
@@ -558,106 +432,99 @@ enum BG_AV_WorldStates
     AV_FROSTWOLFE_UNUSED            = 1393,
     AV_FROSTWOLFW_UNUSED            = 1392
 */
-
 };
 
-//a_c a_a h_c h_a
-const uint32 BG_AV_WorldStates[16][4] = {
-    //Stormpike first aid station
-    {1325, 1326,1327,1328},
-    //Stormpike Graveyard
+// alliance_control neutral_control horde_control
+const uint32 BG_AV_MineWorldStates[2][3] = {
+    {1358, 1360,1359},
+    {1355, 1357,1356}
+};
+
+// alliance_control alliance_assault h_control h_assault
+const uint32 BG_AV_NodeWorldStates[BG_AV_NODES_MAX][4] = {
+    // Stormpike first aid station
+    {1325,1326,1327,1328},
+    // Stormpike Graveyard
     {1333,1335,1334,1336},
-    //Stoneheart Grave
+    // Stoneheart Grave
     {1302,1304,1301,1303},
-    //Snowfall Grave
+    // Snowfall Grave
     {1341,1343,1342,1344},
-    //Iceblood grave
+    // Iceblood grave
     {1346,1348,1347,1349},
-    //Frostwolf Grave
+    // Frostwolf Grave
     {1337,1339,1338,1340},
-    //Frostwolf Hut
+    // Frostwolf Hut
     {1329,1331,1330,1332},
-    //Dunbaldar South Bunker
+    // Dunbaldar South Bunker
     {1361,1375,1370,1378},
-    //Dunbaldar North Bunker
+    // Dunbaldar North Bunker
     {1362,1374,1371,1379},
-    //Icewing Bunker
+    // Icewing Bunker
     {1363,1376,1372,1380},
-    //Stoneheart Bunker
+    // Stoneheart Bunker
     {1364,1377,1373,1381},
-    //Iceblood Tower
+    // Iceblood Tower
     {1368,1390,1385,1395},
-    //Tower Point
+    // Tower Point
     {1367,1389,1384,1394},
-    //Frostwolf East
+    // Frostwolf East
     {1366,1388,1383,1393},
-    //Frostwolf West
+    // Frostwolf West
     {1365,1387,1382,1392},
-};
-
-
-
-enum BG_AV_ItemIds
-{
-    AV_ITEM_BLOOD  = 17306,
-    AV_ITEM_SCRAPS = 17422,
-    AV_ITEM_CRYSTAL= 17423,
-    AV_ITEM_A_SOLDIER = 17502,
-    AV_ITEM_A_LIEUTNANT = 17503,
-    AV_ITEM_A_COMMANDER = 17504,
-    AV_ITEM_H_SOLDIER = 17326,
-    AV_ITEM_H_LIEUTNANT = 17327,
-    AV_ITEM_H_COMMANDER =17328,
-    AV_ITEM_A_HIDE      = 17643,
-    AV_ITEM_H_HIDE      = 17642,
-    AV_ITEM_IRONDEEP = 17522,
-    AV_ITEM_COLDTOOTH = 17542
-
 };
 
 enum BG_AV_QuestIds
 {
-    //TODO search and add the questids (and also search and add the first for example 6781 has 7223 first)
-    AV_QUEST_A_SCRAPS1      = 7223,
-    AV_QUEST_A_SCRAPS2      = 6781,
-    AV_QUEST_H_SCRAPS1      = 7224,
-    AV_QUEST_H_SCRAPS2      = 6741,
-    AV_QUEST_A_COMMANDER1   = 6942, //soldier
-    AV_QUEST_H_COMMANDER1   = 6825,
-    AV_QUEST_A_COMMANDER2   = 6941, //leutnant
-    AV_QUEST_H_COMMANDER2   = 6826,
-    AV_QUEST_A_COMMANDER3   = 6943, //commander
-    AV_QUEST_H_COMMANDER3   = 6827,
-    AV_QUEST_A_BOSS1        = 7386, // 5 cristal/blood
-    AV_QUEST_H_BOSS1        = 7385,
-    AV_QUEST_A_BOSS2        = 6881, // 1
-    AV_QUEST_H_BOSS2        = 6801,
-    AV_QUEST_A_NEAR_MINE    = 5892, //the mine near start location of team
-    AV_QUEST_H_NEAR_MINE    = 5893,
-    AV_QUEST_A_OTHER_MINE   = 6982, //the other mine ;)
-    AV_QUEST_H_OTHER_MINE   = 6985,
-    AV_QUEST_A_RIDER_HIDE   = 7026,
-    AV_QUEST_H_RIDER_HIDE   = 7002,
-    AV_QUEST_A_RIDER_TAME   = 7027,
-    AV_QUEST_H_RIDER_TAME   = 7001
+    BG_AV_QUEST_A_SCRAPS1       = 7223,                     // first quest
+    BG_AV_QUEST_A_SCRAPS2       = 6781,                     // repeatable
+    BG_AV_QUEST_H_SCRAPS1       = 7224,
+    BG_AV_QUEST_H_SCRAPS2       = 6741,
+    BG_AV_QUEST_A_COMMANDER1    = 6942,                     // soldier
+    BG_AV_QUEST_H_COMMANDER1    = 6825,
+    BG_AV_QUEST_A_COMMANDER2    = 6941,                     // leutnant
+    BG_AV_QUEST_H_COMMANDER2    = 6826,
+    BG_AV_QUEST_A_COMMANDER3    = 6943,                     // commander
+    BG_AV_QUEST_H_COMMANDER3    = 6827,
+    BG_AV_QUEST_A_BOSS1         = 7386,                     // 5 cristal/blood
+    BG_AV_QUEST_H_BOSS1         = 7385,
+    BG_AV_QUEST_A_BOSS2         = 6881,                     // 1
+    BG_AV_QUEST_H_BOSS2         = 6801,
+    BG_AV_QUEST_A_NEAR_MINE     = 5892,                     // the mine near start location of team
+    BG_AV_QUEST_H_NEAR_MINE     = 5893,
+    BG_AV_QUEST_A_OTHER_MINE    = 6982,                     // the other mine ;)
+    BG_AV_QUEST_H_OTHER_MINE    = 6985,
+    BG_AV_QUEST_A_RIDER_HIDE    = 7026,
+    BG_AV_QUEST_H_RIDER_HIDE    = 7002,
+    BG_AV_QUEST_A_RIDER_TAME    = 7027,
+    BG_AV_QUEST_H_RIDER_TAME    = 7001
 };
 
-const uint32 BG_AV_State_Auras[5] = { BG_AV_OBJECTID_AURA_N, BG_AV_OBJECTID_AURA_A, BG_AV_OBJECTID_AURA_H, BG_AV_OBJECTID_AURA_N, BG_AV_OBJECTID_AURA_N };
-const uint32 BG_AV_State_Auras_Small[5] = { BG_AV_OBJECTID_AURA_N,BG_AV_OBJECTID_AURA_A_S,BG_AV_OBJECTID_AURA_H_S,BG_AV_OBJECTID_AURA_N_S,BG_AV_OBJECTID_AURA_N_S };
+struct BG_AV_NodeInfo
+{
+    uint32       TotalOwner;
+    uint32       Owner;
+    uint32       PrevOwner;
+    BG_AV_States State;
+    BG_AV_States PrevState;
+    int          Timer;
+    bool         Tower;
+};
 
-
+inline BG_AV_Nodes &operator++(BG_AV_Nodes &i)
+{
+    return i = BG_AV_Nodes(i + 1);
+}
 
 class BattleGroundAVScore : public BattleGroundScore
 {
     public:
-        BattleGroundAVScore() : GraveyardsAssaulted(0), GraveyardsDefended(0), TowersAssaulted(0), TowersDefended(0), MinesCaptured(0), LeadersKilled(0), SecondaryObjectives(0) {};
+        BattleGroundAVScore() : GraveyardsAssaulted(0), GraveyardsDefended(0), TowersAssaulted(0), TowersDefended(0), SecondaryObjectives(0) {};
         virtual ~BattleGroundAVScore() {};
         uint32 GraveyardsAssaulted;
         uint32 GraveyardsDefended;
         uint32 TowersAssaulted;
         uint32 TowersDefended;
-        uint32 MinesCaptured;
-        uint32 LeadersKilled;
         uint32 SecondaryObjectives;
 };
 
@@ -672,52 +539,105 @@ class BattleGroundAV : public BattleGround
 
         /* inherited from BattlegroundClass */
         virtual void AddPlayer(Player *plr);
+        virtual void OnObjectDBLoad(Creature* creature);
+        virtual void OnObjectDBLoad(GameObject* obj);
+        virtual void OnCreatureRespawn(Creature* creature);
+
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
+        // world states
+        virtual void FillInitialWorldStates(WorldPacket& data);
 
         void RemovePlayer(Player *plr,uint64 guid);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
-        //bool SetupBattleGround();
         bool SetupBattleGround();
-        virtual void ResetBGSubclass();
+        virtual void Reset();
 
-        /* Nodes occupying */
-        void EventPlayerClaimsPoint(Player *player, uint64 guid, uint32 entry);
-        void EventPlayerAssaultsPoint(Player* player, uint32 type);
-        void EventPlayerDefendsPoint(Player* player, uint32 type);
-        void EventPlayerDestroyedPoint(uint32 node);
-        void UpdatePointsIcons(uint8 node);
-        void UpdateScore(uint8 team, int16 points);
-        void UpdateNode(uint32 type, uint32 state);
-        void PopulateNode(uint32 node);
-        void DePopulateNode(uint32 node);
-        const uint8 GetNodePlace(uint16 guid);
-        const uint16 GetPlaceNode(uint8 node);
-        const char* GetNodeName(uint8 node);
-        const bool IsTower(uint8 node);
-        const uint16 GetBonusHonor(uint8 kills);
-
-        /* Scorekeeping */
+        /*general stuff*/
+        void UpdateScore(uint32 team, int32 points);
         void UpdatePlayerScore(Player *Source, uint32 type, uint32 value);
+
+        /*handle stuff*/ // these are functions which get called from extern scripts
+        virtual void EventPlayerClickedOnFlag(Player *source, GameObject* target_obj);
         void HandleKillPlayer(Player* player, Player *killer);
         void HandleKillUnit(Creature *unit, Player *killer);
-        virtual WorldSafeLocsEntry const* GetClosestGraveYard(float x, float y, float z, uint32 MapId, uint32 team);
-        void UpdateQuest(uint32 questid, Player *player);
+        void HandleQuestComplete(uint32 questid, Player *player);
+        bool PlayerCanDoMineQuest(int32 GOId,uint32 team);
+
+        void EndBattleGround(uint32 winner);
+
+        virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player *plr);
 
     private:
-        void FillInitialWorldStates(WorldPacket& data);
-        const uint8 GetWorldStateType(uint8 state, uint16 team);
-        Creature* AddAVCreature(uint8 cinfoid, uint16 type);
-        int32 m_Team_Scores[2];
-        uint32 m_Team_QuestStatus[2][9]; //[x][y] x=team y=questcounter
-        uint32 m_Points_Owner[BG_AV_NODES_MAX];
-        uint32 m_Points_PrevOwner[BG_AV_NODES_MAX];
-        uint32 m_Points_State[BG_AV_NODES_MAX];
-        uint32 m_Points_PrevState[BG_AV_NODES_MAX];
-        int32  m_Points_Timer[BG_AV_NODES_MAX];
-        uint8 m_MaxLevel; //TODO remove this when battlegroundmgr provides a function for this..
-        bool m_Snowfall_Capped;
-        bool m_IsInformedNearVictory;
+        /* Nodes occupying */
+        void EventPlayerAssaultsPoint(Player* player);
+        void EventPlayerDefendsPoint(Player* player);
+        void EventPlayerDestroyedPoint(BG_AV_Nodes node);
 
+        void AssaultNode(BG_AV_Nodes node, uint32 team);
+        void DestroyNode(BG_AV_Nodes node);
+        void InitNode(BG_AV_Nodes node, uint32 team, bool tower);
+        void DefendNode(BG_AV_Nodes node, uint32 team);
+
+        void PopulateNode(BG_AV_Nodes node);
+        void DePopulateNode(BG_AV_Nodes node);
+
+        const BG_AV_Nodes GetNodeThroughPlayerPosition(Player* plr);
+        uint32 GetNodeName(BG_AV_Nodes node);
+        const bool IsTower(BG_AV_Nodes node) { return (node == BG_AV_NODES_ERROR)? false : m_Nodes[node].Tower; }
+        const bool IsGrave(BG_AV_Nodes node) { return (node == BG_AV_NODES_ERROR)? false : !m_Nodes[node].Tower; }
+        BG_AV_Nodes GetNodeThroughNodeEvent(uint8 event);
+        uint8 GetNodeEventThroughNode(BG_AV_Nodes node);
+        bool IsActiveNodeEvent(uint8 event);
+
+        /*mine*/
+        void ChangeMineOwner(uint8 mine, uint32 team);
+
+        /*worldstates*/
+        uint8 GetWorldStateType(uint8 state, uint32 team) const;
+        void SendMineWorldStates(uint32 mine);
+        void UpdateNodeWorldState(BG_AV_Nodes node);
+
+        /*variables */
+        int32 m_TeamScores[BG_TEAMS_COUNT];
+        uint32 m_Team_QuestStatus[BG_TEAMS_COUNT][9];       // [x][y] x=team y=questcounter
+
+        BG_AV_NodeInfo m_Nodes[BG_AV_NODES_MAX];
+
+        uint32 m_Mine_Owner[BG_TEAMS_COUNT];
+        uint32 m_Mine_PrevOwner[BG_TEAMS_COUNT];            // only for worldstates needed
+        int32 m_Mine_Timer;                                 // one timer ticks for both teams
+        uint32 m_Mine_Reclaim_Timer[BG_TEAMS_COUNT];
+
+        bool m_IsInformedNearLose[BG_TEAMS_COUNT];
+        bool m_captainAlive[BG_TEAMS_COUNT];
+
+        uint64 m_DB_Creature[BG_AV_DB_CREATURE_MAX];
+
+        BG_AV_Nodes m_assault_in_progress;                  // this node gets currently assaulted and must be ignored for getclosestgrave
+        BGCreatures m_MineCreatures[2][3];                  // 2 mines, 3 factions (neutral, alliance, horde)
+
+        // 7 grave yards 2kinds: alliance/horde-captured, 4 different creaturetypes (there is a quest where you can improve those creatures)
+        BGCreatures m_GraveCreatures[7][BG_TEAMS_COUNT][4];
+
+        struct BG_AV_NodeObjects
+        {
+            BGObjects gameobjects;
+            BGCreatures creatures;
+        };
+        BG_AV_NodeObjects m_NodeObjects[BG_AV_MAX_NODE_EVENTS];
+
+        BGObjects m_DeadCaptainBurning[BG_TEAMS_COUNT];
+        BGObjects m_Doors;                                  // alliance and horde will go in this one
+
+        uint32 m_HonorMapComplete;
+        uint32 m_RepTowerDestruction;
+        uint32 m_RepCaptain;
+        uint32 m_RepBoss;
+        uint32 m_RepOwnedGrave;
+        uint32 m_RepOwnedMine;
+        uint32 m_RepSurviveCaptain;
+        uint32 m_RepSurviveTower;
 };
+
 #endif
