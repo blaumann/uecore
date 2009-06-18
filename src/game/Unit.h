@@ -1136,8 +1136,9 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool IsPolymorphed() const;
 
         bool isFrozen() const;
+        bool isBleeding() const;
 
-        void RemoveSpellbyDamageTaken(AuraType auraType, uint32 damage, Unit *pCaster);
+        void RemoveSpellbyDamageTaken(AuraType auraType, uint32 damage, Unit *pCaster, uint32 mechanic = 0);
 
         bool isTargetableForAttack() const;
         virtual bool IsInWater() const;
@@ -1246,7 +1247,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         void RemoveAurasAtChanneledTarget(SpellEntry const* spellInfo);
         void RemoveNotOwnSingleTargetAuras();
 
-        void RemoveSpellsCausingAura(AuraType auraType);
+        void RemoveSpellsCausingAura(AuraType auraType, uint32 mechanic = 0);
         void RemoveRankAurasDueToSpell(uint32 spellId);
         bool RemoveNoStackAurasDueToAura(Aura *Aur);
         void RemoveAurasWithInterruptFlags(uint32 flags);
@@ -1476,7 +1477,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         void ApplySpellDispelImmunity(const SpellEntry * spellProto, DispelType type, bool apply);
         virtual bool IsImmunedToSpell(SpellEntry const* spellInfo);
                                                             // redefined in Creature
-        bool IsImmunedToDamage(SpellSchoolMask meleeSchoolMask);
+        bool IsImmunedToDamage(SpellSchoolMask meleeSchoolMask, SpellEntry const *spellInfo = 0);
         virtual bool IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) const;
                                                             // redefined in Creature
 
@@ -1517,8 +1518,8 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         uint32 GetUnitMovementFlags() const { return m_unit_movement_flags; }
         void SetUnitMovementFlags(uint32 f) { m_unit_movement_flags = f; }
 
-        void SetFeared(bool apply, uint64 casterGUID = 0, uint32 spellID = 0, uint32 time = 0);
-        void SetConfused(bool apply, uint64 casterGUID = 0, uint32 spellID = 0);
+        void SetFeared(bool apply, uint64 casterGUID = 0, uint32 spellID = 0, uint32 time = 0, bool death = false);
+        void SetConfused(bool apply, uint64 casterGUID = 0, uint32 spellID = 0, bool death = false);
 
         void AddComboPointHolder(uint32 lowguid) { m_ComboPointHolders.insert(lowguid); }
         void RemoveComboPointHolder(uint32 lowguid) { m_ComboPointHolders.erase(lowguid); }

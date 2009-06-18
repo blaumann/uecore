@@ -305,7 +305,7 @@ enum ItemQualities
 #define SPELL_ATTR_EX2_UNK25                      0x02000000            // 25
 #define SPELL_ATTR_EX2_UNK26                      0x04000000            // 26 unaffected by school immunity
 #define SPELL_ATTR_EX2_UNK27                      0x08000000            // 27
-#define SPELL_ATTR_EX2_UNK28                      0x10000000            // 28 no breaks stealth if it fails??
+#define SPELL_ATTR_EX2_DONT_BREAK_STEALTH         0x10000000            // 28 no breaks stealth if it fails??
 #define SPELL_ATTR_EX2_CANT_CRIT                  0x20000000            // 29 Spell can't crit
 #define SPELL_ATTR_EX2_UNK30                      0x40000000            // 30
 #define SPELL_ATTR_EX2_UNK31                      0x80000000            // 31
@@ -2402,6 +2402,7 @@ enum SummonType
     SUMMON_TYPE_VEHICLE6        = 708,
     SUMMON_TYPE_VEHICLE7        = 710,
     SUMMON_TYPE_VEHICLE8        = 716,
+    SUMMON_TYPE_SNAKES          = 881,
     SUMMON_TYPE_VEHICLE9        = 901,
     SUMMON_TYPE_VEHICLE10       = 941,
     SUMMON_TYPE_VEHICLE11       = 1081,

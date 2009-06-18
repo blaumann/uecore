@@ -695,6 +695,7 @@ void Spell::FillTargetMap()
                 case SPELL_EFFECT_FEED_PET:
                 case SPELL_EFFECT_DESTROY_ALL_TOTEMS:
                 case SPELL_EFFECT_SKILL:
+                case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:
                     tmpUnitMap.push_back(m_caster);
                     break;
                 case SPELL_EFFECT_LEARN_PET_SPELL:
@@ -1163,7 +1164,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
 
     // Recheck immune (only for delayed spells)
     if( m_spellInfo->speed && (
-        unit->IsImmunedToDamage(GetSpellSchoolMask(m_spellInfo)) ||
+        unit->IsImmunedToDamage(GetSpellSchoolMask(m_spellInfo), m_spellInfo) ||
         unit->IsImmunedToSpell(m_spellInfo)))
     {
         m_caster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_IMMUNE);
@@ -1201,7 +1202,9 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
                 return;
             }
 
-            unit->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+            // Check if spell can break other's stealth
+            if (isSpellBreakOthersStealth(m_spellInfo))
+                unit->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
 
             if( !(m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_NO_INITIAL_AGGRO) )
             {
@@ -2323,6 +2326,8 @@ void Spell::cast(bool skipCheck)
                 m_preCastSpell = 6788;                                 // Weakened Soul
             if (m_spellInfo->Id == 47585)                              // Dispersion (transform)
                 m_preCastSpell = 60069;                                // Dispersion (mana regen)
+            if (m_spellInfo->Id == 33206)                              // Pain Suppression (Damage modifier)
+                m_preCastSpell = 44416;                                // Pain Suppression (Threat modifier)
             break;
         }
         case SPELLFAMILY_PALADIN:
@@ -2340,12 +2345,20 @@ void Spell::cast(bool skipCheck)
                 m_preCastSpell = 57723;                                // Exhaustion
             break;
         }
+        case SPELLFAMILY_WARLOCK:
+        {
+            if (m_spellInfo->Id == 47897)                              // Shadowflame DD (Rank 1)
+                m_preCastSpell = 47960;                                // Shadowflame DOT
+            else if(m_spellInfo->Id == 61290)                          // Shadowflame DD (Rank 2)
+                m_preCastSpell = 61291;                                // Shadowflame DOT
+            break;
+        }
         default:
             break;
     }
 
     // Conflagrate - consumes immolate
-    if ((m_spellInfo->TargetAuraState == AURA_STATE_IMMOLATE) && m_targets.getUnitTarget())
+    if ((m_spellInfo->TargetAuraState == AURA_STATE_IMMOLATE) && m_targets.getUnitTarget() && !m_caster->HasAura(56235))
     {
         // for caster applied auras only
         Unit::AuraList const &mPeriodic = m_targets.getUnitTarget()->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
@@ -3307,6 +3320,10 @@ void Spell::SendResurrectRequest(Player* target)
 void Spell::SendPlaySpellVisual(uint32 SpellID)
 {
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    /* FIXMEPLZ - THIS IS AN HACK */
+    if(SpellID == 1725 && m_caster->GetTypeId() == TYPEID_PLAYER)
         return;
 
     WorldPacket data(SMSG_PLAY_SPELL_VISUAL, 8 + 4);
@@ -4343,17 +4360,32 @@ SpellCastResult Spell::CheckCast(bool strict)
             case SPELL_EFFECT_LEAP:
             case SPELL_EFFECT_TELEPORT_UNITS_FACE_CASTER:
             {
+                uint32 mapid = m_caster->GetMapId();
                 float dis = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
-                float fx = m_caster->GetPositionX() + dis * cos(m_caster->GetOrientation());
-                float fy = m_caster->GetPositionY() + dis * sin(m_caster->GetOrientation());
-                // teleport a bit above terrain level to avoid falling below it
-                float fz = m_caster->GetBaseMap()->GetHeight(fx,fy,m_caster->GetPositionZ(),true);
-                if(fz <= INVALID_HEIGHT)                    // note: this also will prevent use effect in instances without vmaps height enabled
-                    return SPELL_FAILED_TRY_AGAIN;
 
-                float caster_pos_z = m_caster->GetPositionZ();
-                // Control the caster to not climb or drop when +-fz > 8
-                if(!(fz <= caster_pos_z + 8 && fz >= caster_pos_z - 8))
+                float *fx = new float[2], *fy = new float[2], *fz = new float[2];
+                m_caster->GetPosition(fx[0], fy[0], fz[0]);
+
+                float orientation = m_caster->GetOrientation(), step = dis / 10.0, tempz = fz[0], itr_i, ground, floor;
+                bool found_valid_fz = false;
+
+                for (itr_i = step; itr_i <= dis && found_valid_fz == false; itr_i += step)
+                {
+                    fx[1] = fx[0] + itr_i * cos(orientation);
+                    fy[1] = fy[0] + itr_i * sin(orientation);
+                    ground = MapManager::Instance().GetMap(mapid, m_caster)->GetHeight(fx[1], fy[1], MAX_HEIGHT, true);
+                    floor = MapManager::Instance().GetMap(mapid, m_caster)->GetHeight(fx[1], fy[1], tempz, true);
+                    fz[1] = fabs(ground - fz[0]) <= fabs(floor - fz[0]) ? ground : floor;
+                    if (fabs(fz[1] - fz[0]) <= 6.0)
+                        found_valid_fz = true;
+                    else
+                        if (fz[1] > INVALID_HEIGHT)
+                            tempz = fz[1];
+                }
+
+                delete fx; delete fy; delete fz;
+
+                if (found_valid_fz == false)
                     return SPELL_FAILED_TRY_AGAIN;
 
                 // not allow use this effect at battleground until battleground start
@@ -5445,6 +5477,12 @@ bool Spell::CheckTarget( Unit* target, uint32 eff )
             break;
         case SPELL_EFFECT_DUMMY:
             if(m_spellInfo->Id != 20577)                    // Cannibalize
+                break;
+        case SPELL_EFFECT_APPLY_AURA:
+            if(m_spellInfo->Id==43383)                      // Spirit Bolts Trigger
+                break;
+        case SPELL_EFFECT_SCHOOL_DAMAGE:
+            if(m_spellInfo->Id==43382)                      // Spirit Bolts
                 break;
             //fall through
         case SPELL_EFFECT_RESURRECT_NEW:

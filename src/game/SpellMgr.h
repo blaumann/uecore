@@ -260,13 +260,40 @@ inline bool IsDispelSpell(SpellEntry const *spellInfo)
 {
     if (spellInfo->Effect[0] == SPELL_EFFECT_DISPEL ||
         spellInfo->Effect[1] == SPELL_EFFECT_DISPEL ||
-        spellInfo->Effect[2] == SPELL_EFFECT_DISPEL )
+        spellInfo->Effect[2] == SPELL_EFFECT_DISPEL ||
+        spellInfo->Effect[0] == SPELL_EFFECT_STEAL_BENEFICIAL_BUFF ||
+        spellInfo->Effect[1] == SPELL_EFFECT_STEAL_BENEFICIAL_BUFF ||
+        spellInfo->Effect[2] == SPELL_EFFECT_STEAL_BENEFICIAL_BUFF)
         return true;
     return false;
 }
 inline bool isSpellBreakStealth(SpellEntry const* spellInfo)
 {
     return !(spellInfo->AttributesEx & SPELL_ATTR_EX_NOT_BREAK_STEALTH);
+}
+// Hack to define spells that shouldn't break stealth
+inline bool isSpellBreakOthersStealth(SpellEntry const* spellInfo)
+{
+    // Attributes not remove stealth
+    if (spellInfo->AttributesEx2 & SPELL_ATTR_EX2_DONT_BREAK_STEALTH)
+        return false;
+    // Specific cases
+    switch(spellInfo->Id)
+    {
+        case 1725:              // Distract
+        case 44416:             // Pain Suppression (Threat reduction)
+        case 53055:             // Hand of Salvation (Threat reduction)
+        case 32375:             // Mass dispel (Friendly)
+        case 32592:             // Mass dispel (Enemy)
+        case 39897:             // Mass dispel (Mechanic)
+        case 59667:             // Intervene
+        case 32835:             // Soulshatter
+            return false;
+        default:
+            break;
+    }
+
+    return true;
 }
 
 inline bool IsAutoRepeatRangedSpell(SpellEntry const* spellInfo)

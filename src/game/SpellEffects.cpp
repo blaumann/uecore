@@ -56,6 +56,8 @@
 #include "SkillDiscovery.h"
 #include "Formulas.h"
 #include "Vehicle.h"
+#include "GridNotifiersImpl.h"
+#include "CellImpl.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -357,16 +359,6 @@ void Spell::EffectSchoolDMG(uint32 effect_idx)
                     case 38441:
                         damage = unitTarget->GetMaxHealth() / 2;
                         break;
-                }
-                break;
-            }
-
-            case SPELLFAMILY_MAGE:
-            {
-                // Arcane Blast
-                if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x20000000))
-                {
-                    m_caster->CastSpell(m_caster, 36032, true);
                 }
                 break;
             }
@@ -746,9 +738,8 @@ void Spell::EffectDummy(uint32 i)
                         return;
 
                     Creature* creatureTarget = (Creature*)unitTarget;
-                    creatureTarget->setDeathState(JUST_DIED);
-                    creatureTarget->RemoveCorpse();
-                    creatureTarget->SetHealth(0);           // just for nice GM-mode view
+
+                    creatureTarget->ForcedDespawn();
                     return;
                 }
                 case 16589:                                 // Noggenfogger Elixir
@@ -821,9 +812,7 @@ void Spell::EffectDummy(uint32 i)
                     pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel() );
                     pGameObj->SetSpellId(m_spellInfo->Id);
 
-                    creatureTarget->setDeathState(JUST_DIED);
-                    creatureTarget->RemoveCorpse();
-                    creatureTarget->SetHealth(0);                   // just for nice GM-mode view
+                    creatureTarget->ForcedDespawn();
 
                     DEBUG_LOG("AddObject at SpellEfects.cpp EffectDummy");
                     map->Add(pGameObj);
@@ -1037,9 +1026,7 @@ void Spell::EffectDummy(uint32 i)
 
                     Creature* creatureTarget = (Creature*)unitTarget;
 
-                    creatureTarget->setDeathState(JUST_DIED);
-                    creatureTarget->RemoveCorpse();
-                    creatureTarget->SetHealth(0);           // just for nice GM-mode view
+                    creatureTarget->ForcedDespawn();
 
                     //cast spell Raptor Capture Credit
                     m_caster->CastSpell(m_caster, 42337, true, NULL);
@@ -1128,9 +1115,7 @@ void Spell::EffectDummy(uint32 i)
 
                     Creature* creatureTarget = (Creature*)unitTarget;
 
-                    creatureTarget->setDeathState(JUST_DIED);
-                    creatureTarget->RemoveCorpse();
-                    creatureTarget->SetHealth(0);           // just for nice GM-mode view
+                    creatureTarget->ForcedDespawn();
                     return;
 
                 }
@@ -1166,6 +1151,11 @@ void Spell::EffectDummy(uint32 i)
                 case 58418:                                 // Portal to Orgrimmar
                 case 58420:                                 // Portal to Stormwind
                     return;                                 // implemented in EffectScript[0]
+                case 55004:                                 // Nitro Boosts
+                {
+                    m_caster->CastSpell(m_caster, 54861, true);
+                    return;
+                }
             }
 
             //All IconID Check in there
@@ -1528,6 +1518,26 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
                     m_caster->AttackStop();
                     ((Player*)m_caster)->SendAttackSwingCancelAttack();
+                    return;
+                }
+                case 781:                                   // Disengage
+                {
+                    // Effect only works on players
+                    if(m_caster->GetTypeId()!=TYPEID_PLAYER)
+                       return;
+
+                    float vsin = sin(m_caster->GetOrientation());
+                    float vcos = cos(m_caster->GetOrientation());
+
+                    WorldPacket data(SMSG_MOVE_KNOCK_BACK, (8+4+4+4+4+4));
+                    data.append(m_caster->GetPackGUID());
+                    data << uint32(0);                                      // Sequence
+                    data << float(vcos);                                    // x direction
+                    data << float(vsin);                                    // y direction
+                    data << float(-13);                                     // Horizontal speed
+                    data << float(-7);                                      // Z Movement speed (vertical)
+
+                    ((Player*)m_caster)->GetSession()->SendPacket(&data);
                     return;
                 }
             }
@@ -2054,6 +2064,9 @@ void Spell::EffectTriggerMissileSpell(uint32 effect_idx)
     if (m_CastItem)
         DEBUG_LOG("WORLD: cast Item spellId - %i", spellInfo->Id);
 
+    if(m_caster->GetTypeId() == TYPEID_PLAYER)
+       ((Player*)m_caster)->RemoveSpellCooldown(triggered_spell_id);
+
     m_caster->CastSpell(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, spellInfo, true, m_CastItem, 0, m_originalCasterGUID);
 }
 
@@ -2425,8 +2438,18 @@ void Spell::EffectPowerBurn(uint32 i)
 
     int32 curPower = int32(unitTarget->GetPower(powertype));
 
-    // resilience reduce mana draining effect at spell crit damage reduction (added in 2.4)
     uint32 power = damage;
+
+    SkillLineAbilityMap::const_iterator const skillLine = spellmgr.GetBeginSkillLineAbilityMap(m_spellInfo->Id);
+    if(skillLine->second->skillId == SKILL_DISCIPLINE)
+    {
+       power = unitTarget->GetMaxPower(powertype) * m_spellInfo->EffectBasePoints[i] /100;
+
+       if(power > GetCaster()->GetMaxPower(powertype) * m_spellInfo->EffectBasePoints[i] / 50)
+          power = GetCaster()->GetMaxPower(powertype) * m_spellInfo->EffectBasePoints[i] / 50;
+    }
+
+    // resilience reduce mana draining effect at spell crit damage reduction (added in 2.4)
     if ( powertype == POWER_MANA && unitTarget->GetTypeId() == TYPEID_PLAYER )
         power -= ((Player*)unitTarget)->GetSpellCritDamageReduction(power);
 
@@ -3190,6 +3213,7 @@ void Spell::EffectSummonType(uint32 i)
         case SUMMON_TYPE_POSESSED2:
         case SUMMON_TYPE_FORCE_OF_NATURE:
         case SUMMON_TYPE_GUARDIAN2:
+        case SUMMON_TYPE_SNAKES:
             EffectSummonGuardian(i);
             return;
         case SUMMON_TYPE_WILD:
@@ -3460,6 +3484,7 @@ void Spell::EffectDispel(uint32 i)
             // Base dispel chance
             // TODO: possible chance depend from spell level??
             int32 miss_chance = 0;
+
             // Apply dispel mod from aura caster
             if (Unit *caster = aur->GetCaster())
             {
@@ -4127,10 +4152,8 @@ void Spell::EffectTameCreature(uint32 /*i*/)
     if(!pet)                                                // in versy specific state like near world end/etc.
         return;
 
-    // kill original creature
-    creatureTarget->setDeathState(JUST_DIED);
-    creatureTarget->RemoveCorpse();
-    creatureTarget->SetHealth(0);                       // just for nice GM-mode view
+    // "kill" original creature
+    creatureTarget->ForcedDespawn();
 
     uint32 level = (creatureTarget->getLevel() < (m_caster->getLevel() - 5)) ? (m_caster->getLevel() - 5) : creatureTarget->getLevel();
 
@@ -5044,6 +5067,46 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         ((Player*)m_caster)->learnSpell(discoveredSpell, false);
                     return;
                 }
+                // Gluth's Decimate
+                case 28374:
+                {
+                    const SpellEntry *spell = sSpellStore.LookupEntry(28374);
+                    std::list<Unit*> targets;
+                    {
+                        float radius = GetSpellMaxRange(sSpellRangeStore.LookupEntry(spell->rangeIndex));
+
+                        CellPair p(MaNGOS::ComputeCellPair(m_caster->GetPositionX(),m_caster->GetPositionY()));
+                        Cell cell(p);
+                        cell.data.Part.reserved = ALL_DISTRICT;
+
+                        MaNGOS::AnyUnitInObjectRangeCheck u_check(m_caster, radius);
+                        MaNGOS::UnitListSearcher<MaNGOS::AnyUnitInObjectRangeCheck> checker(m_caster, targets, u_check);
+
+                        TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyUnitInObjectRangeCheck>, GridTypeMapContainer > grid_object_checker(checker);
+                        TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyUnitInObjectRangeCheck>, WorldTypeMapContainer > world_object_checker(checker);
+
+                        CellLock<GridReadGuard> cell_lock(cell, p);
+
+                        cell_lock->Visit(cell_lock, grid_object_checker,  *m_caster->GetMap());
+                        cell_lock->Visit(cell_lock, world_object_checker, *m_caster->GetMap());
+                    }
+
+                    if (targets.empty())
+                        return;
+
+                    for(std::list<Unit*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
+                    {
+                        float pct = (*itr)->GetHealth() / (*itr)->GetMaxHealth();
+
+                        if (!(*itr) || pct < 0.05f)
+                            continue;
+
+                        (*itr)->SetHealth((*itr)->GetMaxHealth() * 0.05f);
+
+                        if ((*itr)->GetTypeId() == TYPEID_UNIT)
+                            (*itr)->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVE);
+                    }
+                }
             }
             break;
         }
@@ -5155,6 +5218,15 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     }
                     return;
                 }
+                // Divine Hymn
+                case 47951:
+                {
+                    if(!unitTarget || !unitTarget->isAlive())
+                       return;
+                    unitTarget->CastSpell(unitTarget,47953,true);
+                    unitTarget->CastSpell(unitTarget,59600,true);
+                    return;
+                }
                 default:
                     break;
             }
@@ -5254,6 +5326,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     m_caster->CastSpell(unitTarget, spellId2, true);
                 return;
             }
+            break;
         }
         case SPELLFAMILY_POTION:
         {
@@ -5872,29 +5945,51 @@ void Spell::EffectBlock(uint32 /*i*/)
 
 void Spell::EffectMomentMove(uint32 i)
 {
-    if(unitTarget->isInFlight())
+    if (unitTarget->isInFlight())
         return;
 
     if( m_spellInfo->rangeIndex == 1)                       //self range
     {
+        uint32 mapid = unitTarget->GetMapId();
         float dis = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
 
-        // before caster
-        float fx, fy, fz;
-        unitTarget->GetClosePoint(fx, fy, fz, unitTarget->GetObjectSize(), dis);
-        float ox, oy, oz;
-        unitTarget->GetPosition(ox, oy, oz);
+        float *fx = new float[11], *fy = new float[11], *fz = new float[11];
+        unitTarget->GetPosition(fx[0], fy[0], fz[0]);
 
-        float fx2, fy2, fz2;                                // getObjectHitPos overwrite last args in any result case
-        if(VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(unitTarget->GetMapId(), ox,oy,oz+0.5, fx,fy,oz+0.5,fx2,fy2,fz2, -0.5))
+        float orientation = unitTarget->GetOrientation(), itr_i, step = dis / 10.0, fx2, fy2, fz2, ground, floor;
+        int itr_j = 1, last_valid = 0;
+        bool hit = false;
+
+        for (itr_i = step; itr_i <= dis; itr_i += step)
         {
-            fx = fx2;
-            fy = fy2;
-            fz = fz2;
-            unitTarget->UpdateGroundPositionZ(fx, fy, fz);
+            fx[itr_j] = fx[0] + itr_i * cos(orientation);
+            fy[itr_j] = fy[0] + itr_i * sin(orientation);
+            ground = MapManager::Instance().GetMap(mapid, unitTarget)->GetHeight(fx[itr_j], fy[itr_j], MAX_HEIGHT, true);
+            floor = MapManager::Instance().GetMap(mapid, unitTarget)->GetHeight(fx[itr_j], fy[itr_j], fz[last_valid], true);
+            fz[itr_j] = fabs(ground - fz[last_valid]) <= fabs(floor - fz[last_valid]) ? ground : floor;
+            if (fabs(fz[itr_j] - fz[0]) <= 6.0)
+            {
+                if (VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(mapid, fx[last_valid], fy[last_valid], fz[last_valid] + 0.5, fx[itr_j], fy[itr_j], fz[itr_j] + 0.5, fx2, fy2, fz2, -0.5))
+                {
+                    hit = true;
+                    fx[itr_j] = fx2 - 0.6 * cos(orientation);
+                    fy[itr_j] = fy2 - 0.6 * sin(orientation);
+                    ground = MapManager::Instance().GetMap(mapid, unitTarget)->GetHeight(fx[itr_j], fy[itr_j], MAX_HEIGHT, true);
+                    floor = MapManager::Instance().GetMap(mapid, unitTarget)->GetHeight(fx[itr_j], fy[itr_j], fz[last_valid], true);
+                    float tempz = fabs(ground - fz[last_valid]) <= fabs(floor - fz[last_valid]) ? ground : floor;
+                    fz[itr_j] = fabs(tempz - fz[last_valid]) <= fabs(fz2 - fz[last_valid]) ? tempz : fz2;
+                    break;
+                }
+                else
+                    last_valid = itr_j;
+            }
+            itr_j++;
         }
+        if (hit == false)
+            itr_j = last_valid;
 
-        unitTarget->NearTeleportTo(fx, fy, fz, unitTarget->GetOrientation(), unitTarget == m_caster);
+        unitTarget->NearTeleportTo(fx[itr_j], fy[itr_j], fz[itr_j] + 0.07531, orientation, unitTarget==m_caster);
+        delete [] fx; delete [] fy; delete [] fz;
     }
 }
 
@@ -6593,9 +6688,19 @@ void Spell::EffectStealBeneficialBuff(uint32 i)
         {
             // Random select buff for dispel
             Aura *aur = steal_list[urand(0, list_size-1)];
-            // Not use chance for steal
+            SpellEntry const* spellInfo = aur->GetSpellProto();
+
+            int32 miss_chance = 0;
+
+            // Apply dispel mod from aura caster
+            if (Unit *caster = aur->GetCaster())
+            {
+                if (Player* modOwner = caster->GetSpellModOwner())
+                    modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_RESIST_DISPEL_CHANCE, miss_chance, this);
+            }
             // TODO possible need do it
-            success_list.push_back( std::pair<uint32,uint64>(aur->GetId(),aur->GetCasterGUID()));
+            if (!roll_chance_i(miss_chance))
+                success_list.push_back( std::pair<uint32,uint64>(aur->GetId(),aur->GetCasterGUID()));
 
             // Remove buff from list for prevent doubles
             for (std::vector<Aura *>::iterator j = steal_list.begin(); j != steal_list.end(); )
