@@ -5147,8 +5147,10 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
             switch(dummySpell->Id)
             {
                 // Nightfall
+		   // 56218 proc from glyph of corruption
                 case 18094:
                 case 18095:
+		  case 56218:
                 {
                     target = this;
                     triggered_spell_id = 17941;
@@ -8251,7 +8253,16 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                             break;
                         }
                     break;
-
+                    case SPELLFAMILY_DRUID:
+                        //Improved Insect Swarm
+                        if (spellProto->SpellFamilyFlags & 0x0000000000000004LL && spellProto->SpellIconID == 1485)
+                        {
+                         Aura *ImprovedAura =  HasAura(57849) ? GetAura(57849,1) : HasAura(57850) ? GetAura(57850,1) : HasAura(57851) ? GetAura(57851,1) : NULL;
+                         if(ImprovedAura && pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE,SPELLFAMILY_DRUID,0x0000000000000002LL))
+                            crit_chance+=ImprovedAura->GetModifier()->m_amount;
+                            break;
+                        }
+                    break;
                 }
             }
             break;
