@@ -5742,6 +5742,14 @@ void Aura::HandleSchoolAbsorb(bool apply, bool Real)
                         DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.1f;
                         break;
                     }
+					 break;
+                case SPELLFAMILY_PALADIN:
+                    // Sacred Shield
+                     if (m_spellProto->SpellFamilyFlags & UI64LIT(0x80000))
+                     {
+                         // 0.75 from sp bonus
+                         DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.75f;
+                     }
                     break;
                 case SPELLFAMILY_WARLOCK:
                     if(m_spellProto->SpellFamilyFlags == 0x00)
