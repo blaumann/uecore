@@ -4971,6 +4971,11 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     unitTarget->CastSpell(unitTarget, damage, false);
                     break;
                 }
+                // Devour Humanoid
+                case 53110:
+                    if(unitTarget)
+                        unitTarget->CastSpell(m_caster, damage, true);
+                    return;
                 // Winged Steed of the Ebon Blade
                 case 54729:
                 {
