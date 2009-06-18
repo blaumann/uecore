@@ -5744,7 +5744,7 @@ void Aura::HandleSchoolAbsorb(bool apply, bool Real)
                     }
 					 break;
                 case SPELLFAMILY_PALADIN:
-                    // Sacred Shield
+                     // Sacred Shield
                      if (m_spellProto->SpellFamilyFlags & UI64LIT(0x80000))
                      {
                          // 0.75 from sp bonus
