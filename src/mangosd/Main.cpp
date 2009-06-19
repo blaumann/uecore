@@ -147,17 +147,16 @@ extern int main(int argc, char **argv)
     sLog.outString( "%s [world-daemon]", _FULLVERSION(REVISION_DATE,REVISION_TIME,REVISION_NR,REVISION_ID) );
     sLog.outString( "<Ctrl-C> to stop.\n\n" );
 
-    sLog.outTitle( "   ******  **       **   ******                         ");
-    sLog.outTitle( "  **////**/**      /**  **////**                        ");
-    sLog.outTitle( " **    // /**   *  /** **    //   ******  ******  ***** ");
-    sLog.outTitle( "/**       /**  *** /**/**        **////**//**//* **///**");
-    sLog.outTitle( "/**       /** **/**/**/**       /**   /** /** / /*******");
-    sLog.outTitle( "//**    **/**** //****//**    **/**   /** /**   /**//// ");
-    sLog.outTitle( " //****** /**/   ///** //****** //****** /***   //******");
-    sLog.outTitle( "  //////  //       //   //////   //////  ///     ////// ");
-    sLog.outTitle( ":::::::::::CORE:::::VISIT:::::WWW.WOW-EXTREM.DE:::::::::");
+    sLog.outTitle( " **     ** ********  ******                        ");
+    sLog.outTitle( "/**    /**/**/////  **////**                       ");
+    sLog.outTitle( "/**    /**/**      **    //   ******  ****** ***** ");
+    sLog.outTitle( "/**    /**/*******/**        **////**//**//***///**");
+    sLog.outTitle( "/**    /**/**//// /**       /**   /** /** //*******");
+    sLog.outTitle( "/**    /**/**     //**    **/**   /** /**  /**//// ");
+    sLog.outTitle( "//******* /********//****** //****** /***  //******");
+    sLog.outTitle( " ///////  ////////  //////   //////  ///    ////// ");
     sLog.outTitle( "Based on MaNGOS - Modify by Thyros, Filipper, Sanzzes.");
-    sLog.outString( "[CWCore-Revision]: 86\n\n");
+    sLog.outString( "[UECore-Revision]: 87\n\n");
 
     sLog.outString("Using configuration file %s.", cfg_file);
 
