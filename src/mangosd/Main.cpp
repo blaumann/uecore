@@ -157,7 +157,7 @@ extern int main(int argc, char **argv)
     sLog.outTitle( "  //////  //       //   //////   //////  ///     ////// ");
     sLog.outTitle( ":::::::::::CORE:::::VISIT:::::WWW.WOW-EXTREM.DE:::::::::");
     sLog.outTitle( "Based on MaNGOS - Modify by Thyros, Filipper, Sanzzes.");
-    sLog.outString( "[CWCore-Revision]: 86\n\n");
+    sLog.outString( "[UECore-Revision]: 87\n\n");
 
     sLog.outString("Using configuration file %s.", cfg_file);
 
