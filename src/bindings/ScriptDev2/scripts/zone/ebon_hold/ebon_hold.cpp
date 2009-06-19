@@ -292,26 +292,50 @@ void UpdateWorldState(Map *map, uint32 id, uint32 state)
 ######*/
 #define GOSSIP_FLIGHT "I need a ride"
 
-bool GossipHello_npc_acherus_taxi(Player* pPlayer, Creature* pCreature)
+enum
 {
-    pPlayer->SetTaxiCheater(true);
+    GOSSIP_TITLE_TEXT_ID            = 9978,
 
-    pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_FLIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-    pPlayer->SEND_GOSSIP_MENU(9978,pCreature->GetGUID());
+    TAXI_ACHERUS_DEATHS_BREACH      = 1053,
+    TAXI_DEATHS_BREACH_ACHERUS      = 1054,
+
+    QUEST_TAXI_REQUIRED             = 12670,
+
+    AREA_ACHERUS                    = 4342,
+    AREA_DEATHS_BREACH              = 4356,
+};
+
+bool GossipHello_acherus_taxi(Player *player, Creature *_Creature)
+{
+    QuestStatus status = player->GetQuestStatus(QUEST_TAXI_REQUIRED);
+    if (status == QUEST_STATUS_UNAVAILABLE || status == QUEST_STATUS_AVAILABLE || status == QUEST_STATUS_NONE)
+        if (!player->isGameMaster())
+            return false;
+
+    player->ADD_GOSSIP_ITEM(0, GOSSIP_FLIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    player->SEND_GOSSIP_MENU(GOSSIP_TITLE_TEXT_ID, _Creature->GetGUID());
+
     return true;
 }
 
-bool GossipSelect_npc_acherus_taxi(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction )
+bool GossipSelect_acherus_taxi(Player *player, Creature *_Creature, uint32 sender, uint32 action )
 {
-    if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
-    { 
-        if (pPlayer->GetPositionZ() >=316)
+    if (action == GOSSIP_ACTION_INFO_DEF + 1)
+    {
+        switch (player->GetAreaId())
         {
-            pPlayer->GetSession()->SendDoFlight(24446, 1053);
-        }else{
-            pPlayer->GetSession()->SendDoFlight(24446, 1054);
+            case AREA_ACHERUS:
+                player->ActivateTaxiPathTo(TAXI_ACHERUS_DEATHS_BREACH);
+                break;
+            case AREA_DEATHS_BREACH:
+                player->ActivateTaxiPathTo(TAXI_DEATHS_BREACH_ACHERUS);
+                break;
+            default:
+                debug_log("Scripts: acherus_taxi used in unsupported area ID.");
+                break;
         }
     }
+
     return true;
 }
 
@@ -3019,8 +3043,8 @@ void AddSC_ebon_hold()
 
 	newscript = new Script;
     newscript->Name="npc_acherus_taxi";
-    newscript->pGossipHello = &GossipHello_npc_acherus_taxi;
-    newscript->pGossipSelect = &GossipSelect_npc_acherus_taxi;
+    newscript->pGossipHello = &GossipHello_acherus_taxi;
+    newscript->pGossipSelect = &GossipSelect_acherus_taxi;
     newscript->RegisterSelf();
 
     newscript = new Script;
