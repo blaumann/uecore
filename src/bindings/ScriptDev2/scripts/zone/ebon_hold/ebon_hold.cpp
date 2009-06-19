@@ -508,7 +508,7 @@ enum darkrider
 {
     SPELL_BLOOD_STRIKE          = 52374,
     SPELL_ICY_TOUCH             = 52372,
-    SPELL_PLAGUE_STRIKE         = 50688,
+    SPELL_PLAGUE_STRIKE2        = 50688,
     SPELL_THROW                 = 52356,
     SPELL_DEATH_RACE_COMPLETE   = 52361,
 	SAY_DEATH_RIDER_FINAL       =-1609301,
@@ -568,7 +568,7 @@ struct MANGOS_DLL_DECL mob_dark_rider_of_acherusAI : public ScriptedAI
 
         if (uiPlague_strike_timer < diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_PLAGUE_STRIKE);
+            DoCast(m_creature->getVictim(), SPELL_PLAGUE_STRIKE2);
             uiPlague_strike_timer = 12000 + rand()%1000;
         }else uiPlague_strike_timer -= diff;
 
@@ -2979,9 +2979,9 @@ enum
     SAY_DKI_DUEL6                   = -1000089,
 
     SPELL_CHAIN_ANCHOR              = 54612,
-    SPELL_ICY_TOUCH                 = 52372,
+    SPELL_ICY_TOUCH3                = 52372,
     SPELL_PLAGUE_STRIKE             = 52373,
-    SPELL_BLOOD_STRIKE              = 52374,
+    SPELL_BLOOD_STRIKE2              = 52374,
     SPELL_DEATH_COIL                = 52375,
 
     SPELL_DUEL_FLAG                 = 52991,
@@ -3057,7 +3057,7 @@ struct MANGOS_DLL_DECL npc_death_knight_initiateAI : public ScriptedAI
                                 {
                 if (IcyTouch_Timer < diff)
                 {
-                    DoCast(m_creature->getVictim(),SPELL_ICY_TOUCH);
+                    DoCast(m_creature->getVictim(),SPELL_ICY_TOUCH3);
                     IcyTouch_Timer = 8000;
                 }else IcyTouch_Timer -= diff;
 
@@ -3069,7 +3069,7 @@ struct MANGOS_DLL_DECL npc_death_knight_initiateAI : public ScriptedAI
 
                 if (BloodStrike_Timer < diff)
                 {
-                    DoCast(m_creature->getVictim(),SPELL_BLOOD_STRIKE);
+                    DoCast(m_creature->getVictim(),SPELL_BLOOD_STRIKE2);
                     BloodStrike_Timer = 9000;
                 }else BloodStrike_Timer -= diff;
 

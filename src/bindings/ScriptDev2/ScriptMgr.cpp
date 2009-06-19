@@ -576,9 +576,6 @@ extern void AddSC_westfall();
 //Winterspring
 extern void AddSC_winterspring();
 
-//Wyrmresttempel
-extern void AddSC_wyrmresttempel_taxi();
-
 //Zangarmarsh
 extern void AddSC_zangarmarsh();
 
@@ -1457,9 +1454,6 @@ void ScriptsInit()
     //Wetlands
     //Winterspring
     AddSC_winterspring();
-
-    //Wyrmresttempel
-    AddSC_wyrmresttempel_taxi();
 
     //Zangarmarsh
     AddSC_zangarmarsh();

@@ -2085,6 +2085,10 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 if(m_target->GetTypeId() == TYPEID_PLAYER)
                     ((Player*)m_target)->RemoveAmmo();      // not use ammo and not allow use
                 return;
+            case 52916:  // Honor Among Thieves
+                if (Unit * target = ObjectAccessor::GetUnit(*m_target, m_target->GetUInt64Value(UNIT_FIELD_TARGET)))
+                    m_target->CastSpell(target, 51699, true);
+               return;
             case 55198:                                     // Tidal Force
                 m_target->CastSpell(m_target, 55166, true);
                 if (Aura *aur = m_target->GetAura(55166, 0))
