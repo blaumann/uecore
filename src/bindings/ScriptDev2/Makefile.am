@@ -52,8 +52,6 @@ scripts/examples/example_creature.cpp \
 scripts/examples/example_escort.cpp \
 scripts/examples/example_gossip_codebox.cpp \
 scripts/examples/example_misc.cpp \
-scripts/custom/npc_wyrmresttempel_taxi.cpp \
-scripts/custom/npc_acherus_taxi.cpp \
 scripts/go/go_scripts.cpp \
 scripts/guard/guard_ai.cpp \
 scripts/guard/guard_ai.h \
@@ -64,6 +62,7 @@ scripts/npc/npc_escortAI.h \
 scripts/npc/npc_innkeeper.cpp \
 scripts/npc/npc_professions.cpp \
 scripts/npc/npcs_special.cpp \
+scripts/zone/wyrmresttempel/wyrmresttempel_taxi.cpp \
 scripts/zone/alterac_mountains/alterac_mountains.cpp \
 scripts/zone/arathi_highlands/arathi_highlands.cpp \
 scripts/zone/ashenvale_forest/ashenvale.cpp \

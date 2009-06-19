@@ -51,8 +51,6 @@ extern void AddSC_boss_ysondre();
 extern void AddSC_generic_creature();
 
 // -- Custom --
-extern void AddSC_npc_acherus_taxi();
-extern void AddSC_npc_wyrmresttempel_taxi();
 
 // -- Examples --
 extern void AddSC_example_creature();
@@ -578,6 +576,9 @@ extern void AddSC_westfall();
 //Winterspring
 extern void AddSC_winterspring();
 
+//Wyrmresttempel
+extern void AddSC_wyrmresttempel_taxi();
+
 //Zangarmarsh
 extern void AddSC_zangarmarsh();
 
@@ -931,9 +932,7 @@ void ScriptsInit()
     // -- Creature --
     AddSC_generic_creature();
 
-        // -- Custom --
-    AddSC_npc_acherus_taxi();
-    AddSC_npc_wyrmresttempel_taxi();
+    // -- Custom --
 
     // -- Examples --
     AddSC_example_creature();
@@ -1458,6 +1457,9 @@ void ScriptsInit()
     //Wetlands
     //Winterspring
     AddSC_winterspring();
+
+    //Wyrmresttempel
+    AddSC_wyrmresttempel_taxi();
 
     //Zangarmarsh
     AddSC_zangarmarsh();
