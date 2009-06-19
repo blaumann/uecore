@@ -278,8 +278,13 @@ void WorldSession::HandleLogoutRequestOpcode( WorldPacket & /*recv_data*/ )
     if( GetPlayer()->isInCombat() ||                        //...is in combat
         GetPlayer()->duel         ||                        //...is in Duel
         GetPlayer()->GetVehicleGUID() ||                    //...is in vehicle
-                                                            //...is jumping ...is falling
-        GetPlayer()->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_JUMPING | MOVEMENTFLAG_FALLING))
+
+    if( GetPlayer()->isInCombat()    ||                     //...is in combat
+        GetPlayer()->duel            ||                     //...is in Duel
+        GetPlayer()->HasAura(9454,0) ||                     //...is frozen by GM
+                                                           //...is jumping ...is falling
+
+	GetPlayer()->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_JUMPING | MOVEMENTFLAG_FALLING))
     {
         WorldPacket data( SMSG_LOGOUT_RESPONSE, (2+4) ) ;
         data << (uint8)0xC;
