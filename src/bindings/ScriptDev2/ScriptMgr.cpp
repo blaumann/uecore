@@ -51,6 +51,8 @@ extern void AddSC_boss_ysondre();
 extern void AddSC_generic_creature();
 
 // -- Custom --
+extern void AddSC_npc_acherus_taxi();
+extern void AddSC_npc_wyrmresttempel_taxi();
 
 // -- Examples --
 extern void AddSC_example_creature();
@@ -929,7 +931,9 @@ void ScriptsInit()
     // -- Creature --
     AddSC_generic_creature();
 
-    // -- Custom --
+        // -- Custom --
+    AddSC_npc_acherus_taxi();
+    AddSC_npc_wyrmresttempel_taxi();
 
     // -- Examples --
     AddSC_example_creature();
