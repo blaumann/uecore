@@ -8439,6 +8439,23 @@ uint32 Unit::SpellCriticalDamageBonus(SpellEntry const *spellProto, uint32 damag
     return damage;
 }
 
+bool Unit::isSpellCritDOTs(SpellEntry const *spellProto)
+{
+   float crit_chance;
+   crit_chance = 0.0f;+   // Search AURA_286
+   AuraList const& mAuraCrit = GetAurasByType(SPELL_AURA_ALLOW_CRIT_PERIODIC_DAMAGE);
+   for(AuraList::const_iterator i = mAuraCrit.begin(); i != mAuraCrit.end(); ++i)
+   {
+       if (!((*i)->isAffectedOnSpell(spellProto)))
+           continue;
+       crit_chance+=(*i)->GetModifier()->m_amount;
+   }
+    crit_chance = crit_chance > 0.0f ? crit_chance : 0.0f;
+    if (roll_chance_f(crit_chance))
+        return true;
+    return false;
+}
+
 uint32 Unit::SpellCriticalHealingBonus(SpellEntry const *spellProto, uint32 damage, Unit *pVictim)
 {
     // Calculate critical bonus

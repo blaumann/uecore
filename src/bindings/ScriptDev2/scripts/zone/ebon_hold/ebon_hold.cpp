@@ -2963,6 +2963,203 @@ struct MANGOS_DLL_DECL npc_the_lich_king_tirion_dawnAI : public ScriptedAI
     void JustDied(Unit* killer) {}
 };
 
+/*######
+## npc_death_knight_initiate
+######*/
+
+#define GOSSIP_DKI                  "I challenge you, death knight!"
+
+enum
+{
+    SAY_DKI_DUEL1                   = -1000094,
+    SAY_DKI_DUEL2                   = -1000093,
+    SAY_DKI_DUEL3                   = -1000092,
+    SAY_DKI_DUEL4                   = -1000091,
+    SAY_DKI_DUEL5                   = -1000090,
+    SAY_DKI_DUEL6                   = -1000089,
+
+    SPELL_CHAIN_ANCHOR              = 54612,
+    SPELL_ICY_TOUCH                 = 52372,
+    SPELL_PLAGUE_STRIKE             = 52373,
+    SPELL_BLOOD_STRIKE              = 52374,
+    SPELL_DEATH_COIL                = 52375,
+
+    SPELL_DUEL_FLAG                 = 52991,
+    SPELL_DUEL_FLAGO                = 191126
+};
+
+struct MANGOS_DLL_DECL npc_death_knight_initiateAI : public ScriptedAI
+{
+    npc_death_knight_initiateAI(Creature *c) : ScriptedAI(c) {Reset();}
+    uint32 CheckTimer;
+    uint32 DuelTimerStart;
+    uint32 IcyTouch_Timer;
+    uint32 PlagueStrike_Timer;
+    uint32 BloodStrike_Timer;
+    uint32 DeathCoil_Timer;
+
+    bool Channel;
+    bool lose;
+
+    void Reset()
+    {
+        m_creature->setFaction(2084);
+        lose = false;
+        CheckTimer = 6000;
+        IcyTouch_Timer = 2000;
+        PlagueStrike_Timer = 5000;
+        BloodStrike_Timer = 4000;
+        DeathCoil_Timer = 6000;
+    }
+
+    void EnterCombat(Unit *who)
+    {
+        if(who->GetTypeId() == TYPEID_PLAYER)
+            switch(rand()%5)
+            {
+                case 0: DoScriptText(SAY_DKI_DUEL1, m_creature,who); break;
+                case 1: DoScriptText(SAY_DKI_DUEL2, m_creature); break;
+                case 2: DoScriptText(SAY_DKI_DUEL3, m_creature); break;
+                case 3: DoScriptText(SAY_DKI_DUEL4, m_creature); break;
+                case 4: DoScriptText(SAY_DKI_DUEL5, m_creature); break;
+            }
+        ScriptedAI::EnterCombat(who);
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if(m_creature->getVictim() && m_creature->getVictim()->GetTypeId() == TYPEID_PLAYER)
+        {
+            if(lose)
+            {
+                if(!m_creature->HasAura(7267)) // aura has faded
+                {
+                    ((Player*)m_creature->getVictim())->KilledMonster(29025,m_creature->GetGUID());
+                    EnterEvadeMode();
+                }
+                return;
+            }
+            else if(m_creature->getVictim()->GetHealth() * 10 < m_creature->getVictim()->GetMaxHealth())
+            {
+                m_creature->getVictim()->CastSpell(m_creature->getVictim(), 7267, true); // beg
+                m_creature->getVictim()->RemoveGameObject(SPELL_DUEL_FLAGO, true);
+                EnterEvadeMode();
+                return; // must return after enterevademode
+            }
+        }
+
+                if (CheckTimer < diff)
+                {
+                    CheckTimer = 2000;
+                }
+                else CheckTimer -= diff;
+
+                                {
+                if (IcyTouch_Timer < diff)
+                {
+                    DoCast(m_creature->getVictim(),SPELL_ICY_TOUCH);
+                    IcyTouch_Timer = 8000;
+                }else IcyTouch_Timer -= diff;
+
+                if (PlagueStrike_Timer < diff)
+                {
+                    DoCast(m_creature->getVictim(),SPELL_PLAGUE_STRIKE);
+                    PlagueStrike_Timer = 8000;
+                }else PlagueStrike_Timer -= diff;
+
+                if (BloodStrike_Timer < diff)
+                {
+                    DoCast(m_creature->getVictim(),SPELL_BLOOD_STRIKE);
+                    BloodStrike_Timer = 9000;
+                }else BloodStrike_Timer -= diff;
+
+                if (DeathCoil_Timer < diff)
+                {
+                   DoCast(m_creature->getVictim(),SPELL_DEATH_COIL);
+                   DeathCoil_Timer = 8000;
+                }
+                else DeathCoil_Timer -= diff;
+                   DoMeleeAttackIfReady();
+                }
+
+        ScriptedAI::UpdateAI(diff);
+    }
+    void DamageTaken(Unit *done_by, uint32 & damage)
+    {
+        if(done_by->GetTypeId() == TYPEID_PLAYER)
+        {
+            if(done_by != m_creature->getVictim())
+                damage = 0; // not allow other player to help
+            else if(damage > m_creature->GetHealth())
+            {
+                damage = 0;
+                done_by->AttackStop();
+                if(!lose)
+                {
+                    lose = true;
+                    m_creature->CastSpell(m_creature, 7267, true); // beg
+                    m_creature->getVictim()->RemoveGameObject(SPELL_DUEL_FLAGO, true);
+                    m_creature->setFaction(2084);
+                }
+            }
+        }
+    }
+};
+
+bool GossipHello_npc_death_knight_initiate(Player *player, Creature *_Creature)
+{
+    if( player->GetQuestStatus(12733) == QUEST_STATUS_INCOMPLETE && _Creature->GetHealth() == _Creature->GetMaxHealth())
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_DKI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(),_Creature->GetGUID());
+        _Creature->HandleEmoteCommand(1);
+    return true;
+}
+
+bool GossipSelect_npc_death_knight_initiate(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+{
+    if( action == GOSSIP_ACTION_INFO_DEF )
+    {
+        player->PlayerTalkClass->CloseGossip();                 //if action accept duel close menu
+
+        WorldPacket data(SMSG_DUEL_COUNTDOWN, 4);
+        data << (uint32)3000;                                   // 3 seconds [duel timer for player]
+        player->GetSession()->SendPacket(&data);
+
+        int tm =0;    //init timer for duel
+        clock_t nextJump; 
+        while (tm < 6) 
+    {
+           nextJump = clock() + 500;
+           while (clock() < nextJump) {}
+               tm++;
+
+                 if(tm == 1)    //pvp state
+                 {
+                     _Creature->SetPvP(true);
+                     DoScriptText(SAY_DKI_DUEL6, _Creature);
+                 }
+                 if(tm == 2)    //go to player
+                 {
+                     _Creature->GetMotionMaster()->MovementExpired();
+                     _Creature->GetMotionMaster()->MoveChase(player);
+                 }
+                 if(tm == 3)                                                                  //emote
+                 {
+                     _Creature->HandleEmoteCommand(60);
+                 }
+                 if(tm == 6)
+                 {
+            _Creature->setFaction(15);                               // neutral faction becase not attack other npc
+        _Creature->AI()->AttackStart(player);
+
+        }
+}
+
+    }
+    return true;
+}
+
 CreatureAI* GetAI_npc_crusade_persuaded(Creature* pCreature)
 {
     return new npc_crusade_persuadedAI (pCreature);
@@ -3021,6 +3218,10 @@ CreatureAI* GetAI_npc_the_lich_king_tirion_dawn(Creature* pCreature)
     return new npc_the_lich_king_tirion_dawnAI (pCreature);
 }
 
+CreatureAI* GetAI_npc_death_knight_initiate(Creature *_Creature)
+{
+    return new npc_death_knight_initiateAI(_Creature);
+}
 
 void AddSC_ebon_hold()
 {
@@ -3104,5 +3305,12 @@ void AddSC_ebon_hold()
     newscript = new Script;
     newscript->Name="npc_the_lich_king_tirion_dawn";
     newscript->GetAI = &GetAI_npc_the_lich_king_tirion_dawn;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="npc_death_knight_initiate";
+    newscript->pGossipHello = &GossipHello_npc_death_knight_initiate;
+    newscript->pGossipSelect = &GossipSelect_npc_death_knight_initiate;
+    newscript->GetAI = &GetAI_npc_death_knight_initiate;
     newscript->RegisterSelf();
 }

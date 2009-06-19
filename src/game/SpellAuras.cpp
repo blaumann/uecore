@@ -338,7 +338,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNoImmediateEffect,                         //283 SPELL_AURA_MOD_HEALING_RECEIVED       implemented in Unit::SpellHealingBonus
     &Aura::HandleUnused,                                    //284 not used by any spells (3.08a)
     &Aura::HandleAuraModAttackPowerOfArmor,                 //285 SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR  implemented in Player::UpdateAttackPowerAndDamage
-    &Aura::HandleUnused,                                    //286 not used by any spells (3.08a)
+    &Aura::HandleNoImmediateEffect,                         //286 SPELL_AURA_ALLOW_CRIT_PERIODIC_DAMAGE       implemented in Unit::isSpellCritDOTs and Aura::PeriodicTick
     &Aura::HandleNoImmediateEffect,                         //287 SPELL_AURA_DEFLECT_SPELLS             implemented in Unit::MagicSpellHitResult and Unit::MeleeSpellHitResult
     &Aura::HandleUnused,                                    //288 not used by any spells (3.09) except 1 test spell.
     &Aura::HandleUnused,                                    //289 unused
@@ -6052,6 +6052,9 @@ void Aura::PeriodicTick()
                 pdamage-=((Player*)m_target)->GetDotDamageReduction(pdamage);
 
             pCaster->CalcAbsorbResist(m_target, GetSpellSchoolMask(GetSpellProto()), DOT, pdamage, &absorb, &resist);
+            bool crit = pCaster->isSpellCritDOTs(GetSpellProto());
+            if (crit)
+                pdamage = pCaster->SpellCriticalDamageBonus(GetSpellProto(), pdamage, m_target);
 
             sLog.outDetail("PeriodicTick: %u (TypeId: %u) attacked %u (TypeId: %u) for %u dmg inflicted by %u abs is %u",
                 GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), pdamage, GetId(),absorb);
