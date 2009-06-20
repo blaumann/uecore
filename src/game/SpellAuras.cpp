@@ -2172,6 +2172,11 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 m_target->CastSpell(m_target, 47287, true, NULL, this);
                 return;
             }
+            case 61777:
+            {												// Summon Gargoyle
+                caster->CastSpell(m_target, 50514, true, NULL, this);
+                return;
+            }
             case 44457:                                     // Living Bomb Rank1
                 caster->CastSpell(m_target,44461,true,NULL,this); return;
             case 55359:                                     // Living Bomb Rank2

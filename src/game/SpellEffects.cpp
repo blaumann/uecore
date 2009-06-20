@@ -1097,6 +1097,29 @@ void Spell::EffectDummy(uint32 i)
 
                     return;
                 }
+                case 50524:
+                {
+                    if(unitTarget && unitTarget->isAlive())
+                    {
+                        int32 cost = 8;
+                        m_caster->ModifyPower(POWER_RUNIC_POWER, -cost);
+                        if (m_caster->GetPower(POWER_RUNIC_POWER) > 0)
+                            ((Pet*)unitTarget)->SetDuration(1400);  //if all ok - "feed"
+                        else
+                            m_caster->CastSpell(unitTarget,50515,true);  // dismiss
+                    }
+                    else
+                        m_caster->RemoveAurasDueToSpell(50514);
+                    return;
+                }
+                case 50515:		//dismiss or die?
+                {
+                    m_caster->RemoveAurasDueToSpell(50514);
+
+                    if (unitTarget)
+                        ((Player*)m_caster)->RemovePet((Pet*)unitTarget,PET_SAVE_NOT_IN_SLOT);
+                    return;
+		  }
                 case 51582:                                 //Rocket Boots Engaged (Rocket Boots Xtreme and Rocket Boots Xtreme Lite)
                 {
                     if(m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -3219,6 +3242,9 @@ void Spell::EffectSummonType(uint32 i)
         case SUMMON_TYPE_POSESSED2:
         case SUMMON_TYPE_FORCE_OF_NATURE:
         case SUMMON_TYPE_GUARDIAN2:
+        case 209:
+            EffectSummonGuardian(i);
+            break;
         case SUMMON_TYPE_SNAKES:
             EffectSummonGuardian(i);
             return;
