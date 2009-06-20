@@ -12246,3 +12246,15 @@ void Unit::SetPvP( bool state )
             if(Creature *totem = GetMap()->GetCreature(m_TotemSlot[i]))
                 totem->SetPvP(state);
 }
+
+Pet* Unit::GetGuardian(uint32 entry)
+{
+    for(GuardianPetList::const_iterator itr = m_guardianPets.begin(); itr != m_guardianPets.end(); ++itr)
+    {
+        if(Pet* pet = ObjectAccessor::GetPet(*itr))
+            if (pet->GetEntry() == entry)
+				return pet;
+    }
+
+    return NULL;
+}

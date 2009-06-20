@@ -2178,6 +2178,16 @@ void Spell::FillCustomTargetMap(uint32 i, UnitList& TagUnitMap)
                         m_caster->RemoveAurasDueToSpell(50514);
                     return;
                 }
+         case 50515:
+         {
+             if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                 break;
+
+             if (Pet* guard = ((Player*)m_caster)->GetGuardian(27829))
+                 TagUnitMap.push_back(guard);
+
+             break;
+         }
          default:
          {
              switch(m_spellInfo->EffectImplicitTargetB[i])
