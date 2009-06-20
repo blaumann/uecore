@@ -2454,6 +2454,10 @@
 						Name="Halls of Lightning"
 						>
 					</Filter>
+					<Filter
+						Name="Ulduar"
+						>
+					</Filter>
 				</Filter>
 				<Filter
 					Name="Utgarde Keep"
