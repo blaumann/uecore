@@ -1742,6 +1742,12 @@ void Spell::EffectDummy(uint32 i)
                 m_caster->CastCustomSpell(unitTarget, 52032, &damage, 0, 0, true, 0, 0, m_originalCasterGUID);
                 return;
             }
+            if (m_spellInfo->Attributes & 0x10180) // For dummy effects - only disease and Poison cleansing totems
+            {
+                uint32 spellId = (m_spellInfo->Id==8171) ? 52025 : 51975;
+                m_caster->CastSpell(unitTarget,spellId,true);
+                return;
+            }
             if(m_spellInfo->Id == 39610)                    // Mana Tide Totem effect
             {
                 if(!unitTarget || unitTarget->getPowerType() != POWER_MANA)
@@ -4462,6 +4468,25 @@ void Spell::EffectWeaponDmg(uint32 i)
         }
         case SPELLFAMILY_ROGUE:
         {
+            // Fan of knives
+            if (m_caster->GetTypeId()==TYPEID_PLAYER && (m_spellInfo->SpellFamilyFlags & 0x4000000000000LL))
+            {
+                Item* mainWeapon = ((Player*)m_caster)->GetWeaponForAttack(BASE_ATTACK,true);
+                Item*  offWeapon = ((Player*)m_caster)->GetWeaponForAttack(OFF_ATTACK,true);
+
+                if(offWeapon)
+                {
+                    spell_bonus += m_caster->CalculateDamage (OFF_ATTACK, normalized);
+                    if ((mainWeapon && mainWeapon->GetProto()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER) &&
+                        (offWeapon && offWeapon->GetProto()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER))
+                        totalDamagePercentMod *= 1.5f;
+                }
+                else
+                {
+                    if (mainWeapon && mainWeapon->GetProto()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
+                        totalDamagePercentMod *= 1.5f;
+                }
+            }
             // Mutilate (for each hand)
             if(m_spellInfo->SpellFamilyFlags & UI64LIT(0x600000000))
             {

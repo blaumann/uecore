@@ -162,8 +162,18 @@ extern int main(int argc, char **argv)
     }
 
     sLog.outString( "%s [realm-daemon]", _FULLVERSION(REVISION_DATE,REVISION_TIME,REVISION_NR,REVISION_ID) );
-    sLog.outString( "[UECore-Revision]: 89");
-    sLog.outString( "<Ctrl-C> to stop.\n" );
+
+    sLog.outTitle( " **     ** ********  ******                        ");
+    sLog.outTitle( "/**    /**/**/////  **////**                       ");
+    sLog.outTitle( "/**    /**/**      **    //   ******  ****** ***** ");
+    sLog.outTitle( "/**    /**/*******/**        **////**//**//***///**");
+    sLog.outTitle( "/**    /**/**//// /**       /**   /** /** //*******");
+    sLog.outTitle( "/**    /**/**     //**    **/**   /** /**  /**//// ");
+    sLog.outTitle( "//******* /********//****** //****** /***  //******");
+    sLog.outTitle( " ///////  ////////  //////   //////  ///    ////// ");
+    sLog.outTitle( "Based on MaNGOS - Modify by Thyros, Filipper, Sanzzes.");
+    sLog.outString( "[UECore-Revision]: 90\n\n");
+
     sLog.outString("Using configuration file %s.", cfg_file);
 
     ///- Check the version of the configuration file
