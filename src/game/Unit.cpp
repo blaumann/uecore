@@ -5448,7 +5448,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 case 32748:
                 {
                     // Prevent cast Deadly Throw Interrupt on self from last effect (apply dummy) of Deadly Throw
-                    if(this == pVictim)
+                    if (this == pVictim)
                         return false;
 
                     triggered_spell_id = 32747;
@@ -5456,7 +5456,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 }
             }
             // Cut to the Chase
-            if( dummySpell->SpellIconID == 2909 )
+            if (dummySpell->SpellIconID == 2909)
             {
                 // "refresh your Slice and Dice duration to its 5 combo point maximum"
                 // lookup Slice and Dice
@@ -5475,20 +5475,20 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 return false;
             }
             // Deadly Brew
-            if( dummySpell->SpellIconID == 2963 )
+            if (dummySpell->SpellIconID == 2963)
             {
-                triggered_spell_id = 25809;
+                triggered_spell_id = 44289;
                 break;
             }
             // Quick Recovery
-            if( dummySpell->SpellIconID == 2116 )
+            if (dummySpell->SpellIconID == 2116)
             {
                 if(!procSpell)
                     return false;
 
                 // energy cost save
                 basepoints0 = procSpell->manaCost * triggerAmount/100;
-                if(basepoints0 <= 0)
+                if (basepoints0 <= 0)
                     return false;
 
                 target = this;
@@ -12087,11 +12087,11 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seat_id, bool force)
     if(!veSeat)
         return;
 
-    m_SeatData.OffsetX = veSeat->m_attachmentOffsetX;                                                           // transport offsetX
-    m_SeatData.OffsetY = veSeat->m_attachmentOffsetY;                                                           // transport offsetY
-    m_SeatData.OffsetZ = veSeat->m_attachmentOffsetZ;                                                           // transport offsetZ
-    m_SeatData.Orientation = veSeat->m_passengerYaw;                                                            // NOTE : needs confirmation
-    m_SeatData.c_time = v->GetCreationTime();                                                             // time pased from moment when it was created, confirmed
+    m_SeatData.OffsetX = (veSeat->m_attachmentOffsetX + v->GetObjectSize()) * GetFloatValue(OBJECT_FIELD_SCALE_X);      // transport offsetX
+    m_SeatData.OffsetY = (veSeat->m_attachmentOffsetY + v->GetObjectSize()) * GetFloatValue(OBJECT_FIELD_SCALE_X);      // transport offsetY
+    m_SeatData.OffsetZ = (veSeat->m_attachmentOffsetZ + v->GetObjectSize()) * GetFloatValue(OBJECT_FIELD_SCALE_X);      // transport offsetZ
+    m_SeatData.Orientation = veSeat->m_passengerYaw;                                                                    // NOTE : needs confirmation
+    m_SeatData.c_time = v->GetCreationTime();
     m_SeatData.dbc_seat = veSeat->m_ID;
     m_SeatData.seat = seat_id;
     m_SeatData.s_flags = objmgr.GetSeatFlags(veSeat->m_ID);
@@ -12130,15 +12130,13 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seat_id, bool force)
     SendMessageToSet(&data, true);
 
     v->AddPassenger(this, seat_id, force);
-
-    //if(GetTypeId() == TYPEID_UNIT)
-        //BuildVehicleInfo();
 }
 
 void Unit::ExitVehicle()
 {
     if(uint64 vehicleGUID = GetVehicleGUID())
     {
+        float v_size = 0.0f;
         if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
         {
             if(m_SeatData.s_flags & SF_MAIN_RIDER)
@@ -12149,6 +12147,7 @@ void Unit::ExitVehicle()
                     vehicle->SetSpawnDuration(1);
                 }
             }
+            v_size = vehicle->GetObjectSize();
             vehicle->RemovePassenger(this);
         }
         SetVehicleGUID(0);
@@ -12160,8 +12159,11 @@ void Unit::ExitVehicle()
         {
             ((Player*)this)->ResummonPetTemporaryUnSummonedIfAny();
         }
-
-        SendMonsterMove(GetPositionX(), GetPositionY(), GetPositionZ(), 0, MONSTER_MOVE_TELEPORT, 0);
+        float x = GetPositionX();
+        float y = GetPositionY();
+        float z = GetPositionZ() + 2.0f;
+        GetClosePoint(x, y, z, 2.0f + v_size);
+        SendMonsterMove(x, y, z, 0, MOVEMENTFLAG_JUMPING, 0);
     }
 }
 
@@ -12185,7 +12187,7 @@ void Unit::BuildVehicleInfo(Unit *target)
     data << float(target->GetPositionY());
     data << float(target->GetPositionZ());
     data << float(target->GetOrientation());
-    data << uint64(target->GetVehicleGUID());
+    data.appendPackGUID(target->GetVehicleGUID());
     data << float(target->m_SeatData.OffsetX);
     data << float(target->m_SeatData.OffsetY);
     data << float(target->m_SeatData.OffsetZ);

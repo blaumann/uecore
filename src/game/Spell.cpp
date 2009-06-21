@@ -4332,6 +4332,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     case SUMMON_TYPE_POSESSED2:
                     case SUMMON_TYPE_DEMON:
                     case SUMMON_TYPE_SUMMON:
+                    case SUMMON_TYPE_ELEMENTAL:
                     {
                         // Outdoor PvP - Trigger FireBomb
 
