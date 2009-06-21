@@ -411,6 +411,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "gameobject_scripts",          SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadGameObjectScriptsCommand,       "", NULL },
         { "item_enchantment_template",   SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadItemEnchantementsCommand,       "", NULL },
         { "item_loot_template",          SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLootTemplatesItemCommand,       "", NULL },
+        { "item_required_target",        SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadItemRequiredTragetCommand,      "", NULL },
         { "locales_achievement_reward",  SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesAchievementRewardCommand,"", NULL },
         { "locales_creature",            SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesCreatureCommand,         "", NULL },
         { "locales_gameobject",          SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesGameobjectCommand,       "", NULL },
@@ -1105,6 +1106,7 @@ void ChatHandler::FillMessageData( WorldPacket *data, WorldSession* session, uin
         case CHAT_MSG_MONSTER_EMOTE:
         case CHAT_MSG_RAID_BOSS_WHISPER:
         case CHAT_MSG_RAID_BOSS_EMOTE:
+        case CHAT_MSG_BN:
         {
             *data << uint64(speaker->GetGUID());
             *data << uint32(0);                             // 2.1.0
@@ -1571,6 +1573,22 @@ void ChatHandler::extractOptFirstArg(char* args, char** arg1, char** arg2)
 
     if(arg2)
         *arg2 = p2;
+}
+
+char* ChatHandler::extractQuotedArg( char* args )
+{
+    if(!*args)
+        return NULL;
+
+    if(*args=='"')
+        return strtok(args+1, "\"");
+    else
+    {
+        char* space = strtok(args, "\"");
+        if(!space)
+            return false;
+        return strtok(NULL, "\"");
+    }
 }
 
 bool ChatHandler::needReportToTarget(Player* chr) const
