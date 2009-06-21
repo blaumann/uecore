@@ -10,4 +10,4 @@ INSERT INTO `creature_ai_scripts`(`creature_id`,`event_type`,`event_inverse_phas
 (18225,11,0,100,0,0,0,0,0,11,31961,0,4,0,0,0,0,0,0,0,0,'Fire Bomb Target cast Fire Bomb on Spawn'),
 (18225,0,100,5000,0,5000,0,0,0,37,0,0,0,0,0,0,0,0,0,0,0,'Fire Bomb Target Despawn');
 
-UPDATE creature_template SET AIName = 'EventAI', ScriptName='' WHERE `entry` = 18225;  
+UPDATE creature_template SET AIName = 'EventAI', ScriptName='' WHERE `entry` = 18225;

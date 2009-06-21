@@ -1241,16 +1241,16 @@ void ObjectMgr::LoadGameobjects()
         data.animprogress   = fields[12].GetUInt32();
         uint32 go_state     = fields[13].GetUInt32();
 
-		if (go_state >= MAX_GO_STATE)
+        if (go_state >= MAX_GO_STATE)
         {
             sLog.outErrorDb("Table `gameobject` have gameobject (GUID: %u Entry: %u) with invalid `state` (%u) value, skip",guid,data.id,go_state);
             continue;
         }
 
-		data.go_state       = GOState(go_state);
+        data.go_state       = GOState(go_state);
         data.ArtKit         = 0;
 
-		data.spawnMask      = fields[14].GetUInt8();
+        data.spawnMask      = fields[14].GetUInt8();
         data.phaseMask      = fields[15].GetUInt16();
         int16 gameEvent     = fields[16].GetInt16();
         int16 PoolId        = fields[17].GetInt16();

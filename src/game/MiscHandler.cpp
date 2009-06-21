@@ -37,7 +37,6 @@
 #include "ObjectAccessor.h"
 #include "Object.h"
 #include "BattleGround.h"
-#include "SpellAuras.h"
 #include "Pet.h"
 #include "SocialMgr.h"
 #include "OutdoorPvP.h"

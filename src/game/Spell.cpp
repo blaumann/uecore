@@ -4274,7 +4274,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 break;
             }
-           case SPELL_EFFECT_SUMMON_PET:
+            case SPELL_EFFECT_SUMMON_PET:
             {
                 if(m_caster->GetPetGUID())                  //let warlock do a replacement summon
                 {

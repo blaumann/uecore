@@ -588,7 +588,6 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                 IsActivateToQuest = true;
                 updateMask->SetBit(GAMEOBJECT_DYNAMIC);
             }
-
         }
     }
     else                                                    // case UPDATETYPE_VALUES

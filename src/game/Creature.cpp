@@ -892,8 +892,8 @@ void Creature::OnGossipSelect(Player* player, uint32 option)
             player->PlayerTalkClass->SendTalking(textid);
             break;
         }
-		case GOSSIP_OPTION_OUTDOORPVP:
-             sOutdoorPvPMgr.HandleGossipOption(player, GetGUID(), gossip->GossipId);
+        case GOSSIP_OPTION_OUTDOORPVP:
+            sOutdoorPvPMgr.HandleGossipOption(player, GetGUID(), gossip->GossipId);
             break;
         case GOSSIP_OPTION_SPIRITHEALER:
             if (player->isDead())

@@ -147,7 +147,7 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player *plr, uint32 trigger)
             plr->CastSpell(plr,SI_TRACES_OF_SILITHYST,true);
             // add 19 honor
             plr->RewardHonor(NULL,1,19);
-            // add 20 cenarion circle repus 
+            // add 20 cenarion circle repus
             plr->GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(609), 20);
             // complete quest
             plr->KilledMonster(SI_TURNIN_QUEST_CM_A,0);

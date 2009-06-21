@@ -6092,7 +6092,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     uint32 oldZoneId  = m_zoneUpdateId;
 
-	if(m_zoneUpdateId != newZone)
+    if(m_zoneUpdateId != newZone)
         SendInitWorldStates(newZone, newArea);              // only if really enters to new zone, not just area change, works strange...
 
     m_zoneUpdateId    = newZone;
@@ -7483,7 +7483,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
     uint16 NumberOfFields = 0;
     uint32 mapid = GetMapId();
 
-	sLog.outDebug("Sending SMSG_INIT_WORLD_STATES to Map:%u, Zone: %u", mapid, zoneid);
+    sLog.outDebug("Sending SMSG_INIT_WORLD_STATES to Map:%u, Zone: %u", mapid, zoneid);
 
     // may be exist better way to do this...
     switch(zoneid)
