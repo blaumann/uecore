@@ -1188,6 +1188,22 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastSpell(m_caster, 54861, true);
                     return;
                 }
+                // Underbelly Elixir
+                case 59640:
+                {
+                    if(m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    uint32 spell_id = 0;
+                    switch(urand(1,3))
+                    {
+                        case 1: spell_id = 59843; break;
+                        case 2: spell_id = 59645; break;
+                        case 3: spell_id = 59831; break;
+                    }
+                    m_caster->CastSpell(m_caster,spell_id,true,NULL);
+                    return;
+                }
             }
 
             //All IconID Check in there
