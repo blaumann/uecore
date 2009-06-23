@@ -234,6 +234,7 @@ pkgdata_DATA = \
 	8065_01_mangos_spell_proc_event.sql \
 	8071_01_mangos_command.sql \
 	README
+
 ## Additional files to include when running 'make dist'
 #  SQL update files, to upgrade database schema from older revisions
 EXTRA_DIST = \
