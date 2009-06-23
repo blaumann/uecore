@@ -4557,6 +4557,36 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
     {
         case SPELLFAMILY_GENERIC:
         {
+	 //Torment the Weak
+            if ( dummySpell -> SpellIconID == 3263 )
+            {
+	 bool found = false ;
+
+                if (! procSpell )
+                    return false ;
+
+	 AuraMap const& mech = pVictim -> GetAuras ();
+                for( AuraMap :: const_iterator itr = mech . begin (); itr != mech . end (); ++ itr )
+                {
+	 SpellEntry const* f_spell = itr -> second -> GetSpellProto ();
+                    if ( GetSpellMechanicMask ( f_spell , itr -> second -> GetEffIndex ()) & ( 1 << MECHANIC_SNARE ))
+                    {
+	 found = true ;
+                        break;
+                    }
+                }
+                if ( found )
+                {
+ SpellModifier * mod = new SpellModifier ;
+ mod -> op = SPELLMOD_DAMAGE ;
+ mod -> value = triggerAmount ;
+ mod -> type = SPELLMOD_PCT ;
+ mod -> spellId = procSpell -> Id ;
+ mod -> mask = 0x0000000000240000LL ;
+ mod -> mask2 = 0LL ;
+                    (( Player *) this )-> AddSpellMod ( mod , true );
+                }
+            }
             switch (dummySpell->Id)
             {
                 // Eye for an Eye
