@@ -156,7 +156,7 @@ extern int main(int argc, char **argv)
     sLog.outTitle( "//******* /********//****** //****** /***  //******");
     sLog.outTitle( " ///////  ////////  //////   //////  ///    ////// ");
     sLog.outTitle( "Based on MaNGOS - Modify by Thyros, Filipper, Sanzzes.");
-    sLog.outString( "[UECore-Revision]: 106\n\n");
+    sLog.outString( "[UECore-Revision]: 107\n\n");
 
     sLog.outString("Using configuration file %s.", cfg_file);
 
