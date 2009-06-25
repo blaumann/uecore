@@ -5681,7 +5681,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 case 25899:                                 // Greater Blessing of Sanctuary
                 case 20911:                                 // Blessing of Sanctuary
                 {
-                     if (GetTypeId() != TYPEID_PLAYER)
+                    if (GetTypeId() != TYPEID_PLAYER)
                         return false;
 
                     target = this;
@@ -5916,19 +5916,19 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
 
                     int32 extra_attack_power = CalculateSpellDamage(windfurySpellEntry, 1, windfurySpellEntry->EffectBasePoints[1], pVictim);
 
-                    // Off-Hand case
-                    if ( castItem->GetSlot() == EQUIPMENT_SLOT_OFFHAND && isAttackReady(OFF_ATTACK) )
-                    {
-                        // Value gained from additional AP
-                        basepoints0 = int32(extra_attack_power/14.0f * GetAttackTime(OFF_ATTACK)/1000/2);
-                        triggered_spell_id = 33750;
-                    }
                     // Main-Hand case
-                    else if ( isAttackReady(BASE_ATTACK) )
+                    if ( isAttackReady(BASE_ATTACK) )
                     {
                         // Value gained from additional AP
                         basepoints0 = int32(extra_attack_power/14.0f * GetAttackTime(BASE_ATTACK)/1000);
                         triggered_spell_id = 25504;
+                    }
+                    // Off-Hand case
+                    else if ( castItem->GetSlot() == EQUIPMENT_SLOT_OFFHAND && isAttackReady(OFF_ATTACK) )
+                    {
+                        // Value gained from additional AP
+                        basepoints0 = int32(extra_attack_power/14.0f * GetAttackTime(OFF_ATTACK)/1000/2);
+                        triggered_spell_id = 33750;
                     }
 
                     // apply cooldown before cast to prevent processing itself

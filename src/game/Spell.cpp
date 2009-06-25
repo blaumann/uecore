@@ -2422,7 +2422,7 @@ void Spell::cast(bool skipCheck)
     // Conflagrate - consumes Immolate or Shadowflame
     if ((m_spellInfo->TargetAuraState == AURA_STATE_IMMOLATE) && m_targets.getUnitTarget()))
     {
-	 uint32 immolate = 0;
+        uint32 immolate = 0;
         int32  basepnts = 0;
 
         // for caster applied auras only
@@ -2452,7 +2452,6 @@ void Spell::cast(bool skipCheck)
                 m_targets.getUnitTarget()->RemoveAurasDueToSpell(immolate);
 
             m_currentBasePoints[0] = basepnts;
-
         }
     }
 
