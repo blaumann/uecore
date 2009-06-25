@@ -2400,6 +2400,7 @@ enum SummonType
     SUMMON_TYPE_VEHICLE6        = 708,
     SUMMON_TYPE_VEHICLE7        = 710,
     SUMMON_TYPE_VEHICLE8        = 716,
+    SUMMON_TYPE_GHOUL           = 829,
     SUMMON_TYPE_SNAKES          = 881,
     SUMMON_TYPE_VEHICLE9        = 901,
     SUMMON_TYPE_VEHICLE10       = 941,

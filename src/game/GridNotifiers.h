@@ -530,8 +530,8 @@ namespace MaNGOS
             RaiseDeadObjectCheck(Unit* funit, float range) : i_funit(funit), i_range(range) {}
             bool operator()(Creature* u)
             {
-                if (i_funit->GetTypeId()!=TYPEID_PLAYER || !((Player*)i_funit)->isHonorOrXPTarget(u) ||
-                    u->getDeathState() != CORPSE || u->isDeadByDefault() || u->isInFlight() ||
+                if ((u->getDeathState()!=CORPSE && u->getDeathState()!=GHOULED) || u->isInFlight() ||
+                    u->isDeadByDefault() || (u->GetDisplayId() != u->GetNativeDisplayId()) ||
                     ( u->GetCreatureTypeMask() & (1 << (CREATURE_TYPE_HUMANOID-1)) )==0 ||
                     (u->GetDisplayId() != u->GetNativeDisplayId()))
                     return false;
