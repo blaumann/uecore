@@ -20,6 +20,14 @@
 #include "ObjectMgr.h"
 #include "ArenaTeam.h"
 
+void ArenaTeamMember::ModifyPersonalRating(Player* plr, int32 mod, uint32 slot)
+{
+    int32 memberRating = int32(personal_rating) + mod;
+    personal_rating = memberRating > 0 ? memberRating : 0;
+    if(plr)
+        plr->SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot*6) + 5, personal_rating);
+}
+
 ArenaTeam::ArenaTeam()
 {
     Id                  = 0;
@@ -129,7 +137,7 @@ bool ArenaTeam::AddMember(const uint64& PlayerGuid)
     newmember.games_week        = 0;
     newmember.wins_season       = 0;
     newmember.wins_week         = 0;
-    newmember.personal_rating   = AREAN_NEW_PERSONAL_RATING;
+    newmember.personal_rating   = ARENA_NEW_PERSONAL_RATING;
     members.push_back(newmember);
 
     CharacterDatabase.PExecute("INSERT INTO arena_team_member (arenateamid, guid, personal_rating) VALUES ('%u', '%u', '%u')", Id, GUID_LOPART(newmember.guid), newmember.personal_rating );
@@ -510,7 +518,8 @@ int32 ArenaTeam::WonAgainst(uint32 againstRating)
     // calculate the rating modification (ELO system with k=32)
     int32 mod = (int32)floor(32.0f * (1.0f - chance));
     // modify the team stats accordingly
-    stats.rating += mod;
+    int32 newTeamRating = (int32)stats.rating + mod;
+    stats.rating = newTeamRating > 0 ? newTeamRating : 0;
     stats.games_week += 1;
     stats.wins_week += 1;
     stats.games_season += 1;
@@ -536,7 +545,8 @@ int32 ArenaTeam::LostAgainst(uint32 againstRating)
     // calculate the rating modification (ELO system with k=32)
     int32 mod = (int32)ceil(32.0f * (0.0f - chance));
     // modify the team stats accordingly
-    stats.rating += mod;
+    int32 newTeamRating = (int32)stats.rating + mod;
+    stats.rating = newTeamRating > 0 ? newTeamRating : 0;
     stats.games_week += 1;
     stats.games_season += 1;
     //update team's rank

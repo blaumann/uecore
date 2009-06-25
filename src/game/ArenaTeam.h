@@ -83,8 +83,8 @@ enum ArenaTeamTypes
     ARENA_TEAM_5v5      = 5
 };
 
-#define ARENA_NEW_TEAM_RATING       1500
-#define AREAN_NEW_PERSONAL_RATING   1500
+#define ARENA_NEW_TEAM_RATING       0
+#define ARENA_NEW_PERSONAL_RATING   0
 
 struct ArenaTeamMember
 {
@@ -97,13 +97,7 @@ struct ArenaTeamMember
     uint32 wins_season;
     uint32 personal_rating;
 
-    void ModifyPersonalRating(Player* plr, int32 mod, uint32 slot)
-    {
-        int32 rating = int32(personal_rating) + mod;
-        personal_rating = rating < 0 ? 0 : rating;
-        if(plr)
-            plr->SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot*6) + 5, personal_rating);
-    }
+    void ModifyPersonalRating(Player* plr, int32 mod, uint32 slot);
 };
 
 struct ArenaTeamStats
