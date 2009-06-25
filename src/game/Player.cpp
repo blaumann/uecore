@@ -1439,7 +1439,6 @@ bool Player::BuildEnumData( QueryResult * result, WorldPacket * p_data )
         sLog.outError("Player %u have incorrect race/class pair. Don't build enum.", guid);
         return false;
     }
-
     *p_data << uint64(MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
     *p_data << fields[1].GetString();                       // name
     *p_data << uint8(pRace);                                // race
