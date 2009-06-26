@@ -423,7 +423,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, fl
 
     float att_speed = GetAPMultiplier(attType,normalized);
 
-    float base_value  = GetModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType)/ 14.0f * att_speed;
+    float base_value  = GetModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType) * att_speed / 14.0f;
     float base_pct    = GetModifierValue(unitMod, BASE_PCT);
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
     float total_pct   = GetModifierValue(unitMod, TOTAL_PCT);
@@ -841,7 +841,8 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
 
     UnitMods unitMod = UNIT_MOD_DAMAGE_MAINHAND;
 
-    float base_value  = GetModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType);
+    float dmg_from_ap = GetTotalAttackPowerValue(attType) * GetAPMultiplier(attType, false) / 14.0f;
+    float base_value  = GetModifierValue(unitMod, BASE_VALUE) + dmg_from_ap;
     float base_pct    = GetModifierValue(unitMod, BASE_PCT);
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
     float total_pct   = GetModifierValue(unitMod, TOTAL_PCT);
