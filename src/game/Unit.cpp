@@ -264,7 +264,6 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 ty
             break;
     }
 
-    //Movement Flags (0x0 = walk, 0x100 = run, 0x200 = fly/swim)
     data << uint32(flags);
 
     if(flags & MONSTER_MOVE_WALK)
@@ -12152,7 +12151,7 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seat_id, bool force)
     m_SeatData.v_flags = v->GetVehicleFlags();
 
     addUnitState(UNIT_STAT_ON_VEHICLE);
-    AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1);
+    //HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1);
 
     InterruptNonMeleeSpells(false);
 
@@ -12207,7 +12206,7 @@ void Unit::ExitVehicle()
         SetVehicleGUID(0);
 
         clearUnitState(UNIT_STAT_ON_VEHICLE);
-        RemoveUnitMovementFlag((MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1));
+        //RemoveMonsterMoveFlag((MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1));
 
         if(GetTypeId() == TYPEID_PLAYER)
         {
@@ -12217,7 +12216,7 @@ void Unit::ExitVehicle()
         float y = GetPositionY();
         float z = GetPositionZ() + 2.0f;
         GetClosePoint(x, y, z, 2.0f + v_size);
-        SendMonsterMove(x, y, z, 0, MOVEMENTFLAG_JUMPING, 0);
+        //SendMonsterMove(x, y, z, 0, MOVEMENTFLAG_JUMPING, 0); <- This is not the Right value
     }
 }
 
@@ -12229,12 +12228,12 @@ void Unit::BuildVehicleInfo(Unit *target)
     if(!target->GetVehicleGUID())
         return;
 
-    target->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1);
+    //target->AddMonsterMoveFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1);
     uint32 veh_time = getMSTimeDiff(target->m_SeatData.c_time,getMSTime());
 
     WorldPacket data(MSG_MOVE_HEARTBEAT, 100);
     data.append(target->GetPackGUID());
-    data << uint32(target->GetUnitMovementFlags());
+    //data << uint32(target->GetMonsterMoveFlags());
     data << uint16(0);
     data << uint32(getMSTime());
     data << float(target->GetPositionX());
@@ -12249,21 +12248,21 @@ void Unit::BuildVehicleInfo(Unit *target)
     data << uint32(veh_time);
     data << uint8 (target->m_SeatData.seat);
     // required to avoid client crash
-    if(target->GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING2))
+   /* if(target->GetMonsterMoveFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING2))
         data << float(0);
     data << uint32(0);
-    if(target->GetUnitMovementFlags() & MOVEMENTFLAG_JUMPING)
+    if(target->GetMonsterMoveFlags() & MOVEMENTFLAG_JUMPING)
     {
         data << float(0);
         data << float(0);
         data << float(0);
         data << float(0);
     }
-    if(target->GetUnitMovementFlags() & MOVEMENTFLAG_SPLINE)
+    if(target->GetMonsterMoveFlags() & MOVEMENTFLAG_SPLINE)
         data << float(0);
 
     if(GetTypeId() == TYPEID_PLAYER)
-        ((Player*)this)->GetSession()->SendPacket(&data);
+        ((Player*)this)->GetSession()->SendPacket(&data);*/
 }
 
 void Unit::SetPvP( bool state )

@@ -1482,18 +1482,8 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool IsStopped() const { return !(hasUnitState(UNIT_STAT_MOVING)); }
         void StopMoving();
 
-        void AddUnitMovementFlag(uint32 f) { m_unit_movement_flags |= f; }
-        void RemoveUnitMovementFlag(uint32 f)
-        {
-            uint32 oldval = m_unit_movement_flags;
-            m_unit_movement_flags = oldval & ~f;
-        }
-        uint32 HasUnitMovementFlag(uint32 f) const { return m_unit_movement_flags & f; }
-        uint32 GetUnitMovementFlags() const { return m_unit_movement_flags; }
-        void SetUnitMovementFlags(uint32 f) { m_unit_movement_flags = f; }
-
-        void SetFeared(bool apply, uint64 casterGUID = 0, uint32 spellID = 0, uint32 time = 0);
-        void SetConfused(bool apply, uint64 casterGUID = 0, uint32 spellID = 0);
+        void SetFeared(bool apply, uint64 casterGUID = 0, uint32 spellID = 0, uint32 time = 0, bool death = false);
+        void SetConfused(bool apply, uint64 casterGUID = 0, uint32 spellID = 0, bool death = false);
 
         void AddComboPointHolder(uint32 lowguid) { m_ComboPointHolders.insert(lowguid); }
         void RemoveComboPointHolder(uint32 lowguid) { m_ComboPointHolders.erase(lowguid); }

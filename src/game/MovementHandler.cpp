@@ -451,8 +451,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
         return;
 
     /* handle special cases */
-
-    if (movementInfo.flags & MOVEMENTFLAG_ONTRANSPORT && !mover->GetVehicleGUID())
+    if (movementInfo.HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && !mover->GetVehicleGUID())
     {
         // transports size limited
         // (also received at zeppelin leave by some reason with t_* as absolute in continent coordinates, can be safely skipped)
@@ -708,7 +707,6 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
             if(((Creature*)mover)->isVehicle())
                 ((Vehicle*)mover)->RellocatePassengers(map);
         }
-        mover->SetUnitMovementFlags(movementInfo.flags);
     }
 }
 

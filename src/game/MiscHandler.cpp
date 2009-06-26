@@ -281,8 +281,7 @@ void WorldSession::HandleLogoutRequestOpcode( WorldPacket & /*recv_data*/ )
         GetPlayer()->GetVehicleGUID() ||                    //...is in vehicle
         
                                                            //...is jumping ...is falling
-	GetPlayer()->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_JUMPING | MOVEMENTFLAG_FALLING))
-
+	GetPlayer()->m_movementInfo.HasMovementFlag(MovementFlags(MOVEMENTFLAG_JUMPING | MOVEMENTFLAG_FALLING)))
     {
         WorldPacket data( SMSG_LOGOUT_RESPONSE, (2+4) ) ;
         data << (uint8)0xC;
