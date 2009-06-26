@@ -87,7 +87,8 @@ enum MangosStrings
     LANG_SYSTEMMESSAGE_MODERATOR        = 60,
     LANG_SYSTEMMESSAGE_GAMEMASTER       = 61,
     LANG_SYSTEMMESSAGE_ADMINISTRATOR    = 62,
-    // Room for more level 0              63-99 not used
+    LANG_SYSANNOUNCE_COLOR              = 63,
+    // Room for more level 0              64-99 not used
 
     // level 1 chat
     LANG_GLOBAL_NOTIFY                  = 100,
@@ -885,7 +886,11 @@ enum MangosStrings
     LANG_COMMAND_FROZEN_PLAYERS         = 10906,
 
     // Use for custom patches             11000-11999
-
+    LANG_PINFO_CHARS                   = 11000,
+    LANG_PINFO_ACCOUNT_ACCOUNT         = 11001,
+    LANG_PINFO_CHARACTER               = 11002,
+    LANG_PINFO_IP                      = 11003,
+    LANG_ACCOUNT_NOT_FOUND             = 11004,
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
     // For other tables maybe             2000010000-2147483647 (max index)

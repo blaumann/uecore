@@ -62,7 +62,7 @@ int32 m_auiRandomSay[] =
     SAY_DUEL_A, SAY_DUEL_B, SAY_DUEL_C, SAY_DUEL_D, SAY_DUEL_E, SAY_DUEL_F, SAY_DUEL_G, SAY_DUEL_H, SAY_DUEL_I
 };
 
-#define GOSSIP_ACCEPT_DUEL      "I challenge you!"
+#define GOSSIP_ACCEPT_DUEL      "I challenge you, death knight!"
 
 struct MANGOS_DLL_DECL npc_death_knight_initiateAI : public ScriptedAI
 {
@@ -180,7 +180,7 @@ bool GossipSelect_npc_death_knight_initiate(Player* pPlayer, Creature* pCreature
 }
 
 /*######
-## npc_unworthy_initiate_anchor
+##
 ######*/
 
 enum
@@ -237,6 +237,10 @@ DisplayToSpell m_aDisplayToSpell[] =
     {25372, 51550},                                         // forsaken F
     {25373, 51551}                                          // belf M
 };
+
+/*######
+## npc_unworthy_initiate_anchor
+######*/
 
 struct MANGOS_DLL_DECL npc_unworthy_initiate_anchorAI : public ScriptedAI
 {

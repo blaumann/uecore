@@ -363,6 +363,15 @@ ChatCommand * ChatHandler::getCommandTable()
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
+    static ChatCommand pinfoCommandTable[] =
+    {
+        { "account",        SEC_GAMEMASTER,     true, &ChatHandler::HandlePInfoAccountCommand,        "", NULL },
+        { "character",      SEC_GAMEMASTER,     true, &ChatHandler::HandlePInfoCharacterCommand,      "", NULL },
+        { "ip",             SEC_GAMEMASTER,     true, &ChatHandler::HandlePInfoIpCommand,             "", NULL },
+        { "",               SEC_GAMEMASTER,     true, &ChatHandler::HandlePInfoCommand,               "", NULL },
+        { NULL,             0,                  false, NULL,                                           "", NULL }
+    };
+
     static ChatCommand questCommandTable[] =
     {
         { "add",            SEC_ADMINISTRATOR,  false, &ChatHandler::HandleQuestAdd,                   "", NULL },
@@ -633,7 +642,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "maxskill",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleMaxSkillCommand,            "", NULL },
         { "setskill",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleSetSkillCommand,            "", NULL },
         { "whispers",       SEC_MODERATOR,      false, &ChatHandler::HandleWhispersCommand,            "", NULL },
-        { "pinfo",          SEC_GAMEMASTER,     true,  &ChatHandler::HandlePInfoCommand,               "", NULL },
+        { "pinfo",          SEC_GAMEMASTER,     true,  NULL,                                           "", pinfoCommandTable },
         { "respawn",        SEC_ADMINISTRATOR,  false, &ChatHandler::HandleRespawnCommand,             "", NULL },
         { "send",           SEC_MODERATOR,      true,  NULL,                                           "", sendCommandTable     },
         { "loadscripts",    SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleLoadScriptsCommand,         "", NULL },

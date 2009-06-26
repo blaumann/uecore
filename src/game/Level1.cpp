@@ -134,17 +134,21 @@ bool ChatHandler::HandleNpcWhisperCommand(const char* args)
 }
 //----------------------------------------------------------
 
-// global announce
-bool ChatHandler::HandleAnnounceCommand(const char* args)
+// system announce
+bool ChatHandler::HandleSysAnnounceCommand(const char* args)
 {
     if(!*args)
         return false;
 
-    sWorld.SendWorldText(LANG_SYSTEMMESSAGE,args);
+    if(m_session)
+        sWorld.SendWorldText(LANG_SYSANNOUNCE_COLOR, args);
+    else
+        sWorld.SendWorldText(LANG_SYSANNOUNCE_COLOR,"console",args);
     return true;
 }
-// Nameannounce
-bool ChatHandler::HandleSysAnnounceCommand(const char* args)
+
+// global announce
+bool ChatHandler::HandleAnnounceCommand(const char* args)
 {
     int32 strid = 0;
 
@@ -152,7 +156,7 @@ bool ChatHandler::HandleSysAnnounceCommand(const char* args)
         return false;
 
     switch(m_session->GetSecurity())
-    {
+	{
       case SEC_MODERATOR:
         strid = LANG_SYSTEMMESSAGE_MODERATOR;
         break;

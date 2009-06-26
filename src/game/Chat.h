@@ -296,6 +296,11 @@ class ChatHandler
         bool HandlePDumpLoadCommand(const char *args);
         bool HandlePDumpWriteCommand(const char *args);
 
+        bool HandlePInfoAccountCommand(const char* args);
+        bool HandlePInfoCharacterCommand(const char* args);
+        bool HandlePInfoIpCommand(const char* args);
+        bool HandlePInfoCommand(const char* args);
+
         bool HandleQuestAdd(const char * args);
         bool HandleQuestRemove(const char * args);
         bool HandleQuestComplete(const char * args);
@@ -450,7 +455,6 @@ class ChatHandler
         bool HandleGUIDCommand(const char* args);
         bool HandleItemMoveCommand(const char* args);
         bool HandleDeMorphCommand(const char* args);
-        bool HandlePInfoCommand(const char* args);
         bool HandleMuteCommand(const char* args);
         bool HandleUnmuteCommand(const char* args);
         bool HandleMovegensCommand(const char* args);

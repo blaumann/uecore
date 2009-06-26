@@ -4592,14 +4592,9 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     break;
                 }
                 // Sweeping Strikes
-                case 12328:
                 case 18765:
                 case 35429:
                 {
-                    // prevent chain of triggered spell from same triggered spell
-                    if(procSpell && procSpell->Id==26654)
-                        return false;
-
                     target = SelectNearbyTarget();
                     if(!target)
                         return false;
@@ -5095,6 +5090,28 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
         }
         case SPELLFAMILY_WARRIOR:
         {
+            switch(dummySpell->Id)
+            {
+                // Sweeping Strikes
+                case 12328:
+                {
+                    target = SelectNearbyTarget();
+                    if(!target)
+                        return false;
+
+                    triggered_spell_id = 26654;
+                    break;
+                }
+                // Improved Spell Reflection
+                case 59088:
+                case 59089:
+                {
+                    triggered_spell_id = 59725;
+                    target = this;
+                    break;
+                }
+            }
+
             // Retaliation
             if (dummySpell->SpellFamilyFlags == UI64LIT(0x0000000800000000))
             {

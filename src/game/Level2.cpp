@@ -2098,6 +2098,281 @@ bool ChatHandler::HandleModifyPhaseCommand(const char* args)
     return true;
 }
 
+//show info of account
+bool ChatHandler::HandlePInfoAccountCommand(const char* args)
+{
+    if(!*args)
+        return false;
+
+    uint32 accId = 0;
+    std::string username = (char*)args;
+    std::string last_ip = GetMangosString(LANG_ERROR);
+    uint32 security = 0;
+    std::string last_login = GetMangosString(LANG_ERROR);
+    std::string email = GetMangosString(LANG_ERROR);
+    std::string joindate = GetMangosString(LANG_ERROR);
+    uint32 banned = 0;
+    std::string isbanned = GetMangosString(LANG_ERROR);
+
+    QueryResult* result = loginDatabase.PQuery("SELECT username,gmlevel,last_ip,last_login,account.id,email,joindate,account_banned.id as bannedid,account_banned.active as banactive FROM account LEFT JOIN account_banned ON account.id = account_banned.id WHERE username = '%s'",username.c_str());
+    if(result)
+    {
+        Field* fields = result->Fetch();
+        username = fields[0].GetCppString();
+        security = fields[1].GetUInt32();
+
+        if(!m_session || m_session->GetSecurity() >= security)
+        {
+           last_ip = fields[2].GetCppString();
+           last_login = fields[3].GetCppString();
+        }
+        else
+        {
+            last_ip = "-";
+            last_login = "-";
+        }
+
+        accId = fields[4].GetUInt32();
+        email = fields[5].GetCppString();
+        joindate = fields[6].GetCppString();
+        banned = fields[8].GetUInt32();
+        if(banned > 0)
+        {
+            isbanned = "Yes";
+        }
+        else
+        {
+            isbanned = "No";
+        }
+
+        delete result;
+    }
+    else
+    {
+        SendSysMessage(LANG_ACCOUNT_NOT_FOUND);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    //Characters
+    std::string playerChars;
+    uint32 count = 0;
+    result = CharacterDatabase.PQuery("SELECT name, account, guid, level FROM characters WHERE account = '%u'",accId);
+    if(result)
+    {
+        count = result->GetRowCount(); // Number of chars
+        for(int i = 0; i < count ; i++)
+        {
+            Field *fields = result->Fetch();
+
+            //Convert id to string
+            std::string cId;
+            std::stringstream ss;
+            ss << fields[2].GetUInt32();
+            cId = ss.str();
+            //Convert level to string
+            std::string pLevel;
+            std::stringstream ss2;
+            ss2 << fields[3].GetUInt32();
+            pLevel = ss2.str();
+
+            //Make character line: Charname[level] (id: guid) - 
+            std::string charLink = playerLink(fields[0].GetCppString());
+            playerChars += charLink;
+            playerChars += '[';
+            playerChars += pLevel.c_str();
+            playerChars += "] ";
+            playerChars += "(id: ";
+            playerChars += cId.c_str();
+            playerChars += ')';
+            playerChars += " - ";//Break apart different chars
+
+            result->NextRow();
+        }
+
+        delete result;
+    }
+    else
+    {
+        playerChars = "No characters found";
+    }
+
+    PSendSysMessage(LANG_PINFO_ACCOUNT_ACCOUNT, username.c_str(), accId, security, last_ip.c_str(), last_login.c_str(), email.c_str(), joindate.c_str(), isbanned.c_str());
+    PSendSysMessage(LANG_PINFO_CHARS, count, playerChars.c_str());
+
+    return true;
+}
+
+//show info of character
+bool ChatHandler::HandlePInfoCharacterCommand(const char* args)
+{
+    if(!*args)
+        return false;
+
+    uint32 total_player_time = 0;
+    uint32 level = 0;
+    uint32 money = 0;
+    uint32 accId = 0;
+    uint32 leveltime = 0;
+    uint32 guid = 0;
+    std::string name = (char*)args;
+    uint32 race = 0;
+    uint32 pclass = 0;
+    uint32 online = 0;
+    std::string isonline = "(Offline)";
+
+    QueryResult *result = CharacterDatabase.PQuery("SELECT totaltime, level, money, account, leveltime, guid, name, race, class, online FROM characters WHERE name = '%s'", name.c_str());
+    if (result)
+    {
+        Field *fields = result->Fetch();
+        total_player_time = fields[0].GetUInt32();
+        level = fields[1].GetUInt32();
+        money = fields[2].GetUInt32();
+        accId = fields[3].GetUInt32();
+        leveltime = fields[4].GetUInt32();
+        guid = fields[5].GetUInt32();
+        name = fields[6].GetCppString();
+        race = fields[7].GetUInt32();
+        pclass = fields[8].GetUInt32();
+        online = fields[9].GetUInt32();
+        if(online > 0)
+            isonline = "(Online)";
+
+        delete result;
+    }
+    else
+    {
+        SendSysMessage(LANG_PLAYER_NOT_FOUND);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    std::string username = GetMangosString(LANG_ERROR);
+    std::string last_ip = GetMangosString(LANG_ERROR);
+    uint32 security = 0;
+    std::string last_login = GetMangosString(LANG_ERROR);
+    std::string joindate = GetMangosString(LANG_ERROR);
+
+    result = loginDatabase.PQuery("SELECT username,gmlevel,last_ip,last_login,id,joindate FROM account WHERE id = '%u'",accId);
+    if(result)
+    {
+        Field* fields = result->Fetch();
+        username = fields[0].GetCppString();
+        security = fields[1].GetUInt32();
+
+        if(!m_session || m_session->GetSecurity() >= security)
+        {
+            last_ip = fields[2].GetCppString();
+            last_login = fields[3].GetCppString();
+        }
+        else
+        {
+            last_ip = "-";
+            last_login = "-";
+        }
+
+        accId = fields[4].GetUInt32();
+        joindate = fields[5].GetCppString();
+		
+        delete result;
+    }
+    else
+    {
+        SendSysMessage(LANG_ACCOUNT_NOT_FOUND);//Char has no account?
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    uint32 gold = money /GOLD;
+    uint32 silv = (money % GOLD) / SILVER;
+    uint32 copp = (money % GOLD) % SILVER;
+    std::string timeStr = secsToTimeString(total_player_time,true,true);
+    std::string timeStr2 = secsToTimeString(leveltime,true,true);
+
+    std::string charLink = playerLink(name.c_str());
+
+    PSendSysMessage(LANG_PINFO_CHARACTER, charLink.c_str(), isonline.c_str(), guid, race, pclass, gold, silv, copp, username.c_str(), accId, security, joindate.c_str(), last_ip.c_str(), last_login.c_str(), timeStr.c_str(), timeStr2.c_str() );
+
+    return true;
+}
+
+//show info of IP
+bool ChatHandler::HandlePInfoIpCommand(const char* args)
+{
+    if(!*args)
+        return false;
+
+    std::string last_ip = (char*)args;
+    std::string ipAccounts;
+    uint32 count = 0;
+    std::string last_login = GetMangosString(LANG_ERROR);
+
+    QueryResult* result = loginDatabase.PQuery("SELECT username,last_ip,last_login,account.id,online,account_banned.id as bannedid,account_banned.active as banactive FROM account LEFT JOIN account_banned ON account.id = account_banned.id WHERE last_ip = '%s' ORDER BY last_login ASC",last_ip.c_str());
+    if(result)
+    {	
+        count = result->GetRowCount(); // Number of accounts
+        for(int i = 0; i < count ; i++)
+        {
+            uint32 banned = 0;
+            std::string isBanned;
+            uint32 online = 0;
+            std::string isOnline;
+            Field *fields = result->Fetch();
+
+            //Checking for a online account
+            online = fields[4].GetUInt32();
+            if(online > 0)
+            {
+                isOnline = "(ONLINE) ";
+            }
+            else
+            {
+                isOnline = "";
+            }
+
+            //Checking for a banned account
+            banned = fields[6].GetUInt32();
+            if(banned > 0)
+            {
+                isBanned = "(BANNED) ";
+            }
+            else
+            {
+                isBanned = "";
+            }
+
+            //Convert id to string
+            std::string cId;
+            std::stringstream ss;
+            ss << fields[3].GetUInt32();
+            cId = ss.str();
+
+            //Make account line: Account (id: id) *(banned) -
+            ipAccounts += fields[0].GetCppString();
+            ipAccounts += " (id: ";
+            ipAccounts += cId.c_str();
+            ipAccounts += ") ";
+            ipAccounts += isOnline;
+            ipAccounts += isBanned;
+            ipAccounts += "- ";//Break apart different accounts
+            last_login = fields[2].GetCppString();//Replace with last data ( latest last online )
+            result->NextRow();
+        }
+
+        delete result;
+    }
+    else
+    {
+        SendSysMessage(LANG_ACCOUNT_NOT_FOUND);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    PSendSysMessage(LANG_PINFO_IP, last_ip.c_str(), last_login.c_str(), ipAccounts.c_str());
+
+    return true;
+}
+
 //show info of player
 bool ChatHandler::HandlePInfoCommand(const char* args)
 {
@@ -2129,6 +2404,10 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     // get additional information from DB
     else
     {
+        //check for valid args
+        if(!*args)
+            return false;
+
         // check offline security
         if (HasLowerSecurity(NULL, target_guid))
             return false;
@@ -2172,6 +2451,49 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
         delete result;
     }
 
+    //Characters
+    std::string playerChars;
+    uint32 count = 0;
+    result = CharacterDatabase.PQuery("SELECT name, account, guid, level FROM characters WHERE account = '%u'",accId);
+    if(result)
+    {
+        count = result->GetRowCount(); // Number of chars
+        for(int i = 0; i < count ; i++)
+        {
+            Field *fields = result->Fetch();
+
+            //Convert id to string
+            std::string cId;
+            std::stringstream ss;
+            ss << fields[2].GetUInt32();
+            cId = ss.str();
+            //Convert level to string
+            std::string pLevel;
+            std::stringstream ss2;
+            ss2 << fields[3].GetUInt32();
+            pLevel = ss2.str();
+
+            //Make character line: Charname[level] (id: guid) - 
+            std::string charLink = playerLink(fields[0].GetCppString());
+            playerChars += charLink;
+            playerChars += '[';
+            playerChars += pLevel.c_str();
+            playerChars += "] ";
+            playerChars += "(id: ";
+            playerChars += cId.c_str();
+            playerChars += ')';
+            playerChars += " - ";//Breakup Chars
+
+            result->NextRow();
+        }
+
+        delete result;
+    }
+    else
+    {
+        playerChars = "No characters found";
+    }
+
     std::string nameLink = playerLink(target_name);
 
     PSendSysMessage(LANG_PINFO_ACCOUNT, (target?"":GetMangosString(LANG_OFFLINE)), nameLink.c_str(), GUID_LOPART(target_guid), username.c_str(), accId, security, last_ip.c_str(), last_login.c_str(), latency);
@@ -2181,6 +2503,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     uint32 silv = (money % GOLD) / SILVER;
     uint32 copp = (money % GOLD) % SILVER;
     PSendSysMessage(LANG_PINFO_LEVEL,  timeStr.c_str(), level, gold,silv,copp );
+    PSendSysMessage(LANG_PINFO_CHARS, count, playerChars.c_str());//Account characters
 
     return true;
 }

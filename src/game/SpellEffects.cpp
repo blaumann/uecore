@@ -3349,16 +3349,16 @@ void Spell::EffectSummonType(uint32 i)
     switch(m_spellInfo->EffectMiscValueB[i])
     {
         case SUMMON_TYPE_GUARDIAN:
-        case SUMMON_TYPE_POSESSED:
-        case SUMMON_TYPE_POSESSED2:
-        case SUMMON_TYPE_FORCE_OF_NATURE:
         case SUMMON_TYPE_GUARDIAN2:
         case SUMMON_TYPE_GHOUL:
+        case SUMMON_TYPE_FORCE_OF_NATURE:
         case 209:
-            EffectSummonGuardian(i);
-            break;
         case SUMMON_TYPE_SNAKES:
             EffectSummonGuardian(i);
+            return;
+        case SUMMON_TYPE_POSESSED:
+        case SUMMON_TYPE_POSESSED2:
+            EffectSummonPosessed(i);
             return;
         case SUMMON_TYPE_WILD:
             EffectSummonWild(i);
@@ -3862,6 +3862,70 @@ void Spell::EffectSummonWild(uint32 i)
     }
 }
 
+void Spell::EffectSummonPosessed(uint32 i)
+{
+    uint32 creature_entry = m_spellInfo->EffectMiscValue[i];
+    if(!creature_entry)
+        return;
+
+    // set timer for unsummon
+    int32 duration = GetSpellDuration(m_spellInfo);
+
+    // in another case summon new
+    uint32 level = m_caster->getLevel();
+
+    float px, py, pz;
+    // If dest location if present
+    if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
+    {
+        // Summon 1 unit in dest location
+        px = m_targets.m_destX;
+        py = m_targets.m_destY;
+        pz = m_targets.m_destZ;
+    }
+    // Summon if dest location not present near caster
+    else
+        m_caster->GetClosePoint(px,py,pz,1.0f);
+
+    TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_OR_DEAD_DESPAWN;
+
+    Creature *spawnCreature = m_caster->SummonCreature(creature_entry,px,py,pz,m_caster->GetOrientation(),summonType,duration);
+    //spawnCreature->Relocate(px,py,pz,m_caster->GetOrientation());
+
+    if(!spawnCreature->IsPositionValid())
+    {
+        sLog.outError("Pet (guidlow %d, entry %d) not created base at creature. Suggested coordinates isn't valid (X: %f Y: %f)",
+        spawnCreature->GetGUIDLow(), spawnCreature->GetEntry(), spawnCreature->GetPositionX(), spawnCreature->GetPositionY());
+        delete spawnCreature;
+        return;
+    }
+
+    spawnCreature->SetCharmerGUID(m_caster->GetGUID());
+    spawnCreature->SetCreatorGUID(m_caster->GetGUID());
+
+    if(m_caster->GetTypeId()==TYPEID_PLAYER)
+    {
+        ((Player*)m_caster)->SetCharm(spawnCreature);
+        ((Player*)m_caster)->SetFarSightGUID(spawnCreature->GetGUID());
+        ((Player*)m_caster)->SetClientControl(spawnCreature, 1);
+    }
+
+    spawnCreature->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE,m_caster->getFaction());
+    spawnCreature->SetUInt32Value(UNIT_FIELD_FLAGS,16777224);
+    spawnCreature->SetUInt32Value(UNIT_FIELD_FLAGS_2,162048);
+    spawnCreature->SetUInt32Value(UNIT_FIELD_BYTES_2,1);
+    spawnCreature->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
+
+    //spawnCreature->AIM_Initialize();
+
+    if(CharmInfo *charmInfo = spawnCreature->InitCharmInfo(spawnCreature))
+        charmInfo->InitPossessCreateSpells();
+
+    if(m_caster->GetTypeId()==TYPEID_PLAYER)
+        ((Player*)m_caster)->PossessSpellInitialize();
+
+}
+
 void Spell::EffectSummonGuardian(uint32 i)
 {
     uint32 pet_entry = m_spellInfo->EffectMiscValue[i];
@@ -3975,6 +4039,50 @@ void Spell::EffectSummonGuardian(uint32 i)
         m_caster->AddGuardian(spawnCreature);
 
         map->Add((Creature*)spawnCreature);
+    }
+    if (pet_entry == 28511 )
+    {
+        int32 apply;
+        Pet* guardian = NULL;
+        GuardianPetList const& guardians = ((Player*)m_caster)->GetGuardians();
+        for (GuardianPetList::const_iterator itr = guardians.begin(); itr != guardians.end(); ++itr)
+        {
+            if ((guardian = ObjectAccessor::GetPet(*itr)) && guardian->GetEntry() == pet_entry)
+            {
+                ((Player*)unitTarget)->SetFarSightGUID(apply ? guardian->GetGUID() : 0);
+                ((Player*)unitTarget)->SetCharm(apply ? guardian : NULL);
+                ((Player*)unitTarget)->SetClientControl(guardian, apply ? 1 : 0);
+
+                if (apply)
+                {
+                    guardian->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
+                    //guardian->SetSpeed(MOVE_WALK, guardian->GetCreatureInfo()->speed, true);
+                    //guardian->SetSpeed(MOVE_RUN, guardian->GetCreatureInfo()->speed, true);
+                    //guardian->SetSpeed(MOVE_SWIM, guardian->GetCreatureInfo()->speed, true);
+                    guardian->GetMotionMaster()->MovementExpired();
+                    guardian->GetMotionMaster()->MoveFollow(unitTarget, 0, 0);
+                    guardian->CastSpell(m_caster,51890,true);    
+                }
+                else
+                {
+                    guardian->GetMotionMaster()->MovementExpired();
+                    guardian->GetMotionMaster()->MoveIdle();
+                    guardian->CastSpell(m_caster,51890,true);
+                    ((Player*)m_caster)->RemovePet(guardian, PET_SAVE_AS_DELETED);    // safe remove
+                }
+                return;
+            }
+        }
+
+        if (!apply)    // in case guardian was killed or lost
+        {
+            ((Player*)unitTarget)->SetFarSightGUID(0);
+            ((Player*)unitTarget)->SetCharm(NULL);
+            ((Player*)unitTarget)->SetClientControl(m_caster, 1);
+            WorldPacket data(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE, 0);
+            ((Player*)unitTarget)->GetSession()->SendPacket(&data);
+        }
+        return;
     }
 }
 
@@ -5237,6 +5345,35 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     // learn random explicit discovery recipe (if any)
                     if(uint32 discoveredSpell = GetExplicitDiscoverySpell(m_spellInfo->Id, (Player*)m_caster))
                         ((Player*)m_caster)->learnSpell(discoveredSpell, false);
+                    return;
+                }
+                // Recall Eye of Acherus
+                case 52694:
+                {
+                    if(!m_caster || m_caster->GetTypeId() != TYPEID_UNIT)
+                        return;
+                    
+                    Unit *target = m_caster->GetCharmer();
+                   
+                    if(!target || target->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    m_caster->SetCharmerGUID(0);                         
+                    target->RemoveAurasDueToSpell(51852);       // Remove The Eye of Acherus
+                    
+                    target->SetCharm(NULL);
+
+                    ((Player*)target)->SetFarSightGUID(0);
+                    ((Player*)target)->SetClientControl(m_caster,0);
+
+                    WorldPacket data(SMSG_PET_SPELLS, 8);
+                    data << uint64(0);
+                    data << uint32(0);
+                    ((Player*)target)->GetSession()->SendPacket(&data);
+
+                    m_caster->CleanupsBeforeDelete();
+                    m_caster->AddObjectToRemoveList();
+
                     return;
                 }
                 // Gluth's Decimate
