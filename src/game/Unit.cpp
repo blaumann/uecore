@@ -12151,14 +12151,11 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seat_id, bool force)
     m_SeatData.v_flags = v->GetVehicleFlags();
 
     addUnitState(UNIT_STAT_ON_VEHICLE);
-    //HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1);
-
     InterruptNonMeleeSpells(false);
 
     if(Pet *pet = GetPet())
         pet->Remove(PET_SAVE_AS_CURRENT);
 
-    // this will be obsolete soon
     if(GetTypeId() == TYPEID_PLAYER)
         ((Player*)this)->SendEnterVehicle(v);
 
@@ -12206,17 +12203,19 @@ void Unit::ExitVehicle()
         SetVehicleGUID(0);
 
         clearUnitState(UNIT_STAT_ON_VEHICLE);
-        //RemoveMonsterMoveFlag((MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1));
 
         if(GetTypeId() == TYPEID_PLAYER)
         {
             ((Player*)this)->ResummonPetTemporaryUnSummonedIfAny();
+            ((Player*)this)->m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+            ((Player*)this)->m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_FLY_UNK1);
         }
+
         float x = GetPositionX();
         float y = GetPositionY();
         float z = GetPositionZ() + 2.0f;
         GetClosePoint(x, y, z, 2.0f + v_size);
-        //SendMonsterMove(x, y, z, 0, MOVEMENTFLAG_JUMPING, 0); <- This is not the Right value
+        SendMonsterMove(x, y, z, 0, MONSTER_MOVE_WALK, 0);
     }
 }
 
@@ -12228,12 +12227,10 @@ void Unit::BuildVehicleInfo(Unit *target)
     if(!target->GetVehicleGUID())
         return;
 
-    //target->AddMonsterMoveFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1);
     uint32 veh_time = getMSTimeDiff(target->m_SeatData.c_time,getMSTime());
-
     WorldPacket data(MSG_MOVE_HEARTBEAT, 100);
     data.append(target->GetPackGUID());
-    //data << uint32(target->GetMonsterMoveFlags());
+    data << uint32(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_FLY_UNK1);
     data << uint16(0);
     data << uint32(getMSTime());
     data << float(target->GetPositionX());
@@ -12247,22 +12244,9 @@ void Unit::BuildVehicleInfo(Unit *target)
     data << float(target->m_SeatData.Orientation);
     data << uint32(veh_time);
     data << uint8 (target->m_SeatData.seat);
-    // required to avoid client crash
-   /* if(target->GetMonsterMoveFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING2))
-        data << float(0);
     data << uint32(0);
-    if(target->GetMonsterMoveFlags() & MOVEMENTFLAG_JUMPING)
-    {
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-    }
-    if(target->GetMonsterMoveFlags() & MOVEMENTFLAG_SPLINE)
-        data << float(0);
-
     if(GetTypeId() == TYPEID_PLAYER)
-        ((Player*)this)->GetSession()->SendPacket(&data);*/
+        ((Player*)this)->GetSession()->SendPacket(&data);
 }
 
 void Unit::SetPvP( bool state )

@@ -507,7 +507,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
             plMover->m_anti_BeginFallZ=INVALID_HEIGHT;
         }
     }
-    if (movementInfo.flags & MOVEMENTFLAG_SWIMMING)
+    if (movementInfo.HasMovementFlag(MOVEMENTFLAG_SWIMMING))
     {
         if(mover->GetTypeId() == TYPEID_UNIT)
         {
