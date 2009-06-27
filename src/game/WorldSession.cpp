@@ -639,7 +639,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo *mi)
     data >> mi->z;
     data >> mi->o;
 
-    if(mi->flags & MOVEMENTFLAG_ONTRANSPORT)
+    if(mi->HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
     {
         if(!data.readPackGUID(mi->t_guid))
             return;
@@ -653,7 +653,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo *mi)
         data >> mi->t_seat;
     }
 
-    if((mi->flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING2)) || (mi->unk1 & 0x20))
+    if((mi->HasMovementFlag(MovementFlags(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING2))) || (mi->unk1 & 0x20))
     {
         CHECK_PACKET_SIZE(data, data.rpos()+4);
         data >> mi->s_pitch;
@@ -662,7 +662,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo *mi)
     CHECK_PACKET_SIZE(data, data.rpos()+4);
     data >> mi->fallTime;
 
-    if(mi->flags & MOVEMENTFLAG_JUMPING)
+    if(mi->HasMovementFlag(MOVEMENTFLAG_JUMPING))
     {
         CHECK_PACKET_SIZE(data, data.rpos()+4+4+4+4);
         data >> mi->j_unk;
@@ -671,7 +671,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo *mi)
         data >> mi->j_xyspeed;
     }
 
-    if(mi->flags & MOVEMENTFLAG_SPLINE)
+    if(mi->HasMovementFlag(MOVEMENTFLAG_SPLINE))
     {
         CHECK_PACKET_SIZE(data, data.rpos()+4);
         data >> mi->u_unk1;
