@@ -620,9 +620,10 @@ enum salanar
 {
     SPELL_REALM_OF_SHADOWS          = 52275,
     //SPELL_DEATH_RACE_COMPLETE       = 52361,
-    SPELL_HORSEMANS_CALL            = 52362, // not working
+    SPELL_HORSEMANS_CALL            = 52362, // testing
     NPC_ACHERUS_DEATHCHARGER        = 28782,
-    NPC_DARK_RIDER_OF_ACHERUS       = 28768
+    NPC_DARK_RIDER_OF_ACHERUS       = 28768,
+    REALM_OF_SHADOWS                = 52693
 };
 
 bool GossipHello_npc_salanar_the_horseman(Player* pPlayer, Creature* pCreature)
@@ -650,6 +651,47 @@ bool GossipSelect_npc_salanar_the_horseman(Player* pPlayer, Creature *pCreature,
     }
     return true;
 }
+
+struct MANGOS_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
+{
+    npc_salanar_the_horsemanAI(Creature *c) : ScriptedAI(c) {}
+
+    void MoveInLineOfSight(Unit *who)
+    {
+        ScriptedAI::MoveInLineOfSight(who);
+
+        if(who->GetTypeId() == TYPEID_UNIT && ((Creature*)who)->isVehicle() && m_creature->IsWithinDistInMap(who, 10.0f))
+        {
+            if( Unit *charmer = who->GetCharmer() )
+            {
+                if( charmer->GetTypeId() == TYPEID_PLAYER )
+                {
+                    switch(m_creature->GetEntry())
+                    {
+                        // for quest Grand Theft Palomino(12680)
+                        case 28653:
+                            if( ((Player*)charmer)->GetQuestStatus(12680) == QUEST_STATUS_INCOMPLETE )
+                                ((Player*)charmer)->KilledMonster(28767, m_creature->GetGUID());
+                            break;
+                        // for quest Into the Realm of Shadows(12687)
+                        case 28788:
+                            if( ((Player*)charmer)->GetQuestStatus(12687) == QUEST_STATUS_INCOMPLETE )
+                            {
+                                if(((Player*)charmer)->HasAura(REALM_OF_SHADOWS))
+                                    charmer->RemoveAurasDueToSpell(REALM_OF_SHADOWS);
+                                ((Player*)charmer)->GroupEventHappens(12687, m_creature);
+                            }
+                            break;
+                        default:
+                            return;
+                    }
+                    ((Player*)charmer)->ExitVehicle();
+                    ((Creature*)who)->Respawn();
+                }
+            }
+        }
+    }
+};
 
 /*######
 ## Mob Dark Rider of Acherus

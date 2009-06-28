@@ -2517,6 +2517,12 @@ void Spell::cast(bool skipCheck)
                 m_preCastSpell = 57723;                     // Exhaustion
             break;
         }
+        case SPELLFAMILY_DRUID:
+        {
+            if(m_spellInfo->Id == 16857 && (m_caster->m_form == FORM_BEAR || m_caster->m_form == FORM_DIREBEAR)) //Faerie Fire(Feral)
+                m_preCastSpell = 60089;
+            break;
+        }
         case SPELLFAMILY_WARLOCK:
         {
             if (m_spellInfo->Id == 47897)                              // Shadowflame DD (Rank 1)
@@ -3727,6 +3733,10 @@ void Spell::TakeReagents()
         return;
 
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    bool isNoReagentReqCast = m_CastItem ? m_CastItem->GetEntry() == m_spellInfo->EffectItemType[0] : false;
+    if(isNoReagentReqCast)
         return;
 
     Player* p_caster = (Player*)m_caster;

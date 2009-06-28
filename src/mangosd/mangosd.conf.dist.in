@@ -284,6 +284,14 @@ AddonChannel = 1
 #        Default: "" - none colors
 #        Example: "13 7 11 9"
 #
+#    RecordUpdateTimeDiffInterval
+#        record update time diff to the log file
+#        update diff can be used as a criterion of performance
+#        diff < 300: good performance
+#        diff > 600: bad performance, may be caused by high cpu usage
+#        Default: 60000 (diff is written into log every 60000 ms or 1 minute.
+#        >0 = Interval
+#        0 = Disable
 ###################################################################################################################
 
 LogSQL = 1
@@ -307,6 +315,7 @@ GmLogTimestamp = 0
 GmLogPerAccount = 0
 RaLogFile = ""
 LogColors = "10 2 1 9"
+RecordUpdateTimeDiffInterval = 60000
 
 ###################################################################################################################
 # SERVER SETTINGS

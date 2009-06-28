@@ -468,6 +468,10 @@ void Spell::EffectSchoolDMG(uint32 effect_idx)
                             break;
                         }
                 }
+                if(m_spellInfo->Id == 60089) //Faerie Fire(Feral) DMG
+                {
+                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.05f);
+                }
                 break;
             }
             case SPELLFAMILY_ROGUE:
@@ -1865,6 +1869,33 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastCustomSpell(unitTarget, 47632, &bp, NULL, NULL, true);
                 }
                 return;
+            }
+            switch(m_spellInfo->Id)
+            {
+                // Death Grip
+                case 49560:
+                case 49576:
+                {
+                    if (!unitTarget || !m_caster)
+                        return;
+
+                    float x = m_caster->GetPositionX();
+                    float y = m_caster->GetPositionY();
+                    float z = m_caster->GetPositionZ()+1;
+                    float orientation = unitTarget->GetOrientation();
+
+                    m_caster->CastSpell(unitTarget,51399,true,NULL);                
+                    
+                    if(unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        {
+                        unitTarget->GetMap()->CreatureRelocation((Creature*)unitTarget,x,y,z,orientation);
+                        ((Creature*)unitTarget)->SendMonsterMove(x, y, z, orientation, MONSTER_MOVE_UNK12, 1);
+                        }
+                    else
+                        unitTarget->NearTeleportTo(x,y,z,orientation,false);
+
+                    return;
+                }
             }
             // Corpse Explosion
             if(m_spellInfo->SpellIconID == 1737)

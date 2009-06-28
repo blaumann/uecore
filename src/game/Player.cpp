@@ -6347,7 +6347,7 @@ void Player::CheckDuelDistance(time_t currTime)
 
 bool Player::IsOutdoorPvPActive()
 {
-    return (isAlive() && !HasInvisibilityAura() && !HasStealthAura() && (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP) || sWorld.IsPvPRealm())  && !HasMovementFlag(MOVEMENTFLAG_FLYING2) && !isInFlight());
+    return (isAlive() && !HasInvisibilityAura() && !HasStealthAura() && (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP) || sWorld.IsPvPRealm())  && !m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING2) && !isInFlight());
 }
 
 void Player::DuelComplete(DuelCompleteType type)
@@ -19262,9 +19262,11 @@ void Player::UpdateZoneDependentAuras( uint32 newZone )
             uint32 spellid = 0;
             // all horde races
             if( GetTeam() == HORDE )
+                if( getRace() == RACE_NIGHTELF || getRace() == RACE_DRAENEI )
                 spellid = getGender() == GENDER_FEMALE ? 35481 : 35480;
             // and some alliance races
-            else if( getRace() == RACE_NIGHTELF || getRace() == RACE_DRAENEI )
+            if( GetTeam() == ALLIANCE )
+                if( getRace() == RACE_NIGHTELF || getRace() == RACE_DRAENEI )
                 spellid = getGender() == GENDER_FEMALE ? 35483 : 35482;
 
             if(spellid && !HasAura(spellid,0) )

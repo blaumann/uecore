@@ -1643,6 +1643,30 @@ Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, floa
     return pCreature;
 }
 
+GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime)
+{
+    if(!IsInWorld())
+        return NULL;
+    Map * map = GetMap();
+    if(!map)
+        return NULL;
+    GameObjectInfo const* goinfo = objmgr.GetGameObjectInfo(entry);
+    if(!goinfo)
+    {
+        sLog.outErrorDb("Gameobject template %u not found in database!", entry);
+        return NULL;
+    }
+    GameObject *go = new GameObject();
+    if(!go->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, GetPhaseMask(), x, y, z, ang, rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
+        return NULL;
+    go->SetRespawnTime(respawnTime);
+    go->SetSpawnedByDefault(false); // do not save respawn time
+    go->SetOwnerGUID(GetGUID());
+    map->Add(go);
+
+    return go;
+}
+
 Vehicle* WorldObject::SummonVehicle(uint32 id, float x, float y, float z, float ang, uint32 vehicleId)
 {
     Vehicle *v = new Vehicle;

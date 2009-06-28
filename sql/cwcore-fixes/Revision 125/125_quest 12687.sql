@@ -1,0 +1,10 @@
+UPDATE creature_template SET faction_A = 2082, faction_H = 2082, unit_flags = 0 WHERE entry = 28782;
+DELETE FROM creature_addon WHERE guid IN (SELECT guid FROM creature WHERE id = 28782);
+DELETE FROM vehicle_data WHERE entry in (135);
+INSERT INTO vehicle_data VALUES (135, 12, 52362, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+DELETE FROM vehicle_seat_data WHERE seat in (1871);
+INSERT INTO vehicle_seat_data VALUES (1871, 1);
+DELETE FROM npc_spellclick_spells WHERE npc_entry in (28782);
+INSERT INTO npc_spellclick_spells VALUES (28782, 52349, 12687, 1, 12687, 3);
+DELETE FROM creature_template_addon WHERE entry IN (28782);
+INSERT INTO creature_template_addon (`entry`, `mount`, `bytes1`, `bytes2`, `emote`, `moveflags`, `vehicle_id`, `passengers`, `auras`) VALUES (28782, 0, 0, 1, 0, 0, 135, '', '');
