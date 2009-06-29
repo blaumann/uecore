@@ -1172,6 +1172,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         Player* GetSpellModOwner();
 
+        Vehicle *m_Vehicle;
         Unit* GetOwner() const;
         Pet* GetPet() const;
         Unit* GetCharmer() const;
