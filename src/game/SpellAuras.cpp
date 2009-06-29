@@ -4190,6 +4190,11 @@ void Aura::HandleModMechanicImmunity(bool apply, bool /*Real*/)
     uint32 misc  = m_modifier.m_miscvalue;
     Unit* target = m_target;
 
+    // Forbearance
+    if (GetId() == 25771)
+        misc = MECHANIC_IMMUNE_SHIELD;
+
+
     if(apply && spellInfo->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY)
     {
         uint32 mechanic = 1 << m_modifier.m_miscvalue;
@@ -6137,7 +6142,23 @@ void Aura::PeriodicTick()
             CleanDamage cleanDamage =  CleanDamage(0, BASE_ATTACK, MELEE_HIT_NORMAL );
 
             // ignore non positive values (can be result apply spellmods to aura damage
-            uint32 amount = m_modifier.m_amount > 0 ? m_modifier.m_amount : 0;
+	     float amount = m_modifier.m_amount > 0 ? m_modifier.m_amount : 0;
+            if (pCaster->getClass() == CLASS_WARLOCK)
+            {
+                switch (GetId())
+                {
+                case 28176:
+                case 28189:
+                case 47892:
+                case 47893: //Fel Armor bonus from Demonic Aegis
+                    if (m_target->HasAura(30145)) amount = 2.6;
+                    else if (m_target->HasAura(30144)) amount = 2.4;
+                    else if (m_target->HasAura(30143)) amount = 2.2;
+                    break;
+                default:
+                    break;
+                }
+            }
 
             uint32 pdamage;
 
@@ -6332,9 +6353,7 @@ void Aura::PeriodicTick()
             if(m_modifier.m_auraname==SPELL_AURA_OBS_MOD_HEALTH)
                 pdamage = uint32(m_target->GetMaxHealth() * amount / 100);
             else
-                pdamage = amount;
-
-            pdamage = pCaster->SpellHealingBonus(m_target, GetSpellProto(), pdamage, DOT, GetStackAmount());
+                pdamage = pCaster->SpellHealingBonus(m_target, GetSpellProto(), amount, DOT, GetStackAmount());
 
             sLog.outDetail("PeriodicTick: %u (TypeId: %u) heal of %u (TypeId: %u) for %u health inflicted by %u",
                 GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), pdamage, GetId());
