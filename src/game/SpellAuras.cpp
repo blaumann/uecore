@@ -4191,6 +4191,7 @@ void Aura::HandleModMechanicImmunity(bool apply, bool /*Real*/)
     Unit* target = m_target;
 
     // Forbearance
+    // in DBC wrong mechanic immune since 3.0.x
     if (GetId() == 25771)
         misc = MECHANIC_IMMUNE_SHIELD;
 
