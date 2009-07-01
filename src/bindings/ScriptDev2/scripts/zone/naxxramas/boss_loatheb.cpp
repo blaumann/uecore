@@ -22,6 +22,7 @@ SDCategory: Naxxramas
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_naxxramas.h"
 
 #define SPELL_CORRUPTED_MIND        29198
 #define SPELL_POISON_AURA           29865
@@ -42,7 +43,14 @@ EndScriptData */
 
 struct MANGOS_DLL_DECL boss_loathebAI : public ScriptedAI
 {
-    boss_loathebAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+    boss_loathebAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_bIsHeroicMode = pCreature->GetMap()->IsHeroic();
+        Reset();
+    }
+    ScriptedInstance* m_pInstance;
+    bool m_bIsHeroicMode;
 
     uint32 CorruptedMind_Timer;
     uint32 PoisonAura_Timer;
@@ -59,6 +67,27 @@ struct MANGOS_DLL_DECL boss_loathebAI : public ScriptedAI
         InevitableDoom5mins_Timer = 300000;
         RemoveCurse_Timer = 30000;
         Summon_Timer = 8000;
+
+        if(m_pInstance)
+            m_pInstance->SetData(TYPE_LOATHEB, NOT_STARTED);
+    }
+
+    void Aggro(Unit *who)
+    {
+        if(m_pInstance)
+            m_pInstance->SetData(TYPE_LOATHEB, IN_PROGRESS);
+    }
+
+    void JustDied(Unit* Killer)
+    {
+        if(m_pInstance)
+            m_pInstance->SetData(TYPE_LOATHEB, DONE);
+    }
+
+    void JustSummoned(Creature* summoned)
+    {
+        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+            summoned->AddThreat(target,0.0f);
     }
 
     void UpdateAI(const uint32 diff)
@@ -104,18 +133,11 @@ struct MANGOS_DLL_DECL boss_loathebAI : public ScriptedAI
         //Summon_Timer
         if (Summon_Timer < diff)
         {
-            Unit* target = NULL;
             Unit* SummonedSpores = NULL;
 
             SummonedSpores = m_creature->SummonCreature(16286,ADD_1X,ADD_1Y,ADD_1Z,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,80000);
             SummonedSpores = m_creature->SummonCreature(16286,ADD_2X,ADD_2Y,ADD_2Z,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,80000);
             SummonedSpores = m_creature->SummonCreature(16286,ADD_3X,ADD_3Y,ADD_3Z,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,80000);
-            if (SummonedSpores)
-            {
-                target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                if (target)
-                    SummonedSpores->AddThreat(target,1.0f);
-            }
 
             Summon_Timer = 28000;
         } else Summon_Timer -= diff;

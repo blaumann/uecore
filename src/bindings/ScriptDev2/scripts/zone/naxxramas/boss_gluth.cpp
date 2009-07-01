@@ -22,6 +22,7 @@ SDCategory: Naxxramas
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_naxxramas.h"
 
 enum
 {
@@ -99,6 +100,21 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
         Summon_Timer = 10000;
 
         m_uiBerserkTimer = MINUTE*8*IN_MILISECONDS;
+
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_GLUTH, NOT_STARTED);
+    }
+
+    void JustDied(Unit* Killer)
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_GLUTH, DONE);
+    }
+
+    void Aggro(Unit *who)
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_GLUTH, IN_PROGRESS);
     }
 
     void UpdateAI(const uint32 diff)
