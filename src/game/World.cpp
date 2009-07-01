@@ -65,6 +65,7 @@
 #include "AuctionHouseBot.h"
 #include "OutdoorPvPMgr.h"
 #include "Language.h"
+#include "OutdoorPvPMgr.h"
 
 INSTANTIATE_SINGLETON_1( World );
 

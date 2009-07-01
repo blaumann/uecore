@@ -4490,7 +4490,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                     case SUMMON_TYPE_ELEMENTAL:
                     {
                         // Outdoor PvP - Trigger FireBomb
-
                         // fire bomb trigger, can only be used in halaa opvp when flying on a path from a wyvern roost
                         // yeah, hacky, I know, but neither item flags, nor spell attributes contained any useable data (or I was unable to find it)
                         if(m_spellInfo->EffectMiscValue[i] == 18225 && m_caster->GetTypeId() == TYPEID_PLAYER)
