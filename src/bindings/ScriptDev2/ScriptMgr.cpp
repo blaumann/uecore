@@ -551,6 +551,14 @@ extern void AddSC_tirisfal_glades();
 extern void AddSC_boss_ironaya();
 extern void AddSC_uldaman();
 
+//Ulduar
+// Halls of Lightning
+extern void AddSC_boss_bjarngrim();
+extern void AddSC_boss_ionar();
+extern void AddSC_boss_loken();
+extern void AddSC_boss_volkhan();
+extern void AddSC_instance_halls_of_lightning();
+
 //Undercity
 extern void AddSC_undercity();
 
@@ -563,6 +571,13 @@ extern void AddSC_boss_keleseth();
 extern void AddSC_boss_skarvald_and_dalronn();
 extern void AddSC_instance_utgarde_keep();
 extern void AddSC_utgarde_keep();
+
+//Utgarde Pinnacle
+extern void AddSC_boss_palehoof();
+extern void AddSC_boss_skadi();
+extern void AddSC_boss_svala();
+extern void AddSC_boss_ymiron();
+extern void AddSC_instance_pinnacle();
 
 //Wailing caverns
 
@@ -1430,6 +1445,14 @@ void ScriptsInit()
     AddSC_boss_ironaya();
     AddSC_uldaman();
 
+    //Ulduar
+    // Halls of Lightning
+    void AddSC_boss_bjarngrim();
+    void AddSC_boss_ionar();
+    void AddSC_boss_loken();
+    void AddSC_boss_volkhan();
+    void AddSC_instance_halls_of_lightning();
+
     //Undercity
     AddSC_undercity();
 
@@ -1442,6 +1465,13 @@ void ScriptsInit()
     AddSC_boss_skarvald_and_dalronn();
     AddSC_instance_utgarde_keep();
     AddSC_utgarde_keep();
+
+    //Utgarde Pinnacle
+    AddSC_boss_palehoof();
+    AddSC_boss_skadi();
+    AddSC_boss_svala();
+    AddSC_boss_ymiron();
+    AddSC_instance_pinnacle();
 
     //Wailing caverns
 

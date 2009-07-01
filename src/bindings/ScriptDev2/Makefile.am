@@ -383,6 +383,12 @@ scripts/zone/thunder_bluff/thunder_bluff.cpp \
 scripts/zone/tirisfal_glades/tirisfal_glades.cpp \
 scripts/zone/uldaman/boss_ironaya.cpp \
 scripts/zone/uldaman/uldaman.cpp \
+scripts/zone/ulduar/halls_of_lightning/boss_bjarngrim.cpp \
+scripts/zone/ulduar/halls_of_lightning/boss_ionar.cpp \
+scripts/zone/ulduar/halls_of_lightning/boss_loken.cpp \
+scripts/zone/ulduar/halls_of_lightning/boss_volkhan.cpp \
+scripts/zone/ulduar/halls_of_lightning/def_halls_of_lightning.h \
+scripts/zone/ulduar/halls_of_lightning/instance_halls_of_lightning.cpp \
 scripts/zone/undercity/undercity.cpp \
 scripts/zone/utgarde_keep/utgarde_keep/boss_ingvar.cpp \
 scripts/zone/utgarde_keep/utgarde_keep/boss_keleseth.cpp \
@@ -390,6 +396,12 @@ scripts/zone/utgarde_keep/utgarde_keep/boss_skarvald_and_dalronn.cpp \
 scripts/zone/utgarde_keep/utgarde_keep/def_utgarde_keep.h \
 scripts/zone/utgarde_keep/utgarde_keep/instance_utgarde_keep.cpp \
 scripts/zone/utgarde_keep/utgarde_keep/utgarde_keep.cpp \
+scripts/zone/utgarde_keep/utgarde_pinnacle/boss_palehoof.cpp \
+scripts/zone/utgarde_keep/utgarde_pinnacle/boss_skadi.cpp \
+scripts/zone/utgarde_keep/utgarde_pinnacle/boss_svala.cpp \
+scripts/zone/utgarde_keep/utgarde_pinnacle/boss_ymiron.cpp \
+scripts/zone/utgarde_keep/utgarde_pinnacle/def_pinnacle.h \
+scripts/zone/utgarde_keep/utgarde_pinnacle/instance_pinnacle.cpp \
 scripts/zone/wailing_caverns/instance_wailing_caverns.cpp \
 scripts/zone/western_plaguelands/western_plaguelands.cpp \
 scripts/zone/westfall/westfall.cpp \
