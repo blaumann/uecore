@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Dustwallow_Marsh
 SD%Complete: 95
-SDComment: Quest support: 11180, 558, 11126, 11142. Vendor Nat Pagle
+SDComment: Quest support: 11180, 558, 11126. Vendor Nat Pagle
 SDCategory: Dustwallow Marsh
 EndScriptData */
 
@@ -192,13 +192,16 @@ bool GossipSelect_npc_nat_pagle(Player* pPlayer, Creature* pCreature, uint32 sen
 /*######
 ## npc_cassa_crimsonwing
 ######*/
+
 bool GossipHello_npc_cassa_crimsonwing(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetQuestStatus(11142) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"<Ride the gryphons to Survey Alcaz Island>",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
+
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
+
 bool GossipSelect_npc_cassa_crimsonwing(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF+1)

@@ -18201,7 +18201,10 @@ void Player::UpdateVisibilityOf(WorldObject* target)
             // target aura duration for caster show only if target exist at caster client
             // send data at target visibility change (adding to client)
             if(target!=this && target->isType(TYPEMASK_UNIT))
+            {
                 SendAurasForTarget((Unit*)target);
+                BuildVehicleInfo((Unit*)target);
+            }
 
             if(target->GetTypeId()==TYPEID_UNIT && ((Creature*)target)->isAlive())
                 ((Creature*)target)->SendMonsterMoveWithSpeedToCurrentDestination(this);
@@ -18386,10 +18389,18 @@ void Player::SendInitialPacketsBeforeAddToMap()
         m_movementInfo.AddMovementFlag(MOVEMENTFLAG_FLYING2);
 
     m_mover = this;
+    m_mover_in_queve = NULL;
 }
 
 void Player::SendInitialPacketsAfterAddToMap()
 {
+    if(getClass() == CLASS_DEATH_KNIGHT)
+        ResyncRunes(MAX_RUNES);
+
+    WorldPacket data0(SMSG_SET_PHASE_SHIFT, 4);
+    data0 << uint32(GetPhaseMask());
+    GetSession()->SendPacket(&data0);
+
     WorldPacket data(SMSG_TIME_SYNC_REQ, 4);                // new 2.0.x, enable movement
     data << uint32(0x00000000);                             // on blizz it increments periodically
     GetSession()->SendPacket(&data);
@@ -18424,6 +18435,14 @@ void Player::SendInitialPacketsAfterAddToMap()
         SendMessageToSet(&data2,true);
     }
 
+    if(GetVehicleGUID())
+    {
+        WorldPacket data3(SMSG_FORCE_MOVE_ROOT, 10);
+        data3.append(GetPackGUID());
+        data3 << (uint32)((m_SeatData.s_flags & SF_CAN_CAST) ? 2 : 0);
+        SendMessageToSet(&data3,true);
+    }
+
     SendAurasForTarget(this);
     SendEnchantmentDurations();                             // must be after add to map
     SendItemDurations();                                    // must be after add to map
@@ -18438,7 +18457,7 @@ void Player::SendUpdateToOutOfRangeGroupMembers()
 
     m_groupUpdateMask = GROUP_UPDATE_FLAG_NONE;
     m_auraUpdateMask = 0;
-    if(Pet *pet = GetPet())
+    if(Unit *pet = GetCharmOrPet())
         pet->ResetAuraUpdateMask();
 }
 
@@ -18687,7 +18706,10 @@ void Player::SendAurasForTarget(Unit *target)
 
                     if(!(auraFlags & AFLAG_NOT_CASTER))
                     {
-                        data << uint8(0);                   // packed GUID of someone (caster?)
+                        if(aura->GetCaster())
+                            data.append(aura->GetCaster()->GetPackGUID());
+                        else
+                            data << uint8(0);
                     }
 
                     if(auraFlags & AFLAG_DURATION)          // include aura duration
@@ -18973,6 +18995,11 @@ void Player::AutoUnequipOffhandIfNeed()
     }
 }
 
+OutdoorPvP * Player::GetOutdoorPvP() const
+{
+    return sOutdoorPvPMgr.GetOutdoorPvPToZoneId(GetZoneId());
+}
+
 bool Player::HasItemFitToSpellReqirements(SpellEntry const* spellInfo, Item const* ignoreItem)
 {
     if(spellInfo->EquippedItemClass < 0)
@@ -19154,6 +19181,8 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
         {
             /// not get Xp in PvP or no not gray players in group
             xp = (PvP || !not_gray_member_with_max_level) ? 0 : MaNGOS::XP::Gain(not_gray_member_with_max_level, pVictim);
+            if(GetVehicleGUID() && !(m_SeatData.v_flags & VF_GIVE_EXP))
+                xp = 0;
 
             /// skip in check PvP case (for speed, not used)
             bool is_raid = PvP ? false : sMapStore.LookupEntry(GetMapId())->IsRaid() && pGroup->isRaidGroup();
@@ -19207,6 +19236,8 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
     else                                                    // if (!pGroup)
     {
         xp = PvP ? 0 : MaNGOS::XP::Gain(this, pVictim);
+        if(GetVehicleGUID() && !(m_SeatData.v_flags & VF_GIVE_EXP))
+            xp = 0;
 
         // honor can be in PvP and !PvP (racial leader) cases
         if(RewardHonor(pVictim,1))
@@ -19338,6 +19369,72 @@ void Player::UpdateZoneDependentAuras( uint32 newZone )
         if(itr->second->autocast && itr->second->IsFitToRequirements(this,newZone,0))
             if( !HasAura(itr->second->spellId,0) )
                 CastSpell(this,itr->second->spellId,true);
+    switch(newZone)
+    {
+        case 2367:                                          // Old Hillsbrad Foothills
+        {
+            // Human Illusion
+            // NOTE: these are removed by RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP);
+            uint32 spellid = 0;
+            // all horde races
+            if( GetTeam() == HORDE )
+                if( getRace() == RACE_NIGHTELF || getRace() == RACE_DRAENEI )
+                spellid = getGender() == GENDER_FEMALE ? 35481 : 35480;
+            // and some alliance races
+            if( GetTeam() == ALLIANCE )
+                if( getRace() == RACE_NIGHTELF || getRace() == RACE_DRAENEI )
+                spellid = getGender() == GENDER_FEMALE ? 35483 : 35482;
+
+            if(spellid && !HasAura(spellid,0) )
+                CastSpell(this,spellid,true);
+            break;
+        }
+        case 4298:                                          // Plaguelands: The Scarlet Enclave
+        {
+            // Undying Resolve (All Chapters)
+            if(!HasAura(51915,0))
+                CastSpell(this,51915,true);
+            // Chapter IV (Epilogue) 
+            if( GetQuestRewardStatus (12779) )
+            {
+                // Chapter IV (Epilogue) (Chapter III must automatically removed)
+                if(!HasAura(53405,0))
+                    CastSpell(this,53405,true);
+            }
+            // Chapter III 
+            else if( GetQuestRewardStatus (12757) )
+            {
+                RemoveAurasDueToSpell(53081);               // Scarlet Crusade Disguise (Only during Chapter II)
+                // Chapter III (Chapter II must automatically removed)
+                if(!HasAura(53107,0))
+                    CastSpell(this,53107,true);
+            }
+            // Chapter II 
+            else if( GetQuestRewardStatus (12706) )
+            {
+                // Chapter II
+                if(!HasAura(52597,0))
+                    CastSpell(this,52597,true);
+                // Scarlet Crusade Disguise (Only during Chapter II)
+                if( !HasAura(53081,0) && (GetQuestStatus (12755) == QUEST_STATUS_COMPLETE || GetQuestStatus (12756) == QUEST_STATUS_COMPLETE ) )
+                    CastSpell(this,53081,true);
+            }
+            // Chapter II, Chapter III, Chapter IV (Epilogue) 
+            if( GetQuestRewardStatus (12706) || GetQuestRewardStatus (12757) || GetQuestRewardStatus (12779) )
+            {
+                // See Noth Invisibility
+                if( !HasAura(52707,0) && GetQuestRewardStatus (12716) )
+                    CastSpell(this,52707,true);
+                // See Chapel Invisibility
+                if( !HasAura(52950,0) && GetQuestRewardStatus (12727) )
+                    CastSpell(this,52950,true);
+                // Ebon Hold: Chapter II, Skybox
+                if(!HasAura(52598,0))
+                    CastSpell(this,52598,false);
+            }
+            break;
+        }
+    }
 }
 
 void Player::UpdateAreaDependentAuras( uint32 newArea )
@@ -19358,6 +19455,62 @@ void Player::UpdateAreaDependentAuras( uint32 newArea )
         if(itr->second->autocast && itr->second->IsFitToRequirements(this,m_zoneUpdateId,newArea))
             if( !HasAura(itr->second->spellId,0) )
                 CastSpell(this,itr->second->spellId,true);
+    switch(newArea)
+    {
+        // Dragonmaw Illusion
+        case 3759:                                          // Netherwing Ledge
+        case 3939:                                          // Dragonmaw Fortress
+        case 3966:                                          // Dragonmaw Base Camp
+            if( GetDummyAura(40214) )
+            {
+                if( !HasAura(40216,0) )
+                    CastSpell(this,40216,true);
+                if( !HasAura(42016,0) )
+                    CastSpell(this,42016,true);
+            }
+            break;
+        // Dominion Over Acherus (map 0 and map 609 have same areaid)
+        case 4281:                                          // Acherus: The Ebon Hold
+        case 4342:                                          // Acherus: The Ebon Hold
+            // Dominion Over Acherus
+            if( !HasAura(51721,0) && GetQuestRewardStatus (12657) )
+                CastSpell(this,51721,true);
+            // Chapter V
+            if( !HasAura(58354,0) && (( GetQuestStatus (13165) == QUEST_STATUS_COMPLETE || GetQuestRewardStatus (13165) )) )
+            {
+                if(GetTeam() == ALLIANCE)
+                {
+                    if(!GetQuestRewardStatus (13188))
+                        CastSpell(this,58354,true);
+                }
+                else
+                {
+                    if(!GetQuestRewardStatus (13189))
+                        CastSpell(this,58354,true);
+                }
+            }
+            break;
+        // Mist of the Kvaldir
+        case 4028:                                          //Riplash Strand
+        case 4029:                                          //Riplash Ruins
+        case 4106:                                          //Garrosh's Landing
+        case 4031:                                          //Pal'ea
+            CastSpell(this,54119,true);
+            break;
+        default:
+            //Not depend of zone, but depend of quest
+            if( GetTeam() == ALLIANCE )
+            {
+                if( !HasAura(58530,0)  && !GetQuestRewardStatus (13188) && GetQuestRewardStatus (13165))
+                    CastSpell(this,58530,true);                 //Return to Stormwind (Chapter V)
+            }
+            else
+            {
+                if( !HasAura(58551,0)  && !GetQuestRewardStatus (13189) && GetQuestRewardStatus (13165))
+                    CastSpell(this,58551,true);                 //Return to Orgrimmar (Chapter V)
+            }
+            break;
+    }
 }
 
 uint32 Player::GetCorpseReclaimDelay(bool pvp) const
@@ -19670,96 +19823,28 @@ void Player::InitGlyphsForLevel()
     SetUInt32Value(PLAYER_GLYPHS_ENABLED, value);
 }
 
-void Player::EnterVehicle(Vehicle *vehicle)
+void Player::SendEnterVehicle(Vehicle *vehicle)
 {
-    VehicleEntry const *ve = sVehicleStore.LookupEntry(vehicle->GetVehicleId());
-    if(!ve)
-        return;
+    m_movementInfo.AddMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+    m_movementInfo.AddMovementFlag(MOVEMENTFLAG_FLY_UNK1);
 
-    VehicleSeatEntry const *veSeat = sVehicleSeatStore.LookupEntry(ve->m_seatID[0]);
-    if(!veSeat)
-        return;
+    if(m_transport)                                         // if we were on a transport, leave
+    {
+        m_transport->RemovePassenger(this);
+        m_transport = NULL;
+    }
+    // vehicle is our transport from now, if we get to zeppelin or boat
+    // with vehicle, ONLY my vehicle will be passenger on that transport
+    // player ----> vehicle ----> zeppelin
 
-    vehicle->SetCharmerGUID(GetGUID());
-    vehicle->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-    vehicle->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
-    vehicle->setFaction(getFaction());
-
-    SetCharm(vehicle);                                      // charm
-    SetFarSightGUID(vehicle->GetGUID());                    // set view
-
-    SetClientControl(vehicle, 1);                           // redirect controls to vehicle
-
-    WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
+    WorldPacket data(SMSG_BREAK_TARGET, 8);
+    data.append(vehicle->GetPackGUID());
     GetSession()->SendPacket(&data);
 
-    data.Initialize(MSG_MOVE_TELEPORT_ACK, 30);
-    data.append(GetPackGUID());
-    data << uint32(0);                                      // counter?
-    data << uint32(MOVEMENTFLAG_ONTRANSPORT);               // transport
-    data << uint16(0);                                      // special flags
-    data << uint32(getMSTime());                            // time
-    data << vehicle->GetPositionX();                        // x
-    data << vehicle->GetPositionY();                        // y
-    data << vehicle->GetPositionZ();                        // z
-    data << vehicle->GetOrientation();                      // o
-    // transport part, TODO: load/calculate seat offsets
-    data << uint64(vehicle->GetGUID());                     // transport guid
-    data << float(veSeat->m_attachmentOffsetX);             // transport offsetX
-    data << float(veSeat->m_attachmentOffsetY);             // transport offsetY
-    data << float(veSeat->m_attachmentOffsetZ);             // transport offsetZ
-    data << float(0);                                       // transport orientation
-    data << uint32(getMSTime());                            // transport time
-    data << uint8(0);                                       // seat
-    // end of transport part
-    data << uint32(0);                                      // fall time
-    GetSession()->SendPacket(&data);
-
-    data.Initialize(SMSG_PET_SPELLS, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
-    data << uint64(vehicle->GetGUID());
-    data << uint16(0);
-    data << uint32(0);
-    data << uint32(0x00000101);
-
-    for(uint32 i = 0; i < 10; ++i)
-        data << uint16(0) << uint8(0) << uint8(i+8);
-
-    data << uint8(0);
-    data << uint8(0);
-    GetSession()->SendPacket(&data);
-}
-
-void Player::ExitVehicle(Vehicle *vehicle)
-{
-    vehicle->SetCharmerGUID(0);
-    vehicle->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-    vehicle->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
-    vehicle->setFaction((GetTeam() == ALLIANCE) ? vehicle->GetCreatureInfo()->faction_A : vehicle->GetCreatureInfo()->faction_H);
-
-    SetCharm(NULL);
-    SetFarSightGUID(0);
-
-    SetClientControl(vehicle, 0);
-
-    WorldPacket data(MSG_MOVE_TELEPORT_ACK, 30);
-    data.append(GetPackGUID());
-    data << uint32(0);                                      // counter?
-    data << uint32(MOVEMENTFLAG_FLY_UNK1);                  // fly unk
-    data << uint16(0x40);                                   // special flags
-    data << uint32(getMSTime());                            // time
-    data << vehicle->GetPositionX();                        // x
-    data << vehicle->GetPositionY();                        // y
-    data << vehicle->GetPositionZ();                        // z
-    data << vehicle->GetOrientation();                      // o
-    data << uint32(0);                                      // fall time
-    GetSession()->SendPacket(&data);
-
-    data.Initialize(SMSG_PET_SPELLS, 8);
-    data << uint64(0);
-    GetSession()->SendPacket(&data);
-
-    // maybe called at dummy aura remove?
-    // CastSpell(this, 45472, true);                           // Parachute
+    /*data.Initialize(SMSG_UNKNOWN_1191, 12);
+    data << uint64(GetGUID());
+    data << uint64(vehicle->GetVehicleId());                      // not sure
+    SendMessageToSet(&data, true);*/
 }
 
 bool Player::isTotalImmune()
@@ -19805,11 +19890,12 @@ void Player::ConvertRune(uint8 index, uint8 newType)
 
 void Player::ResyncRunes(uint8 count)
 {
-    WorldPacket data(SMSG_RESYNC_RUNES, count * 2);
+    WorldPacket data(SMSG_RESYNC_RUNES, 4 + count * 2);
+    data << uint32(count + 1);
     for(uint32 i = 0; i < count; ++i)
     {
         data << uint8(GetCurrentRune(i));                   // rune type
-        data << uint8(255 - (GetRuneCooldown(i) * 51));     // passed cooldown time (0-255)
+        data << uint8(255 - ((GetRuneCooldown(i)/2000) * 51));     // passed cooldown time (0-255)
     }
     GetSession()->SendPacket(&data);
 }
@@ -20053,7 +20139,9 @@ uint8 Player::CanEquipUniqueItem( ItemPrototype const* itemProto, uint8 except_s
 void Player::HandleFall(MovementInfo const& movementInfo)
 {
     // calculate total z distance of the fall
-    float z_diff = m_lastFallZ - movementInfo.z;
+    float z_diff = (m_lastFallZ >= m_anti_BeginFallZ ? m_lastFallZ : m_anti_BeginFallZ) - movementInfo.z;
+    
+    m_anti_BeginFallZ=INVALID_HEIGHT;
     sLog.outDebug("zDiff = %f", z_diff);
 
     //Players with low fall distance, Feather Fall or physical immunity (charges used) are ignored
