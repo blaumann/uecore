@@ -1337,7 +1337,6 @@ bool ChatHandler::HandleNpcDeleteCommand(const char* args)
     // Delete the creature
     unit->CombatStop();
     unit->DeleteFromDB();
-    unit->CleanupsBeforeDelete();
     unit->AddObjectToRemoveList();
 
     SendSysMessage(LANG_COMMAND_DELCREATMESSAGE);
@@ -3106,7 +3105,6 @@ bool ChatHandler::HandleWpModifyCommand(const char* args)
         {
             wpCreature = m_session->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(wpGuid, VISUAL_WAYPOINT, HIGHGUID_UNIT));
             wpCreature->DeleteFromDB();
-            wpCreature->CleanupsBeforeDelete();
             wpCreature->AddObjectToRemoveList();
         }
 
@@ -3170,7 +3168,6 @@ bool ChatHandler::HandleWpModifyCommand(const char* args)
             {
                 wpCreature = m_session->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(wpGuid, VISUAL_WAYPOINT, HIGHGUID_UNIT));
                 wpCreature->DeleteFromDB();
-                wpCreature->CleanupsBeforeDelete();
                 wpCreature->AddObjectToRemoveList();
                 // re-create
                 Creature* wpCreature2 = new Creature;
@@ -3450,7 +3447,6 @@ bool ChatHandler::HandleWpShowCommand(const char* args)
                 else
                 {
                     pCreature->DeleteFromDB();
-                    pCreature->CleanupsBeforeDelete();
                     pCreature->AddObjectToRemoveList();
                 }
 
@@ -3648,7 +3644,6 @@ bool ChatHandler::HandleWpShowCommand(const char* args)
             else
             {
                 pCreature->DeleteFromDB();
-                pCreature->CleanupsBeforeDelete();
                 pCreature->AddObjectToRemoveList();
             }
         }while(result->NextRow());
