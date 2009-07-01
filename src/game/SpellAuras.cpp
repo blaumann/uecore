@@ -3826,7 +3826,7 @@ void Aura::HandleInvisibility(bool apply, bool Real)
             // apply glow vision
             m_target->SetFlag(PLAYER_FIELD_BYTES2,PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
             // remove player from the objective's active player count at invisibility
-            if(OutdoorPvP * pvp = ((Player*)m_target)->GetOutdoorPvP())
+            if(OutdoorPvP *pvp = ((Player*)m_target)->GetOutdoorPvP())
                 pvp->HandlePlayerActivityChanged((Player*)m_target);
 
         }
@@ -3862,10 +3862,8 @@ void Aura::HandleInvisibility(bool apply, bool Real)
                     m_target->SetVisibility(VISIBILITY_ON);
                 if(m_target->GetTypeId() == TYPEID_PLAYER)
                 {
-                    if(OutdoorPvP * pvp = ((Player*)m_target)->GetOutdoorPvP())
+                    if(OutdoorPvP *pvp = ((Player*)m_target)->GetOutdoorPvP())
                         pvp->HandlePlayerActivityChanged((Player*)m_target);
-
-                    m_target->SendUpdateToPlayer((Player*)m_target);
                 }
             }
         }
