@@ -337,6 +337,9 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
     GetPlayer()->Anti__SetLastTeleTime(::time(NULL));
     GetPlayer()->m_anti_BeginFallZ=INVALID_HEIGHT;
+
+    //lets process all delayed operations on successful teleport
+    GetPlayer()->ProcessDelayedOperations();
 }
 
 void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
@@ -388,6 +391,8 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
         plMover->Anti__SetLastTeleTime(::time(NULL));
         plMover->m_anti_BeginFallZ=INVALID_HEIGHT;
     }
+    //lets process all delayed operations on successful teleport
+    GetPlayer()->ProcessDelayedOperations();
 }
 
 void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
@@ -701,9 +706,9 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     }
     else                                                    // creature charmed
     {
-        if(Map *map = mover->GetMap())
+        if(mover->IsInWorld()))
         {
-            map->CreatureRelocation((Creature*)mover, movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
+            mover->GetMap()->CreatureRelocation((Creature*)mover, movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
             if(((Creature*)mover)->isVehicle())
                 ((Vehicle*)mover)->RellocatePassengers(map);
         }
