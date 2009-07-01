@@ -34,6 +34,7 @@
 #include "World.h"
 #include "ObjectAccessor.h"
 #include "BattleGroundMgr.h"
+#include "OutdoorPvPMgr.h"
 #include "MapManager.h"
 #include "OutdoorPvPMgr.h"
 #include "Language.h"                                       // for CMSG_DISMOUNT handler
