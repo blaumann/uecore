@@ -6340,49 +6340,110 @@ void Spell::EffectMomentMove(uint32 i)
     if (unitTarget->isInFlight())
         return;
 
-    if( m_spellInfo->rangeIndex == 1)                       //self range
+    if (m_spellInfo->rangeIndex == 1)                       //self range
     {
-        uint32 mapid = unitTarget->GetMapId();
-        float dis = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+        const float lenght2d = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
 
-        float *fx = new float[11], *fy = new float[11], *fz = new float[11];
-        unitTarget->GetPosition(fx[0], fy[0], fz[0]);
+        const float losH  = 1.2f;			// LoS height
+        const float dl_2d = 0.7f;
+        int   n_itrs = int(lenght2d/dl_2d);
+        if(n_itrs == 0)
+            return;
 
-        float orientation = unitTarget->GetOrientation(), itr_i, step = dis / 10.0, fx2, fy2, fz2, ground, floor;
-        int itr_j = 1, last_valid = 0;
-        bool hit = false;
+        float cx,cy,cz;
+        unitTarget->GetPosition(cx,cy,cz);
+        const float  angle = unitTarget->GetOrientation();
+        const uint32 mapId = unitTarget->GetMapId();
 
-        for (itr_i = step; itr_i <= dis; itr_i += step)
+        const float dx = dl_2d*cos(angle);
+        const float dy = dl_2d*sin(angle);
+
+        std::vector<float> mapData;
+        mapData.resize(n_itrs);
+        float x_i = cx, y_i = cy, z_i = cz;
+
+        bool isFallorFly = false;
+        if (unitTarget->GetTypeId() == TYPEID_PLAYER && ((Player*)unitTarget)->HasMovementFlag(MovementFlags(MOVEMENTFLAG_FALLING |
+            MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING2 | MOVEMENTFLAG_WATERWALKING)))
+            isFallorFly = true;
+
+        Map const* map = unitTarget->GetBaseMap();
+        bool above_map = cz+losH >= map->GetHeight(cx,cy,MAX_HEIGHT,false) ? true : false;
+
+        for(int itr = 0; itr < n_itrs; ++itr)
         {
-            fx[itr_j] = fx[0] + itr_i * cos(orientation);
-            fy[itr_j] = fy[0] + itr_i * sin(orientation);
-            ground = MapManager::Instance().GetMap(mapid, unitTarget)->GetHeight(fx[itr_j], fy[itr_j], MAX_HEIGHT, true);
-            floor = MapManager::Instance().GetMap(mapid, unitTarget)->GetHeight(fx[itr_j], fy[itr_j], fz[last_valid], true);
-            fz[itr_j] = fabs(ground - fz[last_valid]) <= fabs(floor - fz[last_valid]) ? ground : floor;
-            if (fabs(fz[itr_j] - fz[0]) <= 6.0)
+            x_i += dx;
+            y_i += dy;
+            float mapHeight = map->GetHeight(x_i,y_i,MAX_HEIGHT,false);
+            if ((above_map && z_i+losH < mapHeight) || (!above_map && z_i+losH > mapHeight))
             {
-                if (VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(mapid, fx[last_valid], fy[last_valid], fz[last_valid] + 0.5, fx[itr_j], fy[itr_j], fz[itr_j] + 0.5, fx2, fy2, fz2, -0.5))
+                x_i -= dx;
+                y_i -= dy;
+                break;
+            }
+            if(!isFallorFly)
+              mapData[itr] = mapHeight;
+        }
+
+        float v_x, v_y, v_z;
+        VMAP::IVMapManager *vmgr = VMAP::VMapFactory::createOrGetVMapManager();
+        if(vmgr->getObjectHitPos(mapId, cx,cy,cz+losH, x_i,y_i,z_i+losH, v_x,v_y,v_z,0))
+        {
+            float objSize = unitTarget->GetObjectSize()/dl_2d;
+            v_x -= dx*objSize, v_y -= dy*objSize;
+            if(!isFallorFly)
+                n_itrs = int( sqrtf((v_x-cx)*(v_x-cx)+(v_y-cy)*(v_y-cy))/dl_2d );
+        }
+
+        if(isFallorFly)
+        {
+            float mapH   = map->GetHeight(v_x,v_y,v_z,false);
+            float vmapH  = vmgr->getHeight(unitTarget->GetMapId(),v_x,v_y,v_z);
+            float ground = vmapH > mapH ? vmapH : mapH;
+
+            if( ((Player*)unitTarget)->HasMovementFlag(MovementFlags(MOVEMENTFLAG_FALLING)) )
+            {
+                Player *pl = (Player*)unitTarget;
+                SafePosition lpos = pl->m_safeposition;
+                uint32 fallTime = pl->m_movementInfo.fallTime;
+                if(lpos.z - ground > 14.0f)
                 {
-                    hit = true;
-                    fx[itr_j] = fx2 - 0.6 * cos(orientation);
-                    fy[itr_j] = fy2 - 0.6 * sin(orientation);
-                    ground = MapManager::Instance().GetMap(mapid, unitTarget)->GetHeight(fx[itr_j], fy[itr_j], MAX_HEIGHT, true);
-                    floor = MapManager::Instance().GetMap(mapid, unitTarget)->GetHeight(fx[itr_j], fy[itr_j], fz[last_valid], true);
-                    float tempz = fabs(ground - fz[last_valid]) <= fabs(floor - fz[last_valid]) ? ground : floor;
-                    fz[itr_j] = fabs(tempz - fz[last_valid]) <= fabs(fz2 - fz[last_valid]) ? tempz : fz2;
+                    if(fallTime < 2500)		//when near the last safe pos
+                        v_x = lpos.x,v_y = lpos.y,v_z = lpos.z;
+                    else
+                        v_z = cz;		//normal falling
+                }else
+                    if(fallTime > 2500)
+                        v_z = ground;
+            }else
+                v_z = cz > ground ? cz : ground;
+        }
+        else
+        {
+            int i = 0;
+            x_i = cx, y_i = cy, v_z = cz;
+            for(std::vector<float>::const_iterator j = mapData.begin(); i < n_itrs && j != mapData.end(); ++j)
+            {
+                x_i += dx;
+                y_i += dy;
+                float ray = v_z > *j ? v_z + 2.0f - *j : 10.0f;
+                float height = vmgr->getHeight(mapId,x_i,y_i,v_z+2.0f,ray > 10.0f ? 10.0f:ray);
+
+                if( !(height > INVALID_HEIGHT && (height > *j || fabs(*j-cz+losH) > fabs(height-cz+losH))) )
+                    height = *j;
+
+                if(fabs(v_z - height)/dl_2d > 2.7475f)		// >tan(70)
+                {
+                    float objSize = unitTarget->GetObjectSize()/dl_2d;
+                    v_x = x_i-dx*objSize, v_y = y_i-dy*objSize;
                     break;
                 }
-                else
-                    last_valid = itr_j;
-            }
-            itr_j++;
-        }
-        if (hit == false)
-            itr_j = last_valid;
-
-        unitTarget->NearTeleportTo(fx[itr_j], fy[itr_j], fz[itr_j] + 0.07531, orientation, unitTarget==m_caster);
-        delete [] fx; delete [] fy; delete [] fz;
-    }
+                v_z = height;
+                ++i;
+         }
+         unitTarget->NearTeleportTo(v_x, v_y, v_z, angle,unitTarget==m_caster);
+         }
+     }
 }
 
 void Spell::EffectReputation(uint32 i)

@@ -1447,11 +1447,11 @@ void ScriptsInit()
 
     //Ulduar
     // Halls of Lightning
-    void AddSC_boss_bjarngrim();
-    void AddSC_boss_ionar();
-    void AddSC_boss_loken();
-    void AddSC_boss_volkhan();
-    void AddSC_instance_halls_of_lightning();
+    AddSC_boss_bjarngrim();
+    AddSC_boss_ionar();
+    AddSC_boss_loken();
+    AddSC_boss_volkhan();
+    AddSC_instance_halls_of_lightning();
 
     //Undercity
     AddSC_undercity();

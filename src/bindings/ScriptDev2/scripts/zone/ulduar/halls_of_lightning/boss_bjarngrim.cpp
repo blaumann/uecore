@@ -62,7 +62,11 @@ enum
     NPC_STORMFORGED_LIEUTENANT               = 29240,
     SPELL_ARC_WELD                           = 59085,
     SPELL_RENEW_STEEL_N                      = 52774,
-    SPELL_RENEW_STEEL_H                      = 59160
+    SPELL_RENEW_STEEL_H                      = 59160,
+
+    EQUIP_SWORD                              = 37871,
+    EQUIP_SHIELD                             = 35642,
+    EQUIP_MACE                               = 43623,
 };
 
 /*######
@@ -149,8 +153,8 @@ struct MANGOS_DLL_DECL boss_bjarngrimAI : public ScriptedAI
 
         DoCast(m_creature, SPELL_DEFENSIVE_AURA);
         DoCast(m_creature, SPELL_DEFENSIVE_STANCE);
-        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(33609));
-        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(39288));
+        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(EQUIP_SWORD));
+        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(EQUIP_SHIELD));
 
         if(pInstance)
             pInstance->SetData(DATA_BJARNGRIM_EVENT, NOT_STARTED);
@@ -228,19 +232,19 @@ struct MANGOS_DLL_DECL boss_bjarngrimAI : public ScriptedAI
                     case 0:
                         DoScriptText(SAY_DEFENSIVE_STANCE, m_creature);
                         DoCast(m_creature, SPELL_DEFENSIVE_STANCE);
-                        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(33609));
-                        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(39288));
+                        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(EQUIP_SWORD));
+                        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(EQUIP_SHIELD));
                         break;
                     case 1:
                         DoScriptText(SAY_BERSEKER_STANCE, m_creature);
                         DoCast(m_creature, SPELL_BERSEKER_STANCE);
-                        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(33609));
-                        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(33609));
+                        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(EQUIP_SWORD));
+                        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(EQUIP_SWORD));
                         break;
                     case 2:
                         DoScriptText(SAY_BATTLE_STANCE, m_creature);
                         DoCast(m_creature, SPELL_BATTLE_STANCE);
-                        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(43623));
+                        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(EQUIP_MACE));
                         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(0));
                         break;
                 }

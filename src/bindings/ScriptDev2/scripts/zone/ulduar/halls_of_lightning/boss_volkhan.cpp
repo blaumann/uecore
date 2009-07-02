@@ -18,7 +18,7 @@
 SDName: Boss Volkhan
 SDAuthor: ckegg
 SD%Complete: 98%
-SDComment: Golem die after shatter or not?
+SDComment: Ready for review
 SDCategory: Halls of Lightning
 EndScriptData */
 
@@ -106,32 +106,32 @@ struct MANGOS_DLL_DECL boss_volkhanAI : public ScriptedAI
             pInstance->SetData(DATA_VOLKHAN_EVENT, NOT_STARTED);
     }
 
-    void Aggro(Unit* who)
+    void Aggro(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
-        if (!who || m_creature->getVictim())
+        if (!pWho || m_creature->getVictim())
             return;
 
-        if (who->isTargetableForAttack() && who->isInAccessablePlaceFor(m_creature) && m_creature->IsHostileTo(who))
-            AttackStart(who);
+        if (pWho->isTargetableForAttack() && pWho->isInAccessablePlaceFor(m_creature) && m_creature->IsHostileTo(pWho))
+            AttackStart(pWho);
 
         if(pInstance)
             pInstance->SetData(DATA_VOLKHAN_EVENT, IN_PROGRESS);
     }
 
-    void AttackStart(Unit* who)
+    void AttackStart(Unit* pWho)
     {
         if (m_bIsStriking)
             return;
 
-        if (!who || who == m_creature)
+        if (!pWho || pWho == m_creature)
             return;
 
-        if (m_creature->Attack(who, true))
+        if (m_creature->Attack(pWho, true))
         {
             m_creature->SetInCombatWithZone();
-            DoStartMovement(who);
+            DoStartMovement(pWho);
         }
     }
 
@@ -227,7 +227,7 @@ struct MANGOS_DLL_DECL boss_volkhanAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* pKiller)
     {
         DoScriptText(SAY_DEATH, m_creature);
         DespawnGolem();
@@ -236,9 +236,9 @@ struct MANGOS_DLL_DECL boss_volkhanAI : public ScriptedAI
             pInstance->SetData(DATA_VOLKHAN_EVENT, DONE);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit* pVictim)
     {
-        if(victim == m_creature)
+        if(pVictim == m_creature)
             return;
         switch(rand()%3)
         {
@@ -268,7 +268,7 @@ struct MANGOS_DLL_DECL boss_volkhanAI : public ScriptedAI
 
         for(std::list<uint64>::iterator itr = m_lGolemGUIDList.begin(); itr != m_lGolemGUIDList.end(); ++itr)
             if (Creature* pTemp = (Creature*)Unit::GetUnit(*m_creature, *itr))
-                if (pTemp->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE)) // only Shatters frozen golems
+                if (pTemp->isAlive() && pTemp->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE)) // only Shatters frozen golems
                     pTemp->CastSpell(pTemp, m_bIsHeroic ? SPELL_SHATTER_H : SPELL_SHATTER_N, true);
     }
 };
@@ -283,10 +283,10 @@ struct MANGOS_DLL_DECL npc_volkhans_anvilAI : public ScriptedAI
         Reset();
     }
     void Reset() {}
-    void Aggro(Unit* who) { return; } // don't aggro
-    void AttackStart(Unit* who) { return; }
+    void Aggro(Unit* pWho) { return; } // don't aggro
+    void AttackStart(Unit* pWho) { return; }
     void UpdateAI(const uint32 diff) {}
-    void JustDied(Unit* killer) {}
+    void JustDied(Unit* pKiller) {}
 };
 
 /*######
@@ -306,41 +306,44 @@ struct MANGOS_DLL_DECL mob_molten_golemAI : public ScriptedAI
     bool m_bIsHeroic;
     bool m_bIsFrozen;
 
-    uint32 Blast_Timer;
-    uint32 Immolation_Timer;
+    uint32 m_uiBlast_Timer;
+    uint32 m_uiDeathDelay_Timer;
+    uint32 m_uiImmolation_Timer;
 
     void Reset()
     {
         m_bIsFrozen = false;
 
-        Blast_Timer = 20000;
-        Immolation_Timer = 5000;
+        m_uiBlast_Timer = 20000;
+        m_uiDeathDelay_Timer = 0;
+        m_uiImmolation_Timer = 5000;
     }
 
-    void AttackStart(Unit* who)
+    void AttackStart(Unit* pWho)
     {
         if (m_bIsFrozen)
             return;
 
-        if (!who || who == m_creature)
+        if (!pWho || pWho == m_creature)
             return;
 
-        if (m_creature->Attack(who, true))
+        if (m_creature->Attack(pWho, true))
         {
             m_creature->SetInCombatWithZone();
-            DoStartMovement(who);
+            DoStartMovement(pWho);
         }
     }
-/*
+
     void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
     {
-        if (m_bIsFrozen && (pSpell->Id == SPELL_SHATTERING_STOMP_N || pSpell->Id == SPELL_SHATTERING_STOMP_H))
+        if (m_bIsFrozen && (pSpell->Id == SPELL_SHATTER_N || pSpell->Id == SPELL_SHATTER_H))
         {
-            DoCast(m_creature, m_bIsHeroic ? SPELL_SHATTER_H : SPELL_SHATTER_N);
-            //m_creature->ForcedDespawn(); // should they despawn?
+            //DoCast(m_creature, m_bIsHeroic ? SPELL_SHATTER_H : SPELL_SHATTER_N);
+            //m_creature->ForcedDespawn();
+            m_uiDeathDelay_Timer = 1000; // delay for shatter effect
         }
     }
-*/
+
     void DamageTaken(Unit* done_by, uint32 &damage)
     {
         if (damage > m_creature->GetHealth() && !m_bIsFrozen)
@@ -366,27 +369,35 @@ struct MANGOS_DLL_DECL mob_molten_golemAI : public ScriptedAI
     {
         // Is frozen
     	if (m_bIsFrozen)
+    	{
+    	    if (m_uiDeathDelay_Timer)
+                if(m_uiDeathDelay_Timer < uiDiff)
+                {
+                    m_creature->ForcedDespawn();
+                    m_uiDeathDelay_Timer = 0;
+                }else m_uiDeathDelay_Timer -= uiDiff;
     	    return;
+    	}
 
         //Return since we have no target
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
-        if(Blast_Timer < uiDiff)
+        if(m_uiBlast_Timer < uiDiff)
         {
             DoCast(m_creature, SPELL_BLAST_WAVE);
-            Blast_Timer = 20000;
-        }else Blast_Timer -= uiDiff;
+            m_uiBlast_Timer = 20000;
+        }else m_uiBlast_Timer -= uiDiff;
 
-        if(Immolation_Timer < uiDiff)
+        if(m_uiImmolation_Timer < uiDiff)
         {
             DoCast(m_creature->getVictim(), m_bIsHeroic ? SPELL_IMMOLATION_STRIKE_H : SPELL_IMMOLATION_STRIKE_N);
-            Immolation_Timer = 5000;
-        }else Immolation_Timer -= uiDiff;
+            m_uiImmolation_Timer = 5000;
+        }else m_uiImmolation_Timer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer) {}
+    void JustDied(Unit* pKiller) {}
 };
 
 CreatureAI* GetAI_mob_molten_golem(Creature *_Creature)
