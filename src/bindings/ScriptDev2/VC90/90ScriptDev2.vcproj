@@ -2647,6 +2647,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\revision.h"
+			>
+		</File>
+		<File
 			RelativePath="..\ScriptMgr.cpp"
 			>
 		</File>
