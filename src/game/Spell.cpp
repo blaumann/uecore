@@ -1451,6 +1451,19 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,UnitList& TagUnitMap)
             TagUnitMap.push_back(m_caster);
             break;
         }
+        case TARGET_UNK_1:
+        {
+            float dest_x = m_caster->GetPositionX()+irand(-radius,radius);
+            float dest_y = m_caster->GetPositionY()+irand(-radius,radius);
+            float dest_z = m_caster->GetMap()->GetHeight(dest_x,dest_y,MAX_HEIGHT);
+            m_targets.setDestination(dest_x,dest_y,dest_z);
+            break;
+        }
+        case TARGET_UNK_2:
+        {
+            TagUnitMap.push_back(m_caster);
+            break;
+        }
 		case TARGET_AREAEFFECT_CUSTOM:
 		{
 			switch (m_spellInfo->SpellFamilyName)

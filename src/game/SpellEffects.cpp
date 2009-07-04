@@ -405,6 +405,11 @@ void Spell::EffectSchoolDMG(uint32 effect_idx)
                         damage+= int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * pct / 100);
                     break;
                 }
+                // Thunder Clap
+                else if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000000000080))
+                {
+                    damage+=int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 12 / 100);
+                }
                 break;
             }
             case SPELLFAMILY_WARLOCK:
@@ -3379,6 +3384,7 @@ void Spell::EffectSummonType(uint32 i)
         case SUMMON_TYPE_FORCE_OF_NATURE:
         case 209:
         case SUMMON_TYPE_SNAKES:
+        case SUMMON_TYPE_GHOUL_OF_THE_DEAD:
             EffectSummonGuardian(i);
             return;
         case SUMMON_TYPE_POSESSED:
@@ -3560,7 +3566,7 @@ void Spell::EffectSummon(uint32 i)
     spawnCreature->SetCreatorGUID(m_caster->GetGUID());
     spawnCreature->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 
-    spawnCreature->InitStatsForLevel(level);
+    spawnCreature->InitStatsForLevel(level, m_caster);
 
     spawnCreature->GetCharmInfo()->SetPetNumber(pet_number, false);
 
@@ -3999,7 +4005,7 @@ void Spell::EffectSummonGuardian(uint32 i)
     // FIXME: some guardians have control spell applied and controlled by player and anyway player can't summon in this time
     //        so this code hack in fact
     if( m_caster->GetTypeId() == TYPEID_PLAYER && (duration <= 0 || GetSpellRecoveryTime(m_spellInfo) == 0) )
-        if(m_caster->FindGuardianWithEntry(pet_entry))
+        if(m_caster->FindGuardianWithEntry(pet_entry) && m_spellInfo->Id!=42651)
             return;                                         // find old guardian, ignore summon
 
     // in another case summon new
@@ -4084,7 +4090,7 @@ void Spell::EffectSummonGuardian(uint32 i)
         spawnCreature->SetCreatorGUID(m_caster->GetGUID());
         spawnCreature->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 
-        spawnCreature->InitStatsForLevel(level);
+        spawnCreature->InitStatsForLevel(level, m_caster);
         spawnCreature->GetCharmInfo()->SetPetNumber(pet_number, false);
 
         spawnCreature->AIM_Initialize();
@@ -4618,7 +4624,7 @@ void Spell::EffectSummonPet(uint32 i)
     if(m_caster->IsPvP())
         NewSummon->SetPvP(true);
 
-    NewSummon->InitStatsForLevel(petlevel);
+    NewSummon->InitStatsForLevel(petlevel, m_caster);
     NewSummon->InitPetCreateSpells();
     NewSummon->InitLevelupSpellsForLevel();
     NewSummon->InitTalentForLevel();

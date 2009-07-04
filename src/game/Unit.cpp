@@ -6946,11 +6946,18 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
             break;
         }
         // Decimation
+        case 63156:
         case 63158:
         {
-            // Proc only if target is at or below 35% health
-            if (!pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT))
+             // Looking for dummy effect
+            Aura *aur = GetAura(auraSpellInfo->Id, 1);
+            if (!aur)
                 return false;
+
+            // If target's health is not below equal certain value (35%) not proc
+            if ((pVictim->GetHealth() * 100 / pVictim->GetMaxHealth()) > aur->GetModifier()->m_amount)
+                return false;
+
             break;
         }
     }
@@ -7833,9 +7840,6 @@ void Unit::SetPet(Pet* pet)
 void Unit::SetCharm(Unit* pet)
 {
     SetUInt64Value(UNIT_FIELD_CHARM, pet ? pet->GetGUID() : 0);
-
-    if(GetTypeId() == TYPEID_PLAYER)
-        ((Player*)this)->m_mover = pet ? pet : this;
 }
 
 
@@ -8205,6 +8209,15 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 break;
             }
         }
+    }
+
+    // Glyph of Shadow Word: Pain
+    if (spellProto->Id == 58381 && this->HasAura(55687))
+    {
+        Aura *aur = this->GetAura(55687, 0);
+        //search for shadow word: pain on target
+        if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, UI64LIT(0x0000000000008000)))
+            DoneTotalMod += aur->GetModifier()->m_amount * DoneTotalMod / 100;
     }
 
     // ..taken

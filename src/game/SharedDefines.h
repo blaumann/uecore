@@ -1033,9 +1033,11 @@ enum Targets
     TARGET_AREAEFFECT_PARTY_AND_CLASS  = 61,
     TARGET_DUELVSPLAYER_COORDINATES    = 63,
     TARGET_BEHIND_VICTIM               = 65,                // uses in teleport behind spells, caster/target dependent from spell effect
-    TARGET_RANDOM_DEST_IN_RADIUS       = 73,                //target or caster
+    TARGET_UNK_1                       = 72,                // ImplicitTargetA[0] in Army of the Dead spell
+    TARGET_RANDOM_DEST_IN_RADIUS       = 73,                // target or caster
     TARGET_DYNAMIC_OBJECT_COORDINATES  = 76,
     TARGET_SINGLE_ENEMY                = 77,
+    TARGET_UNK_2                       = 86,                // ImplicitTargetA[1] in Army of the Dead spell
     TARGET_SELF2                       = 87,
     TARGET_DIRECTLY_FORWARD            = 89,
     TARGET_NONCOMBAT_PET               = 90,
@@ -2394,6 +2396,7 @@ enum SummonType
     SUMMON_TYPE_VEHICLE3        = 488,
     SUMMON_TYPE_VEHICLE4        = 493,
     SUMMON_TYPE_VEHICLE5        = 607,
+    SUMMON_TYPE_GHOUL_OF_THE_DEAD = 687,
     SUMMON_TYPE_VEHICLE6        = 708,
     SUMMON_TYPE_VEHICLE7        = 710,
     SUMMON_TYPE_VEHICLE8        = 716,
