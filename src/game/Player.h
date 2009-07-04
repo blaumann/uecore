@@ -2049,6 +2049,7 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         void UpdateFallInformationIfNeed(MovementInfo const& minfo,uint16 opcode);
         Unit *m_mover;
+        Unit *m_redirectionTarget;
         Unit *m_mover_in_queve;
 
         void SetMoverInQueve(Unit* pet) {m_mover_in_queve = pet ? pet : this; }

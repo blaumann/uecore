@@ -468,6 +468,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_summon_z = 0.0f;
 
     m_mover = this;
+    m_redirectionTarget = 0;
     m_mover_in_queve = NULL;
 
     m_miniPet = 0;

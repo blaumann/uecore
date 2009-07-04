@@ -236,6 +236,7 @@ class Spell
         void EffectSummonChangeItem(uint32 i);
         void EffectProficiency(uint32 i);
         void EffectApplyAreaAura(uint32 i);
+        void EffectRedirectThreat(uint32 i);
         void EffectSummonType(uint32 i);
         void EffectSummon(uint32 i);
         void EffectLearnSpell(uint32 i);
@@ -244,7 +245,7 @@ class Spell
         void EffectPickPocket(uint32 i);
         void EffectAddFarsight(uint32 i);
         void EffectSummonWild(uint32 i);
-	 void EffectSummonAtRandomPoint(uint32 i);
+        void EffectSummonAtRandomPoint(uint32 i);
         void EffectSummonPosessed(uint32 i);
         void EffectSummonGuardian(uint32 i);
         void EffectHealMechanical(uint32 i);

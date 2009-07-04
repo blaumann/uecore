@@ -2372,6 +2372,23 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                             m_target->PlayDirectSound(14972, (Player *)m_target);
                     }
                     return;
+                // Triks of the Trade - 15% damage bonus effect for redirection target
+                case 59628:
+                    if (m_target->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        Unit* redirectionTarget = ((Player*)m_target)->m_redirectionTarget;
+                        if (!redirectionTarget)
+                            return;
+
+                        if (apply)
+                        {
+                            if (redirectionTarget->isAlive())
+                                caster->CastSpell(redirectionTarget,57933,true);
+                        }
+                        else // We must remove target to which threat is redirected
+                            ((Player*)m_target)->m_redirectionTarget = 0;
+                    }
+                    return;
             }
             break;
         }
