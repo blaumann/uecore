@@ -21,7 +21,7 @@ SUBDIRS = dep doc sql src
 
 ## Additional files to include when running 'make dist'
 # Win32 project workspace for Visual Studio .NET 2005
-EXTRA_DIST += \
+EXTRA_DIST = \
 	win/mangosdVC80.sln \
 	win/VC80/framework.vcproj \
 	win/VC80/game.vcproj \
