@@ -296,6 +296,16 @@ bool Group::AddMember(const uint64 &guid, const char* name)
                 player->SetDifficulty(m_difficulty);
                 player->SendDungeonDifficulty(true);
             }
+            // Group Interfactions interactions (test)
+            if(sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP))
+            {
+                Group *group = player->GetGroup();
+                if(Player *leader = objmgr.GetPlayer(group->GetLeaderGUID()))
+                {
+                    player->setFactionForRace(leader->getRace());
+                    sLog.outDebug( "WORLD: Group Interfaction Interactions - Faction changed (AddMember)" );
+                }
+            }         
         }
         player->SetGroupUpdateFlag(GROUP_UPDATE_FULL);
         UpdatePlayerOutOfRange(player);
@@ -310,8 +320,6 @@ bool Group::AddMember(const uint64 &guid, const char* name)
 
 uint32 Group::RemoveMember(const uint64 &guid, const uint8 &method)
 {
-    BroadcastGroupUpdate();
-
     // remove member and change leader (if need) only if strong more 2 members _before_ member remove
     if(GetMembersCount() > (isBGGroup() ? 1 : 2))           // in BG group case allow 1 members group
     {
@@ -342,6 +350,14 @@ uint32 Group::RemoveMember(const uint64 &guid, const uint8 &method)
                 data << uint64(0) << uint64(0) << uint64(0);
                 player->GetSession()->SendPacket(&data);
             }
+
+            // Restore original faction if needed
+            if(sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP))
+            {
+                player->setFactionForRace(player->getRace());
+                sLog.outDebug( "WORLD: Group Interfaction Interactions - Restore original faction (RemoveMember)" );
+            }
+
 
             _homebindIfInstance(player);
         }
@@ -398,6 +414,13 @@ void Group::Disband(bool hideDestroy)
                 player->SetOriginalGroup(NULL);
             else
                 player->SetGroup(NULL);
+            // Restore original faction if needed
+            if(sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP))
+            {
+                player->setFactionForRace(player->getRace());
+                sLog.outDebug( "WORLD: Group Interfaction Interactions - Restore original faction (Disband)" );
+            }
+
         }
 
         // quest related GO state dependent from raid membership
@@ -730,7 +753,7 @@ void Group::CountRollVote(const uint64& playerGUID, const uint64& Guid, uint32 N
     }
 }
 
-//called when roll timer expires
+// called when roll timer expires
 void Group::EndRoll()
 {
     Rolls::iterator itr;
@@ -1595,21 +1618,5 @@ void Group::_homebindIfInstance(Player *player)
         InstancePlayerBind *playerBind = save ? player->GetBoundInstance(save->GetMapId(), save->GetDifficulty()) : NULL;
         if(!playerBind || !playerBind->perm)
             player->m_InstanceValid = false;
-    }
-}
-
-void Group::BroadcastGroupUpdate(void)
-{
-    // FG: HACK: force flags update on group leave - for values update hack
-    // -- not very efficient but safe
-    for(member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
-    {
-        Player *pp = objmgr.GetPlayer(citr->guid);
-        if(pp && pp->IsInWorld())
-        {
-           pp->ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2);
-           pp->ForceValuesUpdateAtIndex(UNIT_FIELD_FACTIONTEMPLATE);
-           DEBUG_LOG("-- Forced group value update for '%s'", pp->GetName());
-        }
     }
 }
