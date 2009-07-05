@@ -14145,6 +14145,57 @@ bool Player::MinimalLoadFromDB( QueryResult *result, uint32 guid )
     return true;
 }
 
+void Player::_LoadBattleGround(QueryResult *result)
+{
+    ////                                                     0     1       2      3    4    5    6
+    //QueryResult *result = CharacterDatabase.PQuery("SELECT bgid, bgteam, bgmap, bgx, bgy, bgz, bgo FROM character_bgcoord WHERE guid = '%u'", GUID_LOPART(m_guid));
+
+    if(result)
+    {
+        Field *fieldsbg = result->Fetch();
+
+        uint32 bgid = fieldsbg[0].GetUInt32();
+        uint32 bgteam = fieldsbg[1].GetUInt32();
+
+        if(bgid) //saved in BattleGround
+        {
+            SetBattleGroundEntryPoint(fieldsbg[2].GetUInt32(),fieldsbg[3].GetFloat(),fieldsbg[4].GetFloat(),fieldsbg[5].GetFloat(),fieldsbg[6].GetFloat());
+
+            BattleGround *currentBg = sBattleGroundMgr.GetBattleGround(bgid, BATTLEGROUND_TYPE_NONE);
+
+            if(currentBg && currentBg->IsPlayerInBattleGround(GetGUID()))
+            {
+                BattleGroundQueueTypeId bgQueueTypeId = sBattleGroundMgr.BGQueueTypeId(currentBg->GetTypeID(), currentBg->GetArenaType());
+                AddBattleGroundQueueId(bgQueueTypeId);
+
+                SetBattleGroundId(currentBg->GetInstanceID(), currentBg->GetTypeID());
+                SetBGTeam(bgteam);
+                
+                SetInviteForBattleGroundQueueType(bgQueueTypeId,currentBg->GetInstanceID());
+            }
+            else
+                Relocate(GetBattleGroundEntryPoint());
+        }
+        else
+        {
+            MapEntry const* mapEntry = sMapStore.LookupEntry(GetMapId());
+            // if server restart after player save in BG or area
+            // player can have current coordinates in to BG/Arean map, fix this
+            if(!mapEntry || mapEntry->IsBattleGroundOrArena())
+            {
+                // return to BG master
+                SetMapId(fieldsbg[2].GetUInt32());
+                Relocate(fieldsbg[3].GetFloat(),fieldsbg[4].GetFloat(),fieldsbg[5].GetFloat(),fieldsbg[6].GetFloat());
+
+                // check entry point and fix to homebind if need
+                mapEntry = sMapStore.LookupEntry(GetMapId());
+                if(!mapEntry || mapEntry->IsBattleGroundOrArena() || !IsPositionValid())
+                    RelocateToHomebind();
+            }
+        }
+    }
+}
+
 void Player::_LoadDeclinedNames(QueryResult* result)
 {
     if(!result)
@@ -14300,7 +14351,7 @@ float Player::GetFloatValueFromDB(uint16 index, uint64 guid)
 bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 {
     ////                                                     0     1        2     3     4     5      6       7      8   9      10           11            12           13          14          15          16   17           18        19         20         21         22          23           24                 25                 26                 27       28       29       30       31         32           33            34        35    36      37                 38         39                  40                   41   42     43    44  45  46  47
-    //QueryResult *result = CharacterDatabase.PQuery("SELECT guid, account, data, name, race, class, gender, level, xp, money, playerBytes, playerBytes2, playerFlags, position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, dungeon_difficulty, arena_pending_points,bgid,bgteam,bgmap,bgx,bgy,bgz,bgo FROM characters WHERE guid = '%u'", guid);
+    //QueryResult *result = CharacterDatabase.PQuery("SELECT guid, account, data, name, race, class, gender, level, xp, money, playerBytes, playerBytes2, playerFlags, position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, dungeon_difficulty, arena_pending_points FROM characters WHERE guid = '%u'", guid);
     QueryResult *result = holder->GetResult(PLAYER_LOGIN_QUERY_LOADFROM);
 
     if(!result)
@@ -14440,59 +14491,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
         m_movementInfo.t_o = 0.0f;
     }
 
-    uint32 bgid = fields[41].GetUInt32();
-    uint32 bgteam = fields[42].GetUInt32();
-
-    if(bgid)                                                //saved in BattleGround
-    {
-        SetBattleGroundEntryPoint(fields[43].GetUInt32(),fields[44].GetFloat(),fields[45].GetFloat(),fields[46].GetFloat(),fields[47].GetFloat());
-
-        // check entry point and fix to homebind if need
-        MapEntry const* mapEntry = sMapStore.LookupEntry(m_bgEntryPoint.mapid);
-        if(!mapEntry || mapEntry->Instanceable() || !MapManager::IsValidMapCoord(m_bgEntryPoint))
-            SetBattleGroundEntryPoint(m_homebindMapId,m_homebindX,m_homebindY,m_homebindZ,0.0f);
-
-        BattleGround *currentBg = sBattleGroundMgr.GetBattleGround(bgid, BATTLEGROUND_TYPE_NONE);
-
-        if(currentBg && currentBg->IsPlayerInBattleGround(GetGUID()))
-        {
-            BattleGroundQueueTypeId bgQueueTypeId = sBattleGroundMgr.BGQueueTypeId(currentBg->GetTypeID(), currentBg->GetArenaType());
-            AddBattleGroundQueueId(bgQueueTypeId);
-
-            SetBattleGroundId(currentBg->GetInstanceID(), currentBg->GetTypeID());
-            SetBGTeam(bgteam);
-
-            //join player to battleground group
-            currentBg->EventPlayerLoggedIn(this, GetGUID());
-            currentBg->AddOrSetPlayerToCorrectBgGroup(this, GetGUID(), bgteam);
-
-            SetInviteForBattleGroundQueueType(bgQueueTypeId,currentBg->GetInstanceID());
-        }
-        else
-        {
-            const WorldLocation& _loc = GetBattleGroundEntryPoint();
-            SetMapId(_loc.mapid);
-            Relocate(_loc.coord_x, _loc.coord_y, _loc.coord_z, _loc.orientation);
-            //RemoveArenaAuras(true);
-        }
-    }
-    else
-    {
-        MapEntry const* mapEntry = sMapStore.LookupEntry(GetMapId());
-        // if server restart after player save in BG or area
-        // player can have current coordinates in to BG/Arean map, fix this
-        if(!mapEntry || mapEntry->IsBattleGroundOrArena())
-        {
-            // return to BG master
-            SetMapId(fields[43].GetUInt32());
-            Relocate(fields[44].GetFloat(),fields[45].GetFloat(),fields[46].GetFloat(),fields[47].GetFloat());
-
-            // check entry point and fix to homebind if need
-            mapEntry = sMapStore.LookupEntry(GetMapId());
-            if(!mapEntry || mapEntry->IsBattleGroundOrArena() || !IsPositionValid())
-                RelocateToHomebind();
-        }
-    }
+    _LoadBattleGround(holder->GetResult(PLAYER_LOGIN_QUERY_LOADBATTLEGROUND));
 
     if (transGUID != 0)
     {
@@ -15830,7 +15829,7 @@ void Player::SaveToDB()
         "taximask, online, cinematic, "
         "totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, resettalents_time, "
         "trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, "
-        "death_expire_time, taxi_path, arena_pending_points, bgid, bgteam, bgmap, bgx, bgy, bgz, bgo) VALUES ("
+        "death_expire_time, taxi_path, arena_pending_points) VALUES ("
         << GetGUIDLow() << ", "
         << GetSession()->GetAccountId() << ", '"
         << sql_name << "', "
@@ -15926,16 +15925,7 @@ void Player::SaveToDB()
 
     ss << ", '";
     ss << m_taxi.SaveTaxiDestinationsToString();
-    ss << "', '0', ";
-    ss << GetBattleGroundId();
-    ss << ", ";
-    ss << GetBGTeam();
-    ss << ", ";
-    ss << m_bgEntryPoint.mapid << ", "
-       << finiteAlways(m_bgEntryPoint.coord_x) << ", "
-       << finiteAlways(m_bgEntryPoint.coord_y) << ", "
-       << finiteAlways(m_bgEntryPoint.coord_z) << ", "
-       << finiteAlways(m_bgEntryPoint.orientation);
+    ss << "', '0'";
     ss << ")";
 
     CharacterDatabase.Execute( ss.str().c_str() );
@@ -16257,6 +16247,25 @@ void Player::_SaveSpells()
         }
 
     }
+}
+
+void Player::_SaveBattleGround()
+{
+    CharacterDatabase.PExecute("DELETE FROM character_battleground WHERE guid = '%u'", GetGUIDLow());
+
+    std::ostringstream ss;
+    ss << "INSERT INTO character_battleground (guid, bgid, bgteam, bgmap, bgx, bgy, bgz, bgo) VALUES ("
+       << GetGUIDLow() << ", ";
+    ss << GetBattleGroundId() << ", ";;
+    ss << GetBGTeam() << ", ";
+    ss << m_bgEntryPoint.mapid << ", "
+       << finiteAlways(m_bgEntryPoint.coord_x) << ", "
+       << finiteAlways(m_bgEntryPoint.coord_y) << ", "
+       << finiteAlways(m_bgEntryPoint.coord_z) << ", "
+       << finiteAlways(m_bgEntryPoint.orientation);
+    ss << ")";
+
+    CharacterDatabase.Execute( ss.str().c_str() );
 }
 
 void Player::outDebugValues() const

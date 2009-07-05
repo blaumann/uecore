@@ -866,7 +866,8 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADACHIEVEMENTS         = 18,
     PLAYER_LOGIN_QUERY_LOADCRITERIAPROGRESS     = 19,
     PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS        = 20,
-    MAX_PLAYER_LOGIN_QUERY                      = 21
+    PLAYER_LOGIN_QUERY_LOADBATTLEGROUND         = 21,
+    MAX_PLAYER_LOGIN_QUERY                      = 22
 };
 
 enum PlayerDelayedOperations
@@ -2270,6 +2271,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void _LoadFriendList(QueryResult *result);
         bool _LoadHomeBind(QueryResult *result);
         void _LoadDeclinedNames(QueryResult *result);
+        void _LoadBattleGround(QueryResult *result);
         void _LoadArenaTeamInfo(QueryResult *result);
         void _LoadEquipmentSets(QueryResult *result);
 
@@ -2284,6 +2286,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void _SaveQuestStatus();
         void _SaveDailyQuestStatus();
         void _SaveSpells();
+        void _SaveBattleGround();
         void _SaveEquipmentSets();
 
         void _SetCreateBits(UpdateMask *updateMask, Player *target) const;
