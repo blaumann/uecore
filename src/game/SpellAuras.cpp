@@ -4536,7 +4536,7 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
         {
             // Explosive Shot
             if (apply && !loading && caster)
-                m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 14 / 100);
+                m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 20 / 100);
             break;
         }
     }
@@ -6970,6 +6970,9 @@ void Aura::PeriodicDummyTick()
                     std::list<Unit*>::const_iterator itr = targets.begin();
                     std::advance(itr, rand()%targets.size());
                     Unit* target = *itr;
+
+                    if(!target->isAlive())
+                        return;
 
                     caster->CastSpell(target, 57840, true);
                     caster->CastSpell(target, 57841, true);
