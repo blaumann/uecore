@@ -1,4 +1,4 @@
-UPDATE `command` SET `help`='Syntax: .announce $MessageToBroadcast\r\n\r\nSend a global message to all players online in chat log with colored sender's name.' WHERE (`name`='announce');
+UPDATE `command` SET `help`='Syntax: .announce $MessageToBroadcast\\r\\n\\r\\nSend a global message to all players online in chat log with colored sender\'s name.\r\n' WHERE (`name`='announce') LIMIT 1
 
 INSERT INTO `command` (`name`,`security`,`help`) VALUES ('sysannounce','2','Syntax: Send a System Message.');
 
