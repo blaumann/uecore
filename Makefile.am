@@ -43,7 +43,7 @@ EXTRA_DIST += \
 	win/VC90/g3dlite.vcproj
 
 # Win32 project workspace for Visual Studio .NET 2010
-EXTRA_DIST = \
+EXTRA_DIST += \
 	win/mangosdVC100.sln \
 	win/VC100/framework.vcxproj \
 	win/VC100/game.vcxproj \
