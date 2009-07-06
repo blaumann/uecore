@@ -177,17 +177,17 @@ struct MANGOS_DLL_DECL boss_thaddiusAI : public ScriptedAI
             {
                 if(m_pInstance)
                 {
-                    bool m_bIsAlive = true;
+                    bool m_bIsAlive = false;
                     Creature* pStalagg;
                     Creature* pFeugen;
                     if (pStalagg = ((Creature*)Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_STALAGG))))
                         if (pStalagg->isAlive())
-                            m_bIsAlive = false;
+                            m_bIsAlive = true;
                     if (pFeugen = ((Creature*)Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_FEUGEN))))
                         if (pFeugen->isAlive())
-                            m_bIsAlive = false;
+                            m_bIsAlive = true;
 
-                    if (m_bIsAlive)
+                    if (!m_bIsAlive)
                     {
                         m_bIsActiveCheck = true;
                         Active_Timer = 15000;
@@ -226,8 +226,9 @@ struct MANGOS_DLL_DECL boss_thaddiusAI : public ScriptedAI
                                         {
                                             pStalagg->CastSpell(pFeugenTarget, 54517, true);
                                             ((Player*)pFeugenTarget)->TeleportTo(pFeugenTarget->GetMapId(), pStalagg->GetPositionX(), pStalagg->GetPositionY(), pStalagg->GetPositionZ(), 0, TELE_TO_NOT_LEAVE_COMBAT);
-                                            pStalagg->AddThreat(pFeugenTarget, FeugenTargetThreat);
                                             ref->removeReference();
+                                            pStalagg->AddThreat(pFeugenTarget, FeugenTargetThreat);
+                                            pStalagg->AI()->AttackStart(pFeugenTarget);
                                         }
                                     }
                                 }
@@ -241,8 +242,9 @@ struct MANGOS_DLL_DECL boss_thaddiusAI : public ScriptedAI
                                         {
                                             pFeugen->CastSpell(pStalaggTarget, 54517, true);
                                             ((Player*)pStalaggTarget)->TeleportTo(pStalaggTarget->GetMapId(), pFeugen->GetPositionX(), pFeugen->GetPositionY(), pFeugen->GetPositionZ(), 0, TELE_TO_NOT_LEAVE_COMBAT);
-                                            pFeugen->AddThreat(pStalaggTarget, StalaggTargetThreat);
                                             ref->removeReference();
+                                            pFeugen->AddThreat(pStalaggTarget, StalaggTargetThreat);
+                                            pFeugen->AI()->AttackStart(pStalaggTarget);
                                         }
                                     }
                                 }
@@ -294,8 +296,16 @@ struct MANGOS_DLL_DECL boss_thaddiusAI : public ScriptedAI
                         {
                             switch(rand()%2)
                             {
-                                case 0: i->getSource()->CastSpell(i->getSource(), SPELL_CHARGE_POSITIVE_NEARDMG, true); break;
-                                case 1: i->getSource()->CastSpell(i->getSource(), SPELL_CHARGE_NEGATIVE_NEARDMG, true); break;
+                                case 0:
+                                    if (i->getSource()->HasAura(SPELL_CHARGE_NEGATIVE_NEARDMG))
+                                        i->getSource()->RemoveAurasDueToSpell(SPELL_CHARGE_NEGATIVE_NEARDMG);
+                                    i->getSource()->CastSpell(i->getSource(), SPELL_CHARGE_POSITIVE_NEARDMG, true);
+                                    break;
+                                case 1:
+                                    if (i->getSource()->HasAura(SPELL_CHARGE_POSITIVE_NEARDMG))
+                                        i->getSource()->RemoveAurasDueToSpell(SPELL_CHARGE_POSITIVE_NEARDMG);
+                                    i->getSource()->CastSpell(i->getSource(), SPELL_CHARGE_NEGATIVE_NEARDMG, true);
+                                    break;
                             }
                         }
                 }

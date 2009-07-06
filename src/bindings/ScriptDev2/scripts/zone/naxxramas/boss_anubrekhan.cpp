@@ -209,7 +209,6 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
     }
 };
 
-
 struct MANGOS_DLL_DECL mob_crypt_guardAI : public ScriptedAI
 {
     mob_crypt_guardAI(Creature* pCreature) : ScriptedAI(pCreature)
