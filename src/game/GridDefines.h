@@ -65,7 +65,10 @@ typedef GridRefManager<GameObject>      GameObjectMapType;
 typedef GridRefManager<Player>          PlayerMapType;
 
 typedef Grid<Player, AllWorldObjectTypes,AllGridObjectTypes> GridType;
+<<<<<<< HEAD:src/game/GridDefines.h
 // use MAX_NUMBER_OF_CELLS to sync with changes in defines
+=======
+>>>>>>> 5b952eee77c47b2f5ff58d05a5303d7c6eb48d85:src/game/GridDefines.h
 typedef NGrid<MAX_NUMBER_OF_CELLS, Player, AllWorldObjectTypes, AllGridObjectTypes> NGridType;
 
 typedef TypeMapContainer<AllGridObjectTypes> GridTypeMapContainer;
