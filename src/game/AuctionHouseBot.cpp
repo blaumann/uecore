@@ -1041,7 +1041,7 @@ void AuctionHouseBot::Initialize()
     }
     sLog.outString("AuctionHouseBot [AHBot-004-HotFix-01] is now loaded");
     sLog.outString("AuctionHouseBot updated Naicisum (original by ChrisK and Paradox)");
-    sLog.outString("AuctionHouseBot now includes AHBuyer by Kerbe and Paradox");
+    sLog.outString("AuctionHouseBot now includes AHBuyer by Kerbe and Paradox\n");
 }
 
 void AuctionHouseBot::Commands(uint32 command, uint32 ahMapID, uint32 col, char* args)

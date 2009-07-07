@@ -1,7 +1,7 @@
 #####################################
 # MaNGOS Configuration file         #
 #####################################
-ConfVersion=2009170601
+ConfVersion=2009070701
 
 ###################################################################################################################
 # CONNECTIONS AND DIRECTORIES
@@ -1411,57 +1411,21 @@ Ra.Secure = 1
 #
 #    Anticheat.Movement.Enable
 #        Enable Movement Anticheat
-#        Default: 0 - off
-#                 1 - on
+#        Default: 1 - on
+#                 0 - off
 #
-#    Anticheat.Movement.AlarmCount
-#        Count alarms. After AlarmCount is exceeded, actions are taken against the player. (default 5)
+#    Anticheat.Movement.TeleportToPlaneAlarms
+#        maximum alarms before player will be kicked (default 50, allowed 20 - 100)
 #
-#    Anticheat.Movement.AlarmTime
-#        Reset alarm-count after this milliseconds. (default 5000)
+#    Anticheat.Movement.MistimingDelta
+#        mistiming intelval between client and serverside (default 10000 ms, allowed 1000 - 15000 ms)
 #
-#    Anticheat.Movement.Kill
-#        Enable Kill cheater
-#        Default: 0 - off
-#                 1 - on
-#
-#    Anticheat.Movement.Kick
-#        Enable Kick cheater
-#        Default: 0 - off
-#                 1 - on
-#
-#    Anticheat.Movement.BanType
-#        Enable Ban cheater
-#        Default: 0 - off
-#                 1 - Ban Account
-#                 2 - Ban IP
-#                 3 - Ban Account + IP
-#
-#    Anticheat.Movement.BanTime
-#        How long the ban should last.
-#        Default: 1 Minute - 1m
-#
-#    Anticheat.Movement.MaxXYT
-#        Max units a player is allowed to travel per millisecond.
-#        Default: 0.04 (This is ~400% Speed, 0.007 is walk-speed, 310% is 0.0287)
-#
-#    Anticheat.Movement.IgnoreSecAfterTeleport
-#        After being teleported this number of seconds no cheat is reported.
-#        Default: 10 seconds - 10
-#
-#    Anticheat.Movement.GmLevel
-#        Only accounts that are below this gm-level or exact at the same, are reported for cheating.
-#        Default: Only normal Players - 0
+#    Anticheat.Movement.MistimingAlarms
+#        mistiming alarms before player will be kicked (default 20, allowed 10 - 50)
 #
 ###################################################################################################################
 
 Anticheat.Movement.Enable = 1
-Anticheat.Movement.AlarmCount = 5
-Anticheat.Movement.AlarmTime = 5000
-Anticheat.Movement.Kill = 1
-Anticheat.Movement.Kick = 1
-Anticheat.Movement.BanType = 1
-Anticheat.Movement.BanTime = "1m"
-Anticheat.Movement.MaxXYT = 0.04
-Anticheat.Movement.IgnoreSecAfterTeleport = 10
-Anticheat.Movement.GmLevel = 0
+Anticheat.Movement.TeleportToPlaneAlarms = 50
+Anticheat.Movement.MistimingDelta = 10000
+Anticheat.Movement.MistimingAlarms = 20

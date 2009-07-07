@@ -408,14 +408,27 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     ////////////////////Rest System/////////////////////
 
     ////////////////////Anticheat System/////////////////////
-    m_anti_lastmovetime = 0;   //last movement time
-    m_anti_NextLenCheck = 0;
-    m_anti_MovedLen = 0.0f;
-    m_anti_BeginFallZ = INVALID_HEIGHT;
-    m_anti_lastalarmtime = 0;    //last time when alarm generated
-    m_anti_alarmcount = 0;       //alarm counter
-    m_anti_TeleTime = 0;
-    m_CanFly=false;
+    m_anti_LastClientTime  = 0;   //last movement client time
+    m_anti_LastServerTime  = 0;   //last movement server time
+    m_anti_DeltaClientTime = 0;   //client side session time
+    m_anti_DeltaServerTime = 0;   //server side session time
+    m_anti_MistimingCount  = 0;   //mistiming counts before kick
+ 
+    m_anti_LastSpeedChangeTime = 0;  //last speed change time
+    m_anti_BeginFallTime = 0;     //alternative falling begin time (obsolete)
+
+    m_anti_Last_HSpeed =  7.0f;   //horizontal speed, default RUN speed
+    m_anti_Last_VSpeed = -2.3f;   //vertical speed, default max jump height
+
+    m_anti_TransportGUID = 0;     //current transport GUID
+
+    m_anti_JustTeleported = 0;    //seted when player was teleported
+    m_anti_TeleToPlane_Count = 0; //Teleport To Plane alarm counter
+
+    m_anti_AlarmCount = 0;        //alarm counter
+
+    m_anti_JustJumped = 0;        //Jump already began, anti air jump check
+    m_anti_JumpBaseZ = 0;         //Z coord before jump (AntiGrav)
     ////////////////////Anticheat System/////////////////////
 
     m_mailsLoaded = false;
@@ -1574,7 +1587,9 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         sLog.outError("TeleportTo: invalid map %d or absent instance template.", mapid);
         return false;
     }
-
+    //movement anticheat
+    m_anti_JustTeleported = 1;
+    //end movement anticheat
     // preparing unsummon pet if lost (we must get pet before teleportation or will not find it later)
     Pet* pet = GetPet();
 
@@ -1630,6 +1645,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
     if ((GetMapId() == mapid) && (!m_transport))
     {
+        m_anti_JumpBaseZ = 0;
         //lets reset far teleport flag if it wasn't reset during chained teleports
         SetSemaphoreTeleportFar(false);
         //setup delayed teleport flag
@@ -1776,6 +1792,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             m_teleport_dest = WorldLocation(mapid, final_x, final_y, final_z, final_o);
             SetFallInformation(0, final_z);
+            m_anti_JumpBaseZ = 0;
             // if the player is saved before worldportack (at logout for example)
             // this will be used instead of the current location in SaveToDB
 
@@ -19854,10 +19871,7 @@ void Player::SendEnterVehicle(Vehicle *vehicle)
     data.append(vehicle->GetPackGUID());
     GetSession()->SendPacket(&data);
 
-    /*data.Initialize(SMSG_UNKNOWN_1191, 12);
-    data << uint64(GetGUID());
-    data << uint64(vehicle->GetVehicleId());                      // not sure
-    SendMessageToSet(&data, true);*/
+    SetPosition(vehicle->GetPositionX(), vehicle->GetPositionY(), vehicle->GetPositionZ(),vehicle->GetOrientation());
 }
 
 bool Player::isTotalImmune()
@@ -20153,9 +20167,7 @@ uint8 Player::CanEquipUniqueItem( ItemPrototype const* itemProto, uint8 except_s
 void Player::HandleFall(MovementInfo const& movementInfo)
 {
     // calculate total z distance of the fall
-    float z_diff = (m_lastFallZ >= m_anti_BeginFallZ ? m_lastFallZ : m_anti_BeginFallZ) - movementInfo.z;
-    
-    m_anti_BeginFallZ=INVALID_HEIGHT;
+    float z_diff = m_lastFallZ - movementInfo.z;
     sLog.outDebug("zDiff = %f", z_diff);
 
     //Players with low fall distance, Feather Fall or physical immunity (charges used) are ignored

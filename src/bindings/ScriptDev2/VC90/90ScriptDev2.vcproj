@@ -2651,6 +2651,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\scriptdev2.conf.dist.in"
+			>
+		</File>
+		<File
 			RelativePath="..\ScriptMgr.cpp"
 			>
 		</File>
