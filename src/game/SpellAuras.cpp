@@ -338,7 +338,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNoImmediateEffect,                         //283 SPELL_AURA_MOD_HEALING_RECEIVED       implemented in Unit::SpellHealingBonus
     &Aura::HandleUnused,                                    //284 not used by any spells (3.08a)
     &Aura::HandleAuraModAttackPowerOfArmor,                 //285 SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR  implemented in Player::UpdateAttackPowerAndDamage
-    &Aura::HandleNoImmediateEffect,                         //286 SPELL_AURA_ALLOW_CRIT_PERIODIC_DAMAGE       implemented in Unit::isSpellCritDOTs and Aura::PeriodicTick
+    &Aura::HandleNoImmediateEffect,                         //286 SPELL_AURA_ABILITY_PERIODIC_CRIT      implemented in Aura::IsCritFromAbilityAura called from AuraEffect::PeriodicTick
     &Aura::HandleNoImmediateEffect,                         //287 SPELL_AURA_DEFLECT_SPELLS             implemented in Unit::MagicSpellHitResult and Unit::MeleeSpellHitResult
     &Aura::HandleUnused,                                    //288 not used by any spells (3.09) except 1 test spell.
     &Aura::HandleUnused,                                    //289 unused
@@ -1235,23 +1235,32 @@ void Aura::SendAuraUpdate(bool remove)
 
 void Aura::SetStackAmount(uint8 stackAmount)
 {
-    if (stackAmount != m_stackAmount)
+    if (stackAmount == m_stackAmount)
+        // Nothing changed
+        return;
+
+    Unit *target = GetTarget();
+    Unit *caster = GetCaster();
+    if (!target || !caster)
+        return;
+
+    bool refresh = stackAmount > m_stackAmount;
+    m_stackAmount = stackAmount;
+    int32 amount = m_stackAmount * caster->CalculateSpellDamage(m_spellProto, m_effIndex, m_currentBasePoints, target);
+    // Reapply if amount change
+    if (amount!=m_modifier.m_amount)
     {
-        Unit *target = GetTarget();
-        Unit *caster = GetCaster();
-        if (!target || !caster)
-            return;
-        m_stackAmount = stackAmount;
-        int32 amount = m_stackAmount * caster->CalculateSpellDamage(m_spellProto, m_effIndex, m_currentBasePoints, target);
-        // Reapply if amount change
-        if (amount!=m_modifier.m_amount)
-        {
-            ApplyModifier(false, true);
-            m_modifier.m_amount = amount;
-            ApplyModifier(true, true);
-        }
+        ApplyModifier(false, true);
+        m_modifier.m_amount = amount;
+        ApplyModifier(true, true);
     }
-    RefreshAura();
+
+    if (refresh)
+        // Stack increased refresh duration
+        RefreshAura();
+    else
+        // Stack decreased only send update
+        SendAuraUpdate(false);
 }
 
 bool Aura::modStackAmount(int32 num)
@@ -6216,6 +6225,9 @@ void Aura::PeriodicTick()
             else
                 pdamage = uint32(m_target->GetMaxHealth()*amount/100);
 
+            // This method can modify pdamage
+            bool isCrit = IsCritFromAbilityAura(pCaster, pdamage);
+
             // As of 2.2 resilience reduces damage from DoT ticks as much as the chance to not be critically hit
             // Reduce dot damage from resilience for players
             if (m_target->GetTypeId() == TYPEID_PLAYER)
@@ -6231,7 +6243,7 @@ void Aura::PeriodicTick()
 
             pCaster->DealDamageMods(m_target, pdamage, &absorb);
 
-            SpellPeriodicAuraLogInfo pInfo(this, pdamage, 0, absorb, resist, 0.0f);
+            SpellPeriodicAuraLogInfo pInfo(this, pdamage, 0, absorb, resist, 0.0f, isCrit);
             m_target->SendPeriodicAuraLog(&pInfo);
 
             Unit* target = m_target;                        // aura can be deleted in DealDamage
@@ -6374,10 +6386,13 @@ void Aura::PeriodicTick()
             else
                 pdamage = pCaster->SpellHealingBonus(m_target, GetSpellProto(), amount, DOT, GetStackAmount());
 
+            // This method can modify pdamage
+            bool isCrit = IsCritFromAbilityAura(pCaster, pdamage);
+
             sLog.outDetail("PeriodicTick: %u (TypeId: %u) heal of %u (TypeId: %u) for %u health inflicted by %u",
                 GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), pdamage, GetId());
 
-            SpellPeriodicAuraLogInfo pInfo(this, pdamage, 0, 0, 0, 0.0f);
+            SpellPeriodicAuraLogInfo pInfo(this, pdamage, 0, 0, 0, 0.0f, isCrit);
             m_target->SendPeriodicAuraLog(&pInfo);
 
             int32 gain = m_target->ModifyHealth(pdamage);
@@ -7337,4 +7352,20 @@ void Aura::HandleModArmorPenetrationPct(bool apply, bool Real )
         return;
 
     ((Player*)m_target)->RecalculateRating(CR_ARMOR_PENETRATION);
+}
+
+bool Aura::IsCritFromAbilityAura(Unit* caster, uint32& damage)
+{
+    Unit::AuraList const& auras = caster->GetAurasByType(SPELL_AURA_ABILITY_PERIODIC_CRIT);
+    for(Unit::AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+    {
+        if (!(*itr)->isAffectedOnSpell(m_spellProto))
+            continue;
+
+        if (caster->isSpellCrit(m_target, m_spellProto, GetSpellSchoolMask(m_spellProto)))
+            damage = caster->SpellCriticalDamageBonus(m_spellProto, damage, m_target);
+
+        return true;
+    }
+    return false;
 }
