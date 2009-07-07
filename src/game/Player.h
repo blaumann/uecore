@@ -954,6 +954,11 @@ class MANGOS_DLL_SPEC Player : public Unit
         explicit Player (WorldSession *session);
         ~Player ( );
 
+        // Flying modification
+        bool CanFly() const { return m_CanFly;  }
+        void SetCanFly(bool CanFly) { m_CanFly=CanFly; }
+        bool m_CanFly;
+
         void CleanupsBeforeDelete();
 
         static UpdateMask updateVisualBits;

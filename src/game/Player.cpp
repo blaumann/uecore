@@ -431,6 +431,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_anti_JumpBaseZ = 0;         //Z coord before jump (AntiGrav)
     ////////////////////Anticheat System/////////////////////
 
+    m_CanFly=false;
     m_mailsLoaded = false;
     m_mailsUpdated = false;
     unReadMails = 0;
