@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: Instance_Molten_Core
-SD%Complete: 0
-SDComment: Place Holder
+SD%Complete: 80
+SDComment: Chest for Majordomo missing
 SDCategory: Molten Core
 EndScriptData */
 
@@ -26,27 +26,40 @@ EndScriptData */
 
 #define ENCOUNTERS      9
 
-#define ID_LUCIFRON     12118
-#define ID_MAGMADAR     11982
-#define ID_GEHENNAS     12259
-#define ID_GARR         12057
-#define ID_GEDDON       12056
-#define ID_SHAZZRAH     12264
-#define ID_GOLEMAGG     11988
-#define ID_SULFURON     12098
-#define ID_DOMO         12018
-#define ID_RAGNAROS     11502
-#define ID_FLAMEWAKERPRIEST     11662
-
-struct MANGOS_DLL_DECL instance_molten_core : public ScriptedInstance
+struct MANGOS_DLL_SPEC instance_molten_core : public ScriptedInstance
 {
-    instance_molten_core(Map *map) : ScriptedInstance(map) {Initialize();};
+    instance_molten_core(Map* pMap) : ScriptedInstance(pMap) {Initialize();}
 
-    uint64 Lucifron, Magmadar, Gehennas, Garr, Geddon, Shazzrah, Sulfuron, Golemagg, Domo, Ragnaros, FlamewakerPriest;
-    uint64 RuneKoro, RuneZeth, RuneMazj, RuneTheri, RuneBlaz, RuneKress, RuneMohn, m_uiFirelordCacheGUID;
-    bool IsBossDied[9];
+    uint8 SulfuronProgress;
+	uint8 GeddonProgress;
+	uint8 ShazzrahProgress;
+	uint8 GolemaggProgress;
+	uint8 GarrProgress;
+	uint8 MagmadarProgress;
+	uint8 GehennasProgress;
+	uint8 LucifronProgress;
+	uint8 MajordomoProgress;
+	uint8 RagnarosProgress;
 
-    uint32 Encounter[ENCOUNTERS];
+	//Creatures
+    uint64 Lucifron;
+	uint64 Magmadar;
+	uint64 Gehennas;
+	uint64 Garr;
+	uint64 Geddon;
+	uint64 Shazzrah;
+	uint64 Sulfuron;
+	uint64 Golemagg;
+	uint64 Domo;
+	uint64 Ragnaros;
+
+	//Gameobjects
+	GameObject* CacheOfTheFirelord;
+
+	//Misc
+	uint8 VarRagnarosIntro;
+	uint32 DomoResetCount;
+	uint8 DomoPorted;
 
     void Initialize()
     {
@@ -60,112 +73,77 @@ struct MANGOS_DLL_DECL instance_molten_core : public ScriptedInstance
         Golemagg = 0;
         Domo = 0;
         Ragnaros = 0;
-        FlamewakerPriest = 0;
 
-        RuneKoro = 0;
-        RuneZeth = 0;
-        RuneMazj = 0;
-        RuneTheri = 0;
-        RuneBlaz = 0;
-        RuneKress = 0;
-        RuneMohn = 0;
+		SulfuronProgress = 0;
+		GeddonProgress = 0;
+		ShazzrahProgress = 0;
+		GolemaggProgress = 0;
+		GarrProgress = 0;
+		MagmadarProgress = 0;
+		GehennasProgress = 0;
+		LucifronProgress = 0;
+		MajordomoProgress = 0;
+		RagnarosProgress = 0;
 
-        m_uiFirelordCacheGUID = 0;
+		CacheOfTheFirelord = NULL;
 
-        IsBossDied[0] = false;
-        IsBossDied[1] = false;
-        IsBossDied[2] = false;
-        IsBossDied[3] = false;
-        IsBossDied[4] = false;
-        IsBossDied[5] = false;
-        IsBossDied[6] = false;
-        IsBossDied[7] = false;
-        IsBossDied[8] = false;
+		VarRagnarosIntro = 0;
+		DomoResetCount = 0;
+		DomoPorted = 0;
+	}
 
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            Encounter[i] = NOT_STARTED;
-    }
+    //Called every map update
+    void Update(uint32 diff){}
 
-    bool IsEncounterInProgress() const
+
+    //Called when a gameobject is created
+    void OnObjectCreate(GameObject *obj) 
     {
-        return false;
+		switch(obj->GetEntry())
+		{
+			case 179703:
+				CacheOfTheFirelord = obj;
+				break;
+		}
     }
 
-    void OnObjectCreate(GameObject *go)
-    {
-        switch(go->GetEntry())
-        {
-            case 176951:                                    //Sulfuron
-                RuneKoro = go->GetGUID();
-                break;
-            case 176952:                                    //Geddon
-                RuneZeth = go->GetGUID();
-                break;
-            case 176953:                                    //Shazzrah
-                RuneMazj = go->GetGUID();
-                break;
-            case 176954:                                    //Golemagg
-                RuneTheri = go->GetGUID();
-                break;
-            case 176955:                                    //Garr
-                RuneBlaz = go->GetGUID();
-                break;
-            case 176956:                                    //Magmadar
-                RuneKress = go->GetGUID();
-                break;
-            case 176957:                                    //Gehennas
-                RuneMohn = go->GetGUID();
-                break;
-            case 179703:
-                m_uiFirelordCacheGUID = go->GetGUID();      //when majordomo event == DONE DoRespawnGameObject(m_uiFirelordCacheGUID,);
-                break;
-        }
-    }
-
+    //called on creature creation
     void OnCreatureCreate(Creature* pCreature)
     {
-        switch(pCreature->GetEntry())
+		switch (pCreature->GetEntry())
         {
-            case ID_LUCIFRON:
+            case 12118:
                 Lucifron = pCreature->GetGUID();
                 break;
-            case ID_MAGMADAR:
+            case 11982:
                 Magmadar = pCreature->GetGUID();
                 break;
-            case ID_GEHENNAS:
+            case 12259:
                 Gehennas = pCreature->GetGUID();
                 break;
-            case ID_GARR:
+            case 12057:
                 Garr = pCreature->GetGUID();
                 break;
-            case ID_GEDDON:
+            case 12056:
                 Geddon = pCreature->GetGUID();
                 break;
-            case ID_SHAZZRAH:
+            case 12264:
                 Shazzrah = pCreature->GetGUID();
                 break;
-            case ID_SULFURON:
+            case 12098:
                 Sulfuron = pCreature->GetGUID();
                 break;
-            case ID_GOLEMAGG:
+            case 11988:
                 Golemagg = pCreature->GetGUID();
                 break;
-            case ID_DOMO:
+            case 12018:
                 Domo = pCreature->GetGUID();
                 break;
-            case ID_RAGNAROS:
+            case 11502:
                 Ragnaros = pCreature->GetGUID();
-                break;
-            case ID_FLAMEWAKERPRIEST:
-                FlamewakerPriest = pCreature->GetGUID();
+				pCreature->SetVisibility(VISIBILITY_OFF);
                 break;
         }
-    }
-
-    void SetData(uint32 type, uint32 data)
-    {
-        if (type == DATA_GOLEMAGG_DEATH)
-            IsBossDied[7] = true;
     }
 
     uint64 GetData64(uint32 data)
@@ -174,63 +152,128 @@ struct MANGOS_DLL_DECL instance_molten_core : public ScriptedInstance
         {
             case DATA_SULFURON:
                 return Sulfuron;
+				break;
             case DATA_GOLEMAGG:
-                return Sulfuron;
-            case DATA_FLAMEWAKERPRIEST:
-                return FlamewakerPriest;
+                return Golemagg;
+				break;
+			case DATA_GARR:
+				return Garr;
+				break;
+			case DATA_MAJORDOMO:
+				return Domo;
+				break;
+			case DATA_CACHEOFTHEFIRELORD:
+				return CacheOfTheFirelord->GetGUID();
+				break;
         }
-
-        return 0;
+		return 0;
     }
 
     uint32 GetData(uint32 type)
     {
         switch(type)
         {
-            case DATA_LUCIFRONISDEAD:
-                if (IsBossDied[0])
-                    return 1;
-                break;
-            case DATA_MAGMADARISDEAD:
-                if (IsBossDied[1])
-                    return 1;
-                break;
-            case DATA_GEHENNASISDEAD:
-                if (IsBossDied[2])
-                    return 1;
-                break;
-            case DATA_GARRISDEAD:
-                if (IsBossDied[3])
-                    return 1;
-                break;
-            case DATA_GEDDONISDEAD:
-                if (IsBossDied[4])
-                    return 1;
-                break;
-            case DATA_SHAZZRAHISDEAD:
-                if (IsBossDied[5])
-                    return 1;
-                break;
-            case DATA_SULFURONISDEAD:
-                if (IsBossDied[6])
-                    return 1;
-                break;
-            case DATA_GOLEMAGGISDEAD:
-                if (IsBossDied[7])
-                    return 1;
-                break;
-            case DATA_MAJORDOMOISDEAD:
-                if (IsBossDied[8])
-                    return 1;
-                break;
+			case DATA_ALL_BOSSES_DEAD:
+				if(GeddonProgress == DONE && 
+					SulfuronProgress == DONE && 
+					ShazzrahProgress == DONE &&
+					GolemaggProgress == DONE &&
+					GarrProgress == DONE &&
+					MagmadarProgress == DONE &&
+					GehennasProgress == DONE)
+					return 1;
+				else return 0;
+				break;
+
+			case DATA_MAJORDOMO_PROGRESS:
+				return MajordomoProgress;
+				break;
+
+			case DATA_DOMO_RESETCOUNT:
+				return DomoResetCount;
+				break;
+
+			case DATA_DOMO_PORTED:
+				return DomoPorted;
+				break;
+
+			case DATA_VARRAGNAROSINTRO:
+				return VarRagnarosIntro;
+				break;
         }
-        return 0;
+		return 0;
+    }
+
+
+    void SetData(uint32 type, uint32 data)
+    {
+		switch(type)
+		{
+		case DATA_SULFURON_PROGRESS:
+			SulfuronProgress = data;
+			break;
+
+		case DATA_GEDDON_PROGRESS:
+			GeddonProgress = data;
+			break;
+
+		case DATA_SHAZZRAH_PROGRESS:
+			ShazzrahProgress = data;
+			break;
+
+		case DATA_GOLEMAGG_PROGRESS:
+			GolemaggProgress = data;
+			break;
+
+		case DATA_GARR_PROGRESS:
+			GarrProgress = data;
+			break;
+
+		case DATA_MAGMADAR_PROGRESS:
+			MagmadarProgress = data;
+			break;
+
+		case DATA_GEHENNAS_PROGRESS:
+			GehennasProgress = data;
+			break;
+
+		case DATA_LUCIFRON_PROGRESS:
+			LucifronProgress = data;
+			break;
+
+		case DATA_MAJORDOMO_PROGRESS:
+			MajordomoProgress = data;
+			if(data == SPECIAL)
+			{
+				if(CacheOfTheFirelord->isSpawned())
+					return;
+				else
+					CacheOfTheFirelord->SetRespawnTime(3600000);
+			}
+			break;
+
+		case DATA_DOMO_RESETCOUNT:
+			DomoResetCount++;
+			break;
+
+		case DATA_DOMO_PORTED:
+			DomoPorted = data;
+			break;
+
+		case DATA_VARRAGNAROSINTRO:
+			VarRagnarosIntro = data;
+			break;
+
+		case DATA_RAGNAROS_PROGRESS:
+			RagnarosProgress = data;
+			break;
+		}
     }
 };
 
-InstanceData* GetInstance_instance_molten_core(Map *_Map)
+InstanceData* GetInstance_instance_molten_core(Map *Map)
 {
-    return new instance_molten_core (_Map);
+    return new instance_molten_core (Map);
 }
 
 void AddSC_instance_molten_core()

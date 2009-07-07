@@ -16,93 +16,131 @@
 
 /* ScriptData
 SDName: Boss_Shazzrah
-SD%Complete: 75
-SDComment: Teleport NYI
+SD%Complete: 100
+SDComment:
 SDCategory: Molten Core
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_molten_core.h"
 
-#define SPELL_ARCANEEXPLOSION           19712
-#define SPELL_SHAZZRAHCURSE             19713
-#define SPELL_DEADENMAGIC               19714
-#define SPELL_COUNTERSPELL              19715
+enum
+{
+	SPELL_ARCANE_EXPLOSION		=	19712,
+	SPELL_SHAZZRAH_CURSE		=	19713,
+	SPELL_MAGIC_GROUNDING		=	19714,
+	SPELL_COUNTER_SPELL			=	19715,
+	SPELL_GATE_OF_SHAZZRAH		=	23138
+};
 
 struct MANGOS_DLL_DECL boss_shazzrahAI : public ScriptedAI
 {
-    boss_shazzrahAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+    boss_shazzrahAI(Creature* pCreature) : ScriptedAI(pCreature)
+	{
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        Reset();
+    }
 
-    uint32 ArcaneExplosion_Timer;
-    uint32 ShazzrahCurse_Timer;
-    uint32 DeadenMagic_Timer;
-    uint32 Countspell_Timer;
-    uint32 Blink_Timer;
+    ScriptedInstance* m_pInstance;
+
+    uint32 uiArcaneExplosion_Timer;
+    uint32 uiShazzrahCurse_Timer;
+    uint32 uiMagicGrounding_Timer;
+    uint32 uiCountspell_Timer;
+    uint32 uiGateOfShazzrah_Timer;
 
     void Reset()
     {
-        ArcaneExplosion_Timer = 6000;                       //These times are probably wrong
-        ShazzrahCurse_Timer = 10000;
-        DeadenMagic_Timer = 24000;
-        Countspell_Timer = 15000;
-        Blink_Timer = 30000;
+		if(m_pInstance)
+		{
+			m_pInstance->SetData(DATA_SHAZZRAH_PROGRESS, NOT_STARTED);
+
+			//These times are probably wrong
+			uiArcaneExplosion_Timer	= 6000;
+			uiShazzrahCurse_Timer		= 10000;
+			uiMagicGrounding_Timer	= 24000;
+			uiCountspell_Timer		= 15000;
+			uiGateOfShazzrah_Timer	= 45000;
+		}
     }
+
+    void Aggro(Unit* pWho)
+    {
+		if(m_pInstance)
+			m_pInstance->SetData(DATA_SHAZZRAH_PROGRESS, IN_PROGRESS);
+    }
+
+	void JustDied(Unit* pKiller)
+    {
+		if(m_pInstance)
+		{
+			m_pInstance->SetData(DATA_SHAZZRAH_PROGRESS, DONE);
+
+			if(m_pInstance->GetData(DATA_ALL_BOSSES_DEAD) == 1)
+				m_creature->SummonCreature(12018,758.762,-1166.332,-119.181,3.54182,TEMPSUMMON_TIMED_DESPAWN,3600000);
+		}
+	}
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() || !m_pInstance)
             return;
 
-        //ArcaneExplosion_Timer
-        if (ArcaneExplosion_Timer < diff)
+        if (uiArcaneExplosion_Timer < diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_ARCANEEXPLOSION);
-            ArcaneExplosion_Timer = 5000 + rand()%4000;
-        }else ArcaneExplosion_Timer -= diff;
+            DoCast(m_creature,SPELL_ARCANE_EXPLOSION);
 
-        //ShazzrahCurse_Timer
-        if (ShazzrahCurse_Timer < diff)
+            uiArcaneExplosion_Timer = 5000 + rand()%4000;
+        }
+		else 
+			uiArcaneExplosion_Timer -= diff;
+
+        if (uiShazzrahCurse_Timer < diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target) DoCast(target,SPELL_SHAZZRAHCURSE);
+			DoCast(m_creature,SPELL_SHAZZRAH_CURSE);
 
-            ShazzrahCurse_Timer = 25000 + rand()%5000;
-        }else ShazzrahCurse_Timer -= diff;
+            uiShazzrahCurse_Timer = 25000 + rand()%5000;
+        }
+		else 
+			uiShazzrahCurse_Timer -= diff;
 
-        //DeadenMagic_Timer
-        if (DeadenMagic_Timer < diff)
+        if (uiMagicGrounding_Timer < diff)
         {
-            DoCast(m_creature,SPELL_DEADENMAGIC);
-            DeadenMagic_Timer = 35000;
-        }else DeadenMagic_Timer -= diff;
+            DoCast(m_creature,SPELL_MAGIC_GROUNDING);
 
-        //Countspell_Timer
-        if (Countspell_Timer < diff)
+            uiMagicGrounding_Timer = 35000;
+        }
+		else 
+			uiMagicGrounding_Timer -= diff;
+
+        if (uiCountspell_Timer < diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_COUNTERSPELL);
-            Countspell_Timer = 16000 + rand()%4000;
-        }else Countspell_Timer -= diff;
+            DoCast(m_creature,SPELL_COUNTER_SPELL);
 
-        //Blink_Timer
-        if (Blink_Timer < diff)
+            uiCountspell_Timer = 16000 + rand()%4000;
+        }
+		else 
+			uiCountspell_Timer -= diff;
+
+
+        if (uiGateOfShazzrah_Timer < diff)
         {
-            // Teleporting him to a random gamer and casting Arcane Explosion after that.
-            // Blink is not working cause of LoS System we need to do this hardcoded.
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
+			DoCast(m_creature,SPELL_GATE_OF_SHAZZRAH);
+            
+			Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+            
+			m_creature->NearTeleportTo(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), m_creature->GetOrientation());
+			DoResetThreat();
 
-            m_creature->GetMap()->CreatureRelocation(m_creature, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f);
-            m_creature->SendMonsterMove(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, MONSTER_MOVE_WALK, 1);
-
-            DoCast(target,SPELL_ARCANEEXPLOSION);
-            DoResetThreat();
-
-            Blink_Timer = 45000;
-        }else Blink_Timer -= diff;
+            uiGateOfShazzrah_Timer = 45000;
+        }
+		else 
+			uiGateOfShazzrah_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_shazzrah(Creature* pCreature)
 {
     return new boss_shazzrahAI(pCreature);
@@ -110,7 +148,8 @@ CreatureAI* GetAI_boss_shazzrah(Creature* pCreature)
 
 void AddSC_boss_shazzrah()
 {
-    Script *newscript;
+    Script* newscript;
+
     newscript = new Script;
     newscript->Name = "boss_shazzrah";
     newscript->GetAI = &GetAI_boss_shazzrah;

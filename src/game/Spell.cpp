@@ -2554,15 +2554,15 @@ void Spell::cast(bool skipCheck)
         case SPELLFAMILY_DRUID:
         {
             if(m_spellInfo->Id == 16857 && (m_caster->m_form == FORM_BEAR || m_caster->m_form == FORM_DIREBEAR)) //Faerie Fire(Feral)
-                m_preCastSpell = 60089;
+                AddPrecastSpell(60089);
             break;
         }
         case SPELLFAMILY_WARLOCK:
         {
             if (m_spellInfo->Id == 47897)                              // Shadowflame DD (Rank 1)
-                m_preCastSpell = 47960;                                // Shadowflame DOT
+                AddPrecastSpell(47960);                                // Shadowflame DOT
             else if(m_spellInfo->Id == 61290)                          // Shadowflame DD (Rank 2)
-                m_preCastSpell = 61291;                                // Shadowflame DOT
+                AddPrecastSpell(61291);                                // Shadowflame DOT
             break;
         }
         default:
