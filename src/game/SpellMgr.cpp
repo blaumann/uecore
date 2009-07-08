@@ -2825,6 +2825,11 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
                 return DIMINISHING_CONTROL_ROOT;
             break;
         }
+        case SPELLFAMILY_PRIEST:
+            // Shackle Undead
+            if (spellproto->SpellFamilyFlags & UI64LIT(0x400100040000000))
+                return DIMINISHING_CONTROL_STUN;
+            break;
         case SPELLFAMILY_ROGUE:
         {
             // Blind
@@ -2871,7 +2876,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
         case SPELLFAMILY_PALADIN:
         {
             // Turn Evil
-            if (spellproto->SpellFamilyFlags & UI64LIT(0x00804000000000))
+            if (spellproto->SpellFamilyFlags & UI64LIT(0x0080400000000000))
                 return DIMINISHING_FEAR_BLIND;
             break;
         }
