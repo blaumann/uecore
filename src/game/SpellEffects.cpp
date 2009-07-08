@@ -4134,10 +4134,7 @@ void Spell::EffectSummonGuardian(uint32 i)
 
                 if (apply)
                 {
-                    guardian->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
-                    //guardian->SetSpeed(MOVE_WALK, guardian->GetCreatureInfo()->speed, true);
-                    //guardian->SetSpeed(MOVE_RUN, guardian->GetCreatureInfo()->speed, true);
-                    //guardian->SetSpeed(MOVE_SWIM, guardian->GetCreatureInfo()->speed, true);
+                    guardian->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
                     guardian->GetMotionMaster()->MovementExpired();
                     guardian->GetMotionMaster()->MoveFollow(unitTarget, 0, 0);
                     guardian->CastSpell(m_caster,51890,true);    

@@ -281,10 +281,10 @@ void Vehicle::EmptySeatsCountChanged()
 
     if(u_count == m_count)
     {
-        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
+        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
     }
     else
-        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
+        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
 
     if(uint64 vehicleGUID = GetVehicleGUID())
     {
@@ -464,9 +464,7 @@ void Vehicle::RemovePassenger(Unit *unit)
                     ((Player*)unit)->SetMover(unit);
                     ((Player*)unit)->SetClientControl(unit, 1);
                     ((Player*)unit)->SetMoverInQueve(NULL);
-                    WorldPacket data(SMSG_PET_SPELLS, 8);
-                    data << uint64(0);
-                    ((Player*)unit)->GetSession()->SendPacket(&data);
+                    ((Player*)unit)->RemovePetActionBar();
 
                     if(((Player*)unit)->GetGroup())
                         ((Player*)unit)->SetGroupUpdateFlag(GROUP_UPDATE_VEHICLE);
