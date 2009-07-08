@@ -1548,6 +1548,13 @@ case SPELLFAMILY_GENERIC:                   // same family case
                      spellInfo_1->Id > spellInfo_2->Id)
                     return true;
             }
+            if (spellInfo_2->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT)
+            {
+                // Lichborne shapeshift and immunity
+                if (spellInfo_1->SpellFamilyFlags == UI64LIT(0x1000000000) && spellInfo_2->SpellFamilyFlags == UI64LIT(0x1000000000))
+                    return false;
+            }
+            break;
         default:
             break;
     }

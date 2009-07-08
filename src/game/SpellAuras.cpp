@@ -1378,6 +1378,13 @@ void Aura::HandleAddModifier(bool apply, bool Real)
         if(apply)
             m_target->CastSpell(m_target, 45471, true);
     }
+    else if(m_spellProto->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && (spellFamilyMask & UI64LIT(0x4000000000000000)))
+    {
+        m_target->RemoveAurasDueToSpell(49772);
+
+        if(apply)
+            m_target->CastSpell(m_target,49772,true);
+    }
 }
 void Aura::HandleAddTargetTrigger(bool apply, bool /*Real*/)
 {
@@ -1903,6 +1910,42 @@ void Aura::TriggerSpell()
 //                }
  //               break;
  //           }
+            case SPELLFAMILY_HUNTER:
+            {
+                switch (auraId)
+                {
+                    // Sniper training
+                    case 53302:
+                    case 53303:
+                    case 53304:
+                        if (target->GetTypeId() != TYPEID_PLAYER)
+                            return;
+                        
+                        trigger_spell_id = 64418 + auraId - 53302;                       
+                       
+                        if (((Player*)target)->isMoving())
+                        {
+                            m_modifier.m_amount = 6;
+                            return;
+                        }
+                        
+                        // We are standing at the moment
+                        if (m_modifier.m_amount > 0)
+                        {
+                            --m_modifier.m_amount;
+                            return;
+                        }
+
+                        // If aura is active - no need to continue
+                        if (target->HasAura(trigger_spell_id))
+                            return;
+                            
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            }
             case SPELLFAMILY_DRUID:
             {
                 switch(auraId)
@@ -2794,6 +2837,7 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
         case FORM_AMBIENT:
         case FORM_SHADOW:
         case FORM_STEALTH:
+        case FORM_UNDEAD:
             break;
         case FORM_TREE:
             modelid = 864;
@@ -4296,6 +4340,15 @@ void Aura::HandleModMechanicImmunity(bool apply, bool /*Real*/)
             target->RemoveAurasDueToSpell(24397);
             target->RemoveAurasDueToSpell(26592);
         }
+    }
+
+    // Lichborne - apply shapeshift (only at first aura apply/remove)
+    if (spellInfo->Id == 49039 && GetEffIndex() == 0)
+    {
+        if (apply)
+            target->CastSpell(target,50397,true);
+        else
+            target->RemoveAurasDueToSpell(50397);
     }
 }
 
