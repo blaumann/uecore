@@ -20,6 +20,7 @@
     \ingroup world
 */
 
+#include <omp.h>
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "Config/ConfigEnv.h"
@@ -1614,8 +1615,13 @@ void World::Update(uint32 diff)
             objmgr.ReturnOrDeleteOldMails(true);
         }
 
-        ///- Handle expired auctions
-        auctionmgr.Update();
+        #if COMPILER != COMPILER_MICROSOFT
+        omp_set_num_threads(sWorld.getConfig(CONFIG_NUMTHREADS));
+        #pragma omp task
+        #endif
+        {
+            auctionmgr.Update();
+        }
     }
 
     /// <li> Handle session updates when the timer has passed
@@ -1668,9 +1674,21 @@ void World::Update(uint32 diff)
         if (!m_scriptSchedule.empty())
             ScriptsProcess();
 
-        sBattleGroundMgr.Update(diff);
+        #if COMPILER != COMPILER_MICROSOFT
+        omp_set_num_threads(sWorld.getConfig(CONFIG_NUMTHREADS));
+        #pragma omp task nowait
+		#endif
+        {
+            sBattleGroundMgr.Update(diff);
+        }
 
-        sOutdoorPvPMgr.Update(diff);
+        #if COMPILER != COMPILER_MICROSOFT
+        omp_set_num_threads(sWorld.getConfig(CONFIG_NUMTHREADS));
+        #pragma omp task nowait
+		#endif
+        {
+            sOutdoorPvPMgr.Update(diff);
+        }
     }
 
     // execute callbacks from sql queries that were queued recently
@@ -1709,7 +1727,13 @@ void World::Update(uint32 diff)
     MapManager::Instance().DoDelayedMovesAndRemoves();
 
     // update the instance reset times
-    sInstanceSaveManager.Update();
+    #if COMPILER != COMPILER_MICROSOFT
+    omp_set_num_threads(sWorld.getConfig(CONFIG_NUMTHREADS));
+    #pragma omp task nowait
+    #endif
+    {
+        sInstanceSaveManager.Update();
+    }
 
     // And last, but not least handle the issued cli commands
     ProcessCliCommands();
