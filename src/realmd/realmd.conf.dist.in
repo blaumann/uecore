@@ -1,7 +1,7 @@
 ############################################
 # MaNGOS realmd configuration file         #
 ############################################
-ConfVersion=2009070701
+ConfVersion=2009070901
 
 ###################################################################################################################
 # REALMD SETTINGS
@@ -124,4 +124,4 @@ WrongPass.MaxCount = 0
 WrongPass.BanTime = 600
 WrongPass.BanType = 0
 AccountCaching = 1
-AccountReloadingDelay = 12
+AccountReloadingDelay = 1
