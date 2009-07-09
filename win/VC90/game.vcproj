@@ -180,6 +180,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy ..\..\src\tools\openmp\vcomp90.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)\vcomp90.dll"
 			/>
 		</Configuration>
 		<Configuration
