@@ -1,0 +1,14 @@
+DELETE FROM creature_addon WHERE guid IN (SELECT guid FROM creature WHERE id IN (28605,28606,28607));
+REPLACE INTO spell_script_target VALUES (52264,1,28653);
+DELETE FROM vehicle_data WHERE entry in (123);
+INSERT INTO vehicle_data VALUES (123, 12, 52264, 52268, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+DELETE FROM vehicle_seat_data WHERE seat in (1782);
+INSERT INTO vehicle_seat_data VALUES (1782, 1);
+DELETE FROM npc_spellclick_spells WHERE npc_entry in (28605,28606,28607);
+INSERT INTO npc_spellclick_spells VALUES (28605, 52263, 12680, 1, 12680, 3);
+INSERT INTO npc_spellclick_spells VALUES (28606, 52263, 12680, 1, 12680, 3);
+INSERT INTO npc_spellclick_spells VALUES (28607, 52263, 12680, 1, 12680, 3);
+DELETE FROM creature_template_addon WHERE entry IN (28605,28606,28607);
+INSERT INTO creature_template_addon (`entry`, `mount`, `bytes1`, `bytes2`, `emote`, `moveflags`, `vehicle_id`, `passengers`, `auras`) VALUES (28605, 0, 0, 1, 0, 0, 123, '', '');
+INSERT INTO creature_template_addon (`entry`, `mount`, `bytes1`, `bytes2`, `emote`, `moveflags`, `vehicle_id`, `passengers`, `auras`) VALUES (28606, 0, 0, 1, 0, 0, 123, '', '');
+INSERT INTO creature_template_addon (`entry`, `mount`, `bytes1`, `bytes2`, `emote`, `moveflags`, `vehicle_id`, `passengers`, `auras`) VALUES (28607, 0, 0, 1, 0, 0, 123, '', '');

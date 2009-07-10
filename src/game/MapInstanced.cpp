@@ -146,7 +146,13 @@ Map* MapInstanced::GetInstance(const WorldObject* obj)
                 // instantiate or find existing bg map for player
                 // the instance id is set in battlegroundid
                 NewInstanceId = player->GetBattleGroundId();
-                assert(NewInstanceId);
+                if(!NewInstanceId)
+                {
+                    if(player->GetSession()->PlayerLoading())
+                        return NULL;
+                    else
+                        assert(NewInstanceId);
+                }
                 map = _FindMap(NewInstanceId);
                 if(!map)
                 {
