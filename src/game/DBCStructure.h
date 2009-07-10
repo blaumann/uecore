@@ -480,7 +480,7 @@ struct AchievementCriteriaEntry
             uint32  additionalRequirement1_type;            // 5 additional requirement 1 type
             uint32  additionalRequirement1_value;           // 6 additional requirement 1 value
             uint32  additionalRequirement2_type;            // 7 additional requirement 2 type
-            uint32  additionalRequirement2_value;           // 8 additional requirement 1 value
+            uint32  additionalRequirement2_value;           // 8 additional requirement 2 value
         } raw;
     };
     //char*  name[16];                                      // 9-24
