@@ -475,20 +475,8 @@ class MANGOS_DLL_SPEC GameObject : public WorldObject
         GameObjectInfo const* GetGOInfo() const;
 
         bool IsTransport() const;
+        void SetOwnerGUID(uint64 owner);
 
-        void SetOwnerGUID(uint64 owner)
-        {
-            // Owner already found and different than expected owner - remove object from old owner
-            if (owner && GetOwnerGUID() && GetOwnerGUID() != owner)
-            {
-                if (Unit* owner = GetOwner())
-                    owner->RemoveGameObject(this, false);
-                else
-                    assert(false);
-            }
-            m_spawnedByDefault = false;                     // all object with owner is despawned after delay
-            SetUInt64Value(OBJECT_FIELD_CREATED_BY, owner);
-        }
         uint64 GetOwnerGUID() const { return GetUInt64Value(OBJECT_FIELD_CREATED_BY); }
         Unit* GetOwner() const;
 
