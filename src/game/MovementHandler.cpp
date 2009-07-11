@@ -307,14 +307,14 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
             }
             //movement anticheat;
             //Correct finding GO guid in DB (thanks to GriffonHeart)
-			GameObject *obj = HashMapHolder<GameObject>::Find(movementInfo.t_guid);
-			if(obj)
+            GameObject *obj = HashMapHolder<GameObject>::Find(movementInfo.t_guid);
+            if(obj)
                 plMover->m_anti_TransportGUID = obj->GetDBTableGUIDLow();
-			else
+            else
                 plMover->m_anti_TransportGUID = GUID_LOPART(movementInfo.t_guid);
-			// end movement anticheat
+            // end movement anticheat
         }
-	}else if (plMover && plMover->m_anti_TransportGUID != 0){
+    } else if (plMover && plMover->m_anti_TransportGUID != 0){
         if (plMover && plMover->m_transport)               // if we were on a transport, leave
         {
             plMover->m_transport->RemovePassenger(plMover);
@@ -355,28 +355,26 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
             }
         }
     }
-	
-	/*----------------------*/
-	//---- anti-cheat features -->>>
-	bool check_passed = true;
-#ifdef MOVEMENT_ANTICHEAT_DEBUG
+
+    /*----------------------*/
+    //---- anti-cheat features -->>>
+    bool check_passed = true;
+    #ifdef MOVEMENT_ANTICHEAT_DEBUG
     if (plMover){
         sLog.outBasic("MA-%s > client-time:%d fall-time:%d | xyzo: %f,%f,%fo(%f) flags[%X] opcode[%s]| transport (xyzo): %f,%f,%fo(%f)",
-        plMover->GetName(),movementInfo.time,movementInfo.fallTime,movementInfo.x,movementInfo.y,movementInfo.z,movementInfo.o,
-            movementInfo.flags, LookupOpcodeName(opcode),movementInfo.t_x,movementInfo.t_y,movementInfo.t_z,movementInfo.t_o);
+                    plMover->GetName(),movementInfo.time,movementInfo.fallTime,movementInfo.x,movementInfo.y,movementInfo.z,movementInfo.o,
+                    movementInfo.flags, LookupOpcodeName(opcode),movementInfo.t_x,movementInfo.t_y,movementInfo.t_z,movementInfo.t_o);
         sLog.outBasic("MA-%s Transport > server GUID: %d |  client GUID: (lo)%d - (hi)%d",
-            plMover->GetName(),plMover->m_anti_TransportGUID, GUID_LOPART(movementInfo.t_guid), GUID_HIPART(movementInfo.t_guid));
-    }
-    else
-    {
+                    plMover->GetName(),plMover->m_anti_TransportGUID, GUID_LOPART(movementInfo.t_guid), GUID_HIPART(movementInfo.t_guid));
+    } else {
         sLog.outBasic("MA > client-time:%d fall-time:%d | xyzo: %f,%f,%fo(%f) flags[%X] opcode[%s]| transport (xyzo): %f,%f,%fo(%f)",
-            movementInfo.time,movementInfo.fallTime,movementInfo.x,movementInfo.y,movementInfo.z,movementInfo.o,
-            movementInfo.flags, LookupOpcodeName(opcode),movementInfo.t_x,movementInfo.t_y,movementInfo.t_z,movementInfo.t_o);
+                    movementInfo.time,movementInfo.fallTime,movementInfo.x,movementInfo.y,movementInfo.z,movementInfo.o,
+                    movementInfo.flags, LookupOpcodeName(opcode),movementInfo.t_x,movementInfo.t_y,movementInfo.t_z,movementInfo.t_o);
         sLog.outBasic("MA Transport > server GUID:  |  client GUID: (lo)%d - (hi)%d",
-            GUID_LOPART(movementInfo.t_guid), GUID_HIPART(movementInfo.t_guid));
+                    GUID_LOPART(movementInfo.t_guid), GUID_HIPART(movementInfo.t_guid));
     }
-#endif
-	
+    #endif
+
     if (plMover && World::GetEnableMvAnticheat())
     {
         //calc time deltas
@@ -385,9 +383,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
             cClientTimeDelta = movementInfo.time - plMover->m_anti_LastClientTime;
             plMover->m_anti_DeltaClientTime += cClientTimeDelta;
             plMover->m_anti_LastClientTime = movementInfo.time;
-        }
-        else
-    {
+        } else {
             plMover->m_anti_LastClientTime = movementInfo.time;
         }
 
@@ -424,6 +420,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
 
             if (plMover->m_anti_MistimingCount > World::GetMistimingAlarms())
             {
+                sWorld.SendWorldText(3,"Bye Cheto! ",plMover->GetName());
                 plMover->GetSession()->KickPlayer();
                 return;
             }
@@ -584,6 +581,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
                         {
                             sLog.outError("MA-%s, teleport to plan exception. Exception count: %d ",
                                             plMover->GetName(), plMover->m_anti_TeleToPlane_Count);
+							sWorld.SendWorldText(3,"Bye Cheto! ",plMover->GetName());
                             plMover->GetSession()->KickPlayer();
                             return;
                         }
@@ -628,7 +626,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
                         }
                     }
 
-               } else {
+                } else {
                     #ifdef MOVEMENT_ANTICHEAT_DEBUG
                     sLog.outDebug("MA-%s, undefined transport.", plMover->GetName());
                     #endif
@@ -661,10 +659,8 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
 
     if(plMover)                                             // nothing is charmed, or player charmed
     {
-        //plMover->SetMonsterMoveFlags(movementInfo.flags);
-        plMover->m_movementInfo = movementInfo;
         plMover->SetPosition(movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
-
+        plMover->m_movementInfo = movementInfo;
         plMover->UpdateFallInformationIfNeed(movementInfo, recv_data.GetOpcode());
 
         if(plMover->isMovingOrTurning())
@@ -701,8 +697,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
             }
         }
         //movement anticheat >>>
-        if (plMover->m_anti_AlarmCount > 0)
-		{
+        if (plMover->m_anti_AlarmCount > 0){
             sLog.outError("MA-%s produce %d anticheat alarms",plMover->GetName(),plMover->m_anti_AlarmCount);
             plMover->m_anti_AlarmCount = 0;
         }
@@ -718,7 +713,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
         }
     }
 }
-    else if(plMover)
+    else if (plMover)
     {
         plMover->m_anti_AlarmCount++;
         WorldPacket data;

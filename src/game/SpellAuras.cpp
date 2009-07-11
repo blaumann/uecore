@@ -2448,6 +2448,67 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
         {
             break;
         }
+        case SPELLFAMILY_WARLOCK:
+        {
+            switch (GetId())
+            {
+                case 126:                                   // Eye of Kilrogg
+                {
+                    if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    uint32 pet_entry = GetSpellProto()->EffectMiscValue[0];
+                    if (!pet_entry)
+                        return;
+
+                    Pet* guardian = caster->FindGuardianWithEntry(pet_entry);
+                    if (guardian != NULL)
+                    {
+                        if(apply)
+                            guardian->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
+                        else
+                            guardian->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
+
+                        ((Player*)caster)->SetFarSightGUID(apply ? guardian->GetGUID() : 0);
+                        ((Player*)caster)->SetCharm(apply ? guardian : NULL);
+                        ((Player*)caster)->SetClientControl(guardian, apply ? 1 : 0);
+                        ((Player*)caster)->SetMover(apply ? guardian : NULL);
+
+                        if (apply)
+                        {
+                            guardian->StopMoving();
+                            guardian->GetMotionMaster()->Clear();
+                            guardian->GetMotionMaster()->MoveIdle();
+                            guardian->GetMotionMaster()->MoveFollow(caster, 0, 0);
+                        }
+                        else
+                        {
+                            guardian->AttackStop();
+                            guardian->GetMotionMaster()->Clear();
+                            guardian->GetMotionMaster()->MoveIdle();
+
+                            ((Player*)caster)->RemoveGuardian(guardian);
+                            guardian->Remove(PET_SAVE_AS_DELETED);
+                        }
+
+                        return;
+                    }
+
+                    if (!apply)    // in case guardian was killed or lost
+                    {
+                        ((Player*)caster)->SetFarSightGUID(0);
+                        ((Player*)caster)->SetCharm(NULL);
+                        ((Player*)caster)->SetClientControl(caster, 1);
+                        ((Player*)caster)->SetMover(NULL);
+                        WorldPacket data(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE, 1);
+                        ((Player*)caster)->GetSession()->SendPacket(&data);
+                    }
+
+                    return;
+                }
+            }
+            break;
+        }
         case SPELLFAMILY_PRIEST:
         {
             // Pain and Suffering
@@ -6937,9 +6998,13 @@ void Aura::PeriodicDummyTick()
         break;
         case SPELLFAMILY_MAGE:
         {
-            // Mirror Image
-//            if (spell->Id == 55342)
-//                return;
+            // Mirror Image Basic little Buggy!
+            if (spell->Id == 55342)
+            {
+                // Set name of summons to name of caster
+                m_target->CastSpell(m_target, m_spellProto->EffectTriggerSpell[m_effIndex], true);
+                m_isPeriodic = false;
+            }
             break;
         }
         case SPELLFAMILY_DRUID:
